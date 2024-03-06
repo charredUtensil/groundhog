@@ -1,5 +1,6 @@
 import beta from "@stdlib/random-base-beta";
 import mt19937 from "@stdlib/random-base-mt19937";
+import { Mutable } from "./type_util";
 
 export type Seed = number;
 
@@ -7,15 +8,15 @@ export type PseudorandomStream = {
   chance(chance: number): boolean
   uniform(args: {min?: number, max?: number}): number
   beta(args: {a: number, b: number, min?: number, max?: number}): number
-  uniform_int(args: {min?: number, max: number}): number
-  beta_int(args: {a: number, b: number, min?: number, max: number}): number
-  uniform_choice<T>(choices: Iterable<T>): T
-  beta_choice<T>(choices: Iterable<T>, args: {a: number, b: number}): T
-  weighted_choice<T>(bids: Iterable<{bid: number, item: T}>): T
+  uniformInt(args: {min?: number, max: number}): number
+  betaInt(args: {a: number, b: number, min?: number, max: number}): number
+  uniformChoice<T>(choices: Iterable<T>): T
+  betaChoice<T>(choices: Iterable<T>, args: {a: number, b: number}): T
+  weightedChoice<T>(bids: Iterable<{bid: number, item: T}>): T
 }
 
 function prng(seed: Seed): PseudorandomStream {
-  const mt = mt19937.factory({seed: seed})
+  const mt = mt19937.factory({seed})
   const bt = beta.factory({state: mt.state, copy: false})
 
   function ur({min = 0, max = 1}) {
@@ -31,21 +32,21 @@ function prng(seed: Seed): PseudorandomStream {
     },
     uniform: ur,
     beta: br,
-    uniform_int(args) {
+    uniformInt(args) {
       return Math.floor(ur(args))
     },
-    beta_int(args) {
+    betaInt(args) {
       return Math.floor(br(args))
     },
-    uniform_choice(choices) {
+    uniformChoice(choices) {
       const c = Array.from(choices)
       return c[Math.floor(ur({max: c.length}))]
     },
-    beta_choice(choices, {a, b}) {
+    betaChoice(choices, {a, b}) {
       const c = Array.from(choices)
       return c[Math.floor(br({a: a, b: b, max: c.length}))]
     },
-    weighted_choice(bids) {
+    weightedChoice(bids) {
       const b = [...bids].filter((bid) => bid.bid > 0);
       const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
       let randomValue = ur({max: totalWeight});
@@ -61,5 +62,34 @@ function prng(seed: Seed): PseudorandomStream {
   }
 }
 
-export type DiceBox = {
+enum Die {
+  partition = 0,
+  weave,
+}
+
+export class DiceBox {
+  private boxes: readonly {seed: Seed, rngs: Array<PseudorandomStream | undefined>}[]
+
+  constructor(seed: Seed) {
+    const mt = mt19937.factory({seed})
+    const boxesLength = Object.keys(Die).length
+    const boxes: Mutable<DiceBox['boxes']> = []
+    for (let i = 0; i < boxesLength; i++) {
+      boxes[i] = {seed: mt(), rngs: []}
+    }
+    this.boxes = boxes
+  }
+
+  private prng(die: Die, offset: number): PseudorandomStream {
+    const box = this.boxes[die]
+    let r = box.rngs[offset]
+    if (!r) {
+      const seed = (box.seed + offset * 1999) % mt19937.MAX
+      r = prng(seed)
+      box.rngs[offset] = r
+    }
+    return r
+  }
+
+  get partition() { return this.prng(Die.partition, 0) }
 }
