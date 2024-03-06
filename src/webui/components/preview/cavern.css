@@ -9,7 +9,7 @@
 }
 
 .baseplate {
-  font-family: 'Silkscreen';
+  font-family: "Silkscreen";
   font-size: 8px;
 }
 
@@ -35,7 +35,7 @@
 
 .path {
   stroke-linecap: round;
-  stroke-dasharray: 2,3;
+  stroke-dasharray: 2, 3;
 }
 
 .path.ambiguousKind {

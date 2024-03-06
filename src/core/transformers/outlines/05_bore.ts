@@ -6,8 +6,10 @@ import { Path } from "../../models/path";
 /**
  * Add ambiguous baseplates to paths that intersect them.
  */
-export default function bore(cavern: CavernWithBaseplatesAndPaths): CavernWithBaseplatesAndPaths {
-  const bpAtTile: { [tile: string]: Baseplate } = {}
+export default function bore(
+  cavern: CavernWithBaseplatesAndPaths,
+): CavernWithBaseplatesAndPaths {
+  const bpAtTile: { [tile: string]: Baseplate } = {};
 
   for (const bp of cavern.baseplates) {
     for (let x = bp.left; x < bp.right; x++) {
@@ -32,7 +34,7 @@ export default function bore(cavern: CavernWithBaseplatesAndPaths): CavernWithBa
         }
         if (bp && !seen.has(bp)) {
           seen.add(bp);
-          if (bp.kind !== 'cave') {
+          if (bp.kind !== "cave") {
             last = bp;
             yield last;
             break;
@@ -42,12 +44,8 @@ export default function bore(cavern: CavernWithBaseplatesAndPaths): CavernWithBa
     }
   }
 
-  const paths = cavern.paths.map(path => {
-    return new Path(
-      path.id,
-      path.kind,
-      Array.from(genPathPlates(path)),
-    )
-  })
-  return {...cavern, paths}
+  const paths = cavern.paths.map((path) => {
+    return new Path(path.id, path.kind, Array.from(genPathPlates(path)));
+  });
+  return { ...cavern, paths };
 }

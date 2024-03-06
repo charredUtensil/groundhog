@@ -1,6 +1,6 @@
 import { Baseplate } from "./baseplate";
 
-export type PathKind = 'ambiguous' | 'spanning' | 'auxiliary';
+export type PathKind = "ambiguous" | "spanning" | "auxiliary";
 
 /* A path through a series of Baseplates. */
 export class Path {
@@ -9,7 +9,7 @@ export class Path {
   readonly baseplates: readonly Baseplate[];
 
   constructor(id: number, kind: PathKind, baseplates: readonly Baseplate[]) {
-    this.id = id
+    this.id = id;
     this.kind = kind;
     this.baseplates = baseplates;
   }

@@ -1,4 +1,4 @@
-export type BaseplateKind = 'stock' | 'ambiguous' | 'cave' | 'hall'
+export type BaseplateKind = "stock" | "ambiguous" | "cave" | "hall";
 
 /* A rectangular space that we can build on. */
 export class Baseplate {
@@ -10,14 +10,19 @@ export class Baseplate {
   readonly kind: BaseplateKind;
 
   constructor(
-    id: number, left: number, top: number, right: number, bottom: number, 
-    kind: BaseplateKind) {
-    this.id = id
-    this.left = left
-    this.top = top
-    this.right = right
-    this.bottom = bottom
-    this.kind = kind
+    id: number,
+    left: number,
+    top: number,
+    right: number,
+    bottom: number,
+    kind: BaseplateKind,
+  ) {
+    this.id = id;
+    this.left = left;
+    this.top = top;
+    this.right = right;
+    this.bottom = bottom;
+    this.kind = kind;
   }
 
   get width(): number {
@@ -29,7 +34,7 @@ export class Baseplate {
   }
 
   get area(): number {
-    return this.width * this.height
+    return this.width * this.height;
   }
 
   get center(): [number, number] {
@@ -44,7 +49,11 @@ export class Baseplate {
           [a.right, b.left, a.top, a.bottom, b.top, b.bottom],
           [a.bottom, b.top, a.left, a.right, b.left, b.right],
         ]) {
-          if (ua === ub && Math.min(va2, vb2) - Math.max(va1, vb1) > Math.max(va2 - va1, vb2 - vb1) / 2) {
+          if (
+            ua === ub &&
+            Math.min(va2, vb2) - Math.max(va1, vb1) >
+              Math.max(va2 - va1, vb2 - vb1) / 2
+          ) {
             return true;
           }
         }
@@ -60,8 +69,8 @@ export class Baseplate {
       this.top,
       this.right,
       this.bottom,
-      kind
-    )
+      kind,
+    );
   }
 
   get pearlRadius(): number {
