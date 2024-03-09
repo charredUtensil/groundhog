@@ -21,7 +21,7 @@ export default function CavernPreview({ cavern }: { cavern: Cavern }) {
       >
         {cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
         {cavern.paths?.map((pa) => <PathPreview path={pa} />)}
-        {cavern.plans?.map(pl => <PlanPreview plan={pl} />)}
+        {cavern.plans?.map((pl) => <PlanPreview plan={pl} />)}
       </svg>
     </div>
   );
@@ -47,24 +47,25 @@ function PathPreview({ path }: { path: Path }) {
   const d = path.baseplates
     .map((bp, i) => {
       const [x, y] = bp.center;
-      return `${i === 0 ? 'M': 'L'}${x * SCALE} ${y * SCALE}`;
+      return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
     })
     .join(" ");
   return (
     <g className={`path ${path.kind}Kind`}>
-      <path
-        id={`path${path.id}`}
-        d={d}
-        fill="none"
-      />
+      <path id={`path${path.id}`} d={d} fill="none" />
       <text>
-        <textPath href={`#path${path.id}`} startOffset="25%">{path.id}</textPath>
+        <textPath href={`#path${path.id}`} startOffset="25%">
+          {path.id}
+        </textPath>
       </text>
     </g>
   );
 }
 
-function createWrappingPath(circle1: { x: number; y: number; radius: number }, circle2: { x: number; y: number; radius: number }): string {
+function createWrappingPath(
+  circle1: { x: number; y: number; radius: number },
+  circle2: { x: number; y: number; radius: number },
+): string {
   // Calculate the distance and angle between circle centers
   const dx = circle2.x - circle1.x;
   const dy = circle2.y - circle1.y;
@@ -100,43 +101,57 @@ function createWrappingPath(circle1: { x: number; y: number; radius: number }, c
   return path;
 }
 
-function PlanPreview({ plan }: {plan: Partial<Plan>}) {
+function PlanPreview({ plan }: { plan: Partial<Plan> }) {
   if (!plan) {
-    return null
+    return null;
   }
   if (plan.pearlRadius) {
-    return (<g className="plan">{
-      (() => {
-        const path = plan.path!
-        if (plan.kind === 'cave') {
-          if (path.baseplates.length === 2) {
-            const [a, b] = path.baseplates.map(bp => {
-              const [x, y] = bp.center
-              return {x: x * SCALE, y: y * SCALE, radius: bp.pearlRadius * SCALE}
-            })
+    return (
+      <g className="plan">
+        {(() => {
+          const path = plan.path!;
+          if (plan.kind === "cave") {
+            if (path.baseplates.length === 2) {
+              const [a, b] = path.baseplates.map((bp) => {
+                const [x, y] = bp.center;
+                return {
+                  x: x * SCALE,
+                  y: y * SCALE,
+                  radius: bp.pearlRadius * SCALE,
+                };
+              });
 
-            return <path d={createWrappingPath(a, b)} fill="white"/>
+              return <path d={createWrappingPath(a, b)} fill="white" />;
+            }
+            const [x, y] = path.baseplates[0].center;
+            return (
+              <circle
+                cx={x * SCALE}
+                cy={y * SCALE}
+                r={plan.pearlRadius * SCALE}
+              />
+            );
           }
-          const [x, y] = path.baseplates[0].center
-          return <circle cx={x * SCALE} cy={y * SCALE} r={plan.pearlRadius * SCALE} />
-        }
-        const d = path.baseplates
-          .map((bp, i) => {
-            const [x, y] = bp.center;
-            return `${i === 0 ? 'M': 'L'}${x * SCALE} ${y * SCALE}`;
-          })
-          .join(" ");
-        return <path
-          d={d}
-          fill="none"
-          stroke="white"
-          strokeWidth={plan.pearlRadius * 2 * SCALE}
-        />
-      })()
-    }</g>)
+          const d = path.baseplates
+            .map((bp, i) => {
+              const [x, y] = bp.center;
+              return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
+            })
+            .join(" ");
+          return (
+            <path
+              d={d}
+              fill="none"
+              stroke="white"
+              strokeWidth={plan.pearlRadius * 2 * SCALE}
+            />
+          );
+        })()}
+      </g>
+    );
   }
   if (plan.path?.baseplates.length ?? 0 > 1) {
-    return <PathPreview path={plan.path!} /> 
+    return <PathPreview path={plan.path!} />;
   }
-  return null
+  return null;
 }

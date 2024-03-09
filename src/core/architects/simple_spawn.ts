@@ -3,5 +3,5 @@ import { DefaultCaveArchitect } from "./defaults";
 
 export const SimpleSpawn: Architect = {
   ...DefaultCaveArchitect,
-  crystals: plan => 5,
-}
+  crystals: (plan) => 5,
+};

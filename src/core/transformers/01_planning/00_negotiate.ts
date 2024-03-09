@@ -1,9 +1,12 @@
 import { Baseplate } from "../../models/baseplate";
-import { CavernWithBaseplatesAndPaths, CavernWithPartialPlans } from "../../models/cavern";
+import {
+  CavernWithBaseplatesAndPaths,
+  CavernWithPartialPlans,
+} from "../../models/cavern";
 import { Path } from "../../models/path";
 import { Negotiated, Plan } from "../../models/plan";
 
-/* 
+/*
  * Returns whether these Baseplates can be combined into one big Cave.
  * Must call this both ways.
  */
@@ -27,38 +30,40 @@ function isMergeable(a: Baseplate, b: Baseplate): boolean {
  * Assign Baseplates and Paths to Plans.
  */
 export default function negotiate(
-  cavern: CavernWithBaseplatesAndPaths
+  cavern: CavernWithBaseplatesAndPaths,
 ): CavernWithPartialPlans<Negotiated> {
-  const bpIsInBigCave: boolean[] = []
-  const queue: Pick<Plan, 'kind' | 'path'>[][] = [[], [], []]
+  const bpIsInBigCave: boolean[] = [];
+  const queue: Pick<Plan, "kind" | "path">[][] = [[], [], []];
 
   const paths: Path[] = [
-    ...cavern.paths.filter(path => path.kind === 'spanning'),
-    ...cavern.paths.filter(path => path.kind === 'auxiliary'),
-  ]
+    ...cavern.paths.filter((path) => path.kind === "spanning"),
+    ...cavern.paths.filter((path) => path.kind === "auxiliary"),
+  ];
 
-  paths.forEach(path => {
+  paths.forEach((path) => {
     if (path.baseplates.length === 2) {
-      const [a, b] = path.baseplates
-      if (!bpIsInBigCave[a.id] && !bpIsInBigCave[b.id] && (
-        isMergeable(a, b) || isMergeable(b, a)
-      )) {
-        bpIsInBigCave[a.id] = true
-        bpIsInBigCave[b.id] = true
-        queue[2].push({path, kind: 'cave'})
-        return
+      const [a, b] = path.baseplates;
+      if (
+        !bpIsInBigCave[a.id] &&
+        !bpIsInBigCave[b.id] &&
+        (isMergeable(a, b) || isMergeable(b, a))
+      ) {
+        bpIsInBigCave[a.id] = true;
+        bpIsInBigCave[b.id] = true;
+        queue[2].push({ path, kind: "cave" });
+        return;
       }
     }
-    queue[0].push({path, kind: 'hall'})
-  })
+    queue[0].push({ path, kind: "hall" });
+  });
 
   queue[1] = cavern.baseplates
-    .filter(bp => (bp.kind === 'cave' && !bpIsInBigCave[bp.id]))
-    .map(bp => ({path: new Path(-1, 'single', [bp]), kind: 'cave'}))
+    .filter((bp) => bp.kind === "cave" && !bpIsInBigCave[bp.id])
+    .map((bp) => ({ path: new Path(-1, "single", [bp]), kind: "cave" }));
 
   const plans: Negotiated[] = queue
-    .flatMap(a => a)
-    .map((plan, id) => ({...plan, id}))
+    .flatMap((a) => a)
+    .map((plan, id) => ({ ...plan, id }));
 
-  return {context: cavern.context, plans}
+  return { context: cavern.context, plans };
 }

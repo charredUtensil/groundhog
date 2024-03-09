@@ -1,1 +1,1 @@
-export const PLASTIC_STEPS = []
+export const PLASTIC_STEPS = [];

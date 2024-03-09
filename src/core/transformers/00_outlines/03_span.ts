@@ -34,7 +34,7 @@ export default function span(
         if (c === dc) {
           clusters[i] = oc;
         }
-      })
+      });
     } else if (oc) {
       // Add destination to existing cluster
       clusters[di] = oc;

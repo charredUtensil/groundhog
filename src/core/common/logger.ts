@@ -1,6 +1,6 @@
 import { Cavern } from "../models/cavern";
 
-export type Loggable = Cavern
+export type Loggable = Cavern;
 
 export type Logger = {
   //verbose(it: Loggable): void

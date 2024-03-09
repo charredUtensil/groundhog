@@ -1,18 +1,18 @@
-import { RoughTile, Tile } from "./tiles"
+import { RoughTile, Tile } from "./tiles";
 
 type RoughTileInfo = {
-  tile: RoughTile
-}
+  tile: RoughTile;
+};
 
 export type RoughDiorama = {
-  tiles: Map<`${number},${number}`, RoughTileInfo>
-}
+  tiles: Map<`${number},${number}`, RoughTileInfo>;
+};
 
 type FineTileInfo = {
-  tile: Tile
-  crystals: number
-}
+  tile: Tile;
+  crystals: number;
+};
 
 export type FineDiorama = RoughDiorama & {
-  tiles: Map<`${number},${number}`, FineTileInfo>
-}
+  tiles: Map<`${number},${number}`, FineTileInfo>;
+};

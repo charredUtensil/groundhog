@@ -8,7 +8,7 @@ export type Curve = {
   readonly order: number;
 };
 function curve(base: number, hops: number, order: number): Curve {
-  return {base, hops, order}
+  return { base, hops, order };
 }
 export type CavernContext = {
   dice: DiceBox;
@@ -38,27 +38,27 @@ export type CavernContext = {
   /**
    * Add this many extra redundant paths.
    */
-  auxiliaryPathCount: number
+  auxiliaryPathCount: number;
   /**
    * Auxiliary paths will not be chosen if they make an angle less than this
    * with another path.
    */
-  auxiliaryPathMinAngle: number
+  auxiliaryPathMinAngle: number;
   /**
    * How blobby and jagged caves should be.
    * 0 results in perfect squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves.
    */
-  caveBaroqueness: number,
+  caveBaroqueness: number;
   /**
    * How blobby and jagged halls should be.
    * 0 results in perfect squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves.
    */
-  hallBaroqueness: number,
+  hallBaroqueness: number;
 
-  caveCrystalRichness: Curve,
-  hallCrystalRichness: Curve,
+  caveCrystalRichness: Curve;
+  hallCrystalRichness: Curve;
 };
 
 export function inferContextDefaults(
