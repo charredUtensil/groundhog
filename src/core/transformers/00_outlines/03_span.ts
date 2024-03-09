@@ -11,8 +11,9 @@ import { Path } from "../../models/path";
 export default function span(
   cavern: CavernWithBaseplatesAndPaths,
 ): CavernWithBaseplatesAndPaths {
-  const clusters: Map<number, number> = new Map();
+  const clusters: number[] = [];
   let nextCluster = 1;
+
   const paths = [];
 
   for (const path of [...cavern.paths].sort(
@@ -20,8 +21,8 @@ export default function span(
   )) {
     const oi = path.origin.id;
     const di = path.destination.id;
-    const oc = clusters.get(oi);
-    const dc = clusters.get(di);
+    const oc = clusters[oi];
+    const dc = clusters[di];
     if (oc && dc) {
       if (oc === dc) {
         // Cycle detected (This path is not spanning)
@@ -29,21 +30,21 @@ export default function span(
         continue;
       }
       // Merge clusters
-      for (const [key, value] of clusters.entries()) {
-        if (value === dc) {
-          clusters.set(key, oc);
+      clusters.map((c, i) => {
+        if (c === dc) {
+          clusters[i] = oc;
         }
-      }
+      })
     } else if (oc) {
       // Add destination to existing cluster
-      clusters.set(di, oc);
+      clusters[di] = oc;
     } else if (dc) {
       // Add origin to existing cluster
-      clusters.set(oi, dc);
+      clusters[oi] = dc;
     } else {
       // Create a new cluster for both
-      clusters.set(oi, nextCluster);
-      clusters.set(di, nextCluster);
+      clusters[oi] = nextCluster;
+      clusters[di] = nextCluster;
       nextCluster++;
     }
     paths[path.id] = new Path(path.id, "spanning", path.baseplates);

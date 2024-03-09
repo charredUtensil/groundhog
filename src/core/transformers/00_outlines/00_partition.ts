@@ -1,6 +1,6 @@
 import { CavernContext, PseudorandomStream } from "../../common";
 import { Baseplate } from "../../models/baseplate";
-import { Cavern, CavernWithBaseplates } from "../../models/cavern";
+import { BaseCavern, CavernWithBaseplates } from "../../models/cavern";
 
 const BASEPLATE_MIN_SIZE = 3;
 
@@ -128,7 +128,7 @@ class Partitioner {
   }
 }
 
-export default function partition(cavern: Cavern): CavernWithBaseplates {
+export default function partition(cavern: BaseCavern): CavernWithBaseplates {
   const partitioner = new Partitioner(cavern.context);
   while (!partitioner.done) {
     partitioner.step();

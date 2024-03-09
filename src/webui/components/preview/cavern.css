@@ -13,23 +13,23 @@
   font-size: 8px;
 }
 
-.baseplate text {
+.baseplate > text {
   fill: white;
 }
 
-.baseplate.stockKind rect {
+.baseplate.stockKind > rect {
   stroke: blue;
 }
 
-.baseplate.ambiguousKind rect {
+.baseplate.ambiguousKind > rect {
   fill: #222222;
 }
 
-.baseplate.caveKind rect {
+.baseplate.caveKind > rect {
   fill: red;
 }
 
-.baseplate.hallKind rect {
+.baseplate.hallKind > rect {
   fill: darkred;
 }
 
@@ -39,14 +39,31 @@
 }
 
 .path.ambiguousKind {
-  stroke: white;
-  stroke-opacity: 0.3;
+  --fg-color: white;
+  --fg-opacity: 0.3;
 }
 
 .path.spanningKind {
-  stroke: yellow;
+  --fg-color: yellow;
 }
 
 .path.auxiliaryKind {
-  stroke: yellowgreen;
+  --fg-color: yellowgreen;
+}
+
+.path > path {
+  stroke: var(--fg-color);
+  stroke-opacity: var(--fg-opacity);
+  stroke-width: 2px;
+}
+
+.path > text {
+  fill: var(--fg-color);
+  opacity: var(--fg-opacity);
+  font-family: 'Silkscreen';
+  font-size: 12px;
+}
+
+.plan > circle {
+  fill: white;
 }

@@ -1,13 +1,9 @@
 import { CavernContext } from "../common";
 import { Cavern } from "../models/cavern";
-import partition from "./outlines/00_partition";
-import discriminate from "./outlines/01_discriminate";
-import triangulate from "./outlines/02_triangulate";
-import span from "./outlines/03_span";
-import bore from "./outlines/05_bore";
-import clip from "./outlines/04_clip";
+import { OUTLINE_STEPS } from "./00_outlines";
+import { PLANNING_STEPS } from "./01_planning";
 
-const STEPS = [partition, discriminate, triangulate, span, clip, bore];
+const STEPS = [...OUTLINE_STEPS, ...PLANNING_STEPS];
 
 export class CavernGenerator {
   private state: {

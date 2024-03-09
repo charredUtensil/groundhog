@@ -41,27 +41,6 @@ export class Baseplate {
     return [this.left + this.width / 2, this.top + this.height / 2];
   }
 
-  /* Returns whether these Baseplates can be combined into one big Cave. */
-  isMergeable(other: Baseplate): boolean {
-    for (const a of [this, other]) {
-      for (const b of [this, other]) {
-        for (const [ua, ub, va1, va2, vb1, vb2] of [
-          [a.right, b.left, a.top, a.bottom, b.top, b.bottom],
-          [a.bottom, b.top, a.left, a.right, b.left, b.right],
-        ]) {
-          if (
-            ua === ub &&
-            Math.min(va2, vb2) - Math.max(va1, vb1) >
-              Math.max(va2 - va1, vb2 - vb1) / 2
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
   withKind(kind: BaseplateKind): Baseplate {
     return new Baseplate(
       this.id,

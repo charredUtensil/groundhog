@@ -1,6 +1,6 @@
 import { Baseplate } from "./baseplate";
 
-export type PathKind = "ambiguous" | "spanning" | "auxiliary";
+export type PathKind = "ambiguous" | "spanning" | "auxiliary" | "single";
 
 /* A path through a series of Baseplates. */
 export class Path {
@@ -28,6 +28,6 @@ export class Path {
     const [x2, y2] = this.destination.center;
     const dx = x1 - x2;
     const dy = y1 - y2;
-    return Math.sqrt(dx * dx + dy * dy);
+    return Math.hypot(dx, dy);
   }
 }

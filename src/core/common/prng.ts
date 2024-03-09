@@ -65,6 +65,8 @@ function prng(seed: Seed): PseudorandomStream {
 enum Die {
   partition = 0,
   weave,
+  flood,
+  conquest,
 }
 
 export class DiceBox {
@@ -87,7 +89,7 @@ export class DiceBox {
     const box = this.boxes[die];
     let r = box.rngs[offset];
     if (!r) {
-      const seed = (box.seed + offset * 1999) % mt19937.MAX;
+      const seed = (box.seed + offset * 1999 + mt19937.MAX) % mt19937.MAX;
       r = prng(seed);
       box.rngs[offset] = r;
     }
@@ -96,5 +98,17 @@ export class DiceBox {
 
   get partition() {
     return this.prng(Die.partition, 0);
+  }
+
+  get weave() {
+    return this.prng(Die.weave, 0);
+  }
+
+  get flood() {
+    return this.prng(Die.flood, 0);
+  }
+
+  get conquest() {
+    return this.prng(Die.conquest, 0);
   }
 }

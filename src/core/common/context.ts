@@ -5,8 +5,11 @@ export type Biome = "rock" | "ice" | "lava";
 export type Curve = {
   readonly base: number;
   readonly hops: number;
-  readonly completion: number;
+  readonly order: number;
 };
+function curve(base: number, hops: number, order: number): Curve {
+  return {base, hops, order}
+}
 export type CavernContext = {
   dice: DiceBox;
   logger: Logger;
@@ -32,6 +35,30 @@ export type CavernContext = {
    * The higher this number is, the more "busy" the final map will be.
    */
   caveCount: number;
+  /**
+   * Add this many extra redundant paths.
+   */
+  auxiliaryPathCount: number
+  /**
+   * Auxiliary paths will not be chosen if they make an angle less than this
+   * with another path.
+   */
+  auxiliaryPathMinAngle: number
+  /**
+   * How blobby and jagged caves should be.
+   * 0 results in perfect squashed octagons.
+   * Larger values can result in oversized spaces or extremely jagged caves.
+   */
+  caveBaroqueness: number,
+  /**
+   * How blobby and jagged halls should be.
+   * 0 results in perfect squashed octagons.
+   * Larger values can result in oversized spaces or extremely jagged caves.
+   */
+  hallBaroqueness: number,
+
+  caveCrystalRichness: Curve,
+  hallCrystalRichness: Curve,
 };
 
 export function inferContextDefaults(
@@ -47,5 +74,11 @@ export function inferContextDefaults(
     baseplateMaxOblongness: 3,
     baseplateMaxRatioOfSize: 0.33,
     caveCount: 20,
+    auxiliaryPathCount: 4,
+    auxiliaryPathMinAngle: Math.PI / 4,
+    caveBaroqueness: 0.12,
+    hallBaroqueness: 0.05,
+    caveCrystalRichness: curve(0.5, 1.0, 1.0),
+    hallCrystalRichness: curve(0, 0, 0),
   };
 }
