@@ -1,5 +1,5 @@
 import { CavernContext } from "../common";
-import { Cavern } from "../models/cavern";
+import { BaseCavern, Cavern } from "../models/cavern";
 import { OUTLINE_STEPS } from "./00_outlines";
 import { PLANNING_STEPS } from "./01_planning";
 
@@ -12,11 +12,11 @@ export class CavernGenerator {
     cavern: Cavern;
   };
 
-  constructor(context: CavernContext) {
+  constructor(cavern: BaseCavern) {
     this.state = {
       index: 0,
       fn: STEPS[0] as (input: Cavern) => Cavern,
-      cavern: { context },
+      cavern,
     };
   }
 

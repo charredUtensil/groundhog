@@ -65,5 +65,5 @@ export default function negotiate(
     .flatMap((a) => a)
     .map((plan, id) => ({ ...plan, id }));
 
-  return { context: cavern.context, plans };
+  return { context: cavern.context, dice: cavern.dice, plans };
 }

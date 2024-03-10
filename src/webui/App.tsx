@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import "./App.css";
 import {
   CavernContext,
+  DiceBox,
   PseudorandomStream,
   inferContextDefaults,
 } from "../core/common";
@@ -24,9 +25,11 @@ function App() {
   });
 
   const doGenerate = () => {
-    const context = inferContextDefaults(cavernContext);
-    setCavern({ context });
-    setGenerator(new CavernGenerator(context));
+    const dice = new DiceBox(0x19930202)
+    const context = inferContextDefaults(dice, cavernContext);
+    const cavern = { context, dice }
+    setCavern(cavern);
+    setGenerator(new CavernGenerator(cavern));
   };
 
   return (

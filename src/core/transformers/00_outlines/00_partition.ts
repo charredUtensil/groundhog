@@ -1,4 +1,4 @@
-import { CavernContext, PseudorandomStream } from "../../common";
+import { CavernContext, DiceBox, PseudorandomStream } from "../../common";
 import { Baseplate } from "../../models/baseplate";
 import { BaseCavern, CavernWithBaseplates } from "../../models/cavern";
 
@@ -13,9 +13,9 @@ class Partitioner {
   private readonly outbox: Baseplate[];
   private nextId: number = 0;
 
-  constructor(context: CavernContext) {
+  constructor({context, dice}: {context: CavernContext, dice: DiceBox}) {
     this.context = context;
-    this.rng = context.dice.partition;
+    this.rng = dice.partition;
     this.baseplateMaxSize = Math.round(
       context.targetSize * context.baseplateMaxRatioOfSize,
     );
@@ -129,7 +129,7 @@ class Partitioner {
 }
 
 export default function partition(cavern: BaseCavern): CavernWithBaseplates {
-  const partitioner = new Partitioner(cavern.context);
+  const partitioner = new Partitioner(cavern);
   while (!partitioner.done) {
     partitioner.step();
     cavern.context.logger.info({

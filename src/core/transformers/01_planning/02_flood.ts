@@ -4,7 +4,7 @@ import { Measured, Flooded } from "../../models/plan";
 export default function flood(
   cavern: CavernWithPartialPlans<Measured>,
 ): CavernWithPartialPlans<Flooded> {
-  const rng = cavern.context.dice.flood;
+  const rng = cavern.dice.flood;
   const plans = cavern.plans.map((plan) => {
     const fluid = null;
     const hasErosion = false;

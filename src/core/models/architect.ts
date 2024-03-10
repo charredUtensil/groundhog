@@ -1,7 +1,8 @@
 import { CavernWithPartialPlans, CavernWithPlans } from "./cavern";
 import { Architected, Flooded } from "./plan";
 
-type ArchitectArgs = CavernWithPartialPlans<Flooded> & {
+type ArchitectArgs = {
+  cavern: CavernWithPartialPlans<Flooded>
   plan: Architected;
   totalCrystals: number;
 };

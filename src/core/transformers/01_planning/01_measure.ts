@@ -11,19 +11,33 @@ export default function measure(
     );
   });
   const plans = cavern.plans.map((plan) => {
-    const baroqueness =
-      plan.kind === "cave"
-        ? cavern.context.caveBaroqueness
-        : cavern.context.hallBaroqueness;
-    const pearlRadius = (plan.kind === "cave" ? Math.max : Math.min)(
-      ...plan.path.baseplates.map((bp) => bp.pearlRadius),
-    );
     const intersects: boolean[] = [];
     plan.path.baseplates
       .flatMap((bp) => planIdsByBp[bp.id])
       .filter((plid) => plid !== plan.id)
       .forEach((plid) => (intersects[plid] = true));
-    return { ...plan, baroqueness, intersects, pearlRadius };
+
+    const pearlRadius = (plan.kind === "cave" ? Math.max : Math.min)(
+      ...plan.path.baseplates.map((bp) => bp.pearlRadius),
+    );
+
+    /*
+     * Estimate the perimeter to be half the circumference of each end plus
+     * twice the length of the path:
+     * (2*pi*a.pr) / 2 + (2*pi*b.pr) / 2 + pd * 2
+     * pi * (a.pr + b.pr) + 2 * pd
+     * 
+     * This doesn't need to be super accurate because:
+     * 1. It's only used as a multiplier for values from context, not any
+     *    actually important geometry.
+     * 2. Later steps are going to make blobby shapes anyway.
+     */
+    const perimeter = Math.round(
+      Math.PI * (
+      Math.min(pearlRadius, plan.path.origin.pearlRadius)
+      + Math.min(pearlRadius, plan.path.destination.pearlRadius))
+      + plan.path.snakeDistance * 2)
+    return { ...plan, intersects, pearlRadius, perimeter };
   });
   return { ...cavern, plans };
 }

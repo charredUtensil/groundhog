@@ -1,81 +1,81 @@
 import beta from "@stdlib/random-base-beta";
 import mt19937 from "@stdlib/random-base-mt19937";
-import { Mutable } from "./type_util";
+import { Mutable } from "./utils";
 
 export type Seed = number;
 
-export type PseudorandomStream = {
-  chance(chance: number): boolean;
-  uniform(args: { min?: number; max?: number }): number;
-  beta(args: { a: number; b: number; min?: number; max?: number }): number;
-  uniformInt(args: { min?: number; max: number }): number;
-  betaInt(args: { a: number; b: number; min?: number; max: number }): number;
-  uniformChoice<T>(choices: Iterable<T>): T;
-  betaChoice<T>(choices: Iterable<T>, args: { a: number; b: number }): T;
-  weightedChoice<T>(bids: Iterable<{ bid: number; item: T }>): T;
-};
+const MAX_PLUS_ONE = mt19937.MAX + 1
 
-function prng(seed: Seed): PseudorandomStream {
-  const mt = mt19937.factory({ seed });
-  const bt = beta.factory({ state: mt.state, copy: false });
+export class PseudorandomStream {
+  private mt
+  private bt
 
-  function ur({ min = 0, max = 1 }) {
-    return min + (mt() * (max - min)) / mt.MAX;
+  constructor(seed: Seed) {
+    this.mt = mt19937.factory({ seed });
+    this.bt = beta.factory({ state: this.mt.state, copy: false });
   }
-  const br: PseudorandomStream["beta"] = ({ a, b, min = 0, max = 1 }) => {
-    return min + bt(a, b) * (max - min);
-  };
 
-  return {
-    chance(chance) {
-      return mt() < chance * mt.MAX;
-    },
-    uniform: ur,
-    beta: br,
-    uniformInt(args) {
-      return Math.floor(ur(args));
-    },
-    betaInt(args) {
-      return Math.floor(br(args));
-    },
-    uniformChoice(choices) {
-      const c = Array.from(choices);
-      return c[Math.floor(ur({ max: c.length }))];
-    },
-    betaChoice(choices, { a, b }) {
-      const c = Array.from(choices);
-      return c[Math.floor(br({ a: a, b: b, max: c.length }))];
-    },
-    weightedChoice(bids) {
-      const b = [...bids].filter((bid) => bid.bid > 0);
-      const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
-      let randomValue = ur({ max: totalWeight });
+  chance(chance: number): boolean {
+    return this.mt() < chance * MAX_PLUS_ONE;
+  }
 
-      for (const { bid, item } of bids) {
-        randomValue -= bid;
-        if (randomValue <= 0) {
-          return item;
-        }
+  uniform({min = 0, max = 1}): number {
+    return min + (this.mt() * (max - min)) / MAX_PLUS_ONE;
+  }
+
+  beta({ a, b, min = 0, max = 1 }: { a: number; b: number; min?: number; max?: number }): number {
+    return min + this.bt(a, b) * (max - min);
+  }
+
+  uniformInt(args: {min?: number, max: number}) {
+    return Math.floor(this.uniform(args));
+  }
+
+  betaInt(args: { a: number; b: number; min?: number; max?: number }): number {
+    return Math.floor(this.beta(args));
+  }
+
+  uniformChoice(choices: any[]): any {
+    return choices[this.uniformInt({ max: choices.length })];
+  }
+
+  betaChoice(choices: any[], { a, b }: { a: number; b: number }): any {
+    return choices[this.betaInt({ a: a, b: b, max: choices.length })];
+  }
+
+  weightedChoice(bids: { bid: number; item: any }[]): any {
+    const b = bids.filter((bid) => bid.bid > 0);
+    const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
+    let randomValue = this.uniform({ max: totalWeight });
+
+    for (const { bid, item } of bids) {
+      randomValue -= bid;
+      if (randomValue <= 0) {
+        return item;
       }
-      return b[b.length - 1].item;
-    },
-  };
+    }
+    return b[b.length - 1].item;
+  }
 }
 
 enum Die {
   partition = 0,
   weave,
   flood,
-  conquest,
+  pickSpawn,
+  pickArchitect,
+  pearl,
 }
 
 export class DiceBox {
+  seed: number;
   private boxes: readonly {
     seed: Seed;
     rngs: Array<PseudorandomStream | undefined>;
   }[];
-
+  
   constructor(seed: Seed) {
+    this.seed = seed
     const mt = mt19937.factory({ seed });
     const boxesLength = Object.keys(Die).length;
     const boxes: Mutable<DiceBox["boxes"]> = [];
@@ -89,8 +89,8 @@ export class DiceBox {
     const box = this.boxes[die];
     let r = box.rngs[offset];
     if (!r) {
-      const seed = (box.seed + offset * 1999 + mt19937.MAX) % mt19937.MAX;
-      r = prng(seed);
+      const seed = (box.seed + offset * 1999 + MAX_PLUS_ONE) % MAX_PLUS_ONE;
+      r = new PseudorandomStream(seed);
       box.rngs[offset] = r;
     }
     return r;
@@ -108,7 +108,15 @@ export class DiceBox {
     return this.prng(Die.flood, 0);
   }
 
-  get conquest() {
-    return this.prng(Die.conquest, 0);
+  get pickSpawn() {
+    return this.prng(Die.pickSpawn, 0);
+  }
+
+  pickArchitect(id: number) {
+    return this.prng(Die.pickArchitect, id)
+  }
+
+  pearl(id: number) {
+    return this.prng(Die.pearl, id)
   }
 }

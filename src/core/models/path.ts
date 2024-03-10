@@ -1,6 +1,15 @@
+import { pairMap } from "../common/utils";
 import { Baseplate } from "./baseplate";
 
 export type PathKind = "ambiguous" | "spanning" | "auxiliary" | "single";
+
+function distance(a: Baseplate, b: Baseplate): number {
+  const [x1, y1] = a.center;
+  const [x2, y2] = b.center;
+  const dx = x1 - x2;
+  const dy = y1 - y2;
+  return Math.hypot(dx, dy);
+}
 
 /* A path through a series of Baseplates. */
 export class Path {
@@ -24,10 +33,10 @@ export class Path {
 
   // The distance directly from the origin to destination.
   public get batDistance(): number {
-    const [x1, y1] = this.origin.center;
-    const [x2, y2] = this.destination.center;
-    const dx = x1 - x2;
-    const dy = y1 - y2;
-    return Math.hypot(dx, dy);
+    return distance(this.origin, this.destination)
+  }
+
+  public get snakeDistance(): number {
+    return pairMap(this.baseplates, distance).reduce((a, b) => a + b, 0)
   }
 }

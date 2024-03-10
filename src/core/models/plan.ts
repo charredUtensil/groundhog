@@ -3,7 +3,6 @@ import { Path } from "./path";
 import { FluidType, Tile } from "./tiles";
 
 export type PlanKind = "cave" | "hall";
-
 export type Negotiated = {
   /** Unique ID of the Plan, used for RNG and indexing. */
   readonly id: number;
@@ -18,9 +17,10 @@ export type Measured = Negotiated & {
    * If intersects[id] is true, this plan intersects the plan with the given id.
    * Plans do not intersect themselves.
    */
-  readonly intersects: boolean[];
+  readonly intersects: readonly boolean[];
   /** How many layers of different tiles can be added to this Plan? */
   readonly pearlRadius: number;
+  readonly perimeter: number;
 };
 
 export type Flooded = Measured & {
@@ -42,5 +42,16 @@ export type Established = Architected & {
   /** How many crystals the Plan will add. */
   readonly crystals: number;
 };
+
+export type Pearl = ReadonlyArray<ReadonlyArray<readonly[number, number]>>
+export type Pearled = Established & {
+  /**
+   * A pearl is an array of layers (from innermost to out).
+   * Each layer contains an array of [x, y] coordinates in that layer.
+   * innerPearl[layer][sequence] = [x, y]
+   */
+  readonly innerPearl: Pearl
+  readonly outerPearl: Pearl
+}
 
 export type Plan = Established;

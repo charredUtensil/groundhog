@@ -11,7 +11,6 @@ function curve(base: number, hops: number, order: number): Curve {
   return { base, hops, order };
 }
 export type CavernContext = {
-  dice: DiceBox;
   logger: Logger;
   seed: number;
   /**
@@ -62,13 +61,12 @@ export type CavernContext = {
 };
 
 export function inferContextDefaults(
-  args: Partial<CavernContext>,
+  dice: DiceBox,
+  args: Partial<Omit<CavernContext, 'seed'>>,
 ): CavernContext {
-  const seed = args.seed ?? 0x19930202;
   return {
-    dice: new DiceBox(seed),
     logger: args.logger ?? ({} as Logger),
-    seed: seed,
+    seed: dice.seed,
     biome: "rock",
     targetSize: 64,
     baseplateMaxOblongness: 3,

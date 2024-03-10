@@ -32,7 +32,7 @@ function getOffset(t1: number, t2: number): number {
 export default function weave(
   cavern: CavernWithBaseplatesAndPaths,
 ): CavernWithBaseplatesAndPaths {
-  const rng = cavern.context.dice.weave;
+  const rng = cavern.dice.weave;
   const angleInfo = getAngleInfo(cavern.paths);
 
   const result: Path[] = [];
@@ -43,11 +43,10 @@ export default function weave(
   let queue: { path: Path; nfo1: number[]; nfo2: number[] }[] = cavern.paths
     .filter((path) => path.kind === "ambiguous")
     .map((path) => {
-      const bps = path.baseplates;
       return {
         path,
-        nfo1: angleInfo[bps[0].id],
-        nfo2: angleInfo[bps[bps.length - 1].id],
+        nfo1: angleInfo[path.origin.id],
+        nfo2: angleInfo[path.destination.id],
       };
     });
 

@@ -1,12 +1,12 @@
 import { Architect } from "../models/architect";
 
 export const DefaultCaveArchitect: Architect = {
-  baroqueness: ({ context }) => context.caveBaroqueness,
-  crystals: ({ context }) => 5,
+  baroqueness: ({ cavern }) => cavern.context.caveBaroqueness,
+  crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   //rough: ({cavern}) => cavern
 };
 
 export const DefaultHallArchitect: Architect = {
-  baroqueness: ({ context }) => context.hallBaroqueness,
+  baroqueness: ({ cavern }) => cavern.context.hallBaroqueness,
   crystals: () => 0,
 };
