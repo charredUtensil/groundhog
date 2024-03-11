@@ -1,42 +1,8 @@
-
-/**
- * Since negative indices are not allowed in Typescript, double the coordinate
- * value and use the two's compliment for negative coordinates. This means the
- * coordinates will be translated as [0, -1, 1, -2, 2, -3, 3, ...].
- */
-function c2i(c: number) {
-  return c < 0 ? ~(c << 1) : c << 1
-}
-
-function gridEach<T>(
-  grid: ReadonlyArray<ReadonlyArray<T>>,
-  fn: (value: T, x: number, y: number) => void,
-) {
-  for (let y = -(grid.length >> 1); y <= grid.length >> 1; y++) {
-    const yi = y < 0 ? ~(y << 1) : y << 1
-    const row = grid[yi]
-    if (row) {
-      for(let x = -(row.length >> 1); x <= row.length >> 1; x++) {
-        fn(row[x], x, y)
-      }
-    }
-  }
-}
-
-function gridMap<U, V>(
-  grid: ReadonlyArray<ReadonlyArray<U>>,
-  fn: (value: U, x: number, y: number) => V,
-): V[] {
-  const result: V[] = []
-  gridEach(grid, (...args) => result.push(fn(...args)))
-  return result
-}
-
 export class Grid<T> {
-  private data: T[][]
+  private data: Map<`${number},${number}`, T>
 
   constructor(copyOf?: Grid<T>) {
-    this.data = copyOf?.data.map(row => row.slice()) ?? []
+    this.data = new Map(copyOf?.data)
   }
 
   copy(): Grid<T> {
@@ -44,18 +10,23 @@ export class Grid<T> {
   }
 
   get(x: number, y: number): T | undefined {
-    return this.data[c2i(y)]?.[c2i(x)]
+    return this.data.get(`${x},${y}`)
   }
 
   set(x: number, y: number, value: T) {
-    (this.data[c2i(y)] ||= [])[c2i(x)] = value
+    this.data.set(`${x},${y}`, value)
   }
 
   forEach(fn: (value: T, x: number, y: number) => void) {
-    gridEach(this.data, fn)
+    this.data.forEach((v, k) => {
+      const [x, y] = k.split(',')
+      fn(v, parseInt(x), parseInt(y))
+    })
   }
 
   map<V>(fn: (value: T, x: number, y: number) => V) {
-    return gridMap(this.data, fn)
+    const result: V[] = []
+    this.forEach((...args) => result.push(fn(...args)))
+    return result
   }
 }

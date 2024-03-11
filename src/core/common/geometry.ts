@@ -1,3 +1,17 @@
+export function adjacent4(
+  a: [number, number],
+  b: [number, number],
+) {
+  return (a[0] == b[0] && Math.abs(a[1] - b[1]) <= 1) || 
+    (a[1] == b[1] && Math.abs(a[0] - b[0]) <= 1)
+}
+export function adjacent8(
+  a: [number, number],
+  b: [number, number],
+) {
+  return Math.abs(a[0] - b[0]) <= 1 && Math.abs(a[1] - b[1]) <= 1
+}
+
 export function* plotLine(
   a: [number, number],
   b: [number, number],
@@ -44,6 +58,4 @@ export function* plotLine(
       y += sy;
     }
   }
-
-  yield [destX, destY];
 }

@@ -1,0 +1,12 @@
+.plan {
+  &.caveKind {
+    .bg {
+      fill: #444444;
+    }
+  }
+  &.hallKind {
+    .bg {
+      stroke: #222222;
+    }
+  }
+}

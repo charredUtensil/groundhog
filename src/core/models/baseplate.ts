@@ -53,6 +53,6 @@ export class Baseplate {
   }
 
   get pearlRadius(): number {
-    return (Math.min(this.width, this.height) >> 1) + 1;
+    return (Math.min(this.width, this.height) >> 1);
   }
 }

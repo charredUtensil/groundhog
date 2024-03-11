@@ -54,4 +54,4 @@ export type Pearled = Established & {
   readonly outerPearl: Pearl
 }
 
-export type Plan = Established;
+export type Plan = Pearled;

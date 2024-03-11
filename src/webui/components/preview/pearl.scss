@@ -1,0 +1,38 @@
+.pearl {
+  &.innerPearl {
+    stroke-width: 2px;
+    &.caveKind {
+      --color0: #40ffff;
+      --color1: #40dddd;
+      --color2: #40bbbb;
+      --color3: #409999;
+    }
+    &.hallKind {
+      --color0: #ffff20;
+      --color1: #dddd20;
+      --color2: #bbbb20;
+      --color3: #999920;
+    }
+  }
+  &.outerPearl {
+    stroke-width: 1px;
+    --color0: #999999;
+    --color1: #888888;
+    --color2: #777777;
+    --color3: #666666;
+  }
+  .layer {
+    &.layer0 {
+      stroke: var(--color0);
+    }
+    &.layer1 {
+      stroke: var(--color1);
+    }
+    &.layer2 {
+      stroke: var(--color2);
+    }
+    &.layer3 {
+      stroke: var(--color3);
+    }
+  }
+}

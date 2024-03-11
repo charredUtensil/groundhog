@@ -5,10 +5,10 @@ import { pairEach } from "../../common/utils";
 import { CavernWithPartialPlans } from "../../models/cavern";
 import { Established, Pearl, Pearled } from "../../models/plan";
 
-const NESW: ReadonlyArray<readonly [number, number]> =
-  [[0, -1], [1, 0], [0, 1], [-1, 0]];
+const NSEW: ReadonlyArray<readonly [number, number]> =
+  [[0, -1], [0, 1], [1, 0], [-1, 0]];
 
-class LayerGrid extends Grid<number> {
+export class LayerGrid extends Grid<number> {
   atLayer(layer: number) {
     const result: [number, number][] = []
     this.forEach((ly, x, y) => {
@@ -20,13 +20,14 @@ class LayerGrid extends Grid<number> {
   }
 
   set(x: number, y: number, layer: number) {
-    if (layer > (this.get(x, y) ?? -1)) {
+    const has = this.get(x, y)
+    if (has === undefined || layer < has) {
       super.set(x, y, layer)
     }
   }
 }
 
-function hallNucleus(grid: LayerGrid, plan: Established) {
+export function hallNucleus(grid: LayerGrid, plan: Established) {
   pairEach(plan.path.baseplates, (a, b) => {
     for (const [x, y] of plotLine(a.center, b.center)) {
       grid.set(x, y, 0)
@@ -34,7 +35,7 @@ function hallNucleus(grid: LayerGrid, plan: Established) {
   })
 }
 
-function caveNucleus(grid: LayerGrid, plan: Established) {
+export function caveNucleus(grid: LayerGrid, plan: Established) {
   // The cave nucleus is less straightforward.
 
 
@@ -45,7 +46,7 @@ function caveNucleus(grid: LayerGrid, plan: Established) {
     const ox = Math.min(bp.pearlRadius, (bp.width - 1) >> 1)
     const oy = Math.min(bp.pearlRadius, (bp.height - 1) >> 1)
     for (let x = bp.left + ox; x < bp.right - ox; x++) {
-      for (let y = bp.top + oy; y < bp.bottom - ox; y++) {
+      for (let y = bp.top + oy; y < bp.bottom - oy; y++) {
         grid.set(x, y, layer)
       }
     }
@@ -59,18 +60,21 @@ function caveNucleus(grid: LayerGrid, plan: Established) {
   })
 }
 
-function trail(
+export function trail(
   grid: LayerGrid,
   rng: PseudorandomStream,
   baroqueness: number,
   layer: number,
-  cp: {x: number, y: number, vx: number, vy: number} | null,
+  cp: {x: number, y: number, vx: number, vy: number} | undefined,
 ): [number, number][] {
   const result: [number, number][] = []
   while (cp) {
     const {x, y, vx, vy} = cp
-    cp = null
+
+    // Push the point to both the grid and result
     grid.set(x, y, layer)
+    result.push([x, y])
+
     // As it turns right, (vx, vy) cycles between:
     // (1, 0) -> (0, 1) -> (-1, 0) -> (0, -1) -> ...
     // Try each of these possible movements
@@ -84,35 +88,37 @@ function trail(
     ].map((np) => ({...np, x: x + np.ox + np.vx, y: y + np.oy + np.vy}))
     
     const halt = nextPoints.some(({x, y}) => {
-      const ly = grid.get(x, y) ?? -1
-      if (ly >= layer) {
-        for (let i = result.length - 1; i > Math.max(result.length - 4, 0); i--) {
-          const [rx, ry] = result[i]
-          if (rx === x && ry === y) {
-            // Found a recently visited point
-            return false
-          }
+      // First, determine if the trail has looped back around on itself.
+      // This can mean that it either went all the way around to its start
+      // or that it has escaped and is forming a loop on this loose tendril.
+      if ((grid.get(x, y) ?? -1) < layer) {
+        // This point is unoccupied or on an earlier layer. Ignore it.
+        return false
+      } 
+      for (let i = result.length - 2; i > Math.max(result.length - 4, 0); i--) {
+        const [rx, ry] = result[i]
+        if (rx === x && ry === y) {
+          // This point was visited recently. Ignore it.
+          return false
         }
-        // Found a point on this layer not recently visited
-        return true
       }
-      // Found no points on this layer
-      return false
+      // This point was on this layer but not visited recently. Halt.
+      return true
     })
-
-    result.push([x, y])
-
     if (halt) { break }
     
-    nextPoints.some(np => {
-      // If the point was not visited and the rng allows it
-      if (grid.get(x, y) ?? -1 < 0) {
-        if (baroqueness <= 0 || !rng.chance(baroqueness)) {
-          // visit it next.
-          cp = np
-          return true
-        }
+    cp = nextPoints.find(({x, y}) => {
+      // Next, try to find an acceptable next point to visit.
+      // The point must not be already visited.
+      if ((grid.get(x, y) ?? -1) >= 0) {
+        return false
       }
+      // The RNG may veto.
+      if (baroqueness > 0 && rng.chance(baroqueness)) {
+        return false
+      }
+      // Otherwise, This is the next point to visit.
+      return true
     })
   }
   return result
@@ -124,14 +130,19 @@ function addLayer(
   baroqueness: number,
   layer: number
 ): [number, number][] {
-  return grid.atLayer(layer - 1).flatMap(([x, y]) => {
-    for (const [ox, oy] of NESW) {
-      if (grid.get(x + ox, y + oy) ?? -1 < 0) {
-        return trail(grid, rng, baroqueness, layer, {x, y, vx: -oy, vy: ox})
-      }
-    }
-    return []
-  })
+  return grid
+    .atLayer(layer - 1)
+    .flatMap(([x, y]) => (
+      NSEW.flatMap(([ox, oy]) => {
+        if ((grid.get(x + ox, y + oy) ?? -1) >= 0) {
+          return []
+        } else {
+          return trail(grid, rng, baroqueness, layer,
+            {x: x + ox, y: y + oy, vx: -oy, vy: ox})
+        }
+      })
+    )
+  )
 }
 
 export default function pearl(
@@ -140,14 +151,13 @@ export default function pearl(
   const plans = cavern.plans.map(plan => {
     const rng = cavern.dice.pearl(plan.id)
     const grid: LayerGrid = new LayerGrid();
-    debugger
     (plan.kind === 'cave' ? caveNucleus : hallNucleus)(grid, plan);
     const innerPearl: [number, number][][] = [grid.map((_, x, y) => [x, y])];
     const outerPearl: [number, number][][] = [];
-    for (let i = 1; i < plan.pearlRadius; i++) {
+    for (let i = 1; i <= plan.pearlRadius; i++) {
       innerPearl.push(addLayer(grid, rng, plan.baroqueness, i))
     }
-    for (let i = 0; i < 4; i++) {
+    for (let i = 1; i < 4; i++) {
       outerPearl.push(addLayer(grid, rng, 0, i + plan.pearlRadius))
     }
     return {...plan, innerPearl, outerPearl}

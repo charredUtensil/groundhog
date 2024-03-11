@@ -1,0 +1,26 @@
+
+
+.baseplate {
+  font-family: "Silkscreen";
+  font-size: 8px;
+
+  .fg {
+    fill: white;
+  }
+
+  &.stockKind .bg {
+    stroke: blue;
+  }
+
+  &.ambiguousKind .bg {
+    fill: #222222;
+  }
+
+  &.caveKind .bg {
+    fill: red;
+  }
+
+  &.hallKind .bg {
+    fill: darkred;
+  }
+}

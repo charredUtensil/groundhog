@@ -9,8 +9,8 @@ export type BaseDiorama = {
 type BaseDioramaPutArgs = {
   x: number,
   y: number,
-  pearlInner?: number,
-  pearlOuter?: number,
+  intersectsPearlInner?: readonly boolean[],
+  intersectsPearlOuter?: readonly boolean[],
 }
 export type MutableBaseDiorama = BaseDiorama & {
   put(args: BaseDioramaPutArgs): void
@@ -78,15 +78,22 @@ class DioramaImpl implements AllMutableDiorama {
     return this._crystals.get(x, y) ?? 0
   }
 
-  put(args: {
-    x: number, 
-    y: number,
-    pearlInner?: number,
-    pearlOuter?: number,
-    tile?: Tile, 
-    crystals?: number
-  }) {
-    
+  put({
+    x, 
+    y,
+    intersectsPearlInner,
+    intersectsPearlOuter,
+    tile, 
+    crystals,
+  }: {
+  x: number, 
+  y: number,
+  intersectsPearlInner?: readonly boolean[],
+  intersectsPearlOuter?: readonly boolean[],
+  tile?: Tile, 
+  crystals?: number,}) {
+    if (tile !== undefined) {this._tiles.set(x, y, tile)}
+    if (crystals !== undefined) {this._crystals.set(x, y, crystals)}
   }
 }
 
