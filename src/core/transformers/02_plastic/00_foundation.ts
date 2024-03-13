@@ -18,7 +18,7 @@ export default function foundation(cavern: CavernWithPlans) : CavernWithPlansAnd
     }))
   })
   const diorama: MutableBaseDiorama = emptyDiorama()
-  inner.forEach((v, x, y) => diorama.put({x, y, intersectsPearlInner: v}))
-  outer.forEach((v, x, y) => diorama.put({x, y, intersectsPearlOuter: v}))
+  inner.forEach((v, x, y) => diorama.intersectsPearlInner.set(x, y, v))
+  outer.forEach((v, x, y) => diorama.intersectsPearlOuter.set(x, y, v))
   return {...cavern, diorama}
 }

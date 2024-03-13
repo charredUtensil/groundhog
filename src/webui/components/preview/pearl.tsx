@@ -21,7 +21,7 @@ function dPearl(layer: ReadonlyArray<readonly [number, number]>) {
 export default function PearlPreview({plan, pearl}: {plan: Pearled, pearl: 'innerPearl' | 'outerPearl'}) {
   const io = pearl === 'outerPearl' ? plan.innerPearl.length : 0
   return (
-    <g className={`pearl ${pearl} ${plan.kind}Kind`}>
+    <g  key={`pearl${plan.id}`} className={`pearl ${pearl} ${plan.kind}Kind`}>
       {plan[pearl].map((layer, i) => (
         <path
           className={`layer layer${(i + io) % 4}`}

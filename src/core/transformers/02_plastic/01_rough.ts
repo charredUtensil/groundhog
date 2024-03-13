@@ -2,14 +2,14 @@ import {
   CavernWithPlansAndBaseDiorama,
   CavernWithPlansAndRoughDiorama,
 } from "../../models/cavern";
-import { RoughDiorama } from "../../models/diorama";
+import { MutableRoughDiorama } from "../../models/diorama";
 
 export default function rough(
   cavern: CavernWithPlansAndBaseDiorama,
 ): CavernWithPlansAndRoughDiorama {
-  const diorama: RoughDiorama = cavern.diorama.copy()
+  const diorama: MutableRoughDiorama = cavern.diorama.copy()
   cavern.plans.forEach(plan => {
-    
+    plan.architect.rough({cavern, plan, diorama})
   })
   return {...cavern, diorama};
 }

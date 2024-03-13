@@ -6,7 +6,7 @@ const SCALE = 6
 
 export default function BaseplatePreview({ baseplate }: { baseplate: Baseplate }) {
   return (
-    <g className={`baseplate ${baseplate.kind}Kind`}>
+    <g key={`bp${baseplate.id}`} className={`baseplate ${baseplate.kind}Kind`}>
       <rect
         className="bg"
         x={baseplate.left * SCALE}

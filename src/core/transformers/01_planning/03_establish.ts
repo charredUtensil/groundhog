@@ -1,4 +1,4 @@
-import { SimpleSpawn } from "../../architects/simple_spawn";
+import { ARCHITECTS } from "../../architects";
 import { Curve } from "../../common";
 import { Architect } from "../../models/architect";
 import { CavernWithPartialPlans } from "../../models/cavern";
@@ -18,16 +18,23 @@ function curved(curve: Curve, props: CurveProps): number {
 export default function establish(
   cavern: CavernWithPartialPlans<Flooded>,
 ): CavernWithPartialPlans<Established> {
-  const rng = cavern.dice.pickSpawn;
+  
+  // Choose a spawn and an architect for that spawn.
+  const spawn = cavern.dice.pickSpawn.weightedChoice(ARCHITECTS
+    .filter(architect => architect.spawnBid)
+    .flatMap(architect => (
+      cavern.plans
+        .filter(p => p.kind === 'cave')
+        .map(plan => ({
+          item: {...plan, architect},
+          bid: architect.spawnBid?.({cavern, plan}) ?? 0,
+        }))
+    ))
+  )
 
-  function pickSpawn(): Sorted["plan"] {
-    return {
-      ...cavern.plans[25],
-      architect: SimpleSpawn,
-    };
-  }
-  const spawn = pickSpawn();
-
+  // Sort the plans in a breadth-first search order, starting from spawn and
+  // annotating each with the index and the number of "hops" it is away from
+  // the spawn.
   function sortPlans(): Sorted[] {
     const isQueued: boolean[] = [];
     isQueued[spawn.id] = true;
@@ -48,13 +55,22 @@ export default function establish(
   }
   const inOrder = sortPlans()
 
-  const plans: Established[] = [];
+  const plans: (Flooded | Established)[] = cavern.plans.slice();
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
+  const architects = ARCHITECTS.filter(architect => architect.bid)
+
   function doArchitect({ plan, hops, index }: Sorted): Architected {
     const props = { hops: hops / maxHops, order: index / maxIndex };
-    const architect = plan.architect || SimpleSpawn;
+    const architect = plan.architect || cavern.dice
+      .pickArchitect(plan.id)
+      .weightedChoice(architects
+        .map(architect => ({
+          item: architect,
+          bid: (plan.kind === 'cave' ? architect.caveBid : architect.hallBid)({cavern, plan, plans, hops}),
+        }))
+      );
     const crystalRichness = curved(
       plan.kind === "cave"
         ? cavern.context.caveCrystalRichness
@@ -72,5 +88,5 @@ export default function establish(
   }
   inOrder.forEach((path) => doEstablish(doArchitect(path)));
 
-  return { ...cavern, plans };
+  return { ...cavern, plans: plans as Established[] };
 }

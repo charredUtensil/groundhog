@@ -12,7 +12,7 @@ export default function PathPreview({ path }: { path: Path }) {
     })
     .join(" ");
   return (
-    <g className={`path ${path.kind}Kind`}>
+    <g key={`path${path.id}`} className={`path ${path.kind}Kind`}>
       <path id={`path${path.id}`} d={d} fill="none" />
       <text>
         <textPath href={`#path${path.id}`} startOffset="25%">

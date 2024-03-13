@@ -1,12 +1,19 @@
+type Bounds = {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+
 export class Grid<T> {
   private data: Map<`${number},${number}`, T>
 
-  constructor(copyOf?: Grid<T>) {
-    this.data = new Map(copyOf?.data)
+  constructor(data?: Map<`${number},${number}`, T>) {
+    this.data = new Map(data)
   }
 
   copy(): Grid<T> {
-    return new Grid(this)
+    return new Grid(this.data)
   }
 
   get(x: number, y: number): T | undefined {
@@ -15,6 +22,23 @@ export class Grid<T> {
 
   set(x: number, y: number, value: T) {
     this.data.set(`${x},${y}`, value)
+  }
+
+  get bounds(): Bounds {
+    const r: Partial<Bounds> = {}
+    this.forEach((_, x, y) => {
+      if (!(x >= r.left!)) {
+        r.left = x
+      } else if (!(x + 1 <= r.right!)) {
+        r.right = x + 1
+      }
+      if (!(y >= r.top!)) {
+        r.top = y
+      } else if (!(y + 1 <= r.bottom!)) {
+        r.bottom = y + 1
+      }
+    })
+    return r as Bounds
   }
 
   forEach(fn: (value: T, x: number, y: number) => void) {
@@ -30,3 +54,5 @@ export class Grid<T> {
     return result
   }
 }
+
+export type ReadOnlyGrid<T> = Omit<Grid<T>, 'set'>

@@ -1,102 +1,53 @@
-import { Grid } from "../common/grid";
+import { Grid, ReadOnlyGrid } from "../common/grid";
 import { RoughTile, Tile } from "./tiles";
 
 export type BaseDiorama = {
-  copy<T = AnyMutableDiorama>(): T
-  intersectsPearlInner(x: number, y: number): readonly boolean[]
-  intersectsPearlOuter(x: number, y: number): readonly boolean[]
+  copy(): MutableBaseDiorama & MutableRoughDiorama & MutableDiorama
+  intersectsPearlInner: ReadOnlyGrid<readonly boolean[]>
+  intersectsPearlOuter: ReadOnlyGrid<readonly boolean[]>
 }
-type BaseDioramaPutArgs = {
-  x: number,
-  y: number,
-  intersectsPearlInner?: readonly boolean[],
-  intersectsPearlOuter?: readonly boolean[],
-}
+
 export type MutableBaseDiorama = BaseDiorama & {
-  put(args: BaseDioramaPutArgs): void
+  intersectsPearlInner: Grid<readonly boolean[]>
+  intersectsPearlOuter: Grid<readonly boolean[]>
 }
 
 export type RoughDiorama = BaseDiorama & {
-  copy(): MutableRoughDiorama
-  tile(x: number, y: number): RoughTile
-}
-type RoughDioramaPutArgs = { 
-  x: number,
-  y: number,
-  tile?: RoughTile,
-}
-export type MutableRoughDiorama = RoughDiorama & {
-  put(args: RoughDioramaPutArgs): void
+  tiles: ReadOnlyGrid<RoughTile>
 }
 
-export type Diorama = RoughDiorama & {
-  copy(): MutableDiorama
-  tile(x: number, y: number): Tile
-  crystals(x: number, y: number): number
+export type MutableRoughDiorama = BaseDiorama & {
+  tiles: Grid<RoughTile>
 }
-type DioramaPutArgs = RoughDioramaPutArgs & {
-  tile?: Tile,
-  crystals?: number,
+
+export type Diorama = BaseDiorama & {
+  tiles: ReadOnlyGrid<Tile>
+  crystals: ReadOnlyGrid<number>
 }
+
 export type MutableDiorama = Diorama & {
-  put(args: DioramaPutArgs): void
+  tiles: Grid<Tile>
+  crystals: Grid<number>
 }
 
-type AnyMutableDiorama = MutableBaseDiorama | MutableRoughDiorama | MutableDiorama
-type AllMutableDiorama = MutableBaseDiorama & MutableRoughDiorama & MutableDiorama
+class MutableDioramaImpl implements MutableRoughDiorama, MutableDiorama {
+  intersectsPearlInner: Grid<readonly boolean[]>
+  intersectsPearlOuter: Grid<readonly boolean[]>
+  tiles: Grid<Tile>
+  crystals: Grid<number>
 
-class DioramaImpl implements AllMutableDiorama {
-  _intersectsPearlInner: Grid<readonly boolean[]>
-  _intersectsPearlOuter: Grid<readonly boolean[]>
-  _tiles: Grid<Tile>
-  _crystals: Grid<number>
-
-  constructor(copyOf?: DioramaImpl) {
-    this._intersectsPearlInner = new Grid(copyOf?._intersectsPearlInner)
-    this._intersectsPearlOuter = new Grid(copyOf?._intersectsPearlOuter)
-    this._tiles = new Grid(copyOf?._tiles)
-    this._crystals = new Grid(copyOf?._crystals)
+  constructor(copyOf?: Partial<Diorama>) {
+    this.intersectsPearlInner = copyOf?.intersectsPearlInner?.copy() ?? new Grid()
+    this.intersectsPearlOuter = copyOf?.intersectsPearlOuter?.copy() ?? new Grid()
+    this.tiles = copyOf?.tiles?.copy() ?? new Grid()
+    this.crystals = copyOf?.crystals?.copy() ?? new Grid()
   }
 
-  copy<T = AnyMutableDiorama>(): T {
-    return (new DioramaImpl(this) as T)
-  }
-
-  intersectsPearlInner(x: number, y: number): readonly boolean[] {
-    return this._intersectsPearlInner.get(x, y) || []
-  }
-
-  intersectsPearlOuter(x: number, y: number): readonly boolean[] {
-    return this._intersectsPearlOuter.get(x, y) || []
-  }
-
-  tile(x: number, y: number): Tile {
-    return this._tiles.get(x, y) ?? Tile.SOLID_ROCK
-  }
-
-  crystals(x: number, y: number): number {
-    return this._crystals.get(x, y) ?? 0
-  }
-
-  put({
-    x, 
-    y,
-    intersectsPearlInner,
-    intersectsPearlOuter,
-    tile, 
-    crystals,
-  }: {
-  x: number, 
-  y: number,
-  intersectsPearlInner?: readonly boolean[],
-  intersectsPearlOuter?: readonly boolean[],
-  tile?: Tile, 
-  crystals?: number,}) {
-    if (tile !== undefined) {this._tiles.set(x, y, tile)}
-    if (crystals !== undefined) {this._crystals.set(x, y, crystals)}
+  copy(): MutableBaseDiorama & MutableRoughDiorama & MutableDiorama {
+    return new MutableDioramaImpl(this)
   }
 }
 
-export function emptyDiorama<T = AnyMutableDiorama>(): T {
-  return new DioramaImpl() as T
+export function emptyDiorama(): MutableBaseDiorama {
+  return new MutableDioramaImpl()
 }

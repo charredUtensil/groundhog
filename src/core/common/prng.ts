@@ -35,15 +35,15 @@ export class PseudorandomStream {
     return Math.floor(this.beta(args));
   }
 
-  uniformChoice(choices: any[]): any {
+  uniformChoice<T>(choices: T[]): T {
     return choices[this.uniformInt({ max: choices.length })];
   }
 
-  betaChoice(choices: any[], { a, b }: { a: number; b: number }): any {
+  betaChoice<T>(choices: T[], { a, b }: { a: number; b: number }): T {
     return choices[this.betaInt({ a: a, b: b, max: choices.length })];
   }
 
-  weightedChoice(bids: { bid: number; item: any }[]): any {
+  weightedChoice<T>(bids: { bid: number; item: T }[]): T {
     const b = bids.filter((bid) => bid.bid > 0);
     const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
     let randomValue = this.uniform({ max: totalWeight });
