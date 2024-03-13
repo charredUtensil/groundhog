@@ -4,18 +4,18 @@ import { OUTLINE_TF } from "./00_outlines";
 import { PLANNING_TF } from "./01_planning";
 import { PLASTIC_TF } from "./02_plastic";
 
-const CAVERN_TF = OUTLINE_TF.then(PLANNING_TF).then(PLASTIC_TF)
+const CAVERN_TF = OUTLINE_TF.then(PLANNING_TF).then(PLASTIC_TF);
 
 export class CavernGenerator {
-  private state
+  private state;
   constructor(cavern: BaseCavern) {
-    this.state = CAVERN_TF.first(cavern)
+    this.state = CAVERN_TF.first(cavern);
   }
 
   step() {
-    const {result, next} = this.state.next()
+    const { result, next } = this.state.next();
     result.context.logger.info(result);
     console.log(result);
-    this.state = {result, next}
+    this.state = { result, next };
   }
 }

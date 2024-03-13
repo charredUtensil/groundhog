@@ -13,7 +13,7 @@ class Partitioner {
   private readonly outbox: Baseplate[];
   private nextId: number = 0;
 
-  constructor({context, dice}: {context: CavernContext, dice: DiceBox}) {
+  constructor({ context, dice }: { context: CavernContext; dice: DiceBox }) {
     this.context = context;
     this.rng = dice.partition;
     this.baseplateMaxSize = Math.round(

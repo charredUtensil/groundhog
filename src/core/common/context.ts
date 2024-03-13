@@ -62,7 +62,7 @@ export type CavernContext = {
 
 export function inferContextDefaults(
   dice: DiceBox,
-  args: Partial<Omit<CavernContext, 'seed'>>,
+  args: Partial<Omit<CavernContext, "seed">>,
 ): CavernContext {
   return {
     logger: args.logger ?? ({} as Logger),

@@ -20,13 +20,13 @@ export type CavernWithPartialPlans<T = Partial<Plan>> = BaseCavern & {
 };
 export type CavernWithPlans = BaseCavern & { plans: readonly Plan[] };
 export type CavernWithPlansAndBaseDiorama = CavernWithPlans & {
-  diorama: BaseDiorama
+  diorama: BaseDiorama;
 };
 export type CavernWithPlansAndRoughDiorama = CavernWithPlans & {
-  diorama: RoughDiorama
+  diorama: RoughDiorama;
 };
 export type CavernWithPlansAndDiorama = CavernWithPlans & {
-  diorama: Diorama
+  diorama: Diorama;
 };
 
 export type Cavern = BaseCavern & {

@@ -18,19 +18,17 @@ function curved(curve: Curve, props: CurveProps): number {
 export default function establish(
   cavern: CavernWithPartialPlans<Flooded>,
 ): CavernWithPartialPlans<Established> {
-  
   // Choose a spawn and an architect for that spawn.
-  const spawn = cavern.dice.pickSpawn.weightedChoice(ARCHITECTS
-    .filter(architect => architect.spawnBid)
-    .flatMap(architect => (
+  const spawn = cavern.dice.pickSpawn.weightedChoice(
+    ARCHITECTS.filter((architect) => architect.spawnBid).flatMap((architect) =>
       cavern.plans
-        .filter(p => p.kind === 'cave')
-        .map(plan => ({
-          item: {...plan, architect},
-          bid: architect.spawnBid?.({cavern, plan}) ?? 0,
-        }))
-    ))
-  )
+        .filter((p) => p.kind === "cave")
+        .map((plan) => ({
+          item: { ...plan, architect },
+          bid: architect.spawnBid?.({ cavern, plan }) ?? 0,
+        })),
+    ),
+  );
 
   // Sort the plans in a breadth-first search order, starting from spawn and
   // annotating each with the index and the number of "hops" it is away from
@@ -39,37 +37,44 @@ export default function establish(
     const isQueued: boolean[] = [];
     isQueued[spawn.id] = true;
     const queue: { plan: Flooded; hops: number }[] = [{ plan: spawn, hops: 0 }];
-    const result: Sorted[] = []
+    const result: Sorted[] = [];
 
     for (let index = 0; queue.length > 0; index++) {
       const { plan, hops } = queue.shift()!;
 
       const neighbors = plan.intersects
-          .map((b, id) => (b ? id : -1))
-          .filter((id) => id >= 0 && !isQueued[id])
-      neighbors.forEach(id => isQueued[id] = true)
-      queue.push(...neighbors.map((id) => ({ plan: cavern.plans[id], hops: hops + 1 })));
+        .map((b, id) => (b ? id : -1))
+        .filter((id) => id >= 0 && !isQueued[id]);
+      neighbors.forEach((id) => (isQueued[id] = true));
+      queue.push(
+        ...neighbors.map((id) => ({ plan: cavern.plans[id], hops: hops + 1 })),
+      );
       result.push({ plan, hops, index });
     }
-    return result
+    return result;
   }
-  const inOrder = sortPlans()
+  const inOrder = sortPlans();
 
   const plans: (Flooded | Established)[] = cavern.plans.slice();
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
-  const architects = ARCHITECTS.filter(architect => architect.bid)
+  const architects = ARCHITECTS.filter((architect) => architect.bid);
 
   function doArchitect({ plan, hops, index }: Sorted): Architected {
     const props = { hops: hops / maxHops, order: index / maxIndex };
-    const architect = plan.architect || cavern.dice
-      .pickArchitect(plan.id)
-      .weightedChoice(architects
-        .map(architect => ({
+    const architect =
+      plan.architect ||
+      cavern.dice.pickArchitect(plan.id).weightedChoice(
+        architects.map((architect) => ({
           item: architect,
-          bid: (plan.kind === 'cave' ? architect.caveBid : architect.hallBid)({cavern, plan, plans, hops}),
-        }))
+          bid: (plan.kind === "cave" ? architect.caveBid : architect.hallBid)({
+            cavern,
+            plan,
+            plans,
+            hops,
+          }),
+        })),
       );
     const crystalRichness = curved(
       plan.kind === "cave"

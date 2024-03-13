@@ -43,15 +43,15 @@ export type Established = Architected & {
   readonly crystals: number;
 };
 
-export type Pearl = ReadonlyArray<ReadonlyArray<readonly[number, number]>>
+export type Pearl = ReadonlyArray<ReadonlyArray<readonly [number, number]>>;
 export type Pearled = Established & {
   /**
    * A pearl is an array of layers (from innermost to out).
    * Each layer contains an array of [x, y] coordinates in that layer.
    * innerPearl[layer][sequence] = [x, y]
    */
-  readonly innerPearl: Pearl
-  readonly outerPearl: Pearl
-}
+  readonly innerPearl: Pearl;
+  readonly outerPearl: Pearl;
+};
 
 export type Plan = Pearled;

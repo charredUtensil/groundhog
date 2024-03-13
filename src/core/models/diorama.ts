@@ -2,52 +2,54 @@ import { Grid, ReadOnlyGrid } from "../common/grid";
 import { RoughTile, Tile } from "./tiles";
 
 export type BaseDiorama = {
-  copy(): MutableBaseDiorama & MutableRoughDiorama & MutableDiorama
-  intersectsPearlInner: ReadOnlyGrid<readonly boolean[]>
-  intersectsPearlOuter: ReadOnlyGrid<readonly boolean[]>
-}
+  copy(): MutableBaseDiorama & MutableRoughDiorama & MutableDiorama;
+  intersectsPearlInner: ReadOnlyGrid<readonly boolean[]>;
+  intersectsPearlOuter: ReadOnlyGrid<readonly boolean[]>;
+};
 
 export type MutableBaseDiorama = BaseDiorama & {
-  intersectsPearlInner: Grid<readonly boolean[]>
-  intersectsPearlOuter: Grid<readonly boolean[]>
-}
+  intersectsPearlInner: Grid<readonly boolean[]>;
+  intersectsPearlOuter: Grid<readonly boolean[]>;
+};
 
 export type RoughDiorama = BaseDiorama & {
-  tiles: ReadOnlyGrid<RoughTile>
-}
+  tiles: ReadOnlyGrid<RoughTile>;
+};
 
 export type MutableRoughDiorama = BaseDiorama & {
-  tiles: Grid<RoughTile>
-}
+  tiles: Grid<RoughTile>;
+};
 
 export type Diorama = BaseDiorama & {
-  tiles: ReadOnlyGrid<Tile>
-  crystals: ReadOnlyGrid<number>
-}
+  tiles: ReadOnlyGrid<Tile>;
+  crystals: ReadOnlyGrid<number>;
+};
 
 export type MutableDiorama = Diorama & {
-  tiles: Grid<Tile>
-  crystals: Grid<number>
-}
+  tiles: Grid<Tile>;
+  crystals: Grid<number>;
+};
 
 class MutableDioramaImpl implements MutableRoughDiorama, MutableDiorama {
-  intersectsPearlInner: Grid<readonly boolean[]>
-  intersectsPearlOuter: Grid<readonly boolean[]>
-  tiles: Grid<Tile>
-  crystals: Grid<number>
+  intersectsPearlInner: Grid<readonly boolean[]>;
+  intersectsPearlOuter: Grid<readonly boolean[]>;
+  tiles: Grid<Tile>;
+  crystals: Grid<number>;
 
   constructor(copyOf?: Partial<Diorama>) {
-    this.intersectsPearlInner = copyOf?.intersectsPearlInner?.copy() ?? new Grid()
-    this.intersectsPearlOuter = copyOf?.intersectsPearlOuter?.copy() ?? new Grid()
-    this.tiles = copyOf?.tiles?.copy() ?? new Grid()
-    this.crystals = copyOf?.crystals?.copy() ?? new Grid()
+    this.intersectsPearlInner =
+      copyOf?.intersectsPearlInner?.copy() ?? new Grid();
+    this.intersectsPearlOuter =
+      copyOf?.intersectsPearlOuter?.copy() ?? new Grid();
+    this.tiles = copyOf?.tiles?.copy() ?? new Grid();
+    this.crystals = copyOf?.crystals?.copy() ?? new Grid();
   }
 
   copy(): MutableBaseDiorama & MutableRoughDiorama & MutableDiorama {
-    return new MutableDioramaImpl(this)
+    return new MutableDioramaImpl(this);
   }
 }
 
 export function emptyDiorama(): MutableBaseDiorama {
-  return new MutableDioramaImpl()
+  return new MutableDioramaImpl();
 }

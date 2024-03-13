@@ -2,11 +2,14 @@ import React from "react";
 import { Plan } from "../../../core/models/plan";
 import PathPreview from "./path";
 import { Path } from "../../../core/models/path";
-import "./plan.scss"
+import "./plan.scss";
 
 const SCALE = 6;
 
-function caveWithOneBaseplate({path, pearlRadius}: Pick<Plan, 'path' | 'pearlRadius'>) {
+function caveWithOneBaseplate({
+  path,
+  pearlRadius,
+}: Pick<Plan, "path" | "pearlRadius">) {
   const [x, y] = path.baseplates[0].center;
   return (
     <g className="plan caveKind">
@@ -59,7 +62,7 @@ function dWrapping(
   return path;
 }
 
-function caveWithTwoBaseplates({path}: {path: Path}) {
+function caveWithTwoBaseplates({ path }: { path: Path }) {
   const [a, b] = path.baseplates.map((bp) => {
     const [x, y] = bp.center;
     return {
@@ -69,26 +72,30 @@ function caveWithTwoBaseplates({path}: {path: Path}) {
     };
   });
 
-  return <g className="plan caveKind"><path className="bg" d={dWrapping(a, b)} /></g>;
+  return (
+    <g className="plan caveKind">
+      <path className="bg" d={dWrapping(a, b)} />
+    </g>
+  );
 }
 
-function hall({path, pearlRadius}: Pick<Plan, 'path' | 'pearlRadius'>) {
+function hall({ path, pearlRadius }: Pick<Plan, "path" | "pearlRadius">) {
   const d = path.baseplates
-  .map((bp, i) => {
-    const [x, y] = bp.center;
-    return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
-  })
-  .join(" ");
-return (
-  <g className="plan hallKind">
-    <path
-      className="bg"
-      d={d}
-      fill="none"
-      strokeWidth={pearlRadius * 2 * SCALE}
-    />
-  </g>
-);
+    .map((bp, i) => {
+      const [x, y] = bp.center;
+      return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
+    })
+    .join(" ");
+  return (
+    <g className="plan hallKind">
+      <path
+        className="bg"
+        d={d}
+        fill="none"
+        strokeWidth={pearlRadius * 2 * SCALE}
+      />
+    </g>
+  );
 }
 
 export default function PlanPreview({ plan }: { plan: Partial<Plan> }) {
@@ -98,11 +105,11 @@ export default function PlanPreview({ plan }: { plan: Partial<Plan> }) {
   if (plan.pearlRadius) {
     if (plan.kind === "cave") {
       if (plan.path!.baseplates.length === 2) {
-        return caveWithTwoBaseplates(plan as any)
+        return caveWithTwoBaseplates(plan as any);
       }
-      return caveWithOneBaseplate(plan as any)
+      return caveWithOneBaseplate(plan as any);
     }
-    return hall(plan as any)
+    return hall(plan as any);
   }
   if (plan.path?.baseplates.length ?? 0 > 1) {
     return <PathPreview path={plan.path!} />;

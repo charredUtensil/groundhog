@@ -25,9 +25,9 @@ function App() {
   });
 
   const doGenerate = () => {
-    const dice = new DiceBox(0x19930202)
+    const dice = new DiceBox(0x19930202);
     const context = inferContextDefaults(dice, cavernContext);
-    const cavern = { context, dice }
+    const cavern = { context, dice };
     setCavern(cavern);
     setGenerator(new CavernGenerator(cavern));
   };

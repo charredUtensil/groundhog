@@ -1,6 +1,6 @@
 import { Architect, BaseArchitect } from "../models/architect";
 
-export const BaseCaveArchitect: Omit<BaseArchitect, 'name' | 'rough'> = {
+export const BaseCaveArchitect: Omit<BaseArchitect, "name" | "rough"> = {
   baroqueness: ({ cavern }) => cavern.context.caveBaroqueness,
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   place_recharge_seam: () => {},

@@ -1,10 +1,14 @@
 import React from "react";
 import { Baseplate } from "../../../core/models/baseplate";
-import "./baseplate.scss"
+import "./baseplate.scss";
 
-const SCALE = 6
+const SCALE = 6;
 
-export default function BaseplatePreview({ baseplate }: { baseplate: Baseplate }) {
+export default function BaseplatePreview({
+  baseplate,
+}: {
+  baseplate: Baseplate;
+}) {
   return (
     <g key={`bp${baseplate.id}`} className={`baseplate ${baseplate.kind}Kind`}>
       <rect
@@ -16,7 +20,9 @@ export default function BaseplatePreview({ baseplate }: { baseplate: Baseplate }
       />
       <text
         className="fg"
-        x={baseplate.left * SCALE} y={baseplate.top * SCALE + 8}>
+        x={baseplate.left * SCALE}
+        y={baseplate.top * SCALE + 8}
+      >
         {baseplate.id}
       </text>
     </g>

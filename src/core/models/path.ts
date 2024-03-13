@@ -33,10 +33,10 @@ export class Path {
 
   // The distance directly from the origin to destination.
   public get batDistance(): number {
-    return distance(this.origin, this.destination)
+    return distance(this.origin, this.destination);
   }
 
   public get snakeDistance(): number {
-    return pairMap(this.baseplates, distance).reduce((a, b) => a + b, 0)
+    return pairMap(this.baseplates, distance).reduce((a, b) => a + b, 0);
   }
 }

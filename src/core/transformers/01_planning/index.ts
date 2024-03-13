@@ -5,9 +5,8 @@ import flood from "./02_flood";
 import establish from "./03_establish";
 import pearl from "./04_pearl";
 
-export const PLANNING_TF = 
-  tf(negotiate)
+export const PLANNING_TF = tf(negotiate)
   .then(measure)
   .then(flood)
   .then(establish)
-  .then(pearl)
+  .then(pearl);

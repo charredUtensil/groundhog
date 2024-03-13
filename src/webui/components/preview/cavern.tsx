@@ -25,8 +25,16 @@ export default function CavernPreview({ cavern }: { cavern: Cavern }) {
         {cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
         {cavern.paths?.map((pa) => <PathPreview path={pa} />)}
         {cavern.plans?.map((pl) => <PlanPreview plan={pl} />)}
-        {cavern.plans?.filter(pl => pl.outerPearl).map(pl => <PearlPreview plan={pl as Pearled} pearl={'outerPearl'} />)}
-        {cavern.plans?.filter(pl => pl.innerPearl).map(pl => <PearlPreview plan={pl as Pearled} pearl={'innerPearl'} />)}
+        {cavern.plans
+          ?.filter((pl) => pl.outerPearl)
+          .map((pl) => (
+            <PearlPreview plan={pl as Pearled} pearl={"outerPearl"} />
+          ))}
+        {cavern.plans
+          ?.filter((pl) => pl.innerPearl)
+          .map((pl) => (
+            <PearlPreview plan={pl as Pearled} pearl={"innerPearl"} />
+          ))}
         {cavern.diorama && <DioramaPreview diorama={cavern.diorama} />}
       </svg>
     </div>

@@ -4,11 +4,11 @@ import { Mutable } from "./utils";
 
 export type Seed = number;
 
-const MAX_PLUS_ONE = mt19937.MAX + 1
+const MAX_PLUS_ONE = mt19937.MAX + 1;
 
 export class PseudorandomStream {
-  private mt
-  private bt
+  private mt;
+  private bt;
 
   constructor(seed: Seed) {
     this.mt = mt19937.factory({ seed });
@@ -19,15 +19,25 @@ export class PseudorandomStream {
     return this.mt() < chance * MAX_PLUS_ONE;
   }
 
-  uniform({min = 0, max = 1}): number {
+  uniform({ min = 0, max = 1 }): number {
     return min + (this.mt() * (max - min)) / MAX_PLUS_ONE;
   }
 
-  beta({ a, b, min = 0, max = 1 }: { a: number; b: number; min?: number; max?: number }): number {
+  beta({
+    a,
+    b,
+    min = 0,
+    max = 1,
+  }: {
+    a: number;
+    b: number;
+    min?: number;
+    max?: number;
+  }): number {
     return min + this.bt(a, b) * (max - min);
   }
 
-  uniformInt(args: {min?: number, max: number}) {
+  uniformInt(args: { min?: number; max: number }) {
     return Math.floor(this.uniform(args));
   }
 
@@ -73,9 +83,9 @@ export class DiceBox {
     seed: Seed;
     rngs: Array<PseudorandomStream | undefined>;
   }[];
-  
+
   constructor(seed: Seed) {
-    this.seed = seed
+    this.seed = seed;
     const mt = mt19937.factory({ seed });
     const boxesLength = Object.keys(Die).length;
     const boxes: Mutable<DiceBox["boxes"]> = [];
@@ -113,10 +123,10 @@ export class DiceBox {
   }
 
   pickArchitect(id: number) {
-    return this.prng(Die.pickArchitect, id)
+    return this.prng(Die.pickArchitect, id);
   }
 
   pearl(id: number) {
-    return this.prng(Die.pearl, id)
+    return this.prng(Die.pearl, id);
   }
 }

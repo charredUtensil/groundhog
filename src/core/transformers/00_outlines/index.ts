@@ -7,11 +7,10 @@ import clip from "./04_clip";
 import bore from "./05_bore";
 import weave from "./06_weave";
 
-export const OUTLINE_TF =
-  tf(partition)
+export const OUTLINE_TF = tf(partition)
   .then(discriminate)
   .then(triangulate)
   .then(span)
   .then(clip)
   .then(bore)
-  .then(weave)
+  .then(weave);

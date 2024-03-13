@@ -10,23 +10,37 @@ function rr({
   water,
   lava,
 }: {
-  floor?: RoughTile,
-  dirt?: RoughTile,
-  looseRock?: RoughTile,
-  hardRock?: RoughTile,
-  solidRock?: RoughTile,
-  water?: RoughTile,
-  lava?: RoughTile,
+  floor?: RoughTile;
+  dirt?: RoughTile;
+  looseRock?: RoughTile;
+  hardRock?: RoughTile;
+  solidRock?: RoughTile;
+  water?: RoughTile;
+  lava?: RoughTile;
 }): ReplaceFn<RoughTile> {
   const r: RoughTile[] = [];
-  if (floor) {r[Tile.FLOOR.id] = floor}
-  if (dirt) {r[Tile.DIRT.id] = dirt}
-  if (looseRock) {r[Tile.LOOSE_ROCK.id] = looseRock}
-  if (hardRock) {r[Tile.HARD_ROCK.id] = hardRock}
-  if (solidRock) {r[Tile.SOLID_ROCK.id] = solidRock}
-  if (water) {r[Tile.WATER.id] = water}
-  if (lava) {r[Tile.LAVA.id] = lava}
-  return ((has: Tile) => r[has.id] ?? null)
+  if (floor) {
+    r[Tile.FLOOR.id] = floor;
+  }
+  if (dirt) {
+    r[Tile.DIRT.id] = dirt;
+  }
+  if (looseRock) {
+    r[Tile.LOOSE_ROCK.id] = looseRock;
+  }
+  if (hardRock) {
+    r[Tile.HARD_ROCK.id] = hardRock;
+  }
+  if (solidRock) {
+    r[Tile.SOLID_ROCK.id] = solidRock;
+  }
+  if (water) {
+    r[Tile.WATER.id] = water;
+  }
+  if (lava) {
+    r[Tile.LAVA.id] = lava;
+  }
+  return (has: Tile) => r[has.id] ?? null;
 }
 
 function roughNotFloodedTo(to: RoughTile) {
@@ -36,10 +50,10 @@ function roughNotFloodedTo(to: RoughTile) {
     looseRock: to,
     hardRock: to,
     solidRock: to,
-  })
+  });
 }
 
-type ReplaceFn<T extends Tile> = (has: T) => T | null
+type ReplaceFn<T extends Tile> = (has: T) => T | null;
 
 export const Rough = {
   // VOID: No effect whatsoever
@@ -62,7 +76,7 @@ export const Rough = {
     hardRock: Tile.LOOSE_ROCK,
     solidRock: Tile.LOOSE_ROCK,
   }),
-  AT_MOST_HARD_ROCK: rr({solidRock: Tile.HARD_ROCK}),
+  AT_MOST_HARD_ROCK: rr({ solidRock: Tile.HARD_ROCK }),
   // No prefix: Replaces any non-flooded tile with the given tile
   FLOOR: roughNotFloodedTo(Tile.FLOOR),
   DIRT: roughNotFloodedTo(Tile.DIRT),
@@ -113,22 +127,26 @@ export const Rough = {
     hardRock: Tile.FLOOR,
     solidRock: Tile.LOOSE_ROCK,
   }),
-}
+};
 
 type Layer<T> = {
-  of: T,
-  width: number,
-  shrink: number,
-  grow: number,
-}
+  of: T;
+  width: number;
+  shrink: number;
+  grow: number;
+};
 
-function* expand<T>(layers: Layer<T>[], shrinkFactor: number, growFactor: number) {
-  let w = 0
-  for (const {of, width, shrink, grow} of layers) {
-    w = w + width * Math.max(0, 1 - shrink * shrinkFactor) + grow * growFactor
+function* expand<T>(
+  layers: Layer<T>[],
+  shrinkFactor: number,
+  growFactor: number,
+) {
+  let w = 0;
+  for (const { of, width, shrink, grow } of layers) {
+    w = w + width * Math.max(0, 1 - shrink * shrinkFactor) + grow * growFactor;
     while (Math.round(w) > 0) {
-      yield of
-      w -= 1
+      yield of;
+      w -= 1;
     }
   }
 }
@@ -137,13 +155,15 @@ function* expand<T>(layers: Layer<T>[], shrinkFactor: number, growFactor: number
 class BaseOyster<T> {
   private readonly layers: Layer<T>[];
 
-  constructor(...layers: {
-    of: T,
-    width?: number, 
-    shrink?: number,
-    grow?: number,
-  }[]) {
-    this.layers = layers.map(ly => ({
+  constructor(
+    ...layers: {
+      of: T;
+      width?: number;
+      shrink?: number;
+      grow?: number;
+    }[]
+  ) {
+    this.layers = layers.map((ly) => ({
       of: ly.of,
       width: ly.width ?? 1,
       shrink: ly.shrink ?? 0,
@@ -152,12 +172,12 @@ class BaseOyster<T> {
   }
 
   protected _expand(radius: number): T[] {
-    radius = radius + 1
-    const totalWidth = this.layers.reduce((t, {width}) => t + width, 0)
-    const totalShrink = this.layers.reduce((t, {shrink}) => t + shrink, 0)
-    const totalGrow = this.layers.reduce((t, {grow}) => t + grow, 0)
-    let growFactor = 0
-    let shrinkFactor = 0
+    radius = radius + 1;
+    const totalWidth = this.layers.reduce((t, { width }) => t + width, 0);
+    const totalShrink = this.layers.reduce((t, { shrink }) => t + shrink, 0);
+    const totalGrow = this.layers.reduce((t, { grow }) => t + grow, 0);
+    let growFactor = 0;
+    let shrinkFactor = 0;
     if (radius < totalWidth && totalShrink > 0) {
       // For the shrink case,
       // r = (w0 * (1 - s0 * sf)) + (w1 * (1 - s1 * sf)) + ...
@@ -169,9 +189,9 @@ class BaseOyster<T> {
       // (w0 * s0 + w1 * s1 + ... + wn * sn) * sf = (w0 + w1 + ... + wn) - r
       // sf = ((w0 + w1 + ... + wn) - r) / (w0 * s0 + w1 * s1 + ... + wn * sn)
 
-      shrinkFactor = (totalWidth - radius) / this.layers.reduce((t, {width, shrink}) => (
-        t + width * shrink
-      ), 0)
+      shrinkFactor =
+        (totalWidth - radius) /
+        this.layers.reduce((t, { width, shrink }) => t + width * shrink, 0);
     } else if (radius > totalWidth && totalGrow > 0) {
       // For the growth case,
       // r = (w0 + g0 * gf) + (w1 + g1 * gf) + ... + (wn + gn * gf)
@@ -179,28 +199,28 @@ class BaseOyster<T> {
       // Solve for gf
       // r = (w0 + w1 + ... + wn) + (g0 + g1 + ... + gn) * gf
       // (r - (w0 + w1 + ... + wn)) /  (g0 + g1 + ... + gn) = gf
-      growFactor = (radius - totalWidth) / totalGrow
+      growFactor = (radius - totalWidth) / totalGrow;
     }
 
-    return Array.from(expand(this.layers, shrinkFactor, growFactor))
+    return Array.from(expand(this.layers, shrinkFactor, growFactor));
   }
 }
 
 export class Oyster<T> extends BaseOyster<T> {
-  expand = (radius: number) => this._expand(radius)
+  expand = (radius: number) => this._expand(radius);
 }
 
 export class RoughOyster extends BaseOyster<ReplaceFn<RoughTile>> {
-  rough: Architect['rough'] = ({plan, diorama}) => {
-    const tiles = diorama.tiles
-    const replacements = this._expand(plan.pearlRadius)
+  rough: Architect["rough"] = ({ plan, diorama }) => {
+    const tiles = diorama.tiles;
+    const replacements = this._expand(plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {
       layer.forEach(([x, y]) => {
-        const r = replacements[i](tiles.get(x, y) ?? Tile.SOLID_ROCK)
+        const r = replacements[i](tiles.get(x, y) ?? Tile.SOLID_ROCK);
         if (r) {
-          tiles.set(x, y, r)
+          tiles.set(x, y, r);
         }
-      })
-    })
-  }
+      });
+    });
+  };
 }

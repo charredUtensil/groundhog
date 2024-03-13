@@ -1,8 +1,8 @@
 import React from "react";
 import { Path } from "../../../core/models/path";
-import "./path.scss"
+import "./path.scss";
 
-const SCALE = 6
+const SCALE = 6;
 
 export default function PathPreview({ path }: { path: Path }) {
   const d = path.baseplates
