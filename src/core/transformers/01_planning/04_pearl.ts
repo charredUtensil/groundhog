@@ -160,11 +160,12 @@ export default function pearl(
     (plan.kind === "cave" ? caveNucleus : hallNucleus)(grid, plan);
     const innerPearl: [number, number][][] = [grid.map((_, x, y) => [x, y])];
     const outerPearl: [number, number][][] = [];
-    for (let i = 1; i <= plan.pearlRadius; i++) {
+    const pearlRadius = plan.architect.roughExtent(plan)
+    for (let i = 1; i <= pearlRadius; i++) {
       innerPearl.push(addLayer(grid, rng, plan.baroqueness, i));
     }
     for (let i = 1; i < 4; i++) {
-      outerPearl.push(addLayer(grid, rng, 0, i + plan.pearlRadius));
+      outerPearl.push(addLayer(grid, rng, 0, i + pearlRadius));
     }
     return { ...plan, innerPearl, outerPearl };
   });

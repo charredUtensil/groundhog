@@ -75,6 +75,14 @@ enum Die {
   pickSpawn,
   pickArchitect,
   pearl,
+  rough,
+  placeRechargeSeam,
+  placeBuildings,
+  placeCrystals,
+  placeOre,
+  placeLandslides,
+  placeErosion,
+  placeEntities,
 }
 
 export class DiceBox {
@@ -122,11 +130,14 @@ export class DiceBox {
     return this.prng(Die.pickSpawn, 0);
   }
 
-  pickArchitect(id: number) {
-    return this.prng(Die.pickArchitect, id);
-  }
-
-  pearl(id: number) {
-    return this.prng(Die.pearl, id);
-  }
+  pickArchitect     = (id: number) => this.prng(Die.pickArchitect, id);
+  pearl             = (id: number) => this.prng(Die.pearl, id);
+  rough             = (id: number) => this.prng(Die.rough, id);
+  placeRechargeSeam = (id: number) => this.prng(Die.placeRechargeSeam, id);
+  placeBuildings    = (id: number) => this.prng(Die.placeBuildings, id);
+  placeCrystals     = (id: number) => this.prng(Die.placeCrystals, id);
+  placeOre          = (id: number) => this.prng(Die.placeOre, id);
+  placeLandslides   = (id: number) => this.prng(Die.placeLandslides, id);
+  placeErosion      = (id: number) => this.prng(Die.placeErosion, id);
+  placeEntities     = (id: number) => this.prng(Die.placeEntities, id);
 }

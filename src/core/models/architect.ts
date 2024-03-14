@@ -1,6 +1,5 @@
 import {
   CavernWithPartialPlans,
-  CavernWithPlans,
   CavernWithPlansAndBaseDiorama,
   CavernWithPlansAndRoughDiorama,
 } from "./cavern";
@@ -15,6 +14,7 @@ type SpawnBidArgs = {
 type BidArgs = SpawnBidArgs & {
   plans: readonly (Flooded | Established)[];
   hops: number;
+  totalCrystals: number;
 };
 
 type EstablishArgs = {
@@ -31,25 +31,35 @@ type FineArgs = {
 
 export type BaseArchitect = {
   readonly name: string;
+
+  caveBid?(args: BidArgs): number | false;
+  hallBid?(args: BidArgs): number | false;
+  spawnBid?(args: SpawnBidArgs): number | false;
+
   baroqueness(args: EstablishArgs): number;
   crystals(args: EstablishArgs): number;
+  ore(args: EstablishArgs): number;
+
+  roughExtent(plan: Established): number;
+
   rough(args: {
     cavern: CavernWithPlansAndBaseDiorama;
     plan: Plan;
     diorama: MutableRoughDiorama;
   }): void;
-  place_recharge_seam(args: FineArgs): void;
-  place_buildings(args: FineArgs): void;
-  place_crystals(args: FineArgs): void;
-  place_ore(args: FineArgs): void;
-  place_landslides(args: FineArgs): void;
-  place_erosion(args: FineArgs): void;
-  place_place_entities(args: FineArgs): void;
+
+  placeRechargeSeam(args: FineArgs): void;
+  placeBuildings(args: FineArgs): void;
+  placeCrystals(args: FineArgs): void;
+  placeOre(args: FineArgs): void;
+  placeLandslides(args: FineArgs): void;
+  placeErosion(args: FineArgs): void;
+  placeEntities(args: FineArgs): void;
 };
 
 export type Architect = BaseArchitect &
   (
-    | { caveBid(args: BidArgs): number }
-    | { hallBid(args: BidArgs): number }
-    | { spawnBid(args: SpawnBidArgs): number }
+    | { caveBid: NonNullable<BaseArchitect["caveBid"]> }
+    | { hallBid: NonNullable<BaseArchitect["hallBid"]> }
+    | { spawnBid: NonNullable<BaseArchitect["spawnBid"]> }
   );

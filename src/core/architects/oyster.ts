@@ -153,7 +153,7 @@ function* expand<T>(
 
 // Oyster class
 class BaseOyster<T> {
-  private readonly layers: Layer<T>[];
+  protected readonly _layers: Layer<T>[];
 
   constructor(
     ...layers: {
@@ -163,7 +163,7 @@ class BaseOyster<T> {
       grow?: number;
     }[]
   ) {
-    this.layers = layers.map((ly) => ({
+    this._layers = layers.map((ly) => ({
       of: ly.of,
       width: ly.width ?? 1,
       shrink: ly.shrink ?? 0,
@@ -173,9 +173,9 @@ class BaseOyster<T> {
 
   protected _expand(radius: number): T[] {
     radius = radius + 1;
-    const totalWidth = this.layers.reduce((t, { width }) => t + width, 0);
-    const totalShrink = this.layers.reduce((t, { shrink }) => t + shrink, 0);
-    const totalGrow = this.layers.reduce((t, { grow }) => t + grow, 0);
+    const totalWidth = this._layers.reduce((t, { width }) => t + width, 0);
+    const totalShrink = this._layers.reduce((t, { shrink }) => t + shrink, 0);
+    const totalGrow = this._layers.reduce((t, { grow }) => t + grow, 0);
     let growFactor = 0;
     let shrinkFactor = 0;
     if (radius < totalWidth && totalShrink > 0) {
@@ -191,7 +191,7 @@ class BaseOyster<T> {
 
       shrinkFactor =
         (totalWidth - radius) /
-        this.layers.reduce((t, { width, shrink }) => t + width * shrink, 0);
+        this._layers.reduce((t, { width, shrink }) => t + width * shrink, 0);
     } else if (radius > totalWidth && totalGrow > 0) {
       // For the growth case,
       // r = (w0 + g0 * gf) + (w1 + g1 * gf) + ... + (wn + gn * gf)
@@ -202,7 +202,7 @@ class BaseOyster<T> {
       growFactor = (radius - totalWidth) / totalGrow;
     }
 
-    return Array.from(expand(this.layers, shrinkFactor, growFactor));
+    return Array.from(expand(this._layers, shrinkFactor, growFactor));
   }
 }
 
@@ -210,7 +210,21 @@ export class Oyster<T> extends BaseOyster<T> {
   expand = (radius: number) => this._expand(radius);
 }
 
-export class RoughOyster extends BaseOyster<ReplaceFn<RoughTile>> {
+export class RoughOyster 
+  extends BaseOyster<ReplaceFn<RoughTile>> 
+  implements Pick<Architect, "roughExtent" | "rough"> {
+  roughExtent: Architect["roughExtent"] = (plan) => {
+    if (this._layers[this._layers.length - 1].of !== Rough.VOID) {
+      return plan.pearlRadius
+    }
+    const ly = this._expand(plan.pearlRadius)
+    for (let i = ly.length - 1; i > 0; i--) {
+      if (ly[i] !== Rough.VOID) {
+        return i
+      }
+    }
+    return 0
+  };
   rough: Architect["rough"] = ({ plan, diorama }) => {
     const tiles = diorama.tiles;
     const replacements = this._expand(plan.pearlRadius);

@@ -58,6 +58,8 @@ export type CavernContext = {
 
   caveCrystalRichness: Curve;
   hallCrystalRichness: Curve;
+  caveOreRichness: Curve;
+  hallOreRichness: Curve;
 };
 
 export function inferContextDefaults(
@@ -78,5 +80,7 @@ export function inferContextDefaults(
     hallBaroqueness: 0.05,
     caveCrystalRichness: curve(0.5, 1.0, 1.0),
     hallCrystalRichness: curve(0, 0, 0),
+    caveOreRichness: curve(3.75, -0.50, -0.25),
+    hallOreRichness: curve(0, 0, 0),
   };
 }

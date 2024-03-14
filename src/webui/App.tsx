@@ -16,6 +16,7 @@ import CavernPreview from "./components/preview/cavern";
 function App() {
   const [generator, setGenerator] = useState<CavernGenerator | undefined>();
   const [cavern, setCavern] = useState<Cavern>();
+  const [isDone, setIsDone] = useState(false);
   const logger: Logger = {
     info: setCavern,
   };
@@ -24,7 +25,7 @@ function App() {
     logger,
   });
 
-  const doGenerate = () => {
+  const startGenerating = () => {
     const dice = new DiceBox(0x19930202);
     const context = inferContextDefaults(dice, cavernContext);
     const cavern = { context, dice };
@@ -32,18 +33,23 @@ function App() {
     setGenerator(new CavernGenerator(cavern));
   };
 
+  const stepGenerate = () => {
+    generator?.step()
+    setIsDone(generator?.isDone ?? false)
+  }
+
   return (
     <div className="App">
       {!generator && (
         <>
           <CavernContextInput get={cavernContext} set={setCavernContext} />
-          <button onClick={doGenerate}>Generate</button>
+          <button onClick={startGenerating}>Generate</button>
         </>
       )}
       {cavern && generator && (
         <>
           <CavernPreview cavern={cavern} />
-          <button onClick={() => generator.step()}>Step</button>
+          {!isDone && <button onClick={stepGenerate}>Step</button>}
         </>
       )}
     </div>

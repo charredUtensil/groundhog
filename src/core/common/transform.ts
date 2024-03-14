@@ -1,6 +1,6 @@
 type TfResult<T, U extends T> = {
   result: U;
-  next: () => TfResult<T, any>;
+  next: (() => TfResult<T, any>) | null;
 };
 
 class TfBuilder<T, U extends T, V extends T> {
@@ -8,12 +8,12 @@ class TfBuilder<T, U extends T, V extends T> {
   constructor(fns: ((it: T) => T)[]) {
     this.fns = fns;
   }
-  private mkCall<A extends T>(result: A, i: number) {
-    const next = () => this.mkCall(this.fns[i](result), i + 1);
+  private mkNext<A extends T>(result: A, i: number) {
+    const next = i < this.fns.length ? () => this.mkNext(this.fns[i](result), i + 1): null;
     return { result, next };
   }
   first<A extends T>(result: A): TfResult<T, A> {
-    const next = () => this.mkCall(result, 0);
+    const next = () => this.mkNext(result, 0);
     return { result, next };
   }
   then<W extends T>(

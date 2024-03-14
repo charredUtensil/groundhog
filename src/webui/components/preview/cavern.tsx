@@ -15,7 +15,7 @@ const SVG_HEIGHT = 600;
 export default function CavernPreview({ cavern }: { cavern: Cavern }) {
   return (
     <div className="cavernPreview">
-      <div>seed: {cavern.context.seed}</div>
+      <div className="seed">seed: {cavern.context.seed}</div>
       <svg
         className="map"
         style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}

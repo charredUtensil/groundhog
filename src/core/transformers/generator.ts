@@ -1,5 +1,4 @@
-import { CavernContext } from "../common";
-import { BaseCavern, Cavern } from "../models/cavern";
+import { BaseCavern } from "../models/cavern";
 import { OUTLINE_TF } from "./00_outlines";
 import { PLANNING_TF } from "./01_planning";
 import { PLASTIC_TF } from "./02_plastic";
@@ -12,10 +11,16 @@ export class CavernGenerator {
     this.state = CAVERN_TF.first(cavern);
   }
 
+  get isDone() {
+    return !this.state.next
+  }
+
   step() {
-    const { result, next } = this.state.next();
-    result.context.logger.info(result);
-    console.log(result);
-    this.state = { result, next };
+    if (this.state.next) {
+      const { result, next } = this.state.next();
+      result.context.logger.info(result);
+      console.log(result);
+      this.state = { result, next };
+    }
   }
 }

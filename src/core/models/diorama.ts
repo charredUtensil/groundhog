@@ -23,11 +23,13 @@ export type MutableRoughDiorama = BaseDiorama & {
 export type Diorama = BaseDiorama & {
   tiles: ReadOnlyGrid<Tile>;
   crystals: ReadOnlyGrid<number>;
+  ore: ReadOnlyGrid<number>;
 };
 
 export type MutableDiorama = Diorama & {
   tiles: Grid<Tile>;
   crystals: Grid<number>;
+  ore: Grid<number>;
 };
 
 class MutableDioramaImpl implements MutableRoughDiorama, MutableDiorama {
@@ -35,6 +37,7 @@ class MutableDioramaImpl implements MutableRoughDiorama, MutableDiorama {
   intersectsPearlOuter: Grid<readonly boolean[]>;
   tiles: Grid<Tile>;
   crystals: Grid<number>;
+  ore: Grid<number>;
 
   constructor(copyOf?: Partial<Diorama>) {
     this.intersectsPearlInner =
@@ -43,6 +46,7 @@ class MutableDioramaImpl implements MutableRoughDiorama, MutableDiorama {
       copyOf?.intersectsPearlOuter?.copy() ?? new Grid();
     this.tiles = copyOf?.tiles?.copy() ?? new Grid();
     this.crystals = copyOf?.crystals?.copy() ?? new Grid();
+    this.ore = copyOf?.ore?.copy() ?? new Grid();
   }
 
   copy(): MutableBaseDiorama & MutableRoughDiorama & MutableDiorama {

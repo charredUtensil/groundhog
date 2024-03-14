@@ -1,5 +1,6 @@
 import { DiceBox } from "../common";
 import { CavernContext } from "../common/context";
+import { ReadOnlyGrid } from "../common/grid";
 import { Baseplate } from "./baseplate";
 import { BaseDiorama, Diorama, RoughDiorama } from "./diorama";
 import { Path } from "./path";
@@ -28,10 +29,14 @@ export type CavernWithPlansAndRoughDiorama = CavernWithPlans & {
 export type CavernWithPlansAndDiorama = CavernWithPlans & {
   diorama: Diorama;
 };
+export type CavernWithDiscoveryZones = CavernWithPlansAndDiorama & {
+  discoveryZones: ReadOnlyGrid<number>;
+}
 
 export type Cavern = BaseCavern & {
   baseplates?: readonly Baseplate[];
   paths?: readonly Path[];
   plans?: readonly Partial<Plan>[];
   diorama?: BaseDiorama;
+  discoveryZones?: ReadOnlyGrid<number>;
 };

@@ -25,7 +25,7 @@ export default function establish(
         .filter((p) => p.kind === "cave")
         .map((plan) => ({
           item: { ...plan, architect },
-          bid: architect.spawnBid?.({ cavern, plan }) ?? 0,
+          bid: architect.spawnBid!({ cavern, plan }) || 0,
         })),
     ),
   );
@@ -59,22 +59,19 @@ export default function establish(
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
-  const architects = ARCHITECTS.filter((architect) => architect.bid);
-
   function doArchitect({ plan, hops, index }: Sorted): Architected {
     const props = { hops: hops / maxHops, order: index / maxIndex };
     const architect =
       plan.architect ||
       cavern.dice.pickArchitect(plan.id).weightedChoice(
-        architects.map((architect) => ({
-          item: architect,
-          bid: (plan.kind === "cave" ? architect.caveBid : architect.hallBid)({
-            cavern,
-            plan,
-            plans,
-            hops,
-          }),
-        })),
+        ARCHITECTS.map((architect) => {
+          const bid =
+            plan.kind === "cave" ? architect.caveBid : architect.hallBid;
+          return {
+            item: architect,
+            bid: bid?.({ cavern, plan, plans, hops, totalCrystals }) || 0,
+          }
+        }),
       );
     const crystalRichness = curved(
       plan.kind === "cave"
@@ -82,14 +79,22 @@ export default function establish(
         : cavern.context.hallCrystalRichness,
       props,
     );
-    return { ...plan, architect, crystalRichness };
+    const oreRichness = curved(
+      plan.kind === "cave"
+        ? cavern.context.caveOreRichness
+        : cavern.context.hallOreRichness,
+      props,
+    );
+    return { ...plan, architect, crystalRichness, oreRichness };
   }
   function doEstablish(plan: Architected) {
     const args = { cavern, plan, totalCrystals };
     const baroqueness = plan.architect.baroqueness(args);
     const crystals = Math.round(plan.architect.crystals(args));
     totalCrystals += crystals;
-    plans[plan.id] = { ...plan, baroqueness, crystals };
+    const ore = Math.round(plan.architect.ore(args));
+    const established: Established = { ...plan, baroqueness, crystals, ore};
+    plans[plan.id] = established
   }
   inOrder.forEach((path) => doEstablish(doArchitect(path)));
 

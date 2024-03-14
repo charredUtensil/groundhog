@@ -34,6 +34,7 @@ export type Architected = Flooded & {
   /** The architect to use to build out the plan. */
   readonly architect: Architect;
   readonly crystalRichness: number;
+  readonly oreRichness: number;
 };
 
 export type Established = Architected & {
@@ -41,6 +42,8 @@ export type Established = Architected & {
   readonly baroqueness: number;
   /** How many crystals the Plan will add. */
   readonly crystals: number;
+  /** How many ore the Plan will add. */
+  readonly ore: number;
 };
 
 export type Pearl = ReadonlyArray<ReadonlyArray<readonly [number, number]>>;
