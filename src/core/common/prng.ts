@@ -66,6 +66,18 @@ export class PseudorandomStream {
     }
     return b[b.length - 1].item;
   }
+
+  shuffle<T>(choices: T[]): T[] {
+    const r: T[] = []
+    for (let i = 0; i < choices.length - 1; i++) {
+      const j = Math.floor((this.mt() * i) / MAX_PLUS_ONE)
+      if (i != j) {
+        r[i] = r[j]
+      }
+      r[j] = choices[i]
+    }
+    return r
+  }
 }
 
 enum Die {
@@ -83,6 +95,7 @@ enum Die {
   placeLandslides,
   placeErosion,
   placeEntities,
+  lore,
 }
 
 export class DiceBox {
@@ -140,4 +153,5 @@ export class DiceBox {
   placeLandslides   = (id: number) => this.prng(Die.placeLandslides, id);
   placeErosion      = (id: number) => this.prng(Die.placeErosion, id);
   placeEntities     = (id: number) => this.prng(Die.placeEntities, id);
+  lore              = (id: number) => this.prng(Die.lore, id);
 }

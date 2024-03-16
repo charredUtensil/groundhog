@@ -1,6 +1,6 @@
 import { Mutable } from "../../common";
 import { Baseplate } from "../../models/baseplate";
-import { CavernWithBaseplatesAndPaths } from "../../models/cavern";
+import { TriangulatedCavern } from "./02_triangulate";
 import { Path } from "../../models/path";
 
 type AngleInfo = readonly number[][];
@@ -30,8 +30,8 @@ function getOffset(t1: number, t2: number): number {
 }
 
 export default function weave(
-  cavern: CavernWithBaseplatesAndPaths,
-): CavernWithBaseplatesAndPaths {
+  cavern: TriangulatedCavern,
+): TriangulatedCavern {
   const rng = cavern.dice.weave;
   const angleInfo = getAngleInfo(cavern.paths);
 

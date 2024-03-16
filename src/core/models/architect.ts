@@ -1,32 +1,36 @@
-import {
-  CavernWithPartialPlans,
-  CavernWithPlansAndBaseDiorama,
-  CavernWithPlansAndRoughDiorama,
-} from "./cavern";
-import { MutableDiorama, MutableRoughDiorama } from "./diorama";
-import { Architected, Established, Flooded, Measured, Plan } from "./plan";
+import { PartialPlannedCavern } from "../transformers/01_planning/00_negotiate";
+import { FoundationPlasticCavern } from "../transformers/02_plastic/00_foundation";
+import { RoughPlasticCavern } from "../transformers/02_plastic/01_rough";
+import { Plan } from "./plan";
+import { EstablishedPlan } from "../transformers/01_planning/03_establish";
+import { ArchitectedPlan } from "../transformers/01_planning/03_establish";
+import { FloodedPlan } from "../transformers/01_planning/02_flood";
+import { RoughTile, Tile } from "./tiles";
+import { MutableGrid } from "../common/grid";
 
 type SpawnBidArgs = {
-  cavern: CavernWithPartialPlans<Flooded>;
-  plan: Flooded;
+  cavern: PartialPlannedCavern<FloodedPlan>;
+  plan: FloodedPlan;
 };
 
 type BidArgs = SpawnBidArgs & {
-  plans: readonly (Flooded | Established)[];
+  plans: readonly (FloodedPlan | EstablishedPlan)[];
   hops: number;
   totalCrystals: number;
 };
 
 type EstablishArgs = {
-  cavern: CavernWithPartialPlans<Flooded>;
-  plan: Architected;
+  cavern: PartialPlannedCavern<FloodedPlan>;
+  plan: ArchitectedPlan;
   totalCrystals: number;
 };
 
 type FineArgs = {
-  cavern: CavernWithPlansAndRoughDiorama;
+  cavern: RoughPlasticCavern;
   plan: Plan;
-  diorama: MutableDiorama;
+  tiles: MutableGrid<Tile>;
+  crystals: MutableGrid<number>;
+  ore: MutableGrid<number>;
 };
 
 export type BaseArchitect = {
@@ -40,12 +44,12 @@ export type BaseArchitect = {
   crystals(args: EstablishArgs): number;
   ore(args: EstablishArgs): number;
 
-  roughExtent(plan: Established): number;
+  roughExtent(plan: EstablishedPlan): number;
 
   rough(args: {
-    cavern: CavernWithPlansAndBaseDiorama;
+    cavern: FoundationPlasticCavern;
     plan: Plan;
-    diorama: MutableRoughDiorama;
+    tiles: MutableGrid<RoughTile>;
   }): void;
 
   placeRechargeSeam(args: FineArgs): void;

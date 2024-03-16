@@ -1,15 +1,22 @@
-import {
-  CavernWithPlansAndDiorama,
-  CavernWithPlansAndRoughDiorama,
-} from "../../models/cavern";
-import { MutableDiorama } from "../../models/diorama";
+import { PlannedCavern } from "../../models/cavern";
+import { RoughPlasticCavern } from "./01_rough";
+import { MutableGrid, Grid } from "../../common/grid";
+import { Tile } from "../../models/tiles";
+
+export type FinePlasticCavern = PlannedCavern & {
+  readonly tiles: Grid<Tile>;
+  readonly crystals: Grid<number>;
+  readonly ore: Grid<number>;
+};
 
 export default function fine(
-  cavern: CavernWithPlansAndRoughDiorama,
-): CavernWithPlansAndDiorama {
-  const diorama: MutableDiorama = cavern.diorama.copy();
+  cavern: RoughPlasticCavern,
+): FinePlasticCavern {
+  const tiles: MutableGrid<Tile> = cavern.tiles.copy()
+  const crystals = new MutableGrid<number>
+  const ore = new MutableGrid<number>
   cavern.plans.forEach((plan) => {
-    const args = { cavern, plan, diorama };
+    const args = { cavern, plan, tiles, crystals, ore };
     plan.architect.placeRechargeSeam(args);
     plan.architect.placeBuildings(args);
     plan.architect.placeCrystals(args);
@@ -18,5 +25,6 @@ export default function fine(
     plan.architect.placeErosion(args);
     plan.architect.placeEntities(args);
   });
-  return { ...cavern, diorama };
+  return { ...cavern, tiles, crystals, ore };
 }
+

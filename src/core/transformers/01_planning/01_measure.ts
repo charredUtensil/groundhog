@@ -1,9 +1,20 @@
-import { CavernWithPartialPlans } from "../../models/cavern";
-import { Measured, Negotiated } from "../../models/plan";
+import { PartialPlannedCavern } from "./00_negotiate";
+import { NegotiatedPlan } from "./00_negotiate";
+
+export type MeasuredPlan = NegotiatedPlan & {
+  /**
+   * If intersects[id] is true, this plan intersects the plan with the given id.
+   * Plans do not intersect themselves.
+   */
+  readonly intersects: readonly boolean[];
+  /** How many layers of different tiles can be added to this Plan? */
+  readonly pearlRadius: number;
+  readonly perimeter: number;
+};
 
 export default function measure(
-  cavern: CavernWithPartialPlans<Negotiated>,
-): CavernWithPartialPlans<Measured> {
+  cavern: PartialPlannedCavern<NegotiatedPlan>,
+): PartialPlannedCavern<MeasuredPlan> {
   const planIdsByBp: number[][] = [];
   cavern.plans.forEach((plan) => {
     plan.path.baseplates.forEach((bp) =>

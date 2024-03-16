@@ -1,7 +1,8 @@
 import { PseudorandomStream } from "../../common";
 import { Baseplate } from "../../models/baseplate";
 import { Path } from "../../models/path";
-import { Established, Plan } from "../../models/plan";
+import { Plan } from "../../models/plan";
+import { EstablishedPlan } from "./03_establish";
 import { LayerGrid, caveNucleus, hallNucleus, trail } from "./04_pearl";
 
 describe("LayerGrid", () => {
@@ -31,7 +32,7 @@ describe("hallNucleus", () => {
     const a = new Baseplate(14, 0, 0, 3, 3, "cave");
     const b = new Baseplate(15, 3, 0, 6, 3, "cave");
     const path = new Path(21, "spanning", [a, b]);
-    const plan = { path } as Established;
+    const plan = { path } as EstablishedPlan;
     const grid = new LayerGrid();
     hallNucleus(grid, plan);
     expect(grid.atLayer(0)).toEqual([
@@ -47,7 +48,7 @@ describe("caveNucleus", () => {
   it("for one square cave with odd size is a single tile", () => {
     const bp = new Baseplate(22, 0, 0, 19, 19, "cave");
     const path = new Path(25, "spanning", [bp]);
-    const plan = { path, pearlRadius: bp.pearlRadius } as Established;
+    const plan = { path, pearlRadius: bp.pearlRadius } as EstablishedPlan;
     const grid = new LayerGrid();
     caveNucleus(grid, plan);
     expect(grid.atLayer(0)).toEqual([[9, 9]]);
@@ -55,7 +56,7 @@ describe("caveNucleus", () => {
   it("for one square cave with even size is four tiles", () => {
     const bp = new Baseplate(22, 0, 0, 20, 20, "cave");
     const path = new Path(25, "spanning", [bp]);
-    const plan = { path, pearlRadius: bp.pearlRadius } as Established;
+    const plan = { path, pearlRadius: bp.pearlRadius } as EstablishedPlan;
     const grid = new LayerGrid();
     caveNucleus(grid, plan);
     expect(grid.atLayer(0)).toEqual([

@@ -1,20 +1,26 @@
 import { PseudorandomStream } from "../../common";
-import { plotLine } from "../../common/geometry";
-import { Grid } from "../../common/grid";
+import { NSEW, Point, plotLine } from "../../common/geometry";
+import { MutableGrid } from "../../common/grid";
 import { pairEach } from "../../common/utils";
-import { CavernWithPartialPlans } from "../../models/cavern";
-import { Established, Pearl, Pearled } from "../../models/plan";
+import { PartialPlannedCavern } from "./00_negotiate";
+import { EstablishedPlan } from "./03_establish";
 
-const NSEW: ReadonlyArray<readonly [number, number]> = [
-  [0, -1],
-  [0, 1],
-  [1, 0],
-  [-1, 0],
-];
+type Layer = readonly Point[]
+export type Pearl = readonly Layer[];
 
-export class LayerGrid extends Grid<number> {
-  atLayer(layer: number) {
-    const result: [number, number][] = [];
+export type PearledPlan = EstablishedPlan & {
+  /**
+   * A pearl is an array of layers (from innermost to out).
+   * Each layer contains an array of [x, y] coordinates in that layer.
+   * innerPearl[layer][sequence] = [x, y]
+   */
+  readonly innerPearl: Pearl;
+  readonly outerPearl: Pearl;
+};
+
+export class LayerGrid extends MutableGrid<number> {
+  atLayer(layer: number): Point[] {
+    const result: Point[] = [];
     this.forEach((ly, x, y) => {
       if (ly === layer) {
         result.push([x, y]);
@@ -31,7 +37,7 @@ export class LayerGrid extends Grid<number> {
   }
 }
 
-export function hallNucleus(grid: LayerGrid, plan: Established) {
+export function hallNucleus(grid: LayerGrid, plan: EstablishedPlan) {
   pairEach(plan.path.baseplates, (a, b) => {
     for (const [x, y] of plotLine(a.center, b.center)) {
       grid.set(x, y, 0);
@@ -39,7 +45,7 @@ export function hallNucleus(grid: LayerGrid, plan: Established) {
   });
 }
 
-export function caveNucleus(grid: LayerGrid, plan: Established) {
+export function caveNucleus(grid: LayerGrid, plan: EstablishedPlan) {
   // The cave nucleus is less straightforward.
 
   plan.path.baseplates.forEach((bp) => {
@@ -69,8 +75,8 @@ export function trail(
   baroqueness: number,
   layer: number,
   cp: { x: number; y: number; vx: number; vy: number } | undefined,
-): [number, number][] {
-  const result: [number, number][] = [];
+): Point[] {
+  const result: Point[] = [];
   while (cp) {
     const { x, y, vx, vy } = cp;
 
@@ -134,7 +140,7 @@ function addLayer(
   rng: PseudorandomStream,
   baroqueness: number,
   layer: number,
-): [number, number][] {
+): Point[] {
   return grid.atLayer(layer - 1).flatMap(([x, y]) =>
     NSEW.flatMap(([ox, oy]) => {
       if ((grid.get(x + ox, y + oy) ?? -1) >= 0) {
@@ -152,14 +158,14 @@ function addLayer(
 }
 
 export default function pearl(
-  cavern: CavernWithPartialPlans<Established>,
-): CavernWithPartialPlans<Pearled> {
+  cavern: PartialPlannedCavern<EstablishedPlan>,
+): PartialPlannedCavern<PearledPlan> {
   const plans = cavern.plans.map((plan) => {
     const rng = cavern.dice.pearl(plan.id);
     const grid: LayerGrid = new LayerGrid();
     (plan.kind === "cave" ? caveNucleus : hallNucleus)(grid, plan);
-    const innerPearl: [number, number][][] = [grid.map((_, x, y) => [x, y])];
-    const outerPearl: [number, number][][] = [];
+    const innerPearl: Point[][] = [grid.map((_, x, y) => [x, y])];
+    const outerPearl: Point[][] = [];
     const pearlRadius = plan.architect.roughExtent(plan)
     for (let i = 1; i <= pearlRadius; i++) {
       innerPearl.push(addLayer(grid, rng, plan.baroqueness, i));
@@ -171,3 +177,4 @@ export default function pearl(
   });
   return { ...cavern, plans };
 }
+

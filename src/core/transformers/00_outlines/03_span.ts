@@ -1,4 +1,4 @@
-import { CavernWithBaseplatesAndPaths } from "../../models/cavern";
+import { TriangulatedCavern } from "./02_triangulate";
 import { Path } from "../../models/path";
 
 /*
@@ -9,8 +9,8 @@ import { Path } from "../../models/path";
  * It is assumed the ids of the paths are sequential, starting from 0.
  */
 export default function span(
-  cavern: CavernWithBaseplatesAndPaths,
-): CavernWithBaseplatesAndPaths {
+  cavern: TriangulatedCavern,
+): TriangulatedCavern {
   const clusters: number[] = [];
   let nextCluster = 1;
 

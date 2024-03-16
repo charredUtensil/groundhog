@@ -12,6 +12,7 @@ import { CavernGenerator } from "../core/transformers/generator";
 import { Cavern } from "../core/models/cavern";
 import { Logger } from "../core/common/logger";
 import CavernPreview from "./components/preview/cavern";
+import LoreGraph from "./components/lore_graph";
 
 function App() {
   const [generator, setGenerator] = useState<CavernGenerator | undefined>();
@@ -42,6 +43,7 @@ function App() {
     <div className="App">
       {!generator && (
         <>
+          <LoreGraph />
           <CavernContextInput get={cavernContext} set={setCavernContext} />
           <button onClick={startGenerating}>Generate</button>
         </>

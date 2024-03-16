@@ -1,17 +1,18 @@
 import Delaunator from "delaunator";
 import { Path } from "../../models/path";
-import {
-  CavernWithBaseplates,
-  CavernWithBaseplatesAndPaths,
-} from "../../models/cavern";
+import { PartitionedCavern } from "./00_partition";
+
+export type TriangulatedCavern = PartitionedCavern & {
+  paths: readonly Path[];
+};
 
 /**
  * Performs Delaunay triangulation over all the baseplates with the 'cave' kind to generate
  * ambiguous paths.
  */
 export default function triangulate(
-  cavern: CavernWithBaseplates,
-): CavernWithBaseplatesAndPaths {
+  cavern: PartitionedCavern,
+): TriangulatedCavern {
   const caveBaseplates = cavern.baseplates.filter((bp) => bp.kind === "cave");
   const points = caveBaseplates.flatMap((bp) => bp.center);
   const delaunay = new Delaunator(points);

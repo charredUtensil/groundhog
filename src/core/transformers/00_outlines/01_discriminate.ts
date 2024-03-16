@@ -1,8 +1,8 @@
-import { CavernWithBaseplates } from "../../models/cavern";
+import { PartitionedCavern } from "./00_partition";
 
 export default function discriminate(
-  cavern: CavernWithBaseplates,
-): CavernWithBaseplates {
+  cavern: PartitionedCavern,
+): PartitionedCavern {
   const dexes = cavern.baseplates
     .map((bp, i) => [bp.area, i])
     .sort(([_, a], [__, b]) => a - b);

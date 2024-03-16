@@ -1,15 +1,18 @@
-import {
-  CavernWithPlansAndBaseDiorama,
-  CavernWithPlansAndRoughDiorama,
-} from "../../models/cavern";
-import { MutableRoughDiorama } from "../../models/diorama";
+import { FoundationPlasticCavern } from "./00_foundation";
+import { MutableGrid, Grid } from "../../common/grid";
+import { RoughTile } from "../../models/tiles";
+
+export type RoughPlasticCavern = FoundationPlasticCavern & {
+  readonly tiles: Grid<RoughTile>;
+};
 
 export default function rough(
-  cavern: CavernWithPlansAndBaseDiorama,
-): CavernWithPlansAndRoughDiorama {
-  const diorama: MutableRoughDiorama = cavern.diorama.copy();
+  cavern: FoundationPlasticCavern,
+): RoughPlasticCavern {
+  const tiles = new MutableGrid<RoughTile>
   cavern.plans.forEach((plan) => {
-    plan.architect.rough({ cavern, plan, diorama });
+    plan.architect.rough({ cavern, plan, tiles });
   });
-  return { ...cavern, diorama };
+  return { ...cavern, tiles };
 }
+

@@ -1,17 +1,30 @@
-export function adjacent4(a: [number, number], b: [number, number]) {
+export type Point = readonly [number, number]
+export type Cardinal4 = [0, -1] | [1, 0] | [0, 1] | [-1, 0]
+export type Cardinal8 = Cardinal4 | [1, -1] | [1, 1] | [-1, 1] | [-1, -1]
+
+export const ORIGIN: Point = [0, 0]
+export const NORTH:      Point = [0, -1]
+export const NORTH_EAST: Point = [1, -1]
+export const EAST:       Point = [1, 0]
+export const SOUTH_EAST: Point = [1, 1]
+export const SOUTH:      Point = [0, 1]
+export const SOUTH_WEST: Point = [-1, 1]
+export const WEST:       Point = [-1, 0]
+export const NORTH_WEST: Point = [-1, -1]
+
+export const NSEW: readonly Point[] = [NORTH, SOUTH, EAST, WEST]
+
+export function isAdjacent4(a: Point, b: Point) {
   return (
     (a[0] == b[0] && Math.abs(a[1] - b[1]) <= 1) ||
     (a[1] == b[1] && Math.abs(a[0] - b[0]) <= 1)
   );
 }
-export function adjacent8(a: [number, number], b: [number, number]) {
+export function isAdjacent8(a: Point, b: Point) {
   return Math.abs(a[0] - b[0]) <= 1 && Math.abs(a[1] - b[1]) <= 1;
 }
 
-export function* plotLine(
-  a: [number, number],
-  b: [number, number],
-): IterableIterator<[number, number]> {
+export function* plotLine(a: Point, b: Point): IterableIterator<Point> {
   let x = Math.floor(a[0]);
   let y = Math.floor(a[1]);
   const destX = Math.floor(b[0]);
@@ -54,4 +67,14 @@ export function* plotLine(
       y += sy;
     }
   }
+}
+
+export function rotateRight([x, y]: Point): Point {
+  return [-y, x]
+}
+export function rotateLeft([x, y]: Point): Point {
+  return [y, -x]
+}
+export function rotateAround([x, y]: Point): Point {
+  return [-x, -y]
 }

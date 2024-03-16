@@ -1,16 +1,9 @@
-import { Grid } from "../../common/grid";
-import { CavernWithPlansAndRoughDiorama } from "../../models/cavern";
-import { MutableRoughDiorama } from "../../models/diorama";
+import { MutableGrid } from "../../common/grid";
+import { RoughPlasticCavern } from "./01_rough";
 import { RoughTile, Tile } from "../../models/tiles";
+import { NSEW } from "../../common/geometry";
 
-const NSEW: ReadonlyArray<readonly [number, number]> = [
-  [0, -1],
-  [0, 1],
-  [-1, 0],
-  [1, 0],
-];
-
-function visit(tiles: Grid<RoughTile>, x: number, y: number) {
+function visit(tiles: MutableGrid<RoughTile>, x: number, y: number) {
   if (!(tiles.get(x, y)?.isWall ?? true)) {
     // This tile is not a wall.
     return;
@@ -51,14 +44,14 @@ function visit(tiles: Grid<RoughTile>, x: number, y: number) {
 }
 
 export default function patch(
-  cavern: CavernWithPlansAndRoughDiorama,
-): CavernWithPlansAndRoughDiorama {
-  const diorama: MutableRoughDiorama = cavern.diorama.copy();
-  const bounds = diorama.tiles.bounds;
+  cavern: RoughPlasticCavern,
+): RoughPlasticCavern {
+  const tiles = cavern.tiles.copy()
+  const bounds = tiles.bounds;
   for (let x = bounds.left; x < bounds.right; x++) {
     for (let y = bounds.top; y < bounds.bottom; y++) {
-      visit(diorama.tiles, x, y);
+      visit(tiles, x, y);
     }
   }
-  return { ...cavern, diorama };
+  return { ...cavern, tiles };
 }

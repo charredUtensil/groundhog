@@ -1,3 +1,5 @@
+import { Point } from "../common/geometry";
+
 export type BaseplateKind = "stock" | "ambiguous" | "cave" | "hall";
 
 /* A rectangular space that we can build on. */
@@ -37,7 +39,7 @@ export class Baseplate {
     return this.width * this.height;
   }
 
-  get center(): [number, number] {
+  get center(): Point {
     return [this.left + this.width / 2, this.top + this.height / 2];
   }
 

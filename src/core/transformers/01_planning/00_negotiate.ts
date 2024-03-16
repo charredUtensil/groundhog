@@ -1,10 +1,21 @@
 import { Baseplate } from "../../models/baseplate";
-import {
-  CavernWithBaseplatesAndPaths,
-  CavernWithPartialPlans,
-} from "../../models/cavern";
+import { BaseCavern } from "../../models/cavern";
+import { TriangulatedCavern } from "../00_outlines/02_triangulate";
 import { Path } from "../../models/path";
-import { Negotiated, Plan } from "../../models/plan";
+import { Plan } from "../../models/plan";
+
+export type PartialPlannedCavern<T extends Partial<Plan>> = BaseCavern & {
+  readonly plans: readonly T[];
+};
+
+export type NegotiatedPlan = {
+  /** Unique ID of the Plan, used for RNG and indexing. */
+  readonly id: number;
+  /** Is this a cave or a hall? */
+  readonly kind: "cave" | "hall";
+  /** The Path this Plan is built on. */
+  readonly path: Path;
+};
 
 /*
  * Returns whether these Baseplates can be combined into one big Cave.
@@ -30,8 +41,8 @@ function isMergeable(a: Baseplate, b: Baseplate): boolean {
  * Assign Baseplates and Paths to Plans.
  */
 export default function negotiate(
-  cavern: CavernWithBaseplatesAndPaths,
-): CavernWithPartialPlans<Negotiated> {
+  cavern: TriangulatedCavern,
+): PartialPlannedCavern<NegotiatedPlan> {
   const bpIsInBigCave: boolean[] = [];
   const queue: Pick<Plan, "kind" | "path">[][] = [[], [], []];
 
@@ -61,9 +72,11 @@ export default function negotiate(
     .filter((bp) => bp.kind === "cave" && !bpIsInBigCave[bp.id])
     .map((bp) => ({ path: new Path(-1, "single", [bp]), kind: "cave" }));
 
-  const plans: Negotiated[] = queue
+  const plans: NegotiatedPlan[] = queue
     .flatMap((a) => a)
     .map((plan, id) => ({ ...plan, id }));
 
   return { context: cavern.context, dice: cavern.dice, plans };
 }
+
+

@@ -225,8 +225,7 @@ export class RoughOyster
     }
     return 0
   };
-  rough: Architect["rough"] = ({ plan, diorama }) => {
-    const tiles = diorama.tiles;
+  rough: Architect["rough"] = ({ plan, tiles }) => {
     const replacements = this._expand(plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {
       layer.forEach(([x, y]) => {

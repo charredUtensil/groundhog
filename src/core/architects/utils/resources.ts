@@ -1,18 +1,17 @@
 import { PseudorandomStream } from "../../common";
-import { Grid, ReadOnlyGrid } from "../../common/grid";
+import { MutableGrid, Grid } from "../../common/grid";
 import { Architect } from "../../models/architect";
-import { CavernWithPlansAndRoughDiorama } from "../../models/cavern";
-import { BaseDiorama, Diorama } from "../../models/diorama";
-import { Established, Plan } from "../../models/plan";
+import { Plan } from "../../models/plan";
+import { EstablishedPlan } from "../../transformers/01_planning/03_establish";
 import { Tile } from "../../models/tiles";
-
-const NSEW = [[0, -1], [0, 1], [-1, 0], [1, 0]]
+import { RoughPlasticCavern } from "../../transformers/02_plastic/01_rough";
+import { NSEW, Point } from "../../common/geometry";
 
 /** Sprinkles resources throughout the tiles given by getRandomTile. */
 export function sprinkle(
-  getRandomTile: () => readonly [number, number],
-  tiles: Grid<Tile>,
-  resource: Grid<number>,
+  getRandomTile: () => Point,
+  tiles: MutableGrid<Tile>,
+  resource: MutableGrid<number>,
   seam: Tile,
   count: number,
 ) {
@@ -38,19 +37,47 @@ export function sprinkle(
   }
 }
 
-export function bidsForOuterPearl(
+export function sprinkleCrystals(getRandomTile: () => Point, args: {
+  crystals: MutableGrid<number>
+  tiles: MutableGrid<Tile>
   plan: Plan,
-  diorama: Diorama,
-): {item: readonly [number, number], bid: number}[] {
-  return plan.outerPearl.flatMap(
+}) {
+  return sprinkle(
+    getRandomTile,
+    args.tiles,
+    args.crystals,
+    Tile.CRYSTAL_SEAM,
+    args.plan.crystals,
+  )
+}
+
+export function sprinkleOre(getRandomTile: () => Point, args: {
+  ore: MutableGrid<number>
+  tiles: MutableGrid<Tile>
+  plan: Plan,
+}) {
+  return sprinkle(
+    getRandomTile,
+    args.tiles,
+    args.ore,
+    Tile.ORE_SEAM,
+    args.plan.ore,
+  )
+}
+
+export function bidsForOuterPearl(args: {
+  cavern: RoughPlasticCavern,
+  plan: Plan,
+}): {item: Point, bid: number}[] {
+  return args.plan.outerPearl.flatMap(
     layer => layer.map(
       ([x, y]) => {
-      const tile = diorama.tiles.get(x, y) ?? Tile.SOLID_ROCK
+      const tile = args.cavern.tiles.get(x, y) ?? Tile.SOLID_ROCK
       if (tile === Tile.SOLID_ROCK) {
         let rechargeSeamCount = 0
         let solidRockCount = 0
         for (const [ox, oy] of NSEW) {
-          const neighbor = diorama.tiles.get(x + ox, y + oy) ?? Tile.SOLID_ROCK;
+          const neighbor = args.cavern.tiles.get(x + ox, y + oy) ?? Tile.SOLID_ROCK;
           if (neighbor === Tile.RECHARGE_SEAM) { rechargeSeamCount++ }
           else if (neighbor === Tile.SOLID_ROCK) { solidRockCount++ }
         }
@@ -62,16 +89,16 @@ export function bidsForOuterPearl(
       }
       return {item: [x, y], bid: 0}
     }).filter(({bid}) => bid > 0).map(({item: [x, y], bid}) => {
-      const innerPlansAtTile = diorama.intersectsPearlInner.get(x, y)?.reduce(n => n + 1, 0) ?? 0;
-      const outerPlansAtTile = diorama.intersectsPearlOuter.get(x, y)?.reduce(n => n + 1, 0) ?? 0;
+      const innerPlansAtTile = args.cavern.intersectsPearlInner.get(x, y)?.reduce(n => n + 1, 0) ?? 0;
+      const outerPlansAtTile = args.cavern.intersectsPearlOuter.get(x, y)?.reduce(n => n + 1, 0) ?? 0;
       return {item: [x, y], bid: bid / (innerPlansAtTile + outerPlansAtTile)}
     })
   )
 }
 
 export function bidsForOrdinaryWalls(
-  positions: ReadonlyArray<readonly [number, number]>,
-  tiles: ReadOnlyGrid<Tile>,
+  positions: readonly Point[],
+  tiles: Grid<Tile>,
 ) {
   return positions.filter(([x, y]) => {
     const t = tiles.get(x, y)
@@ -81,46 +108,32 @@ export function bidsForOrdinaryWalls(
 
 export function defaultGetRandomTile(
   rng: PseudorandomStream,
+  args: {
+  cavern: RoughPlasticCavern,
   plan: Plan,
-  diorama: Diorama,
-) {
-  const bids = bidsForOrdinaryWalls(plan.innerPearl.flatMap(layer => layer), diorama.tiles)
+  tiles: MutableGrid<Tile>,
+}) {
+  const bids = bidsForOrdinaryWalls(args.plan.innerPearl.flatMap(layer => layer), args.tiles)
   if (bids.length > 0) {
     return () => rng.uniformChoice(bids)
   }
-  const bids2 = bidsForOuterPearl(plan, diorama)
+  const bids2 = bidsForOuterPearl(args)
   if (bids2) {
     return () => rng.weightedChoice(bids2)
   }
   throw new Error('No place to put resource!')
 }
 
-export const defaultPlaceCrystals: Architect['placeCrystals'] = ({cavern, plan, diorama}) => {
-  const getRandomTile = defaultGetRandomTile(
-    cavern.dice.placeCrystals(plan.id),
-    plan,
-    diorama,
-  )
-  return sprinkle(
-    getRandomTile,
-    diorama.tiles,
-    diorama.crystals,
-    Tile.CRYSTAL_SEAM,
-    plan.crystals,
+export const defaultPlaceCrystals: Architect['placeCrystals'] = (args) => {
+  return sprinkleCrystals(
+    defaultGetRandomTile(args.cavern.dice.placeCrystals(args.plan.id), args),
+    args
   )
 }
 
-export const defaultPlaceOre: Architect['placeOre'] = ({cavern, plan, diorama}) => {
-  const getRandomTile = defaultGetRandomTile(
-    cavern.dice.placeOre(plan.id),
-    plan,
-    diorama,
-  )
-  return sprinkle(
-    getRandomTile,
-    diorama.tiles,
-    diorama.ore,
-    Tile.ORE_SEAM,
-    plan.ore,
+export const defaultPlaceOre: Architect['placeOre'] = (args) => {
+  return sprinkleOre(
+    defaultGetRandomTile(args.cavern.dice.placeOre(args.plan.id), args),
+    args
   )
 }

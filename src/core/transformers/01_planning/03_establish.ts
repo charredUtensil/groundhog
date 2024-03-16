@@ -1,14 +1,30 @@
 import { ARCHITECTS } from "../../architects";
 import { Curve } from "../../common";
 import { Architect } from "../../models/architect";
-import { CavernWithPartialPlans } from "../../models/cavern";
-import { Architected, Established, Flooded } from "../../models/plan";
+import { PartialPlannedCavern } from "./00_negotiate";
+import { FloodedPlan } from "./02_flood";
 
-type Sorted = {
-  plan: Flooded & { architect?: Architect };
+type SortedPlan = {
+  plan: FloodedPlan & { architect?: Architect };
   hops: number;
   index: number;
 };
+export type ArchitectedPlan = FloodedPlan & {
+  /** The architect to use to build out the plan. */
+  readonly architect: Architect;
+  readonly crystalRichness: number;
+  readonly oreRichness: number;
+};
+export type EstablishedPlan = ArchitectedPlan & {
+  /** How blobby the pearl should be. */
+  readonly baroqueness: number;
+  /** How many crystals the Plan will add. */
+  readonly crystals: number;
+  /** How many ore the Plan will add. */
+  readonly ore: number;
+};
+
+
 type CurveProps = { hops: number; order: number };
 
 function curved(curve: Curve, props: CurveProps): number {
@@ -16,8 +32,8 @@ function curved(curve: Curve, props: CurveProps): number {
 }
 
 export default function establish(
-  cavern: CavernWithPartialPlans<Flooded>,
-): CavernWithPartialPlans<Established> {
+  cavern: PartialPlannedCavern<FloodedPlan>,
+): PartialPlannedCavern<EstablishedPlan> {
   // Choose a spawn and an architect for that spawn.
   const spawn = cavern.dice.pickSpawn.weightedChoice(
     ARCHITECTS.filter((architect) => architect.spawnBid).flatMap((architect) =>
@@ -33,11 +49,11 @@ export default function establish(
   // Sort the plans in a breadth-first search order, starting from spawn and
   // annotating each with the index and the number of "hops" it is away from
   // the spawn.
-  function sortPlans(): Sorted[] {
+  function sortPlans(): SortedPlan[] {
     const isQueued: boolean[] = [];
     isQueued[spawn.id] = true;
-    const queue: { plan: Flooded; hops: number }[] = [{ plan: spawn, hops: 0 }];
-    const result: Sorted[] = [];
+    const queue: { plan: FloodedPlan; hops: number }[] = [{ plan: spawn, hops: 0 }];
+    const result: SortedPlan[] = [];
 
     for (let index = 0; queue.length > 0; index++) {
       const { plan, hops } = queue.shift()!;
@@ -55,11 +71,11 @@ export default function establish(
   }
   const inOrder = sortPlans();
 
-  const plans: (Flooded | Established)[] = cavern.plans.slice();
+  const plans: (FloodedPlan | EstablishedPlan)[] = cavern.plans.slice();
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
-  function doArchitect({ plan, hops, index }: Sorted): Architected {
+  function doArchitect({ plan, hops, index }: SortedPlan): ArchitectedPlan {
     const props = { hops: hops / maxHops, order: index / maxIndex };
     const architect =
       plan.architect ||
@@ -87,16 +103,16 @@ export default function establish(
     );
     return { ...plan, architect, crystalRichness, oreRichness };
   }
-  function doEstablish(plan: Architected) {
+  function doEstablish(plan: ArchitectedPlan) {
     const args = { cavern, plan, totalCrystals };
     const baroqueness = plan.architect.baroqueness(args);
     const crystals = Math.round(plan.architect.crystals(args));
     totalCrystals += crystals;
     const ore = Math.round(plan.architect.ore(args));
-    const established: Established = { ...plan, baroqueness, crystals, ore};
+    const established: EstablishedPlan = { ...plan, baroqueness, crystals, ore};
     plans[plan.id] = established
   }
   inOrder.forEach((path) => doEstablish(doArchitect(path)));
 
-  return { ...cavern, plans: plans as Established[] };
+  return { ...cavern, plans: plans as EstablishedPlan[] };
 }

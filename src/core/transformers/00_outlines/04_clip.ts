@@ -1,4 +1,4 @@
-import { CavernWithBaseplatesAndPaths } from "../../models/cavern";
+import { TriangulatedCavern } from "./02_triangulate";
 import { Path } from "../../models/path";
 
 /**
@@ -7,8 +7,8 @@ import { Path } from "../../models/path";
  * and boring.
  */
 export default function clip(
-  cavern: CavernWithBaseplatesAndPaths,
-): CavernWithBaseplatesAndPaths {
+  cavern: TriangulatedCavern,
+): TriangulatedCavern {
   const radius = cavern.context.targetSize / 2;
   const rSquared = radius * radius;
   const paths: Path[] = cavern.paths.filter((path) => {

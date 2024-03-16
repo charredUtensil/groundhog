@@ -5,15 +5,15 @@ type Bounds = {
   bottom: number;
 };
 
-export class Grid<T> {
+export class MutableGrid<T> {
   private data: Map<`${number},${number}`, T>;
 
   constructor(data?: Map<`${number},${number}`, T>) {
     this.data = new Map(data);
   }
 
-  copy(): Grid<T> {
-    return new Grid(this.data);
+  copy(): MutableGrid<T> {
+    return new MutableGrid(this.data);
   }
 
   get(x: number, y: number): T | undefined {
@@ -55,4 +55,4 @@ export class Grid<T> {
   }
 }
 
-export type ReadOnlyGrid<T> = Omit<Grid<T>, "set">;
+export type Grid<T> = Omit<MutableGrid<T>, "set">;

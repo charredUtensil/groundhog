@@ -1,17 +1,17 @@
 import React from "react";
-import { adjacent8 } from "../../../core/common/geometry";
+import { Point, isAdjacent8 } from "../../../core/common/geometry";
 import { pairMap } from "../../../core/common/utils";
-import { Pearled } from "../../../core/models/plan";
+import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import "./pearl.scss";
 
 const SCALE = 6;
 
-function dPearl(layer: ReadonlyArray<readonly [number, number]>) {
+function dPearl(layer: readonly Point[]) {
   if (layer.length === 0) {
     return "";
   }
   const result = pairMap(layer, ([x1, y1], [x2, y2]) => {
-    const cmd = adjacent8([x1, y1], [x2, y2]) ? "L" : "M";
+    const cmd = isAdjacent8([x1, y1], [x2, y2]) ? "L" : "M";
     return `${cmd}${x2 * SCALE} ${y2 * SCALE}`;
   });
   const [x0, y0] = layer[0];
@@ -22,7 +22,7 @@ export default function PearlPreview({
   plan,
   pearl,
 }: {
-  plan: Pearled;
+  plan: PearledPlan;
   pearl: "innerPearl" | "outerPearl";
 }) {
   const io = pearl === "outerPearl" ? plan.innerPearl.length : 0;

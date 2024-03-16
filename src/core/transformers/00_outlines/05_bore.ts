@@ -1,14 +1,14 @@
 import { plotLine } from "../../common/geometry";
 import { Baseplate } from "../../models/baseplate";
-import { CavernWithBaseplatesAndPaths } from "../../models/cavern";
+import { TriangulatedCavern } from "./02_triangulate";
 import { Path } from "../../models/path";
 
 /**
  * Add ambiguous baseplates to paths that intersect them.
  */
 export default function bore(
-  cavern: CavernWithBaseplatesAndPaths,
-): CavernWithBaseplatesAndPaths {
+  cavern: TriangulatedCavern,
+): TriangulatedCavern {
   const bpAtTile: { [tile: string]: Baseplate } = {};
 
   for (const bp of cavern.baseplates) {
