@@ -1,37 +1,41 @@
 import { Architect } from "../models/architect";
+import { POWER_STATION, SUPER_TELEPORT, SUPPORT_STATION } from "../models/building";
 import { DefaultHallArchitect } from "./default";
 import { Rough, RoughOyster } from "./oyster";
 
-const ThinHall = {
+const BASE: typeof DefaultHallArchitect = {
   ...DefaultHallArchitect,
 };
 
-const HARD_ROCK_MIN_CRYSTALS = 14;
-//0 +
-//Building.Type.POWER_STATION.crystals +
-//Building.Type.SUPPORT_STATION.crystals + 1 +
-//Building.Type.SUPER_TELEPORT.crystals + 1 +
-//5):
+const HARD_ROCK_MIN_CRYSTALS =
+  POWER_STATION.crystals +
+  SUPPORT_STATION.crystals + 1 +
+  SUPER_TELEPORT.crystals + 1 +
+  5;
 
 const THIN_HALL: readonly Architect[] = [
   {
-    name: "Thin Hall (Open)",
-    ...ThinHall,
+    name: "Thin, Open Hall",
+    ...BASE,
     ...new RoughOyster({ of: Rough.FLOOR }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan }) => !plan.fluid && 0.2,
   },
   {
-    name: "Thin Hall (Filled)",
-    ...ThinHall,
+    name: "Thin Filled Hall",
+    ...BASE,
     ...new RoughOyster({ of: Rough.LOOSE_ROCK }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan }) => !plan.fluid && 0.1,
   },
   {
-    name: "Thin Hall (Hard Rock)",
-    ...ThinHall,
+    name: "Thin Hard Rock Hall",
+    ...BASE,
     ...new RoughOyster({ of: Rough.HARD_ROCK }, { of: Rough.VOID, grow: 1 }),
-    hallBid: ({ plan, totalCrystals }) =>
-      !plan.fluid && totalCrystals >= HARD_ROCK_MIN_CRYSTALS && 0.4,
+    hallBid: ({ plan, totalCrystals }) => (
+      !plan.fluid &&
+      totalCrystals >= HARD_ROCK_MIN_CRYSTALS &&
+      plan.path.exclusiveSnakeDistance < 10 &&
+      0.7
+    ),
   },
 ];
 export default THIN_HALL;

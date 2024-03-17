@@ -1,10 +1,11 @@
 import { Architect } from "../models/architect";
 import { DefaultCaveArchitect } from "./default";
 import { Rough, RoughOyster } from "./oyster";
+import { intersectsOnly } from "./utils/intersects";
 
 const SIMPLE_CAVE: readonly Architect[] = [
   {
-    name: "Simple Cave (Filled)",
+    name: "Filled Cave",
     ...DefaultCaveArchitect,
     ...new RoughOyster(
       { of: Rough.DIRT, width: 0, grow: 0.25 },
@@ -14,7 +15,7 @@ const SIMPLE_CAVE: readonly Architect[] = [
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius < 4 && 0.04,
   },
   {
-    name: "Simple Cave (Open)",
+    name: "Open Cave",
     ...DefaultCaveArchitect,
     ...new RoughOyster(
       { of: Rough.FLOOR, grow: 2 },
@@ -26,11 +27,11 @@ const SIMPLE_CAVE: readonly Architect[] = [
     caveBid: ({ plans, plan }) =>
       !plan.fluid &&
       plan.pearlRadius < 10 &&
-      !plans.some((p) => plan.intersects[p.id] && p.fluid) &&
+      intersectsOnly(plans, plan, null) &&
       2,
   },
   {
-    name: "Simple Cave (Empty)",
+    name: "Empty Cave",
     ...DefaultCaveArchitect,
     ...new RoughOyster(
       { of: Rough.FLOOR, grow: 2 },
@@ -42,7 +43,7 @@ const SIMPLE_CAVE: readonly Architect[] = [
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius < 10 && 1,
   },
   {
-    name: "Simple Cave (Filled, with Paths)",
+    name: "Filled Cave with Paths",
     ...DefaultCaveArchitect,
     ...new RoughOyster(
       { of: Rough.FLOOR, width: 0, grow: 0.5 },
@@ -60,7 +61,7 @@ const SIMPLE_CAVE: readonly Architect[] = [
       1,
   },
   {
-    name: "Simple Cave (Doughnut)",
+    name: "Doughnut Cave",
     ...DefaultCaveArchitect,
     ...new RoughOyster(
       { of: Rough.ALWAYS_SOLID_ROCK, grow: 0.2 },

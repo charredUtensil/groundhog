@@ -6,6 +6,10 @@ import "./plan.scss";
 
 const SCALE = 6;
 
+function drawRadius(pearlRadius: number) {
+  return pearlRadius + 1
+}
+
 function caveWithOneBaseplate({
   path,
   pearlRadius,
@@ -17,12 +21,15 @@ function caveWithOneBaseplate({
         className="bg"
         cx={x * SCALE}
         cy={y * SCALE}
-        r={pearlRadius * SCALE}
+        r={drawRadius(pearlRadius) * SCALE}
       />
     </g>
   );
 }
 
+// TODO: I tried making AI write this but it's subtly janky and the points are
+// definitely not in the right place. Rewrite this and do it properly. This probably
+// requires breaking out the paper & pencil do do _actual geometry_.
 function dWrapping(
   circle1: { x: number; y: number; radius: number },
   circle2: { x: number; y: number; radius: number },
@@ -68,7 +75,7 @@ function caveWithTwoBaseplates({ path }: { path: Path }) {
     return {
       x: x * SCALE,
       y: y * SCALE,
-      radius: bp.pearlRadius * SCALE,
+      radius: drawRadius(bp.pearlRadius) * SCALE,
     };
   });
 
@@ -92,7 +99,7 @@ function hall({ path, pearlRadius }: Pick<Plan, "path" | "pearlRadius">) {
         className="bg"
         d={d}
         fill="none"
-        strokeWidth={pearlRadius * 2 * SCALE}
+        strokeWidth={drawRadius(pearlRadius) * 2 * SCALE}
       />
     </g>
   );

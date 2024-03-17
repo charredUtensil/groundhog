@@ -31,12 +31,19 @@ export class Path {
     return this.baseplates[this.baseplates.length - 1];
   }
 
-  // The distance directly from the origin to destination.
+  /** The distance directly from the origin to destination. */
   public get batDistance(): number {
     return distance(this.origin, this.destination);
   }
 
+  /** The distance along the path from the origin to the destination. */
   public get snakeDistance(): number {
     return pairMap(this.baseplates, distance).reduce((a, b) => a + b, 0);
   }
+
+  public get exclusiveSnakeDistance(): number {
+    return Math.max(
+      this.snakeDistance - this.origin.pearlRadius - this.destination.pearlRadius,
+      0)
+  } 
 }

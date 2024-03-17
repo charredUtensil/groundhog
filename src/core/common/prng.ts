@@ -80,6 +80,9 @@ export class PseudorandomStream {
   }
 }
 
+/**
+ * DO NOT REMOVE OR RE-ORDER THIS ENUM. APPEND NEW ENTRIES TO THE END.
+ */
 enum Die {
   partition = 0,
   weave,
@@ -96,8 +99,16 @@ enum Die {
   placeErosion,
   placeEntities,
   lore,
+  init, // TODO: move to beginning when generation breaks anyway.
 }
 
+/**
+ * A box of pseudo-random streams. Streams are separated into "kinds" - each one
+ * having its own root seed. Some kinds are further separated by applying
+ * a fixed numerical offset to these root seeds. The result is a pile of consistent
+ * but mostly independent pseudo-random number generators that should prevent changes
+ * in one area of cavern generation from affecting other areas.
+ */
 export class DiceBox {
   seed: number;
   private boxes: readonly {
@@ -125,6 +136,10 @@ export class DiceBox {
       box.rngs[offset] = r;
     }
     return r;
+  }
+
+  init(id: number) {
+    return this.prng(Die.init, id)
   }
 
   get partition() {

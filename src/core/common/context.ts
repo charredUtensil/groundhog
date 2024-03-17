@@ -7,9 +7,7 @@ export type Curve = {
   readonly hops: number;
   readonly order: number;
 };
-function curve(base: number, hops: number, order: number): Curve {
-  return { base, hops, order };
-}
+
 export type CavernContext = {
   logger: Logger;
   seed: number;
@@ -20,7 +18,7 @@ export type CavernContext = {
 
   /**
    * The "target" final size for the cavern.
-   * The final size may be larger or smaller due to randomness;
+   * The final size may be larger or smaller due to randomness -
    * larger caverns will not be cropped to fit.
    */
   targetSize: number;
@@ -44,6 +42,10 @@ export type CavernContext = {
    */
   auxiliaryPathMinAngle: number;
   /**
+   * Does this cavern have monsters in it?
+   */
+  hasMonsters: boolean;
+  /**
    * How blobby and jagged caves should be.
    * 0 results in perfect squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves.
@@ -65,27 +67,38 @@ export type CavernContext = {
   hallHasRechargeSeamChance: number;
 };
 
+enum Die {
+  biome = 0,
+  targetSize,
+  hasMonsters,
+}
+
 export function inferContextDefaults(
   dice: DiceBox,
   args: Partial<Omit<CavernContext, "seed">>,
 ): CavernContext {
+  const r: typeof args & Pick<CavernContext, "biome" | 'targetSize'> = {
+    biome: dice.init(Die.biome).uniformChoice(['rock', 'ice', 'lava']),
+    targetSize: 64 ?? dice.init(Die.targetSize).uniformInt({min: 50, max: 80}),
+    ...args
+  }
   return {
     logger: args.logger ?? ({} as Logger),
     seed: dice.seed,
-    biome: "rock",
-    targetSize: 64,
     baseplateMaxOblongness: 3,
     baseplateMaxRatioOfSize: 0.33,
     caveCount: 20,
     auxiliaryPathCount: 4,
     auxiliaryPathMinAngle: Math.PI / 4,
+    hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
     caveBaroqueness: 0.12,
     hallBaroqueness: 0.05,
-    caveCrystalRichness: curve(0.5, 1.0, 1.0),
-    hallCrystalRichness: curve(0, 0, 0),
-    caveOreRichness: curve(3.75, -0.5, -0.25),
-    hallOreRichness: curve(0, 0, 0),
-    caveHasRechargeSeamChance: 0.07,
-    hallHasRechargeSeamChance: 0.1,
+    caveCrystalRichness: {base: 0.5, hops: 1.0, order: 1.0},
+    hallCrystalRichness: {base: 0, hops: 0, order: 0},
+    caveOreRichness: {base: 3.75, hops: -0.5, order: -0.25},
+    hallOreRichness: {base: 0, hops: 0, order: 0},
+    caveHasRechargeSeamChance: {rock: 0.07, ice: 0.07, lava: 0.10}[r.biome],
+    hallHasRechargeSeamChance: {rock: 0.02, ice: 0.07, lava: 0.04}[r.biome],
+    ...r
   };
 }
