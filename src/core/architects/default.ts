@@ -5,12 +5,12 @@ import {
   getPlaceRechargeSeams,
 } from "./utils/resources";
 
-const DefaultArchitect: Omit<
-  Architect,
-  "name" | "baroqueness" | "rough" | "roughExtent"
-> = {
+export type PartialArchitect<T> = Omit<Architect<T>, "name" | "rough" | "roughExtent">
+
+const DefaultArchitect: Omit<PartialArchitect<unknown>, "baroqueness"> = {
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
+  prime: () => undefined,
   placeRechargeSeam: getPlaceRechargeSeams(),
   placeBuildings: () => {},
   placeCrystals: defaultPlaceCrystals,
@@ -20,18 +20,12 @@ const DefaultArchitect: Omit<
   placeEntities: () => {},
 };
 
-export const DefaultCaveArchitect: Omit<
-  Architect,
-  "name" | "rough" | "roughExtent"
-> = {
+export const DefaultCaveArchitect: PartialArchitect<unknown> = {
   ...DefaultArchitect,
   baroqueness: ({ cavern }) => cavern.context.caveBaroqueness,
 };
 
-export const DefaultHallArchitect: Omit<
-  Architect,
-  "name" | "rough" | "roughExtent"
-> = {
+export const DefaultHallArchitect: PartialArchitect<unknown> = {
   ...DefaultArchitect,
   baroqueness: ({ cavern }) => cavern.context.hallBaroqueness,
 };

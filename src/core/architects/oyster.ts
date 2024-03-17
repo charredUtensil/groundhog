@@ -212,9 +212,9 @@ export class Oyster<T> extends BaseOyster<T> {
 
 export class RoughOyster
   extends BaseOyster<ReplaceFn<RoughTile>>
-  implements Pick<Architect, "roughExtent" | "rough">
+  implements Pick<Architect<unknown>, "roughExtent" | "rough">
 {
-  roughExtent: Architect["roughExtent"] = (plan) => {
+  roughExtent: Architect<unknown>["roughExtent"] = (plan) => {
     if (this._layers[this._layers.length - 1].of !== Rough.VOID) {
       return plan.pearlRadius;
     }
@@ -226,7 +226,7 @@ export class RoughOyster
     }
     return 0;
   };
-  rough: Architect["rough"] = ({ plan, tiles }) => {
+  rough: Architect<unknown>["rough"] = ({ plan, tiles }) => {
     const replacements = this._expand(plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {
       layer.forEach(([x, y]) => {

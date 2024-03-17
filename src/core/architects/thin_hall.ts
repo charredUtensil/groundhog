@@ -13,7 +13,7 @@ const HARD_ROCK_MIN_CRYSTALS =
   SUPER_TELEPORT.crystals + 1 +
   5;
 
-const THIN_HALL: readonly Architect[] = [
+const THIN_HALL: readonly Architect<unknown>[] = [
   {
     name: "Thin, Open Hall",
     ...BASE,

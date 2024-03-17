@@ -7,7 +7,7 @@ import SIMPLE_SPAWN from "./simple_spawn";
 import THIN_HALL from "./thin_hall";
 import TREASURE from "./treasure";
 
-export const ARCHITECTS: readonly Architect[] = [
+export const ARCHITECTS: readonly Architect<unknown>[] = [
   ...FLOODED,
   ...LOST_MINERS,
   ...SIMPLE_CAVE,

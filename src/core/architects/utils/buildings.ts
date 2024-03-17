@@ -1,7 +1,7 @@
 import { Cardinal4, NSEW } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { FineArgs } from "../../models/architect";
-import { Building, BuildingExtraArgs, TOOL_STORE } from "../../models/building";
+import { Building } from "../../models/building";
 import { Tile } from "../../models/tiles";
 
 export function getBuildings(
@@ -14,7 +14,7 @@ export function getBuildings(
     to?: number;
     queue: ((a: { x: number; y: number; facing: Cardinal4 }) => Building)[];
   },
-  { cavern, plan, tiles }: FineArgs,
+  { cavern, plan, tiles }: FineArgs<any>,
 ) {
   const placed = new MutableGrid<true>();
   const porches = new MutableGrid<number>();

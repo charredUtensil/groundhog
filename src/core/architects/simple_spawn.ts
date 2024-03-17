@@ -32,7 +32,7 @@ const OPEN = new RoughOyster(
   { of: Rough.AT_MOST_HARD_ROCK },
 );
 
-const SIMPLE_SPAWN: readonly Architect[] = [
+const SIMPLE_SPAWN: readonly Architect<unknown>[] = [
   {
     name: "Open Spawn",
     ...BASE,

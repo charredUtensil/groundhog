@@ -3,7 +3,7 @@ import { DefaultCaveArchitect } from "./default";
 import { Rough, RoughOyster } from "./oyster";
 import { intersectsOnly } from "./utils/intersects";
 
-const SIMPLE_CAVE: readonly Architect[] = [
+const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Filled Cave",
     ...DefaultCaveArchitect,

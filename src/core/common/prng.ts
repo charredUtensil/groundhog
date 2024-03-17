@@ -45,15 +45,15 @@ export class PseudorandomStream {
     return Math.floor(this.beta(args));
   }
 
-  uniformChoice<T>(choices: T[]): T {
+  uniformChoice<T>(choices: readonly T[]): T {
     return choices[this.uniformInt({ max: choices.length })];
   }
 
-  betaChoice<T>(choices: T[], { a, b }: { a: number; b: number }): T {
+  betaChoice<T>(choices: readonly T[], { a, b }: { a: number; b: number }): T {
     return choices[this.betaInt({ a: a, b: b, max: choices.length })];
   }
 
-  weightedChoice<T>(bids: { bid: number; item: T }[]): T {
+  weightedChoice<T>(bids: readonly { bid: number; item: T }[]): T {
     const b = bids.filter((bid) => bid.bid > 0);
     const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
     let randomValue = this.uniform({ max: totalWeight });
@@ -67,11 +67,11 @@ export class PseudorandomStream {
     return b[b.length - 1].item;
   }
 
-  shuffle<T>(choices: T[]): T[] {
+  shuffle<T>(choices: readonly T[]): T[] {
     const r: T[] = [];
     for (let i = 0; i < choices.length - 1; i++) {
       const j = Math.floor((this.mt() * i) / MAX_PLUS_ONE);
-      if (i != j) {
+      if (i !== j) {
         r[i] = r[j];
       }
       r[j] = choices[i];
@@ -90,6 +90,7 @@ enum Die {
   pickSpawn,
   pickArchitect,
   pearl,
+  prime,
   rough,
   placeRechargeSeam,
   placeBuildings,
@@ -160,6 +161,7 @@ export class DiceBox {
 
   pickArchitect = (id: number) => this.prng(Die.pickArchitect, id);
   pearl = (id: number) => this.prng(Die.pearl, id);
+  prime = (id: number) => this.prng(Die.prime, id);
   rough = (id: number) => this.prng(Die.rough, id);
   placeRechargeSeam = (id: number) => this.prng(Die.placeRechargeSeam, id);
   placeBuildings = (id: number) => this.prng(Die.placeBuildings, id);

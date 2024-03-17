@@ -16,7 +16,7 @@ const RICH: typeof BASE = {
   ...BASE
 }
 
-const TREASURE: readonly Architect[] = [
+const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Open Hoard",
     ...HOARD,

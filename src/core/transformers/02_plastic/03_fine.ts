@@ -6,7 +6,8 @@ import { Building } from "../../models/building";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Creature, CreatureFactory } from "../../models/creature";
 import { Miner, MinerFactory } from "../../models/miner";
-import { FineArgs } from "../../models/architect";
+import { Architect, FineArgs } from "../../models/architect";
+import { Plan } from "../../models/plan";
 
 export type FinePlasticCavern = PlannedCavern & {
   readonly tiles: Grid<Tile>;
@@ -21,7 +22,7 @@ export type FinePlasticCavern = PlannedCavern & {
 };
 
 export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
-  const diorama: Omit<FineArgs, "plan"> = {
+  const diorama: Omit<FineArgs<unknown>, "plan"> = {
     cavern,
     tiles: cavern.tiles.copy(),
     crystals: new MutableGrid<number>(),
@@ -35,8 +36,8 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     miners: [],
     openCaveFlags: new MutableGrid<true>(),
   };
-  cavern.plans.forEach((plan) => {
-    const args: FineArgs = { ...diorama, plan };
+  cavern.plans.forEach(<T>(plan: Plan & {architect: Architect<T>, metadata: T}) => {
+    const args: FineArgs<T> = { ...diorama, plan };
     plan.architect.placeRechargeSeam(args);
     plan.architect.placeBuildings(args);
     plan.architect.placeCrystals(args);

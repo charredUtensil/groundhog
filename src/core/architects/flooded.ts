@@ -1,14 +1,14 @@
 import { Architect } from "../models/architect"
 import { Tile } from "../models/tiles"
-import { DefaultCaveArchitect } from "./default"
+import { DefaultCaveArchitect, PartialArchitect } from "./default"
 import { Rough, RoughOyster } from "./oyster"
 import { intersectsOnly } from "./utils/intersects"
 
-const BASE: typeof DefaultCaveArchitect = {
+const BASE: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect
 }
 
-const FLOODED: readonly Architect[] = [
+const FLOODED: readonly Architect<unknown>[] = [
   {
     name: "Lake",
     ...BASE,

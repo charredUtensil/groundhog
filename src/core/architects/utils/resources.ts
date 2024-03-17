@@ -153,7 +153,7 @@ export function defaultGetRandomTile(
 
 export function getPlaceRechargeSeams(
   count?: number,
-): Architect["placeRechargeSeam"] {
+): Architect<unknown>["placeRechargeSeam"] {
   return (args) => {
     const rng = args.cavern.dice.placeRechargeSeam(args.plan.id);
     const c =
@@ -178,14 +178,14 @@ export function getPlaceRechargeSeams(
   };
 }
 
-export const defaultPlaceCrystals: Architect["placeCrystals"] = (args) => {
+export const defaultPlaceCrystals: Architect<unknown>["placeCrystals"] = (args) => {
   return sprinkleCrystals(
     defaultGetRandomTile(args.cavern.dice.placeCrystals(args.plan.id), args),
     args,
   );
 };
 
-export const defaultPlaceOre: Architect["placeOre"] = (args) => {
+export const defaultPlaceOre: Architect<unknown>["placeOre"] = (args) => {
   return sprinkleOre(
     defaultGetRandomTile(args.cavern.dice.placeOre(args.plan.id), args),
     args,

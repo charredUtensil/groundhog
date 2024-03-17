@@ -8,7 +8,7 @@ const BASE: typeof DefaultHallArchitect = {
   ...DefaultHallArchitect
 }
 
-const SIMPLE_HALL: readonly Architect[] = [
+const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Open Hall",
     ...BASE,

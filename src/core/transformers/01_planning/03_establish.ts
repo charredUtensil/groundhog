@@ -5,13 +5,13 @@ import { PartialPlannedCavern } from "./00_negotiate";
 import { FloodedPlan } from "./02_flood";
 
 type SortedPlan = {
-  plan: FloodedPlan & { architect?: Architect };
+  plan: FloodedPlan & { architect?: Architect<unknown> };
   hops: number;
   index: number;
 };
 export type ArchitectedPlan = FloodedPlan & {
   /** The architect to use to build out the plan. */
-  readonly architect: Architect;
+  readonly architect: Architect<unknown>;
   readonly crystalRichness: number;
   readonly oreRichness: number;
 };
