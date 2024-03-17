@@ -1,10 +1,11 @@
+import { Objectives } from "../../models/objectives";
 import { DiscoveredCavern } from "./04_discover";
 
 export type AdjuredCavern = DiscoveredCavern & {
-  adjurator: Adjurator
+  objectives: Objectives
 }
 
 export default function adjure(cavern: DiscoveredCavern): AdjuredCavern {
-  const adjurator = new Adjurator()
-  return {...cavern, adjurator}
+  const objectives = {crystals: 50, ore: 0, studs: 0}
+  return {...cavern, objectives}
 }

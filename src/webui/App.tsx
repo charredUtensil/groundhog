@@ -4,7 +4,6 @@ import "./App.css";
 import {
   CavernContext,
   DiceBox,
-  PseudorandomStream,
   inferContextDefaults,
 } from "../core/common";
 import { CavernContextInput } from "./components/context_input";
@@ -12,7 +11,7 @@ import { CavernGenerator } from "../core/transformers/generator";
 import { Cavern } from "../core/models/cavern";
 import { Logger } from "../core/common/logger";
 import CavernPreview from "./components/preview/cavern";
-import LoreGraph from "./components/lore_graph";
+import LorePhraseGraph from "./components/phrase_graph";
 
 function App() {
   const [generator, setGenerator] = useState<CavernGenerator | undefined>();
@@ -43,7 +42,7 @@ function App() {
     <div className="App">
       {!generator && (
         <>
-          <LoreGraph />
+          <LorePhraseGraph />
           <CavernContextInput get={cavernContext} set={setCavernContext} />
           <button onClick={startGenerating}>Generate</button>
         </>

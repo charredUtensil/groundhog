@@ -11,6 +11,10 @@ export class CavernGenerator {
     this.state = CAVERN_TF.first(cavern);
   }
 
+  get cavern() {
+    return this.state.result
+  }
+
   get isDone() {
     return !this.state.next
   }

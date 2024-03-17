@@ -1,5 +1,5 @@
 import { Cardinal4, EAST, NORTH, NORTH_WEST, ORIGIN, Point, SOUTH, WEST, rotateAround, rotateLeft, rotateRight } from "../common/geometry"
-import { EntityPosition, SerializeOffset, atCenterOfTile, serializePosition } from "./position"
+import { EntityPosition, atCenterOfTile, serializePosition } from "./position"
 
 type Footprint = readonly Point[]
 
@@ -100,9 +100,8 @@ export type Building = EntityPosition & {
   readonly teleportAtStart: boolean
 }
 
-function serializeBuilding(building: Building, offset: SerializeOffset) {
-  offset = {...offset, yaw: (offset.yaw ?? 0) + Math.PI / 2}
-  let r =`${building.template.id},${serializePosition(building, offset)}`
+export function serializeBuilding(building: Building, offset: Point) {
+  let r =`${building.template.id},${serializePosition(building, offset, Math.PI / 2)}`
   if (building.level > 1) { r += `,Level=${building.level.toFixed()}}`}
   if (building.isEssential) { r += ',Essential=True' }
   if (building.teleportAtStart) { r += ',Teleport=True' }

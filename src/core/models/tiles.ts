@@ -1,4 +1,4 @@
-class _Tile<ID> {
+class _Tile<ID extends number> {
   readonly id: ID;
   readonly isWall: boolean;
   readonly passableByMiner: boolean;
@@ -50,6 +50,6 @@ export const Tile = {
   RECHARGE_SEAM:      new _Tile<50>(50,  true, false, 0, 0, "#FFFF00"),
 };
 
-export type Tile = _Tile<any>;
+export type Tile = _Tile<number>;
 export type RoughTile = Tile & { id: 1 | 6 | 11 | 26 | 30 | 34 | 38 };
 export type FluidType = (Tile & { id: 6 | 11 }) | null;

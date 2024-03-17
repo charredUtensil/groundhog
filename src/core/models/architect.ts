@@ -7,30 +7,42 @@ import { ArchitectedPlan } from "../transformers/01_planning/03_establish";
 import { FloodedPlan } from "../transformers/01_planning/02_flood";
 import { RoughTile, Tile } from "./tiles";
 import { MutableGrid } from "../common/grid";
+import { Building } from "./building";
+import { Erosion, Landslide } from "./hazards";
+import { Creature, CreatureFactory } from "./creature";
+import { Miner, MinerFactory } from "./miner";
 
 type SpawnBidArgs = {
-  cavern: PartialPlannedCavern<FloodedPlan>;
-  plan: FloodedPlan;
+  readonly cavern: PartialPlannedCavern<FloodedPlan>;
+  readonly plan: FloodedPlan;
 };
 
 type BidArgs = SpawnBidArgs & {
-  plans: readonly (FloodedPlan | EstablishedPlan)[];
-  hops: number;
-  totalCrystals: number;
+  readonly plans: readonly (FloodedPlan | EstablishedPlan)[];
+  readonly hops: number;
+  readonly totalCrystals: number;
 };
 
 type EstablishArgs = {
-  cavern: PartialPlannedCavern<FloodedPlan>;
-  plan: ArchitectedPlan;
-  totalCrystals: number;
+  readonly cavern: PartialPlannedCavern<FloodedPlan>;
+  readonly plan: ArchitectedPlan;
+  readonly totalCrystals: number;
 };
 
-type FineArgs = {
-  cavern: RoughPlasticCavern;
-  plan: Plan;
-  tiles: MutableGrid<Tile>;
-  crystals: MutableGrid<number>;
-  ore: MutableGrid<number>;
+export type FineArgs = {
+  readonly cavern: RoughPlasticCavern;
+  readonly plan: Plan;
+  readonly tiles: MutableGrid<Tile>;
+  readonly crystals: MutableGrid<number>;
+  readonly ore: MutableGrid<number>;
+  readonly buildings: Building[];
+  readonly landslides: MutableGrid<Landslide>,
+  readonly erosion: MutableGrid<Erosion>,
+  readonly creatureFactory: CreatureFactory,
+  readonly creatures: Creature[],
+  readonly minerFactory: MinerFactory,
+  readonly miners: Miner[],
+  readonly openCaveFlags: MutableGrid<true>,
 };
 
 export type BaseArchitect = {

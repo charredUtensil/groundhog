@@ -39,7 +39,7 @@ function floodedWith(cavern: AdjuredCavern): FluidType {
   return null
 }
 
-class Lore {
+export class Lore {
   private state: State
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern)

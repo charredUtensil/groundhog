@@ -56,12 +56,14 @@ export function randomlyInTile(args: EntityPositionArgs & {rng: PseudorandomStre
   return {x, y, yaw}
 }
 
-export type SerializeOffset = {readonly x: number, readonly y: number, readonly yaw?: number}
-
-export function serializePosition(position: EntityPosition, offset: SerializeOffset): string {
-    const x = (position.x + offset.x) * ENTITY_SCALE
-    const y = (position.y + offset.x) * ENTITY_SCALE
-    const yaw = radsToDegrees(position.yaw + (offset.yaw ?? 0))
+export function serializePosition(
+  position: EntityPosition,
+  [ox, oy]: Point,
+  yawOffset?: number,
+): string {
+    const x = (position.x + ox) * ENTITY_SCALE
+    const y = (position.y + oy) * ENTITY_SCALE
+    const yaw = radsToDegrees(position.yaw + (yawOffset ?? 0))
     return (
       `Translation: X=${x.toFixed(3)} Y=${y.toFixed(3)} Z=0.000 ` +
       `Rotation: P=0.000000 Y=${yaw.toFixed(6)} R=0.000000 ` +

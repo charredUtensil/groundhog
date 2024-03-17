@@ -2,21 +2,43 @@ import { PlannedCavern } from "../../models/cavern";
 import { RoughPlasticCavern } from "./01_rough";
 import { MutableGrid, Grid } from "../../common/grid";
 import { Tile } from "../../models/tiles";
+import { Building } from "../../models/building";
+import { Erosion, Landslide } from "../../models/hazards";
+import { Creature, CreatureFactory } from "../../models/creature";
+import { Miner, MinerFactory } from "../../models/miner";
+import { FineArgs } from "../../models/architect";
 
 export type FinePlasticCavern = PlannedCavern & {
   readonly tiles: Grid<Tile>;
   readonly crystals: Grid<number>;
   readonly ore: Grid<number>;
+  readonly buildings: readonly Building[];
+  readonly landslides: Grid<Landslide>;
+  readonly erosion: Grid<Erosion>;
+  readonly creatures: readonly Creature[];
+  readonly miners: readonly Miner[];
+  readonly openCaveFlags: Grid<true>;
 };
 
 export default function fine(
   cavern: RoughPlasticCavern,
 ): FinePlasticCavern {
-  const tiles: MutableGrid<Tile> = cavern.tiles.copy()
-  const crystals = new MutableGrid<number>
-  const ore = new MutableGrid<number>
+  const diorama: Omit<FineArgs, 'plan'> = {
+    cavern,
+    tiles: cavern.tiles.copy(),
+    crystals: new MutableGrid<number>,
+    ore: new MutableGrid<number>,
+    buildings: [],
+    landslides: new MutableGrid<Landslide>,
+    erosion: new MutableGrid<Erosion>,
+    creatureFactory: new CreatureFactory(),
+    creatures: [],
+    minerFactory: new MinerFactory(),
+    miners: [],
+    openCaveFlags: new MutableGrid<true>,
+  }
   cavern.plans.forEach((plan) => {
-    const args = { cavern, plan, tiles, crystals, ore };
+    const args: FineArgs = { ...diorama, plan };
     plan.architect.placeRechargeSeam(args);
     plan.architect.placeBuildings(args);
     plan.architect.placeCrystals(args);
@@ -25,6 +47,6 @@ export default function fine(
     plan.architect.placeErosion(args);
     plan.architect.placeEntities(args);
   });
-  return { ...cavern, tiles, crystals, ore };
+  return { ...cavern, ...diorama };
 }
 

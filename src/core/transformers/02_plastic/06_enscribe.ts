@@ -1,9 +1,20 @@
 import { AdjuredCavern } from "./05_adjure"
 
 export type EnscribedCavern = AdjuredCavern & {
-  briefing: string
+  levelName: string
+  briefing: {
+    intro: string,
+    success: string,
+    failure: string,
+  }
 }
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
-  return {...cavern, briefing: 'briefing!'}
+  const levelName = `gh${cavern.context.seed.toString(16)}`
+  const briefing = {
+    intro: 'play this level',
+    success: 'winner is you',
+    failure: 'good day sir',
+  }
+  return {...cavern, levelName, briefing}
 }
