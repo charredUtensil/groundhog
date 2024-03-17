@@ -26,5 +26,6 @@ export default function discover(cavern: FinePlasticCavern): DiscoveredCavern {
       queue.unshift(...neighbors)
     }
   }
+  cavern.openCaveFlags.forEach((_, x, y) => discoveryZones.get(x, y)!.openOnSpawn = true)
   return {...cavern, discoveryZones}
 }

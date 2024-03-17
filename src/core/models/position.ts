@@ -1,5 +1,5 @@
 import { PseudorandomStream } from "../common"
-import { Cardinal8, Point } from "../common/geometry"
+import { Cardinal8, Point, radsToDegrees } from "../common/geometry"
 
 type EntityPositionArgs = {
   x: number,
@@ -36,10 +36,6 @@ export type EntityPosition = {
   // readonly scaleX: number
   // readonly scaleY: number
   // readonly scaleZ: number
-}
-
-function radsToDegrees(rads: number) {
-  return (rads * 180 / Math.PI + 180) % 360 - 180
 }
 
 export function atCenterOfTile(args: EntityPositionArgs): EntityPosition {

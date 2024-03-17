@@ -1,7 +1,7 @@
 import { Cardinal4, EAST, NORTH, NORTH_WEST, ORIGIN, Point, SOUTH, WEST, rotateAround, rotateLeft, rotateRight } from "../common/geometry"
 import { EntityPosition, atCenterOfTile, serializePosition } from "./position"
 
-type Footprint = readonly Point[]
+type Footprint = readonly [readonly [0, 0], ...Point[]]
 
 // There are five unique footprints for buildings available.
 // Assuming the building itself has its entity origin at [0, 0], and is facing
@@ -29,7 +29,7 @@ function rotateFootprint(footprint: Footprint, [ox, oy]: Cardinal4) {
 }
 
 type Level = 0|1|2|3|4|5
-type BuildingExtraArgs = {
+export type BuildingExtraArgs = {
   level?: Level
   isEssential?: boolean
   teleportAtStart?: boolean

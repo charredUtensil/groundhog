@@ -1,12 +1,10 @@
 import { Architect } from "../models/architect";
-import { defaultPlaceCrystals, defaultPlaceOre } from "./utils/resources";
+import { defaultPlaceCrystals, defaultPlaceOre, getPlaceRechargeSeams } from "./utils/resources";
 
-type Partchitect = Omit<Architect, "name" | "rough" | "roughExtent">
-
-const DefaultArchitect: Omit<Partchitect, "baroqueness"> = {
+const DefaultArchitect: Omit<Architect, "name" | "baroqueness" | "rough" | "roughExtent"> = {
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
-  placeRechargeSeam: () => {},
+  placeRechargeSeam: getPlaceRechargeSeams(),
   placeBuildings: () => {},
   placeCrystals: defaultPlaceCrystals,
   placeOre: defaultPlaceOre,
@@ -15,12 +13,12 @@ const DefaultArchitect: Omit<Partchitect, "baroqueness"> = {
   placeEntities: () => {},
 }
 
-export const DefaultCaveArchitect: Partchitect = {
+export const DefaultCaveArchitect: Omit<Architect, "name" | "rough" | "roughExtent"> = {
   ...DefaultArchitect,
   baroqueness: ({ cavern }) => cavern.context.caveBaroqueness,
 };
 
-export const DefaultHallArchitect: Partchitect = {
+export const DefaultHallArchitect: Omit<Architect, "name" | "rough" | "roughExtent"> = {
   ...DefaultArchitect,
   baroqueness: ({ cavern }) => cavern.context.hallBaroqueness,
 };

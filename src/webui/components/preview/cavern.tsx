@@ -7,6 +7,7 @@ import PlanPreview from "./plan";
 import PearlPreview from "./pearl";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import TilesPreview from "./tiles";
+import EntityPreview from "./entity";
 
 const SCALE = 6;
 const SVG_WIDTH = 800;
@@ -36,6 +37,9 @@ export default function CavernPreview({ cavern }: { cavern: Cavern }) {
             <PearlPreview plan={pl as PearledPlan} pearl={"innerPearl"} />
           ))}
         {cavern.tiles && <TilesPreview tiles={cavern.tiles} />}
+        {cavern.buildings?.map(b => <EntityPreview entity={b} />)}
+        {cavern.creatures?.map(c => <EntityPreview entity={c} enemy />)}
+        {cavern.miners?.map(m => <EntityPreview entity={m} />)}
       </svg>
     </div>
   );

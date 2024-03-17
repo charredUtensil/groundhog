@@ -5,5 +5,5 @@ export type ProgrammedCavern = EnscribedCavern & {
 }
 
 export default function program(cavern: EnscribedCavern): ProgrammedCavern {
-  return {...cavern, script: 'foo'}
+  return {...cavern, script: ''}
 }

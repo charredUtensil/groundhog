@@ -10,8 +10,8 @@ export default function TilesPreview({ tiles }: { tiles: Grid<Tile> }) {
       {tiles.map((t, x, y) => (
         <rect
           fill={t.inspectColor}
-          x={(x - 0.5) * SCALE}
-          y={(y - 0.5) * SCALE}
+          x={x * SCALE}
+          y={y * SCALE}
           width={SCALE}
           height={SCALE}
         />

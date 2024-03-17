@@ -12,10 +12,10 @@ function dPearl(layer: readonly Point[]) {
   }
   const result = pairMap(layer, ([x1, y1], [x2, y2]) => {
     const cmd = isAdjacent8([x1, y1], [x2, y2]) ? "L" : "M";
-    return `${cmd}${x2 * SCALE} ${y2 * SCALE}`;
+    return `${cmd}${(x2 + 0.5) * SCALE} ${(y2 + 0.5) * SCALE}`;
   });
   const [x0, y0] = layer[0];
-  return `M${x0 * SCALE} ${y0 * SCALE} ${result.join(" ")}`;
+  return `M${(x0 + 0.5) * SCALE} ${(y0 + 0.5) * SCALE} ${result.join(" ")}`;
 }
 
 export default function PearlPreview({
