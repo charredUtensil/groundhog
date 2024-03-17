@@ -34,4 +34,4 @@ const THIN_HALL: readonly Architect[] = [
       !plan.fluid && totalCrystals >= HARD_ROCK_MIN_CRYSTALS && 0.4,
   },
 ];
-export default THIN_HALL
+export default THIN_HALL;

@@ -9,7 +9,10 @@ class TfBuilder<T, U extends T, V extends T> {
     this.fns = fns;
   }
   private mkNext<A extends T>(result: A, i: number) {
-    const next = i < this.fns.length ? () => this.mkNext(this.fns[i](result), i + 1): null;
+    const next =
+      i < this.fns.length
+        ? () => this.mkNext(this.fns[i](result), i + 1)
+        : null;
     return { result, next };
   }
   first<A extends T>(result: A): TfResult<T, A> {

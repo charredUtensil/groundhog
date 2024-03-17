@@ -61,8 +61,8 @@ export type CavernContext = {
   caveOreRichness: Curve;
   hallOreRichness: Curve;
 
-  caveHasRechargeSeamChance: number
-  hallHasRechargeSeamChance: number
+  caveHasRechargeSeamChance: number;
+  hallHasRechargeSeamChance: number;
 };
 
 export function inferContextDefaults(
@@ -83,9 +83,9 @@ export function inferContextDefaults(
     hallBaroqueness: 0.05,
     caveCrystalRichness: curve(0.5, 1.0, 1.0),
     hallCrystalRichness: curve(0, 0, 0),
-    caveOreRichness: curve(3.75, -0.50, -0.25),
+    caveOreRichness: curve(3.75, -0.5, -0.25),
     hallOreRichness: curve(0, 0, 0),
     caveHasRechargeSeamChance: 0.07,
-    hallHasRechargeSeamChance: 0.10,
+    hallHasRechargeSeamChance: 0.1,
   };
 }

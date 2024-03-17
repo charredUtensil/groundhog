@@ -43,10 +43,8 @@ function visit(tiles: MutableGrid<RoughTile>, x: number, y: number) {
   }
 }
 
-export default function patch(
-  cavern: RoughPlasticCavern,
-): RoughPlasticCavern {
-  const tiles = cavern.tiles.copy()
+export default function patch(cavern: RoughPlasticCavern): RoughPlasticCavern {
+  const tiles = cavern.tiles.copy();
   const bounds = tiles.bounds;
   for (let x = bounds.left; x < bounds.right; x++) {
     for (let y = bounds.top; y < bounds.bottom; y++) {

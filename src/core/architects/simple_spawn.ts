@@ -12,11 +12,17 @@ const SimpleSpawn: typeof DefaultCaveArchitect = {
   placeRechargeSeam: getPlaceRechargeSeams(1),
   placeBuildings: (args) => {
     const [toolStore] = getBuildings(
-      {queue: [(pos) => TOOL_STORE.atTile({...pos, teleportAtStart: true})]}, args)
-    toolStore.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION))
-    args.buildings.push(toolStore)
-    args.openCaveFlags.set(...toolStore.foundation[0], true)
-  }
+      {
+        queue: [(pos) => TOOL_STORE.atTile({ ...pos, teleportAtStart: true })],
+      },
+      args,
+    );
+    toolStore.foundation.forEach(([x, y]) =>
+      args.tiles.set(x, y, Tile.FOUNDATION),
+    );
+    args.buildings.push(toolStore);
+    args.openCaveFlags.set(...toolStore.foundation[0], true);
+  },
 };
 
 const OPEN = new RoughOyster(

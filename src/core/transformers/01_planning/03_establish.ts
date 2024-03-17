@@ -24,7 +24,6 @@ export type EstablishedPlan = ArchitectedPlan & {
   readonly ore: number;
 };
 
-
 type CurveProps = { hops: number; order: number };
 
 function curved(curve: Curve, props: CurveProps): number {
@@ -52,7 +51,9 @@ export default function establish(
   function sortPlans(): SortedPlan[] {
     const isQueued: boolean[] = [];
     isQueued[spawn.id] = true;
-    const queue: { plan: FloodedPlan; hops: number }[] = [{ plan: spawn, hops: 0 }];
+    const queue: { plan: FloodedPlan; hops: number }[] = [
+      { plan: spawn, hops: 0 },
+    ];
     const result: SortedPlan[] = [];
 
     for (let index = 0; queue.length > 0; index++) {
@@ -86,7 +87,7 @@ export default function establish(
           return {
             item: architect,
             bid: bid?.({ cavern, plan, plans, hops, totalCrystals }) || 0,
-          }
+          };
         }),
       );
     const crystalRichness = curved(
@@ -109,8 +110,13 @@ export default function establish(
     const crystals = Math.round(plan.architect.crystals(args));
     totalCrystals += crystals;
     const ore = Math.round(plan.architect.ore(args));
-    const established: EstablishedPlan = { ...plan, baroqueness, crystals, ore};
-    plans[plan.id] = established
+    const established: EstablishedPlan = {
+      ...plan,
+      baroqueness,
+      crystals,
+      ore,
+    };
+    plans[plan.id] = established;
   }
   inOrder.forEach((path) => doEstablish(doArchitect(path)));
 

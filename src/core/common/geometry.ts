@@ -1,18 +1,23 @@
-export type Point = readonly [number, number]
-export type Cardinal4 = typeof NORTH | typeof EAST | typeof SOUTH | typeof WEST
-export type Cardinal8 = Cardinal4 | typeof NORTH_EAST | typeof SOUTH_EAST | typeof SOUTH_WEST | typeof NORTH_WEST
+export type Point = readonly [number, number];
+export type Cardinal4 = typeof NORTH | typeof EAST | typeof SOUTH | typeof WEST;
+export type Cardinal8 =
+  | Cardinal4
+  | typeof NORTH_EAST
+  | typeof SOUTH_EAST
+  | typeof SOUTH_WEST
+  | typeof NORTH_WEST;
 
-export const ORIGIN     = [ 0,  0] as const
-export const NORTH      = [ 0, -1] as const
-export const NORTH_EAST = [ 1, -1] as const
-export const EAST       = [ 1,  0] as const
-export const SOUTH_EAST = [ 1,  1] as const
-export const SOUTH      = [ 0,  1] as const
-export const SOUTH_WEST = [-1,  1] as const
-export const WEST       = [-1,  0] as const
-export const NORTH_WEST = [-1, -1] as const
+export const ORIGIN = [0, 0] as const;
+export const NORTH = [0, -1] as const;
+export const NORTH_EAST = [1, -1] as const;
+export const EAST = [1, 0] as const;
+export const SOUTH_EAST = [1, 1] as const;
+export const SOUTH = [0, 1] as const;
+export const SOUTH_WEST = [-1, 1] as const;
+export const WEST = [-1, 0] as const;
+export const NORTH_WEST = [-1, -1] as const;
 
-export const NSEW = [NORTH, SOUTH, EAST, WEST] as const
+export const NSEW = [NORTH, SOUTH, EAST, WEST] as const;
 
 export function isAdjacent4(a: Point, b: Point) {
   return (
@@ -26,7 +31,7 @@ export function isAdjacent8(a: Point, b: Point) {
 }
 
 export function offsetBy([x, y]: Point, [ox, oy]: Point): Point {
-  return [x + ox, y + oy]
+  return [x + ox, y + oy];
 }
 
 export function* plotLine(a: Point, b: Point): IterableIterator<Point> {
@@ -75,17 +80,17 @@ export function* plotLine(a: Point, b: Point): IterableIterator<Point> {
 }
 
 export function radsToDegrees(rads: number) {
-  return (rads * 180 / Math.PI + 180) % 360 - 180
+  return (((rads * 180) / Math.PI + 180) % 360) - 180;
 }
 
 export function rotateAround([x, y]: Point): Point {
-  return [-x, -y]
+  return [-x, -y];
 }
 
 export function rotateLeft([x, y]: Point): Point {
-  return [y, -x]
+  return [y, -x];
 }
 
 export function rotateRight([x, y]: Point): Point {
-  return [-y, x]
+  return [-y, x];
 }

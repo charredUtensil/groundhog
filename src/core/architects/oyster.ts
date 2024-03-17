@@ -210,20 +210,21 @@ export class Oyster<T> extends BaseOyster<T> {
   expand = (radius: number) => this._expand(radius);
 }
 
-export class RoughOyster 
-  extends BaseOyster<ReplaceFn<RoughTile>> 
-  implements Pick<Architect, "roughExtent" | "rough"> {
+export class RoughOyster
+  extends BaseOyster<ReplaceFn<RoughTile>>
+  implements Pick<Architect, "roughExtent" | "rough">
+{
   roughExtent: Architect["roughExtent"] = (plan) => {
     if (this._layers[this._layers.length - 1].of !== Rough.VOID) {
-      return plan.pearlRadius
+      return plan.pearlRadius;
     }
-    const ly = this._expand(plan.pearlRadius)
+    const ly = this._expand(plan.pearlRadius);
     for (let i = ly.length - 1; i > 0; i--) {
       if (ly[i] !== Rough.VOID) {
-        return i
+        return i;
       }
     }
-    return 0
+    return 0;
   };
   rough: Architect["rough"] = ({ plan, tiles }) => {
     const replacements = this._expand(plan.pearlRadius);

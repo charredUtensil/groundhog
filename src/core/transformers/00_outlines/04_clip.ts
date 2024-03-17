@@ -6,9 +6,7 @@ import { Path } from "../../models/path";
  * The halls on the outside edges tend to be long, thin, straight, cardinal,
  * and boring.
  */
-export default function clip(
-  cavern: TriangulatedCavern,
-): TriangulatedCavern {
+export default function clip(cavern: TriangulatedCavern): TriangulatedCavern {
   const radius = cavern.context.targetSize / 2;
   const rSquared = radius * radius;
   const paths: Path[] = cavern.paths.filter((path) => {

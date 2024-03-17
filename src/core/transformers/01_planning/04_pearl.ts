@@ -5,7 +5,7 @@ import { pairEach } from "../../common/utils";
 import { PartialPlannedCavern } from "./00_negotiate";
 import { EstablishedPlan } from "./03_establish";
 
-type Layer = readonly Point[]
+type Layer = readonly Point[];
 export type Pearl = readonly Layer[];
 
 export type PearledPlan = EstablishedPlan & {
@@ -166,7 +166,7 @@ export default function pearl(
     (plan.kind === "cave" ? caveNucleus : hallNucleus)(grid, plan);
     const innerPearl: Point[][] = [grid.map((_, x, y) => [x, y])];
     const outerPearl: Point[][] = [];
-    const pearlRadius = plan.architect.roughExtent(plan)
+    const pearlRadius = plan.architect.roughExtent(plan);
     for (let i = 1; i <= pearlRadius; i++) {
       innerPearl.push(addLayer(grid, rng, plan.baroqueness, i));
     }
@@ -177,4 +177,3 @@ export default function pearl(
   });
   return { ...cavern, plans };
 }
-

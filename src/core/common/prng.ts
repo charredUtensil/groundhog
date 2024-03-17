@@ -68,15 +68,15 @@ export class PseudorandomStream {
   }
 
   shuffle<T>(choices: T[]): T[] {
-    const r: T[] = []
+    const r: T[] = [];
     for (let i = 0; i < choices.length - 1; i++) {
-      const j = Math.floor((this.mt() * i) / MAX_PLUS_ONE)
+      const j = Math.floor((this.mt() * i) / MAX_PLUS_ONE);
       if (i != j) {
-        r[i] = r[j]
+        r[i] = r[j];
       }
-      r[j] = choices[i]
+      r[j] = choices[i];
     }
-    return r
+    return r;
   }
 }
 
@@ -143,15 +143,15 @@ export class DiceBox {
     return this.prng(Die.pickSpawn, 0);
   }
 
-  pickArchitect     = (id: number) => this.prng(Die.pickArchitect, id);
-  pearl             = (id: number) => this.prng(Die.pearl, id);
-  rough             = (id: number) => this.prng(Die.rough, id);
+  pickArchitect = (id: number) => this.prng(Die.pickArchitect, id);
+  pearl = (id: number) => this.prng(Die.pearl, id);
+  rough = (id: number) => this.prng(Die.rough, id);
   placeRechargeSeam = (id: number) => this.prng(Die.placeRechargeSeam, id);
-  placeBuildings    = (id: number) => this.prng(Die.placeBuildings, id);
-  placeCrystals     = (id: number) => this.prng(Die.placeCrystals, id);
-  placeOre          = (id: number) => this.prng(Die.placeOre, id);
-  placeLandslides   = (id: number) => this.prng(Die.placeLandslides, id);
-  placeErosion      = (id: number) => this.prng(Die.placeErosion, id);
-  placeEntities     = (id: number) => this.prng(Die.placeEntities, id);
-  lore              = (id: number) => this.prng(Die.lore, id);
+  placeBuildings = (id: number) => this.prng(Die.placeBuildings, id);
+  placeCrystals = (id: number) => this.prng(Die.placeCrystals, id);
+  placeOre = (id: number) => this.prng(Die.placeOre, id);
+  placeLandslides = (id: number) => this.prng(Die.placeLandslides, id);
+  placeErosion = (id: number) => this.prng(Die.placeErosion, id);
+  placeEntities = (id: number) => this.prng(Die.placeEntities, id);
+  lore = (id: number) => this.prng(Die.lore, id);
 }

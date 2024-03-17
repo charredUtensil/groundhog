@@ -29,9 +29,7 @@ function getOffset(t1: number, t2: number): number {
   return r > Math.PI ? 2 * Math.PI - r : r;
 }
 
-export default function weave(
-  cavern: TriangulatedCavern,
-): TriangulatedCavern {
+export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
   const rng = cavern.dice.weave;
   const angleInfo = getAngleInfo(cavern.paths);
 

@@ -12,11 +12,11 @@ export class CavernGenerator {
   }
 
   get cavern() {
-    return this.state.result
+    return this.state.result;
   }
 
   get isDone() {
-    return !this.state.next
+    return !this.state.next;
   }
 
   step() {

@@ -37,9 +37,9 @@ export default function CavernPreview({ cavern }: { cavern: Cavern }) {
             <PearlPreview plan={pl as PearledPlan} pearl={"innerPearl"} />
           ))}
         {cavern.tiles && <TilesPreview tiles={cavern.tiles} />}
-        {cavern.buildings?.map(b => <EntityPreview entity={b} />)}
-        {cavern.creatures?.map(c => <EntityPreview entity={c} enemy />)}
-        {cavern.miners?.map(m => <EntityPreview entity={m} />)}
+        {cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
+        {cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
+        {cavern.miners?.map((m) => <EntityPreview entity={m} />)}
       </svg>
     </div>
   );

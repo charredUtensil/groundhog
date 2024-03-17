@@ -6,9 +6,7 @@ import { Path } from "../../models/path";
 /**
  * Add ambiguous baseplates to paths that intersect them.
  */
-export default function bore(
-  cavern: TriangulatedCavern,
-): TriangulatedCavern {
+export default function bore(cavern: TriangulatedCavern): TriangulatedCavern {
   const bpAtTile: { [tile: string]: Baseplate } = {};
 
   for (const bp of cavern.baseplates) {

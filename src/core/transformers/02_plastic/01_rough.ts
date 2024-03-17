@@ -9,10 +9,9 @@ export type RoughPlasticCavern = FoundationPlasticCavern & {
 export default function rough(
   cavern: FoundationPlasticCavern,
 ): RoughPlasticCavern {
-  const tiles = new MutableGrid<RoughTile>
+  const tiles = new MutableGrid<RoughTile>();
   cavern.plans.forEach((plan) => {
     plan.architect.rough({ cavern, plan, tiles });
   });
   return { ...cavern, tiles };
 }
-

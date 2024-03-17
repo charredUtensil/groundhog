@@ -7,15 +7,19 @@ import "./entity.scss";
 
 const SCALE = 6;
 
-export default function EntityPreview(
-  {entity, enemy}: {entity: Building | Creature | Miner, enemy?: boolean}
-) {
-  const v = SCALE / 4
+export default function EntityPreview({
+  entity,
+  enemy,
+}: {
+  entity: Building | Creature | Miner;
+  enemy?: boolean;
+}) {
+  const v = SCALE / 4;
   return (
-    <path 
-      className={`entity ${enemy ? 'enemy' : ''}`}
+    <path
+      className={`entity ${enemy ? "enemy" : ""}`}
       d={`M${SCALE / 2} 0 L${v} ${v} L${-v} ${v} L${-v} ${-v} L${v} ${-v} Z`}
       transform={`translate(${entity.x * SCALE} ${entity.y * SCALE}) rotate(${radsToDegrees(entity.yaw)})`}
-      />
+    />
   );
 }

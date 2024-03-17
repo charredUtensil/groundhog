@@ -8,9 +8,7 @@ import { Path } from "../../models/path";
  *
  * It is assumed the ids of the paths are sequential, starting from 0.
  */
-export default function span(
-  cavern: TriangulatedCavern,
-): TriangulatedCavern {
+export default function span(cavern: TriangulatedCavern): TriangulatedCavern {
   const clusters: number[] = [];
   let nextCluster = 1;
 

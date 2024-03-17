@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 
 import "./App.css";
-import {
-  CavernContext,
-  DiceBox,
-  inferContextDefaults,
-} from "../core/common";
+import { CavernContext, DiceBox, inferContextDefaults } from "../core/common";
 import { CavernContextInput } from "./components/context_input";
 import { CavernGenerator } from "../core/transformers/generator";
 import { Cavern } from "../core/models/cavern";
@@ -34,9 +30,9 @@ function App() {
   };
 
   const stepGenerate = () => {
-    generator?.step()
-    setIsDone(generator?.isDone ?? false)
-  }
+    generator?.step();
+    setIsDone(generator?.isDone ?? false);
+  };
 
   return (
     <div className="App">

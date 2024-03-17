@@ -1,7 +1,5 @@
 import { MutableGrid, Grid } from "../../common/grid";
-import {
-  PlannedCavern,
-} from "../../models/cavern";
+import { PlannedCavern } from "../../models/cavern";
 
 export type FoundationPlasticCavern = PlannedCavern & {
   readonly intersectsPearlInner: Grid<readonly boolean[]>;
@@ -31,4 +29,3 @@ export default function foundation(
   });
   return { ...cavern, intersectsPearlInner, intersectsPearlOuter };
 }
-

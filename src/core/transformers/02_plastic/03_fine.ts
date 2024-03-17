@@ -20,23 +20,21 @@ export type FinePlasticCavern = PlannedCavern & {
   readonly openCaveFlags: Grid<true>;
 };
 
-export default function fine(
-  cavern: RoughPlasticCavern,
-): FinePlasticCavern {
-  const diorama: Omit<FineArgs, 'plan'> = {
+export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
+  const diorama: Omit<FineArgs, "plan"> = {
     cavern,
     tiles: cavern.tiles.copy(),
-    crystals: new MutableGrid<number>,
-    ore: new MutableGrid<number>,
+    crystals: new MutableGrid<number>(),
+    ore: new MutableGrid<number>(),
     buildings: [],
-    landslides: new MutableGrid<Landslide>,
-    erosion: new MutableGrid<Erosion>,
+    landslides: new MutableGrid<Landslide>(),
+    erosion: new MutableGrid<Erosion>(),
     creatureFactory: new CreatureFactory(),
     creatures: [],
     minerFactory: new MinerFactory(),
     miners: [],
-    openCaveFlags: new MutableGrid<true>,
-  }
+    openCaveFlags: new MutableGrid<true>(),
+  };
   cavern.plans.forEach((plan) => {
     const args: FineArgs = { ...diorama, plan };
     plan.architect.placeRechargeSeam(args);
@@ -49,4 +47,3 @@ export default function fine(
   });
   return { ...cavern, ...diorama };
 }
-

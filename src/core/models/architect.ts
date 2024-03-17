@@ -36,13 +36,13 @@ export type FineArgs = {
   readonly crystals: MutableGrid<number>;
   readonly ore: MutableGrid<number>;
   readonly buildings: Building[];
-  readonly landslides: MutableGrid<Landslide>,
-  readonly erosion: MutableGrid<Erosion>,
-  readonly creatureFactory: CreatureFactory,
-  readonly creatures: Creature[],
-  readonly minerFactory: MinerFactory,
-  readonly miners: Miner[],
-  readonly openCaveFlags: MutableGrid<true>,
+  readonly landslides: MutableGrid<Landslide>;
+  readonly erosion: MutableGrid<Erosion>;
+  readonly creatureFactory: CreatureFactory;
+  readonly creatures: Creature[];
+  readonly minerFactory: MinerFactory;
+  readonly miners: Miner[];
+  readonly openCaveFlags: MutableGrid<true>;
 };
 
 export type BaseArchitect = {

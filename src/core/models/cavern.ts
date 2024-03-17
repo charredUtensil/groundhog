@@ -9,7 +9,10 @@ export type BaseCavern = {
   context: CavernContext;
   dice: DiceBox;
 };
-export type OutlinedCavern = TriangulatedCavern
+export type OutlinedCavern = TriangulatedCavern;
 export type PlannedCavern = BaseCavern & { plans: readonly Plan[] };
-export type PlasticCavern = DiscoveredCavern
-export type Cavern = BaseCavern & Partial<OutlinedCavern> & Partial<PartialPlannedCavern<Partial<Plan>>> & Partial<PlasticCavern>
+export type PlasticCavern = DiscoveredCavern;
+export type Cavern = BaseCavern &
+  Partial<OutlinedCavern> &
+  Partial<PartialPlannedCavern<Partial<Plan>>> &
+  Partial<PlasticCavern>;

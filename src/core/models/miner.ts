@@ -28,9 +28,16 @@ export type Miner = EntityPosition & {
 };
 
 export class MinerFactory {
-  private id: number = 0
-  create(args: EntityPosition & Partial<Omit<Miner, 'id'>>): Miner {
-    return {essential: false, level: 1, loadout: ["Drill"], unique: null, ...args, id: this.id++}
+  private id: number = 0;
+  create(args: EntityPosition & Partial<Omit<Miner, "id">>): Miner {
+    return {
+      essential: false,
+      level: 1,
+      loadout: ["Drill"],
+      unique: null,
+      ...args,
+      id: this.id++,
+    };
   }
 }
 
@@ -38,7 +45,7 @@ export function serializeMiner(miner: Miner, offset: Point) {
   return `ID=${miner.id.toFixed()}\
 ${miner.unique ? `/${miner.unique}` : ""},\
 ${serializePosition(miner, offset, Math.PI / 2)},\
-${(miner.loadout).map(l => `${l}/`).join()}\
-${'Level/'.repeat(miner.level)}\
-${miner.essential ? ',Essential=true' : ''}`
+${miner.loadout.map((l) => `${l}/`).join()}\
+${"Level/".repeat(miner.level)}\
+${miner.essential ? ",Essential=true" : ""}`;
 }

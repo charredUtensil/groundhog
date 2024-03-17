@@ -1,7 +1,7 @@
 import { State } from "../lore";
 import phraseGraph from "../phrase_graph";
 
-const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip}) => {
+const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   const greeting = start.then(
     pg(
       "Are you ready for the next mission?",
@@ -138,18 +138,20 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip}) => {
     )
     .then();
 
-  const teleporter_malfunction = pg().then(
-    state("lostMinersOne").then(
-        'A teleporter malfunction sent one of our Rock Raiders to a cavern near here',
-        'The teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern',
-        'One of our Rock Raiders was accidentally sent to the wrong cavern',
-    ),
-    state('lostMinersTogether').then(
-        'A teleporter malfunction sent a group of our Rock Raiders to a cavern near here',
-        'The teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern',
+  const teleporter_malfunction = pg()
+    .then(
+      state("lostMinersOne").then(
+        "A teleporter malfunction sent one of our Rock Raiders to a cavern near here",
+        "The teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern",
+        "One of our Rock Raiders was accidentally sent to the wrong cavern",
+      ),
+      state("lostMinersTogether").then(
+        "A teleporter malfunction sent a group of our Rock Raiders to a cavern near here",
+        "The teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern",
+      ),
     )
-  ).then()
+    .then();
 
-  pg(greeting, negativeGreeting).then(end)
+  pg(greeting, negativeGreeting).then(end);
 });
 export default PREMISE;

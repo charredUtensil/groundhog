@@ -143,4 +143,3 @@ export default function partition(cavern: BaseCavern): PartitionedCavern {
   }
   return { ...cavern, baseplates: partitioner.baseplates };
 }
-
