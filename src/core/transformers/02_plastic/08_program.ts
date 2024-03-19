@@ -18,6 +18,8 @@ export default function program(cavern: FencedCavern): ProgrammedCavern {
     .forEach(architect => push(architect.scriptGlobals({cavern})))
   cavern.plans
     .forEach(plan => push(plan.architect.script({cavern, plan})))
+  cavern.plans
+    .forEach(plan => push(plan.architect.monsterSpawnScript({cavern, plan})))
   
   return { ...cavern, script: script.join('\n')};
 }
