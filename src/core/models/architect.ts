@@ -12,6 +12,7 @@ import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
 import { PearledPlan } from "../transformers/01_planning/04_pearl";
+import { FencedCavern } from "../transformers/02_plastic/07_fence";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -81,6 +82,10 @@ export type BaseArchitect<T extends Readonly<T>> = {
   placeLandslides(args: FineArgs<T>): void;
   placeErosion(args: FineArgs<T>): void;
   placeEntities(args: FineArgs<T>): void;
+
+  scriptGlobals(args: {cavern: FencedCavern}): string | undefined;
+  script(args: {cavern: FencedCavern, plan: PlanWithMetadata<T>}): string | undefined;
+  monsterSpawnScript(args: {cavern: FencedCavern, plan: PlanWithMetadata<T>}): string | undefined;
 };
 
 export type Architect<T> = BaseArchitect<T> &

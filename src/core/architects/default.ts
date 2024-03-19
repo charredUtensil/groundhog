@@ -1,4 +1,9 @@
 import { Architect } from "../models/architect";
+import { FluidType } from "../models/tiles";
+import { NegotiatedPlan } from "../transformers/01_planning/00_negotiate";
+import { Pearl } from "../transformers/01_planning/04_pearl";
+import { EnscribedCavern } from "../transformers/02_plastic/06_enscribe";
+import { FencedCavern } from "../transformers/02_plastic/07_fence";
 import {
   defaultPlaceCrystals,
   defaultPlaceOre,
@@ -12,12 +17,15 @@ const DefaultArchitect: Omit<PartialArchitect<unknown>, "baroqueness"> = {
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
   prime: () => undefined,
   placeRechargeSeam: getPlaceRechargeSeams(),
-  placeBuildings: () => {},
+  placeBuildings: () => { },
   placeCrystals: defaultPlaceCrystals,
   placeOre: defaultPlaceOre,
-  placeLandslides: () => {},
-  placeErosion: () => {},
-  placeEntities: () => {},
+  placeLandslides: () => { },
+  placeErosion: () => { },
+  placeEntities: () => { },
+  scriptGlobals: () => undefined,
+  script: () => undefined,
+  monsterSpawnScript: () => undefined,
 };
 
 export const DefaultCaveArchitect: PartialArchitect<unknown> = {

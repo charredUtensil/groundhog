@@ -6,8 +6,8 @@ import fine from "./03_fine";
 import discover from "./04_discover";
 import adjure from "./05_adjure";
 import enscribe from "./06_enscribe";
-import program from "./07_program";
-import fence from "./08_fence";
+import program from "./08_program";
+import fence from "./07_fence";
 import serialize from "./09_serialize";
 
 export const PLASTIC_TF = tf(foundation)
@@ -17,6 +17,6 @@ export const PLASTIC_TF = tf(foundation)
   .then(discover)
   .then(adjure)
   .then(enscribe)
-  .then(program)
   .then(fence)
+  .then(program)
   .then(serialize);

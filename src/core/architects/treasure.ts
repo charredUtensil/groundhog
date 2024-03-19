@@ -3,13 +3,55 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect } from "./default";
 import { Rough, RoughOyster } from "./oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
+import { mkVars, transformPoint } from "./utils/script";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect
 }
 
+const g = mkVars('gHoard', ['wasTriggered', 'message', 'crystalsAvailable'])
+
 const HOARD: typeof BASE = {
-  ...BASE
+  ...BASE,
+  scriptGlobals({cavern}) {
+    if (!cavern.objectives.crystals) {
+      return undefined
+    }
+    return `# Hoard Globals
+bool ${g.wasTriggered}=false
+string ${g.message}="found hoard!"
+int ${g.crystalsAvailable}=0
+`
+  },
+  script({cavern, plan}) {
+    if (!cavern.objectives.crystals) {
+      return undefined
+    }
+    // Generate a script that pans to this cave on discovery if collecting all
+    // of the crystals would win the level.
+    // TODO(charredutensil): Need to figure out clashes with lost miners
+    const centerPoint = transformPoint(cavern, plan.innerPearl[0][0])
+    const v = mkVars(`p${plan.id}Hoard`, [
+      'onDiscovered', 'crystalsAvailable', 'go', 'noGo'
+    ])
+
+    return `# Found Hoard ${plan.id}
+if(change:${centerPoint})[${v.onDiscovered}]
+${v.onDiscovered}::;
+((${g.wasTriggered}))return;
+${g.wasTriggered}=true;
+wait:1;
+${v.crystalsAvailable}=crystals+Crystal_C;
+((${v.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];
+
+${v.go}::;
+msg:${g.message};
+pan:${centerPoint};
+
+${v.noGo}::;
+${g.wasTriggered}=false
+`
+  }
 }
 
 const RICH: typeof BASE = {

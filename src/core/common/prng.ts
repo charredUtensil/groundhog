@@ -101,6 +101,9 @@ enum Die {
   placeEntities,
   lore,
   init, // TODO: move to beginning when generation breaks anyway.
+  scriptGlobals,
+  script,
+  monsterSpawnScript,
 }
 
 /**
@@ -171,4 +174,11 @@ export class DiceBox {
   placeErosion = (id: number) => this.prng(Die.placeErosion, id);
   placeEntities = (id: number) => this.prng(Die.placeEntities, id);
   lore = (id: number) => this.prng(Die.lore, id);
+  
+  get scriptGlobals() {
+    return this.prng(Die.scriptGlobals, 0);
+  }
+  
+  script = (id: number) => this.prng(Die.script, id);
+  monsterSpawnScript = (id: number) => this.prng(Die.monsterSpawnScript, id);
 }
