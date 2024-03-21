@@ -129,7 +129,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         .then(", and")
         .then("we presume our Rock Radier HQ has been destroyed")
         .then(state("findHq")),
-      pg().then(state("lostMinersTogether", "lostMinersApart"))
+      pg()
+        .then(state("lostMinersTogether", "lostMinersApart"))
         .then(
           ", but we have not been able to contact them for some time now",
           "and were buried by a recent cave-in",
@@ -152,133 +153,147 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       ),
     )
     .then();
-  
-  const however = pg(
-    '. \n\nHowever,',
-    '. \n\nUnfortunately,',
-    '. \n\nUnfortunately for us,',
-    '. \n\nThe bad news?',
-    '. Use caution!',
-    ', but proceed with caution!\n\n',
-    ', but this is no walk in the park.'
-  )
 
-  const find_them = pg().then(
-    'we\'re counting on you to find them!',
-    'we don\'t know how long they\'ll last out there.',
-    state('hasMonsters').then(
-        'we need to find them before the %(monster_type)s monsters do.',
-        'I hope they don\'t meet any of the %(monster_type)s monsters roaming this cavern.'
+  const however = pg(
+    ". \n\nHowever,",
+    ". \n\nUnfortunately,",
+    ". \n\nUnfortunately for us,",
+    ". \n\nThe bad news?",
+    ". Use caution!",
+    ", but proceed with caution!\n\n",
+    ", but this is no walk in the park.",
+  );
+
+  const find_them = pg()
+    .then(
+      "we're counting on you to find them!",
+      "we don't know how long they'll last out there.",
+      state("hasMonsters").then(
+        "we need to find them before the %(monster_type)s monsters do.",
+        "I hope they don't meet any of the %(monster_type)s monsters roaming this cavern.",
+      ),
     )
-  ).then(state('spawnHasErosion'), skip).then()
+    .then(state("spawnHasErosion"), skip)
+    .then();
 
   const hq_destroyed = pg(
-    'Recent seismic activity has damaged our Rock Raider HQ',
-    'An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ',
-  )
+    "Recent seismic activity has damaged our Rock Raider HQ",
+    "An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ",
+  );
 
-  const hq_destroyed_but_evacuated = hq_destroyed.then(
-    '. We were able to evacuate in time',
-    '. All of our Rock Raiders made it out',
-    '. We evacuated the cavern',
-    '. Everyone evacuated safely'
-  ).then(
-    state('findHq').then(
-      ', but this is as close as we can get for now',
-      ', but the teleporter seems to have been destroyed',
-    ),
-    state('spawnIsHq').then(state('hqIsRuin')).then(
-      ', but this is all that\'s left',
-      'and the geology seems to be stable again',
+  const hq_destroyed_but_evacuated = hq_destroyed
+    .then(
+      ". We were able to evacuate in time",
+      ". All of our Rock Raiders made it out",
+      ". We evacuated the cavern",
+      ". Everyone evacuated safely",
     )
-  )
+    .then(
+      state("findHq").then(
+        ", but this is as close as we can get for now",
+        ", but the teleporter seems to have been destroyed",
+      ),
+      state("spawnIsHq")
+        .then(state("hqIsRuin"))
+        .then(
+          ", but this is all that's left",
+          "and the geology seems to be stable again",
+        ),
+    );
 
-  const hq_destroyed_and_miners_lost = hq_destroyed.then(', and').then(
-    state('lostMinersOne').then('one of our Rock Raiders is missing'),
-    state('lostMinersTogether').then(
-        'a group of Rock Raidiers are missing',
-        'a group of Rock Raidiers are trapped somewhere in the cavern'
-    ),
-    state('lostMinersApart').then(
-      'some of our Rock Raidiers are missing',
-      'our Rock Raiders are trapped throughout the cavern'
+  const hq_destroyed_and_miners_lost = hq_destroyed
+    .then(", and")
+    .then(
+      state("lostMinersOne").then("one of our Rock Raiders is missing"),
+      state("lostMinersTogether").then(
+        "a group of Rock Raidiers are missing",
+        "a group of Rock Raidiers are trapped somewhere in the cavern",
+      ),
+      state("lostMinersApart").then(
+        "some of our Rock Raidiers are missing",
+        "our Rock Raiders are trapped throughout the cavern",
+      ),
     )
-  ).then(state('findHq', 'spawnIsHq')).then()
+    .then(state("findHq", "spawnIsHq"))
+    .then();
 
-  const reassurance = pg(
-    'Don\'t get discouraged.',
-    'Don\'t worry!',
-  ).then(
-    'I\'m sure you will be able to meet this challenge head-on!',
-    'This is well within the capabilities of someone with your skillset.',
-    'You\'ve triumphed over tough challenges before!',
-    'You\'ve beaten worse odds before!',
-  )
+  const reassurance = pg("Don't get discouraged.", "Don't worry!").then(
+    "I'm sure you will be able to meet this challenge head-on!",
+    "This is well within the capabilities of someone with your skillset.",
+    "You've triumphed over tough challenges before!",
+    "You've beaten worse odds before!",
+  );
 
-  const spawn_has_erosion = state('spawnHasErosion').then(
-    'we are dangerously close to a cavern full of lava',
-    'we are concerned about nearby lava flows that could engulf this cavern',
-    'you will need to keep an eye on the volcanic activity in this cavern to avoid being buried in lava',
+  const spawn_has_erosion = state("spawnHasErosion").then(
+    "we are dangerously close to a cavern full of lava",
+    "we are concerned about nearby lava flows that could engulf this cavern",
+    "you will need to keep an eye on the volcanic activity in this cavern to avoid being buried in lava",
   );
 
   const has_monsters_texts = [
-    'the tunnels here are full of large creatures that threaten our operations',
-    'we are picking up signs of large creatures in the area',
-    'this cavern is inhabited by nests of %(monster_type)s monsters',
-    'we have reason to believe there are dozens of %(monster_type)s monsters just out of sight',
+    "the tunnels here are full of large creatures that threaten our operations",
+    "we are picking up signs of large creatures in the area",
+    "this cavern is inhabited by nests of %(monster_type)s monsters",
+    "we have reason to believe there are dozens of %(monster_type)s monsters just out of sight",
   ];
 
-  const has_monsters = state('hasMonsters').then(...has_monsters_texts)
-  const and_has_monsters = state('hasMonsters').then(', and').then(...has_monsters_texts)
+  const has_monsters = state("hasMonsters").then(...has_monsters_texts);
+  const and_has_monsters = state("hasMonsters")
+    .then(", and")
+    .then(...has_monsters_texts);
 
-  start.then(
-    'Our mining operations have been going smoothly, and we are ready to move on to the next cavern.',
-    'There is nothing out of the ordinary to report today.',
-    'Things have been quiet and I hope they should remain that way, Cadet!',
-  ).then(end)
+  start
+    .then(
+      "Our mining operations have been going smoothly, and we are ready to move on to the next cavern.",
+      "There is nothing out of the ordinary to report today.",
+      "Things have been quiet and I hope they should remain that way, Cadet!",
+    )
+    .then(end);
 
-  greeting.then(weFoundACave).then(pg('.').then(end), however);
+  greeting.then(weFoundACave).then(pg(".").then(end), however);
 
-  pg(greeting, negativeGreeting).then().then(
-    hq_destroyed,
-    teleporter_malfunction,
-    miners_were_exploring_then_lost,
-  );
+  pg(greeting, negativeGreeting)
+    .then()
+    .then(
+      hq_destroyed,
+      teleporter_malfunction,
+      miners_were_exploring_then_lost,
+    );
 
   pg(
-      pg(miners_were_exploring_then_lost, teleporter_malfunction)
-      .then('.')
-      .then(find_them)
-  )
+    pg(miners_were_exploring_then_lost, teleporter_malfunction)
+      .then(".")
+      .then(find_them),
+  );
 
-  they_are_trapped.then(', and', '.').then(find_them)
+  they_are_trapped.then(", and", ".").then(find_them);
 
-  find_them.then(reassurance, end)
+  find_them.then(reassurance, end);
 
   const empty_hq_destroyed = pg(
-      hq_destroyed_but_evacuated,
-      no_one_hurt_but_base_destroyed
-  ).then('.').then(end, skip)
+    hq_destroyed_but_evacuated,
+    no_one_hurt_but_base_destroyed,
+  )
+    .then(".")
+    .then(end, skip);
 
   const hardship_and = pg(
-      empty_hq_destroyed,
-      pg(
-          miners_were_exploring_then_lost,
-          hq_destroyed_and_miners_lost,
-          teleporter_malfunction
-      ).then('. Also,', '. If that wasn\'t hard enough,', '. It gets worse:')
+    empty_hq_destroyed,
+    pg(
+      miners_were_exploring_then_lost,
+      hq_destroyed_and_miners_lost,
+      teleporter_malfunction,
+    ).then(". Also,", ". If that wasn't hard enough,", ". It gets worse:"),
   );
 
   pg(however, hardship_and).then().then(spawn_has_erosion, has_monsters);
   spawn_has_erosion.then(and_has_monsters);
 
-  pg(
-      hq_destroyed_and_miners_lost, and_has_monsters
-  ).then('.').then(
-      reassurance, end
-  );
-  pg(spawn_has_erosion, has_monsters).then('.').then(end)
+  pg(hq_destroyed_and_miners_lost, and_has_monsters)
+    .then(".")
+    .then(reassurance, end);
+  pg(spawn_has_erosion, has_monsters).then(".").then(end);
 
-  reassurance.then(end)
+  reassurance.then(end);
 });
 export default PREMISE;

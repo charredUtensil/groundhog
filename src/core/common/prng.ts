@@ -4,7 +4,7 @@ import { Mutable } from "./utils";
 
 export type Seed = number;
 
-const MAX_PLUS_ONE = mt19937.MAX + 1;
+export const MAX_PLUS_ONE = mt19937.MAX + 1;
 
 export class PseudorandomStream {
   private mt;
@@ -84,7 +84,8 @@ export class PseudorandomStream {
  * DO NOT REMOVE OR RE-ORDER THIS ENUM. APPEND NEW ENTRIES TO THE END.
  */
 enum Die {
-  partition = 0,
+  init = 0,
+  partition,
   weave,
   flood,
   pickSpawn,
@@ -100,7 +101,6 @@ enum Die {
   placeErosion,
   placeEntities,
   lore,
-  init, // TODO: move to beginning when generation breaks anyway.
   scriptGlobals,
   script,
   monsterSpawnScript,
@@ -122,6 +122,8 @@ export class DiceBox {
 
   constructor(seed: Seed) {
     this.seed = seed;
+    // Patch for https://github.com/stdlib-js/stdlib/issues/1963
+    if (seed === 0) {seed = 1999}
     const mt = mt19937.factory({ seed });
     const boxesLength = Object.keys(Die).length;
     const boxes: Mutable<DiceBox["boxes"]> = [];

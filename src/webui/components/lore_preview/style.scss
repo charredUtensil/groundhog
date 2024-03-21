@@ -1,0 +1,45 @@
+.lorePreview {
+  position: absolute;
+  left: 10%;
+  top: 10%;
+  right: 10%;
+  bottom: 10%;
+
+  .tabs {
+    height: 48px;
+  }
+
+  .pgWrapper {   
+    position: absolute;
+    padding: 12px;
+    left: 0;
+    top: 48px;
+    right: 0;
+    bottom: 0;
+    background: white;
+    border-radius: 12px;
+
+    .pg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: scroll;
+
+      .graph {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .list {
+        margin-left: 200px;
+
+        .node {
+          height: 48px;
+        }
+      }
+    }
+  }
+}

@@ -1,54 +1,76 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import "./App.css";
-import { CavernContext, DiceBox, inferContextDefaults } from "../core/common";
-import { CavernContextInput } from "./components/context_input";
-import { CavernGenerator } from "../core/transformers/generator";
+import "./App.scss";
+import { CavernContext, DiceBox } from "../core/common";
+import { CavernContextInput } from "./components/context_editor/context";
 import { Cavern } from "../core/models/cavern";
-import { Logger } from "../core/common/logger";
-import CavernPreview from "./components/preview/cavern";
-import LorePhraseGraph from "./components/phrase_graph";
+import CavernPreview from "./components/map_preview/cavern";
+import { CAVERN_TF } from "../core/transformers";
+import { TransformResult } from "../core/common/transform";
+import LorePreview from "./components/lore_preview";
 
 function App() {
-  const [generator, setGenerator] = useState<CavernGenerator | undefined>();
-  const [cavern, setCavern] = useState<Cavern>();
-  const [isDone, setIsDone] = useState(false);
-  const logger: Logger = {
-    info: setCavern,
-  };
+  const [initialContext, setInitialContext] = useState<CavernContext | null>(null);
+  const [cavern, setCavern] = useState<Cavern | null>(null);
+  const [next, setNext] = useState<(() => TransformResult<Cavern>) | null>(null)
+  const [cavernError, setCavernError] = useState<Error | null>(null)
+  const [autoGenerate, setAutoGenerate] = useState(false)
 
-  const [cavernContext, setCavernContext] = useState<Partial<CavernContext>>({
-    logger,
-  });
+  const [showLore, setShowLore] = useState(false)
 
-  const startGenerating = () => {
-    const dice = new DiceBox(0x19930202);
-    const context = inferContextDefaults(dice, cavernContext);
-    const cavern = { context, dice };
-    setCavern(cavern);
-    setGenerator(new CavernGenerator(cavern));
-  };
+  useEffect(() => {
+    setCavern(null)
+    setCavernError(null)
+    setNext(() => initialContext ? init : null)
+  }, [initialContext])
 
-  const stepGenerate = () => {
-    generator?.step();
-    setIsDone(generator?.isDone ?? false);
+  useEffect(() => {
+    if (next && autoGenerate) {
+      setTimeout(step, 1)
+    }
+  }, [next, autoGenerate])
+
+  function generate() {
+    setAutoGenerate(true)
+    step()
+  }
+
+  function init() {
+    const dice = new DiceBox(initialContext!.seed)
+    const cavern = {dice, context: {...initialContext!, logger: {info: (() => {})}}}
+    return CAVERN_TF.first(cavern)
+  }
+
+  function step() {
+    try {
+      const r = next!()
+      setCavern(r.result)
+      setNext(() => r.next)
+    } catch (e: unknown) {
+      console.error(e)
+      if (e instanceof Error) {
+        setNext(null)
+        setCavernError(e)
+      }
+    }
   };
 
   return (
     <div className="App">
-      {!generator && (
-        <>
-          <LorePhraseGraph />
-          <CavernContextInput get={cavernContext} set={setCavernContext} />
-          <button onClick={startGenerating}>Generate</button>
-        </>
-      )}
-      {cavern && generator && (
-        <>
-          <CavernPreview cavern={cavern} />
-          {!isDone && <button onClick={stepGenerate}>Step</button>}
-        </>
-      )}
+      <div className="settingsPanel">
+        <CavernContextInput onChanged={setInitialContext} />
+        <div className="controls">
+          {next && <button onClick={step}>Step</button>}
+          {next && <button onClick={generate}>Generate</button>}
+        </div>
+      </div>
+      <div className="mainPanel">
+        {cavern && <CavernPreview cavern={cavern} error={cavernError} />}
+        {showLore && <LorePreview />}
+      </div>
+      <div className="vizOptsPanel">
+        <button onClick={() => setShowLore(v => !v)}>Lore</button>
+      </div>
     </div>
   );
 }

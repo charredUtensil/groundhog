@@ -10,7 +10,7 @@ export type State = {
   lostMinersOne: boolean;
   lostMinersTogether: boolean;
   lostMinersApart: boolean;
-  hasResources: boolean;
+  resourceObjective: boolean;
   hasMonsters: boolean;
   spawnHasErosion: boolean;
   spawnIsHq: boolean;
@@ -53,7 +53,7 @@ export class Lore {
       lostMinersOne: lostMiners === 1,
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
-      hasResources: true,
+      resourceObjective: true,
       hasMonsters: false,
       spawnHasErosion: false,
       spawnIsHq: false,

@@ -79,7 +79,7 @@ export function inferContextDefaults(
 ): CavernContext {
   const r: typeof args & Pick<CavernContext, "biome" | 'targetSize'> = {
     biome: dice.init(Die.biome).uniformChoice(['rock', 'ice', 'lava']),
-    targetSize: 64 ?? dice.init(Die.targetSize).uniformInt({min: 50, max: 80}),
+    targetSize: dice.init(Die.targetSize).uniformInt({min: 50, max: 80}),
     ...args
   }
   return {

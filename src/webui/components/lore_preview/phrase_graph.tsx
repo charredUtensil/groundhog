@@ -1,8 +1,7 @@
-import React from "react";
-import { FOUND_HOARD } from "../../core/lore/graphs/events";
-import { Phrase, PhraseGraph } from "../../core/lore/phrase_graph";
-import { State } from "../../core/lore/lore";
-import PREMISE from "../../core/lore/graphs/premise";
+import React, { DOMElement, createRef, useRef } from "react";
+import { Phrase, PhraseGraph } from "../../../core/lore/phrase_graph";
+import { State } from "../../../core/lore/lore";
+import "./style.scss"
 
 type PhraseNode = {
   readonly index: number;
@@ -10,7 +9,7 @@ type PhraseNode = {
   readonly text: readonly string[];
   readonly after: readonly number[];
   readonly before: readonly number[];
-  readonly requires: string;
+  readonly requires: string | null;
   lane?: number
 }
 
@@ -35,7 +34,7 @@ function arrange(phrases: readonly Phrase<any>[]): readonly PhraseNode[] {
         index: inOrder.length,
         id: phrase.id,
         text: phrase.text,
-        requires: String(phrase.requires),
+        requires: phrase.requires ? String(phrase.requires) : null,
       });
       stack.unshift(...phrase.after);
     }
@@ -118,41 +117,57 @@ function getCoord(node: PhraseNode) {
   return [x, y]
 }
 
-export default function LorePhraseGraph() {
-  const nodes = makeNodes(PREMISE)
+export default function PhraseGraphPreview({pg}: {pg: PhraseGraph<State>}) {
+  const graphRef = createRef<SVGSVGElement>()
+  const nodesRef = createRef<HTMLDivElement>()
 
-  const SVG_WIDTH = 800;
+  const nodes = makeNodes(pg)
+
+  const SVG_WIDTH = 200;
   const SVG_HEIGHT = NODE_HEIGHT * nodes.length;
 
+  function update() {
+
+  }
+
   return (
-    <svg
-      className="map"
-      style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}
-      viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {nodes.map((node) => {
-        const [x, y] = getCoord(node)
-        return (
-          <>
-            <circle cx={x} cy={y} r={8} />
-            <text x={200} y={y}>
-              {node.index} id={node.id} {node.text[0] || node.requires}
-            </text>
-            {node.after.map((ai) => {
-              const [x1, y1] = getCoord(nodes[ai]);
-              return (
-                <path
-                  stroke="black"
-                  strokeWidth={4}
-                  fill="none"
-                  d={`M${x} ${y} C${x} ${y + NODE_HEIGHT / 2} ${x1} ${y + 24} ${x1} ${y + 48} L${x1} ${y1}`}
-                />
-              );
+    <div className="pg">
+
+      <svg
+        ref={graphRef}
+        className="graph"
+        style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}
+        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {nodes.map((node) => {
+          const [x, y] = getCoord(node)
+          return (
+            <>
+              <circle cx={x} cy={y} r={8} />
+              {node.after.map((ai) => {
+                const [x1, y1] = getCoord(nodes[ai]);
+                return (
+                  <path
+                    stroke="black"
+                    strokeWidth={4}
+                    fill="none"
+                    d={`M${x} ${y} C${x} ${y + NODE_HEIGHT / 2} ${x1} ${y + 24} ${x1} ${y + 48} L${x1} ${y1}`}
+                  />
+                );
+              })}
+            </>
+          )
             })}
-          </>
-        )
-          })}
-    </svg>
+            </svg>
+            <div className="list">
+      {nodes.map((node) => (
+        <div className="node" ref={nodesRef}>
+          {node.text.map((text) => (<div>{text}</div>))}
+          {node.requires ? (<div className="requires">{node.requires}</div>) : ''}
+        </div>
+      ))}
+      </div>
+    </div>
   );
 }

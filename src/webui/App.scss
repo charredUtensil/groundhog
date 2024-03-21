@@ -1,0 +1,34 @@
+.App {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  background: #121212;
+
+  .settingsPanel {
+    width: 200px;
+    flex-shrink: 0;
+    flex-grow: 1;
+    background: #223559;
+  }
+
+  .mainPanel {
+    position: relative;
+    width: 75%;
+    overflow: hidden;
+  }
+
+  .vizOptsPanel {
+    --color-grid: #999999;
+    width: 100px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    opacity: 0.8;
+    background-image:
+       linear-gradient(var(--color-grid) 1px, transparent 1px),
+       linear-gradient(to right, var(--color-grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}

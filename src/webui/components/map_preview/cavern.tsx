@@ -1,6 +1,6 @@
-import React from "react";
+import React, { createRef, useLayoutEffect, useRef, useState } from "react";
 import { Cavern } from "../../../core/models/cavern";
-import "./cavern.css";
+import "./cavern.scss";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
 import PlanPreview from "./plan";
@@ -10,17 +10,29 @@ import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
 
 const SCALE = 6;
-const SVG_WIDTH = 800;
-const SVG_HEIGHT = 600;
 
-export default function CavernPreview({ cavern }: { cavern: Cavern }) {
+export default function CavernPreview({ cavern, error }: { cavern: Cavern, error: Error | null }) {
+  const holder = createRef<HTMLDivElement>()
+  const [width, setWidth] = useState(600)
+  const [height, setHeight] = useState(600)
+  useLayoutEffect(() => {
+    const onResize = () => {
+      if (holder.current) {
+        setWidth(holder.current.clientWidth)
+        setHeight(holder.current.clientHeight)
+      }
+    }
+    onResize()
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [holder])
+
   return (
-    <div className="cavernPreview">
-      <div className="seed">seed: {cavern.context.seed}</div>
+    <div ref={holder} className="cavernPreview">
       <svg
         className="map"
-        style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}
-        viewBox={`${SVG_WIDTH / -2} ${SVG_HEIGHT / -2} ${SVG_WIDTH} ${SVG_HEIGHT}`}
+        style={{ width: width, height: height }}
+        viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         {cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
@@ -41,6 +53,11 @@ export default function CavernPreview({ cavern }: { cavern: Cavern }) {
         {cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
         {cavern.miners?.map((m) => <EntityPreview entity={m} />)}
       </svg>
+      {error && (
+        <div className="error">
+          {error.message}
+        </div>
+      )}
     </div>
   );
 }

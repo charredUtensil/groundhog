@@ -170,9 +170,10 @@ export function getPlaceRechargeSeams(
         const bids = bidsForOuterPearl(args).filter(({ bid }) => bid >= 1);
         if (bids.length === 0) {
           console.log("FAILED to place recharge seam in plan: %o", args.plan);
+        } else {
+          const [x, y] = rng.weightedChoice(bids);
+          args.tiles.set(x, y, Tile.RECHARGE_SEAM);
         }
-        const [x, y] = rng.weightedChoice(bids);
-        args.tiles.set(x, y, Tile.RECHARGE_SEAM);
       }
     }
   };
