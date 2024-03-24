@@ -1,5 +1,5 @@
 import { State } from "../lore";
-import phraseGraph from "../phrase_graph";
+import phraseGraph from "../builder";
 
 export const FOUND_HOARD = phraseGraph<State>(
   ({ pg, state, start, end, cut, skip }) => {

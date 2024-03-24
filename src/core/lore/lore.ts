@@ -3,21 +3,19 @@ import { AdjuredCavern } from "../transformers/02_plastic/05_adjure";
 import PREMISE from "./graphs/premise";
 
 export type State = {
-  start: boolean;
-  end: boolean;
-  floodedWithWater: boolean;
-  floodedWithLava: boolean;
-  lostMinersOne: boolean;
-  lostMinersTogether: boolean;
-  lostMinersApart: boolean;
-  resourceObjective: boolean;
-  hasMonsters: boolean;
-  spawnHasErosion: boolean;
-  spawnIsHq: boolean;
-  findHq: boolean;
-  hqIsRuin: boolean;
-  treasureCaveOne: boolean;
-  treasureCaveMany: boolean;
+  readonly floodedWithWater: boolean;
+  readonly floodedWithLava: boolean;
+  readonly lostMinersOne: boolean;
+  readonly lostMinersTogether: boolean;
+  readonly lostMinersApart: boolean;
+  readonly resourceObjective: boolean;
+  readonly hasMonsters: boolean;
+  readonly spawnHasErosion: boolean;
+  readonly spawnIsHq: boolean;
+  readonly findHq: boolean;
+  readonly hqIsRuin: boolean;
+  readonly treasureCaveOne: boolean;
+  readonly treasureCaveMany: boolean;
 };
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -40,14 +38,12 @@ function floodedWith(cavern: AdjuredCavern): FluidType {
 }
 
 export class Lore {
-  private state: State;
+  readonly state: State;
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
     const lostMiners: number = 0;
     const lostMinerCaves: number = 0;
     this.state = {
-      start: true,
-      end: true,
       floodedWithWater: fluidType == Tile.WATER,
       floodedWithLava: fluidType == Tile.LAVA,
       lostMinersOne: lostMiners === 1,

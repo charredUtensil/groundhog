@@ -1,5 +1,5 @@
 import { State } from "../lore";
-import phraseGraph from "../phrase_graph";
+import phraseGraph from "../builder";
 
 const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   const greeting = start.then(
@@ -214,6 +214,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "our Rock Raiders are trapped throughout the cavern",
       ),
     )
+    .then()
     .then(state("findHq", "spawnIsHq"))
     .then();
 

@@ -1,9 +1,16 @@
 .lorePreview {
   position: absolute;
-  left: 10%;
-  top: 10%;
-  right: 10%;
-  bottom: 10%;
+  left: 48px;
+  top: 48px;
+  right: 48px;
+  bottom: 48px;
+
+  --color-bg: #333333;
+  --color-bg-alt: #222222;
+  --color-offscreen: #555555;
+  --color-requires: #9999ff;
+  --color-selected: white;
+  --color-fg: #77ff22;
 
   .tabs {
     height: 48px;
@@ -16,7 +23,7 @@
     top: 48px;
     right: 0;
     bottom: 0;
-    background: white;
+    background: var(--color-bg);
     border-radius: 12px;
 
     .pg {
@@ -25,19 +32,70 @@
       top: 0;
       right: 0;
       bottom: 0;
+      overflow-x: hidden;
       overflow-y: scroll;
 
       .graph {
         position: absolute;
         top: 0;
         left: 0;
+        z-index: 1;
+        pointer-events: none;
+
+        .link {
+          fill:none;
+          stroke-width: 4px;
+          &.offscreen {
+            stroke: var(--color-offscreen);
+          }
+          &.onscreen {
+            stroke: var(--color-fg);
+          }
+          &.selected {
+            stroke: var(--color-selected);
+          }
+        }
+
+        .phrase {
+          fill: var(--color-fg);
+          &.requires {
+            r: 6px;
+          }
+          &.beforeSelected, &.afterSelected {
+            fill: var(--color-selected);
+          }
+        }
       }
 
       .list {
-        margin-left: 200px;
+        font-family: "Silkscreen";
+        font-size: 10px;
+        color: var(--color-fg);
 
-        .node {
+        .phrase {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          flex-wrap: wrap;
           height: 48px;
+          padding-left: 150px;
+          overflow: hidden;
+
+          &.even {
+            background: var(--color-bg-alt);
+          }
+
+          &.notPresent {
+            text-decoration: line-through;
+          }
+
+          &.requires {
+            color: var(--color-requires);
+          }
+
+          &.beforeSelected.afterSelected {
+            color: var(--color-selected);
+          }
         }
       }
     }

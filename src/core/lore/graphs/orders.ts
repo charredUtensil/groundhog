@@ -1,5 +1,5 @@
 import { State } from "../lore";
-import phraseGraph from "../phrase_graph";
+import phraseGraph from "../builder";
 
 const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   const build_hq = pg("build the Rock Raider HQ", "build up your base");

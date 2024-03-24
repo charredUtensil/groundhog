@@ -66,7 +66,7 @@ function App() {
       </div>
       <div className="mainPanel">
         {cavern && <CavernPreview cavern={cavern} error={cavernError} />}
-        {showLore && <LorePreview />}
+        {showLore && <LorePreview cavern={cavern} />}
       </div>
       <div className="vizOptsPanel">
         <button onClick={() => setShowLore(v => !v)}>Lore</button>

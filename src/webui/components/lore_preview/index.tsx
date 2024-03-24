@@ -4,8 +4,9 @@ import PhraseGraphPreview from "./phrase_graph";
 import "./style.scss"
 import ORDERS from "../../../core/lore/graphs/orders";
 import { FOUND_HOARD } from "../../../core/lore/graphs/events";
+import { Cavern } from "../../../core/models/cavern";
 
-export default function LorePreview() {
+export default function LorePreview({cavern}: {cavern: Cavern | null}) {
   const [activeTab, setActiveTab] = useState(0)
   const tabs = [
     {name: 'Premise', pg: PREMISE},
@@ -25,7 +26,7 @@ export default function LorePreview() {
         ))}
       </div>
       <div className="pgWrapper">
-        <PhraseGraphPreview pg={tabs[activeTab].pg} />
+        <PhraseGraphPreview lore={cavern?.lore} pg={tabs[activeTab].pg} />
       </div>
     </div>
   )

@@ -1,172 +1,156 @@
-import React, { DOMElement, createRef, useRef } from "react";
-import { Phrase, PhraseGraph } from "../../../core/lore/phrase_graph";
-import { State } from "../../../core/lore/lore";
-import "./style.scss"
-
-type PhraseNode = {
-  readonly index: number;
-  readonly id: number;
-  readonly text: readonly string[];
-  readonly after: readonly number[];
-  readonly before: readonly number[];
-  readonly requires: string | null;
-  lane?: number
-}
-
-/** Assuming the input is a DAG, returns nodes in a topological order. */
-function arrange(phrases: readonly Phrase<any>[]): readonly PhraseNode[] {
-  const newIndex: (number | undefined)[] = [];
-  const stack = phrases.filter(
-    (phrase) => phrase.before.length === 0,
-  );
-  const inOrder: Omit<PhraseNode, 'after' | 'before'>[] = [];
-  while (stack.length > 0) {
-    const phrase = stack.shift()!;
-    if (newIndex[phrase.id] !== undefined) {
-      continue;
-    }
-    const before = phrase.before.filter((b) => !(newIndex[b.id] !== undefined));
-    if (before.length > 0) {
-      stack.unshift(...before, phrase);
-    } else {
-      newIndex[phrase.id] = inOrder.length;
-      inOrder.push({
-        index: inOrder.length,
-        id: phrase.id,
-        text: phrase.text,
-        requires: phrase.requires ? String(phrase.requires) : null,
-      });
-      stack.unshift(...phrase.after);
-    }
-  }
-  return inOrder.map(phrase => ({
-    ...phrase,
-    after: phrases[phrase.id].after.map(a => newIndex[a.id]!),
-    before: phrases[phrase.id].before.map(a => newIndex[a.id]!),
-  }))
-}
-
-function alignLong(
-  nodes: readonly PhraseNode[],
-  lane: number,
-  start: number,
-  end: number,
-): {maxLane: number, end: number} {
-  let maxLane = lane
-  for (let i = start; i < end;) {
-    const r = alignWide(nodes, lane, i)
-    i = r.end
-    maxLane = Math.max(maxLane, r.maxLane)
-  }
-  return {maxLane, end}
-}
-
-function alignWide(
-  nodes: readonly PhraseNode[], 
-  lane: number, 
-  start: number
-): {maxLane: number, end: number} {
-  nodes[start].lane = lane
-  const seen: (true | undefined)[] = []
-  seen[start] = true
-  let end = -1
-  // Visit every descendant node from the start node until there is only one left.
-  for (let i = start; i == start || i < end; i++) {
-    if (!seen[i]) {
-      continue
-    }
-    const node = nodes[i]
-    for(const ai of node.after) {
-      if (nodes[ai].lane === undefined) {
-        seen[ai] = true
-        end = Math.max(end, ai)
-      }
-    }
-  }
-  if (end < 0) {
-    return {maxLane: lane, end: Infinity}
-  }
-  let maxLane = lane
-  // Trace back from the end, assigning each node to the current lane.
-  for (let i = end; i > start;) {
-    nodes[i].lane = lane
-    i = nodes[i].before.filter(bi => seen[bi]).reduce((r, bi) => Math.min(r, bi))
-    for (const ai of nodes[i].after) {
-      if (nodes[ai].lane === undefined) {
-        const r = alignLong(nodes, maxLane + 1, ai, end)
-        maxLane = Math.max(maxLane, r.maxLane)
-      }
-    }
-  }
-  return {maxLane, end}
-}
-
-function makeNodes(phraseGraph: PhraseGraph<any>) {
-  const nodes = arrange(phraseGraph.phrases);
-  alignLong(nodes, 0, 0, nodes.length);
-  (window as any).pgnodes = nodes;
-  return nodes
-}
+import React, {
+  createRef,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
+import { Phrase, PhraseGraph } from "../../../core/lore/builder";
+import { Lore, State } from "../../../core/lore/lore";
+import "./style.scss";
+import { Point } from "../../../core/common/geometry";
 
 const NODE_HEIGHT = 48;
 const LANE_WIDTH = 12;
 
-function getCoord(node: PhraseNode) {
-  const x = LANE_WIDTH * (node.lane! + 0.5)
-  const y = NODE_HEIGHT * (node.index + 0.5)
-  return [x, y]
+function getCoord(phrase: Phrase<State>): Point {
+  const x = LANE_WIDTH * (phrase.lane! + 1);
+  const y = NODE_HEIGHT * (phrase.id + 0.5);
+  return [x, y];
 }
 
-export default function PhraseGraphPreview({pg}: {pg: PhraseGraph<State>}) {
-  const graphRef = createRef<SVGSVGElement>()
-  const nodesRef = createRef<HTMLDivElement>()
+export default function PhraseGraphPreview({ lore, pg }: { lore: Lore | undefined, pg: PhraseGraph<State> }) {
+  const [start, setStart] = useState(0)
+  const [end, setEnd] = useState(pg.phrases.length)
+  const [beforeSelected, setBeforeSelected] = useState<readonly boolean[]>([])
+  const [afterSelected, setAfterSelected] = useState<readonly boolean[]>([])
+  const nodesRef = createRef<HTMLDivElement>();
 
-  const nodes = makeNodes(pg)
+  const SVG_WIDTH = 300;
+  const SVG_HEIGHT = NODE_HEIGHT * pg.phrases.length;
 
-  const SVG_WIDTH = 200;
-  const SVG_HEIGHT = NODE_HEIGHT * nodes.length;
+  useEffect(() => {
+    setBeforeSelected([])
+    setAfterSelected([])
+  },[pg])
 
   function update() {
+    const n = nodesRef.current;
+    if (n) {
+      setStart(Math.floor(n.scrollTop / NODE_HEIGHT));
+      setEnd(Math.ceil((n.scrollTop + n.clientHeight) / NODE_HEIGHT));
+    }
+  }
 
+  useLayoutEffect(() => {
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [nodesRef]);
+
+
+  function getLinks(phrase: Phrase<State>) {
+    const [x1, y1] = getCoord(phrase);
+    return phrase.after.map((a) => {
+      const [x2, y2] = getCoord(a)
+      const d = `M${x1} ${y1} C${x1} ${y1 + NODE_HEIGHT / 2} ${x2} ${y1 + 24} ${x2} ${y1 + 48} L${x2} ${y2}`
+      const onscreen = phrase.id >= start && a.id <= end
+      const classes = [
+        'link',
+        onscreen ? 'onscreen' : 'offscreen',
+      ]
+      const selected = (beforeSelected[phrase.id] && beforeSelected[a.id])
+        || (afterSelected[phrase.id] && afterSelected[a.id])
+      if (selected) {
+        classes.push('selected')
+      }
+      return {
+        z: selected ? 2 : (onscreen ? 1 : 0),
+        link: <path className={classes.join(' ')} d={d}/>,
+      }
+    })
+  }
+
+  function getPhraseClass(phrase: Phrase<State>) {
+    const r = ['phrase']
+    if (phrase.id % 2 === 0) {
+      r.push('even')
+    }
+    if (phrase.text.length > 0) {
+      r.push('text')
+    }
+    if (phrase.requires) {
+      r.push('requires')
+      if (phrase.requires === 'start') {
+        r.push('start')
+      } else if (phrase.requires === 'end') {
+        r.push('end')
+      } else if (lore) {
+        r.push(lore.state[phrase.requires] ? 'present' : 'notPresent')
+      }
+    }
+    if (beforeSelected[phrase.id]) {
+      r.push('beforeSelected')
+    }
+    if (afterSelected[phrase.id]) {
+      r.push('afterSelected')
+    }
+    return r.join(' ')
+  }
+
+  function select(phrase: Phrase<State>) {
+    if (beforeSelected[phrase.id] && afterSelected[phrase.id]) {
+      setBeforeSelected([])
+      setAfterSelected([])
+      return
+    }
+    const fn = (next: (p: Phrase<State>) => Phrase<State>[]) => {
+      const s: boolean[] = []
+      const q = [phrase]
+      while (q.length > 0) {
+        const p = q.shift()!
+        if (!s[p.id]) {
+          s[p.id] = true
+          q.push(...next(p))
+        }
+      }
+      return s
+    }
+    setBeforeSelected(fn((p) => p.before))
+    setAfterSelected(fn((p) => p.after))
   }
 
   return (
-    <div className="pg">
-
+    <div className="pg" ref={nodesRef} onScroll={update}>
       <svg
-        ref={graphRef}
         className="graph"
         style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
         xmlns="http://www.w3.org/2000/svg"
       >
-        {nodes.map((node) => {
-          const [x, y] = getCoord(node)
-          return (
-            <>
-              <circle cx={x} cy={y} r={8} />
-              {node.after.map((ai) => {
-                const [x1, y1] = getCoord(nodes[ai]);
-                return (
-                  <path
-                    stroke="black"
-                    strokeWidth={4}
-                    fill="none"
-                    d={`M${x} ${y} C${x} ${y + NODE_HEIGHT / 2} ${x1} ${y + 24} ${x1} ${y + 48} L${x1} ${y1}`}
-                  />
-                );
-              })}
-            </>
-          )
-            })}
-            </svg>
-            <div className="list">
-      {nodes.map((node) => (
-        <div className="node" ref={nodesRef}>
-          {node.text.map((text) => (<div>{text}</div>))}
-          {node.requires ? (<div className="requires">{node.requires}</div>) : ''}
-        </div>
-      ))}
+        {pg.phrases.flatMap(getLinks).sort((a, b) => a.z - b.z).map(({link}) => link)}
+        {pg.phrases.map(phrase => {
+          const [x, y] = getCoord(phrase);
+          return <circle className={getPhraseClass(phrase)} cx={x} cy={y} r={8} />
+        })}
+      </svg>
+      <div className="list">
+        {pg.phrases.map((phrase) => (
+          <a
+            role='button'
+            onClick={() => select(phrase)}
+          >
+            <div className={getPhraseClass(phrase)}>
+              {phrase.text.map((text) => (
+                <div className="text">{text}</div>
+              ))}
+              {phrase.requires ? (
+                <div className="requires">{phrase.requires}</div>
+              ) : (
+                <></>
+              )}
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   );
