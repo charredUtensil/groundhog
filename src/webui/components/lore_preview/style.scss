@@ -7,10 +7,11 @@
 
   --color-bg: #333333;
   --color-bg-alt: #222222;
-  --color-offscreen: #555555;
-  --color-requires: #9999ff;
+  --color-fg: #69d426;
+  --color-offscreen: #397513;
+  --color-included: #9999ff;
+  --color-requires: #ecb724;
   --color-selected: white;
-  --color-fg: #77ff22;
 
   .tabs {
     height: 48px;
@@ -45,11 +46,14 @@
         .link {
           fill:none;
           stroke-width: 4px;
+          &.onscreen {
+            stroke: var(--color-fg);
+          }
           &.offscreen {
             stroke: var(--color-offscreen);
           }
-          &.onscreen {
-            stroke: var(--color-fg);
+          &.included {
+            stroke: var(--color-included);
           }
           &.selected {
             stroke: var(--color-selected);
@@ -61,8 +65,14 @@
           &.requires {
             r: 6px;
           }
-          &.beforeSelected, &.afterSelected {
+          &.included {
+            fill: var(--color-included);
+          }
+          &.reachableFromSelected {
             fill: var(--color-selected);
+          }
+          &.selected {
+            r: 10px;
           }
         }
       }
@@ -71,15 +81,18 @@
         font-family: "Silkscreen";
         font-size: 10px;
         color: var(--color-fg);
+        text-align: center;
 
         .phrase {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           justify-content: center;
           flex-wrap: wrap;
-          height: 48px;
+          height: 36px;
           padding-left: 150px;
           overflow: hidden;
+          column-gap: 24px;
+          align-items: center;
 
           &.even {
             background: var(--color-bg-alt);
@@ -93,8 +106,12 @@
             color: var(--color-requires);
           }
 
-          &.beforeSelected.afterSelected {
+          &.selected {
             color: var(--color-selected);
+          }
+
+          .text.included {
+            color: var(--color-included);
           }
         }
       }

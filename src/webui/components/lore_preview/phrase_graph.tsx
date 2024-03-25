@@ -4,12 +4,12 @@ import React, {
   useLayoutEffect,
   useState,
 } from "react";
-import { Phrase, PhraseGraph } from "../../../core/lore/builder";
+import { GenerateResult, Phrase, PhraseGraph } from "../../../core/lore/builder";
 import { Lore, State } from "../../../core/lore/lore";
 import "./style.scss";
 import { Point } from "../../../core/common/geometry";
 
-const NODE_HEIGHT = 48;
+const NODE_HEIGHT = 36;
 const LANE_WIDTH = 12;
 
 function getCoord(phrase: Phrase<State>): Point {
@@ -18,19 +18,37 @@ function getCoord(phrase: Phrase<State>): Point {
   return [x, y];
 }
 
-export default function PhraseGraphPreview({ lore, pg }: { lore: Lore | undefined, pg: PhraseGraph<State> }) {
+export default function PhraseGraphPreview(
+  { lore, pg, results }: { lore: Lore | undefined, pg: PhraseGraph<State>, results: GenerateResult<State> | undefined }) {
   const [start, setStart] = useState(0)
   const [end, setEnd] = useState(pg.phrases.length)
-  const [beforeSelected, setBeforeSelected] = useState<readonly boolean[]>([])
-  const [afterSelected, setAfterSelected] = useState<readonly boolean[]>([])
+  const [included, setIncluded] = useState<readonly ({next: number, text: number} | undefined)[]>([])
+  const [selected, setSelected] = useState(-1)
+  const [reachableFromSelected, setReachableFromSelected] = 
+    useState<readonly (readonly (true|undefined)[] | undefined)[]>([])
   const nodesRef = createRef<HTMLDivElement>();
 
   const SVG_WIDTH = 300;
   const SVG_HEIGHT = NODE_HEIGHT * pg.phrases.length;
 
   useEffect(() => {
-    setBeforeSelected([])
-    setAfterSelected([])
+    if (results) {
+      const r: ({next: number, text: number} | undefined)[] = []
+      for (let i = 0; i < results.chosen.length - 1; i++) {
+        r[results.chosen[i].phrase.id] = {
+          next: results.chosen[i + 1].phrase.id,
+          text: results.chosen[i].textIndex
+        }
+      }
+      setIncluded(r)
+    } else {
+      setIncluded([])
+    }
+  }, [pg, results])
+
+  useEffect(() => {
+    setReachableFromSelected([])
+    setSelected(-1)
   },[pg])
 
   function update() {
@@ -52,19 +70,22 @@ export default function PhraseGraphPreview({ lore, pg }: { lore: Lore | undefine
     const [x1, y1] = getCoord(phrase);
     return phrase.after.map((a) => {
       const [x2, y2] = getCoord(a)
-      const d = `M${x1} ${y1} C${x1} ${y1 + NODE_HEIGHT / 2} ${x2} ${y1 + 24} ${x2} ${y1 + 48} L${x2} ${y2}`
+      const d = `M${x1} ${y1} C${x1} ${y1 + NODE_HEIGHT / 2} ${x2} ${y1 + NODE_HEIGHT / 2} ${x2} ${y1 + NODE_HEIGHT} L${x2} ${y2}`
       const onscreen = phrase.id >= start && a.id <= end
       const classes = [
         'link',
         onscreen ? 'onscreen' : 'offscreen',
       ]
-      const selected = (beforeSelected[phrase.id] && beforeSelected[a.id])
-        || (afterSelected[phrase.id] && afterSelected[a.id])
-      if (selected) {
+      const isIncluded = included[phrase.id]?.next === a.id
+      if (isIncluded) {
+        classes.push('included')
+      }
+      const isSelected = reachableFromSelected[phrase.id]?.[a.id]
+      if (isSelected) {
         classes.push('selected')
       }
       return {
-        z: selected ? 2 : (onscreen ? 1 : 0),
+        z: isSelected ? 3 : (isIncluded ? 2 : (onscreen ? 1 : 0)),
         link: <path className={classes.join(' ')} d={d}/>,
       }
     })
@@ -88,35 +109,48 @@ export default function PhraseGraphPreview({ lore, pg }: { lore: Lore | undefine
         r.push(lore.state[phrase.requires] ? 'present' : 'notPresent')
       }
     }
-    if (beforeSelected[phrase.id]) {
-      r.push('beforeSelected')
+    if (included[phrase.id]) {
+      r.push('included')
     }
-    if (afterSelected[phrase.id]) {
-      r.push('afterSelected')
+    if (selected === phrase.id) {
+      r.push('selected')
+    }
+    if (reachableFromSelected[phrase.id]) {
+      r.push('reachableFromSelected')
     }
     return r.join(' ')
   }
 
   function select(phrase: Phrase<State>) {
-    if (beforeSelected[phrase.id] && afterSelected[phrase.id]) {
-      setBeforeSelected([])
-      setAfterSelected([])
+    if (selected === phrase.id) {
+      setSelected(-1)
+      setReachableFromSelected([])
       return
     }
-    const fn = (next: (p: Phrase<State>) => Phrase<State>[]) => {
-      const s: boolean[] = []
-      const q = [phrase]
-      while (q.length > 0) {
-        const p = q.shift()!
-        if (!s[p.id]) {
-          s[p.id] = true
-          q.push(...next(p))
-        }
+    const r: (true | undefined)[][] = []
+    const q = [phrase]
+    // First, loop over all items in before and add them.
+    while (q.length > 0) {
+      const p = q.shift()!
+      for (const b of p.before) {
+        (r[b.id] ||= [])[p.id] = true
+        q.push(b)
       }
-      return s
     }
-    setBeforeSelected(fn((p) => p.before))
-    setAfterSelected(fn((p) => p.after))
+    // Next, loop over all items after and add them.
+    q.push(phrase)
+    while (q.length > 0) {
+      const p = q.shift()!
+      if (!r[p.id]) {
+        r[p.id] = []
+        for (const a of p.after) {
+          r[p.id][a.id] = true
+        }
+        q.push(...p.after)
+      }
+    }
+    setReachableFromSelected(r)
+    setSelected(phrase.id)
   }
 
   return (
@@ -140,8 +174,8 @@ export default function PhraseGraphPreview({ lore, pg }: { lore: Lore | undefine
             onClick={() => select(phrase)}
           >
             <div className={getPhraseClass(phrase)}>
-              {phrase.text.map((text) => (
-                <div className="text">{text}</div>
+              {phrase.text.map((text, i) => (
+                <div className={`text ${included[phrase.id]?.text === i ? 'included' : ''}`}>{text}</div>
               ))}
               {phrase.requires ? (
                 <div className="requires">{phrase.requires}</div>

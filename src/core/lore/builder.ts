@@ -297,7 +297,8 @@ export class PhraseGraph<T extends State> {
     this.states = states
   }
 
-  generate(rng: PseudorandomStream, requireState: T) {
+  generate(rng: PseudorandomStream, requireState: T): GenerateResult<T> {
+    const states = [...this.states, 'start', 'end']
     const stateRemaining: {[key: string]: boolean} = {start: true, end: true}
     for (const s of this.states) {
       if (requireState[s]) {
@@ -312,7 +313,7 @@ export class PhraseGraph<T extends State> {
       } else if (phrase.requires) {
         stateRemaining[phrase.requires] = false
       }
-      const reachedState = this.states.filter(s => stateRemaining).sort().join(',')
+      const reachedState = states.filter(s => stateRemaining[s]).sort().join(',')
       const continuations = phrase.after.filter(a => reachedState in a.reachableStates)
       if (continuations.length === 0) {
         throw new Error(`No continuation has ${reachedState} at phrase ${phrase.id}`)
