@@ -9,6 +9,7 @@ export default function TilesPreview({ tiles }: { tiles: Grid<Tile> }) {
     <g className="tiles">
       {tiles.map((t, x, y) => (
         <rect
+          className={`tile tile${t.id}`}
           fill={t.inspectColor}
           x={x * SCALE}
           y={y * SCALE}

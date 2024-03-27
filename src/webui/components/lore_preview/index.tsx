@@ -9,8 +9,8 @@ import { Cavern } from "../../../core/models/cavern";
 export default function LorePreview({cavern}: {cavern: Cavern | null}) {
   const [activeTab, setActiveTab] = useState(0)
   const tabs = [
-    {name: 'Premise', pg: PREMISE, results: cavern?.lore?.results.premise},
-    {name: 'Orders', pg: ORDERS, results: cavern?.lore?.results.orders},
+    {name: 'Premise', pg: PREMISE, results: cavern?.lore?.results?.premise},
+    {name: 'Orders', pg: ORDERS, results: cavern?.lore?.results?.orders},
     {name: 'Found Hoard', pg: FOUND_HOARD, results: undefined},
   ]
   return (

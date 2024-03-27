@@ -243,7 +243,7 @@ const CAPITALIZE_AFTER = {
   '\n': true,
 } as const
 
-const SPACE_AFTER = {
+const NO_SPACE_AFTER = {
   '\n': true,
 } as const
 
@@ -266,8 +266,7 @@ function joinTexts<T extends State>(
     if (!text) {
       continue
     }
-    const endsWith = text.charAt(text.length - 1)
-    if (spaceBeforeNext && !(endsWith in NO_SPACE_BEFORE)) {
+    if (spaceBeforeNext && !(text.charAt(0) in NO_SPACE_BEFORE)) {
       r.push(' ')
     }
     if (capitalizeNext) {
@@ -276,8 +275,9 @@ function joinTexts<T extends State>(
     } else {
       r.push(text)
     }
+    const endsWith = text.charAt(text.length - 1)
     capitalizeNext = endsWith in CAPITALIZE_AFTER
-    spaceBeforeNext = endsWith in SPACE_AFTER
+    spaceBeforeNext = !(endsWith in NO_SPACE_AFTER)
   }
   return r.join('')
 }

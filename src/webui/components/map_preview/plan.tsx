@@ -2,7 +2,7 @@ import React from "react";
 import { Plan } from "../../../core/models/plan";
 import PathPreview from "./path";
 import { Path } from "../../../core/models/path";
-import "./plan.scss";
+import "./style.scss";
 
 const SCALE = 6;
 

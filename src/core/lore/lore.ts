@@ -40,10 +40,14 @@ function floodedWith(cavern: AdjuredCavern): FluidType {
   return null;
 }
 
+type Results = {
+  readonly premise: GenerateResult<State>
+  readonly orders: GenerateResult<State>
+}
+
 export class Lore {
   readonly state: State;
-  private _premise: GenerateResult<State> | undefined;
-  private _orders: GenerateResult<State> | undefined;
+  private _results: Results | null = null
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
     const lostMiners: number = 0;
@@ -65,15 +69,16 @@ export class Lore {
     };
   }
 
-  generate(dice: DiceBox) {
-    this._premise = PREMISE.generate(dice.lore(1), this.state)
-    this._orders = ORDERS.generate(dice.lore(2), this.state)
+  generateBriefings(dice: DiceBox) {
+    const r = {
+      premise: PREMISE.generate(dice.lore(1), this.state),
+      orders: ORDERS.generate(dice.lore(2), this.state),
+    }
+    this._results = r
+    return r
   }
 
   get results() {
-    return {
-      premise: this._premise,
-      orders: this._orders,
-    }
+    return this._results
   }
 }

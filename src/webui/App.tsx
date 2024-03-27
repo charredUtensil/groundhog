@@ -4,10 +4,14 @@ import "./App.scss";
 import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor/context";
 import { Cavern } from "../core/models/cavern";
-import CavernPreview from "./components/map_preview/cavern";
+import CavernPreview from "./components/map_preview";
 import { CAVERN_TF } from "../core/transformers";
 import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
+
+function getDownloadLink(serializedData: string) {
+  return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`
+}
 
 function App() {
   const [initialContext, setInitialContext] = useState<CavernContext | null>(null);
@@ -16,7 +20,9 @@ function App() {
   const [cavernError, setCavernError] = useState<Error | null>(null)
   const [autoGenerate, setAutoGenerate] = useState(false)
 
+  const [showCrystals, setShowCrystals] = useState(true)
   const [showLore, setShowLore] = useState(false)
+  const [showOre, setShowOre] = useState(true)
 
   useEffect(() => {
     setCavern(null)
@@ -58,18 +64,28 @@ function App() {
   return (
     <div className="App">
       <div className="settingsPanel">
-        <CavernContextInput onChanged={setInitialContext} />
+        <div>
+          <h1>Settings</h1>
+          <CavernContextInput onChanged={setInitialContext} />
+        </div>
         <div className="controls">
           {next && <button onClick={step}>Step</button>}
           {next && <button onClick={generate}>Generate</button>}
+          {cavern?.serialized && <a 
+            href={getDownloadLink(cavern.serialized)} 
+            download={`${cavern.levelName ?? 'groundhog'}.dat`}
+          >Download</a>}
         </div>
       </div>
       <div className="mainPanel">
-        {cavern && <CavernPreview cavern={cavern} error={cavernError} />}
+        {cavern && <CavernPreview cavern={cavern} error={cavernError} showCrystals={showCrystals} showOre={showOre} />}
         {showLore && <LorePreview cavern={cavern} />}
       </div>
       <div className="vizOptsPanel">
-        <button onClick={() => setShowLore(v => !v)}>Lore</button>
+        <h1>Show</h1>
+        <button className={`crystals ${showCrystals ? 'active': 'inactive'}`} onClick={() => setShowCrystals(v => !v)}>Crystals</button>
+        <button className={`ore ${showOre ? 'active': 'inactive'}`} onClick={() => setShowOre(v => !v)}>Ore</button>
+        <button className={`lore ${showLore ? 'active': 'inactive'}`} onClick={() => setShowLore(v => !v)}>Lore</button>
       </div>
     </div>
   );

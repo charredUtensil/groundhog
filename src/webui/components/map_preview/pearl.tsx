@@ -2,7 +2,7 @@ import React from "react";
 import { Point, isAdjacent8 } from "../../../core/common/geometry";
 import { pairMap } from "../../../core/common/utils";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
-import "./pearl.scss";
+import "./style.scss";
 
 const SCALE = 6;
 

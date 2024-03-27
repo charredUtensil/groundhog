@@ -13,15 +13,32 @@
   --color-requires: #ecb724;
   --color-selected: white;
 
+  --tab-height: 24px;
+
   .tabs {
-    height: 48px;
+    height: var(--tab-height);
+    .tab {
+      height: var(--tab-height);
+      background: #397513;
+      color: white;
+      border: none;
+      box-sizing: border-box;
+      font-family: 'Russo One';
+      font-weight: normal;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      &.active {
+        background: white;
+        color: black;
+      }
+    }
   }
 
   .pgWrapper {   
     position: absolute;
     padding: 12px;
     left: 0;
-    top: 48px;
+    top: var(--tab-height);
     right: 0;
     bottom: 0;
     background: var(--color-bg);
@@ -79,16 +96,15 @@
 
       .list {
         font-family: "Silkscreen";
-        font-size: 10px;
+        font-size: 8px;
         color: var(--color-fg);
-        text-align: center;
 
         .phrase {
           display: flex;
           flex-direction: row;
           justify-content: center;
           flex-wrap: wrap;
-          height: 36px;
+          height: var(--phrase-height);
           padding-left: 150px;
           overflow: hidden;
           column-gap: 24px;

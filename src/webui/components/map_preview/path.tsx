@@ -1,6 +1,6 @@
 import React from "react";
 import { Path } from "../../../core/models/path";
-import "./path.scss";
+import "./style.scss";
 
 const SCALE = 6;
 

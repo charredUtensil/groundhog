@@ -1,4 +1,5 @@
 import React, {
+  CSSProperties,
   createRef,
   useEffect,
   useLayoutEffect,
@@ -9,12 +10,12 @@ import { Lore, State } from "../../../core/lore/lore";
 import "./style.scss";
 import { Point } from "../../../core/common/geometry";
 
-const NODE_HEIGHT = 36;
+const PHRASE_HEIGHT = 32;
 const LANE_WIDTH = 12;
 
 function getCoord(phrase: Phrase<State>): Point {
   const x = LANE_WIDTH * (phrase.lane! + 1);
-  const y = NODE_HEIGHT * (phrase.id + 0.5);
+  const y = PHRASE_HEIGHT * (phrase.id + 0.5);
   return [x, y];
 }
 
@@ -29,7 +30,7 @@ export default function PhraseGraphPreview(
   const nodesRef = createRef<HTMLDivElement>();
 
   const SVG_WIDTH = 300;
-  const SVG_HEIGHT = NODE_HEIGHT * pg.phrases.length;
+  const SVG_HEIGHT = PHRASE_HEIGHT * pg.phrases.length;
 
   useEffect(() => {
     if (results) {
@@ -54,8 +55,8 @@ export default function PhraseGraphPreview(
   function update() {
     const n = nodesRef.current;
     if (n) {
-      setStart(Math.floor(n.scrollTop / NODE_HEIGHT));
-      setEnd(Math.ceil((n.scrollTop + n.clientHeight) / NODE_HEIGHT));
+      setStart(Math.floor(n.scrollTop / PHRASE_HEIGHT));
+      setEnd(Math.ceil((n.scrollTop + n.clientHeight) / PHRASE_HEIGHT));
     }
   }
 
@@ -70,7 +71,7 @@ export default function PhraseGraphPreview(
     const [x1, y1] = getCoord(phrase);
     return phrase.after.map((a) => {
       const [x2, y2] = getCoord(a)
-      const d = `M${x1} ${y1} C${x1} ${y1 + NODE_HEIGHT / 2} ${x2} ${y1 + NODE_HEIGHT / 2} ${x2} ${y1 + NODE_HEIGHT} L${x2} ${y2}`
+      const d = `M${x1} ${y1} C${x1} ${y1 + PHRASE_HEIGHT / 2} ${x2} ${y1 + PHRASE_HEIGHT / 2} ${x2} ${y1 + PHRASE_HEIGHT} L${x2} ${y2}`
       const onscreen = phrase.id >= start && a.id <= end
       const classes = [
         'link',
@@ -154,7 +155,7 @@ export default function PhraseGraphPreview(
   }
 
   return (
-    <div className="pg" ref={nodesRef} onScroll={update}>
+    <div className="pg" ref={nodesRef} onScroll={update} style={{'--phrase-height': `${PHRASE_HEIGHT}px`} as CSSProperties}>
       <svg
         className="graph"
         style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}

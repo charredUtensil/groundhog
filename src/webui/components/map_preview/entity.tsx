@@ -3,7 +3,7 @@ import { Building } from "../../../core/models/building";
 import { Creature } from "../../../core/models/creature";
 import { Miner } from "../../../core/models/miner";
 import { radsToDegrees } from "../../../core/common/geometry";
-import "./entity.scss";
+import "./style.scss";
 
 const SCALE = 6;
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Baseplate } from "../../../core/models/baseplate";
-import "./baseplate.scss";
+import "./style.scss";
 
 const SCALE = 6;
 

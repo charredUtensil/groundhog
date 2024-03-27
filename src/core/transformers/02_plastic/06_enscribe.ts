@@ -12,11 +12,12 @@ export type EnscribedCavern = AdjuredCavern & {
 };
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
+  const levelName = `gh${cavern.context.seed.toString(16).padStart(8, '0')}`;
+
   const lore = new Lore(cavern)
-  lore.generate(cavern.dice)
-  const levelName = `gh${cavern.context.seed.toString(16)}`;
+  const {premise, orders} = lore.generateBriefings(cavern.dice)
   const briefing = {
-    intro: "play this level",
+    intro: `${premise.text}\n${orders.text}`,
     success: "winner is you",
     failure: "good day sir",
   };
