@@ -40,6 +40,19 @@ function floodedWith(cavern: AdjuredCavern): FluidType {
   return null;
 }
 
+function lostCounts(cavern: AdjuredCavern) {
+  let lostMiners: number = 0;
+  let lostMinerCaves: number = 0;
+  cavern.plans.forEach(plan => {
+    const metadata = plan.metadata as {lostMinersCount?: number} | undefined
+    if (metadata?.lostMinersCount) {
+      lostMinerCaves++
+      lostMiners += metadata.lostMinersCount
+    }
+  })
+  return {lostMiners, lostMinerCaves}
+}
+
 type Results = {
   readonly premise: GenerateResult<State>
   readonly orders: GenerateResult<State>
@@ -50,8 +63,7 @@ export class Lore {
   private _results: Results | null = null
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
-    const lostMiners: number = 0;
-    const lostMinerCaves: number = 0;
+    const {lostMiners, lostMinerCaves} = lostCounts(cavern)
     this.state = {
       floodedWithWater: fluidType === Tile.WATER,
       floodedWithLava: fluidType === Tile.LAVA,
@@ -59,7 +71,7 @@ export class Lore {
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
       resourceObjective: true,
-      hasMonsters: false,
+      hasMonsters: cavern.context.hasMonsters,
       spawnHasErosion: false,
       spawnIsHq: false,
       findHq: false,

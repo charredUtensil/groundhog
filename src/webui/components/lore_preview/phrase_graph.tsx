@@ -35,9 +35,9 @@ export default function PhraseGraphPreview(
   useEffect(() => {
     if (results) {
       const r: ({next: number, text: number} | undefined)[] = []
-      for (let i = 0; i < results.chosen.length - 1; i++) {
+      for (let i = 0; i < results.chosen.length; i++) {
         r[results.chosen[i].phrase.id] = {
-          next: results.chosen[i + 1].phrase.id,
+          next: results.chosen[i + 1]?.phrase.id ?? -1,
           text: results.chosen[i].textIndex
         }
       }
