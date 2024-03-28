@@ -1,12 +1,20 @@
 import { Architect } from "../models/architect";
 import { DefaultCaveArchitect } from "./default";
-import { Rough, RoughOyster } from "./oyster";
+import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly } from "./utils/intersects";
+import { getMonsterSpawner } from "./utils/monster_spawner";
+
+const BASE = {
+  ...DefaultCaveArchitect,
+  monsterSpawnScript: getMonsterSpawner({
+    retriggerMode: 'automatic'
+  }),
+}
 
 const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Filled Cave",
-    ...DefaultCaveArchitect,
+    ...BASE,
     ...new RoughOyster(
       { of: Rough.DIRT, width: 0, grow: 0.25 },
       { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 1 },
@@ -16,7 +24,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   },
   {
     name: "Open Cave",
-    ...DefaultCaveArchitect,
+    ...BASE,
     ...new RoughOyster(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.AT_MOST_DIRT, width: 0, grow: 0.5 },
@@ -32,7 +40,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   },
   {
     name: "Empty Cave",
-    ...DefaultCaveArchitect,
+    ...BASE,
     ...new RoughOyster(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.DIRT, width: 0, grow: 0.1 },
@@ -44,7 +52,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   },
   {
     name: "Filled Cave with Paths",
-    ...DefaultCaveArchitect,
+    ...BASE,
     ...new RoughOyster(
       { of: Rough.FLOOR, width: 0, grow: 0.5 },
       { of: Rough.INVERT_TO_LOOSE_ROCK, grow: 0.5 },
@@ -62,7 +70,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   },
   {
     name: "Doughnut Cave",
-    ...DefaultCaveArchitect,
+    ...BASE,
     ...new RoughOyster(
       { of: Rough.ALWAYS_SOLID_ROCK, grow: 0.2 },
       { of: Rough.ALWAYS_HARD_ROCK, grow: 0.3 },

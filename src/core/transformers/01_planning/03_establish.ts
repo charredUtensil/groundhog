@@ -14,6 +14,8 @@ export type ArchitectedPlan = FloodedPlan & {
   readonly architect: Architect<unknown>;
   readonly crystalRichness: number;
   readonly oreRichness: number;
+  readonly monsterSpawnRate: number;
+  readonly monsterWaveSize: number;
 };
 export type EstablishedPlan = ArchitectedPlan & {
   /** How blobby the pearl should be. */
@@ -102,7 +104,9 @@ export default function establish(
         : cavern.context.hallOreRichness,
       props,
     );
-    return { ...plan, architect, crystalRichness, oreRichness };
+    const monsterSpawnRate = curved(cavern.context.monsterSpawnRate, props)
+    const monsterWaveSize = curved(cavern.context.monsterWaveSize, props)
+    return { ...plan, architect, crystalRichness, oreRichness, monsterSpawnRate, monsterWaveSize };
   }
   function doEstablish(plan: ArchitectedPlan) {
     const args = { cavern, plan, totalCrystals };

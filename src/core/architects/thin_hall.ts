@@ -1,7 +1,7 @@
 import { Architect } from "../models/architect";
 import { POWER_STATION, SUPER_TELEPORT, SUPPORT_STATION } from "../models/building";
 import { DefaultHallArchitect } from "./default";
-import { Rough, RoughOyster } from "./oyster";
+import { Rough, RoughOyster } from "./utils/oyster";
 
 const BASE: typeof DefaultHallArchitect = {
   ...DefaultHallArchitect,

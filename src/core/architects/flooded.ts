@@ -1,11 +1,25 @@
 import { Architect } from "../models/architect"
 import { Tile } from "../models/tiles"
 import { DefaultCaveArchitect, PartialArchitect } from "./default"
-import { Rough, RoughOyster } from "./oyster"
+import { Rough, RoughOyster } from "./utils/oyster"
 import { intersectsOnly } from "./utils/intersects"
+import { getMonsterSpawner } from "./utils/monster_spawner"
+
+const monsterSpawner = getMonsterSpawner({
+  retriggerMode: 'automatic'
+})
 
 const BASE: PartialArchitect<unknown> = {
-  ...DefaultCaveArchitect
+  ...DefaultCaveArchitect,
+  monsterSpawnScript: ({cavern, plan}) => {
+    if (cavern.context.biome === 'ice' && plan.fluid === Tile.LAVA) {
+      return undefined
+    }
+    if (cavern.context.biome === 'lava' && plan.fluid !== Tile.LAVA) {
+      return undefined
+    }
+    return monsterSpawner({cavern, plan})
+  }
 }
 
 const FLOODED: readonly Architect<unknown>[] = [

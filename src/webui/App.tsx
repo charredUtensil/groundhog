@@ -36,9 +36,15 @@ function App() {
     }
   }, [next, autoGenerate])
 
-  function generate() {
-    setAutoGenerate(true)
-    step()
+  function playPause() {
+    if (autoGenerate) {
+      setAutoGenerate(false)
+    } else {
+      setAutoGenerate(true)
+      if (next) {
+        step()
+      }
+    }
   }
 
   function init() {
@@ -69,12 +75,13 @@ function App() {
           <CavernContextInput onChanged={setInitialContext} />
         </div>
         <div className="controls">
-          {next && <button onClick={step}>Step</button>}
-          {next && <button onClick={generate}>Generate</button>}
-          {cavern?.serialized && <a 
+          <button onClick={playPause}>{autoGenerate ? 'pause' : 'play_arrow'}</button>
+          {next && !autoGenerate && <button onClick={step}>step</button>}
+          {cavern?.serialized && <a
+            className="button download"
             href={getDownloadLink(cavern.serialized)} 
             download={`${cavern.levelName ?? 'groundhog'}.dat`}
-          >Download</a>}
+          >download</a>}
         </div>
       </div>
       <div className="mainPanel">

@@ -39,6 +39,8 @@ export function CavernContextInput({onChanged}: {
       case "hallOreRichness":
       case "caveHasRechargeSeamChance":
       case "hallHasRechargeSeamChance":
+      case "monsterSpawnRate":
+      case "monsterWaveSize":
         return <></>
     }
   }

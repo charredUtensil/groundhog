@@ -69,7 +69,7 @@ export class PseudorandomStream {
 
   shuffle<T>(choices: readonly T[]): T[] {
     const r: T[] = [];
-    for (let i = 0; i < choices.length - 1; i++) {
+    for (let i = 0; i < choices.length; i++) {
       const j = Math.floor((this.mt() * i) / MAX_PLUS_ONE);
       if (i !== j) {
         r[i] = r[j];

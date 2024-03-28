@@ -1,18 +1,18 @@
+import { PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
 import { Architect } from "../../models/architect";
-import { ROCK_MONSTER } from "../../models/creature";
+import { ROCK_MONSTER, monsterForBiome } from "../../models/creature";
 import { Plan } from "../../models/plan";
 import { FencedCavern } from "../../transformers/02_plastic/07_fence";
 import { mkVars, transformPoint } from "./script";
 
 type MonsterSpawnerArgs = {
-  delay: { min: number; max: number };
-  cooldown: { min: number; max: number };
   initialCooldown?: { min: number; max: number };
-  monster: typeof ROCK_MONSTER;
+  monster?: typeof ROCK_MONSTER;
   retriggerMode: RetriggerMode;
   spawnImmediatelyWhenReady?: boolean;
-  waveSize: number;
+  spawnRateMultiplier?: number;
+  waveSizeMultiplier?: number;
 };
 
 const STATE = {
@@ -46,8 +46,7 @@ function getDiscoveryPoint(
   }
 }
 
-function getEmerges(cavern: FencedCavern, plan: Plan) {
-  const rng = cavern.dice.monsterSpawnScript(plan.id);
+function getEmerges(plan: Plan, rng: PseudorandomStream) {
   return rng.shuffle(
     plan.path.baseplates.map((bp) => {
       const [x, y] = bp.center;
@@ -65,9 +64,22 @@ export function getMonsterSpawner(
   args: MonsterSpawnerArgs,
 ): Architect<unknown>["monsterSpawnScript"] {
   return function ({ cavern, plan }) {
+    const rng = cavern.dice.monsterSpawnScript(plan.id);
+
+    const meanWaveSize = plan.monsterWaveSize * (args.waveSizeMultiplier ?? 1)
+    const waveSize = rng.betaInt({a:5, b:2, min:1, max: meanWaveSize * 1.25})
+    const delay = {min: 2 / waveSize, max: 15 / waveSize}
+
+    const spawnRate = plan.monsterSpawnRate * (args.spawnRateMultiplier ?? 1)
+    const meanCooldown = 60 * waveSize / spawnRate
+    const cooldownOffset = meanCooldown / 4
+    const cooldown = {min: meanCooldown - cooldownOffset, max: meanCooldown + cooldownOffset}
+
     const discoveryPoint = getDiscoveryPoint(cavern, plan);
-    const emerges = getEmerges(cavern, plan);
+    const emerges = getEmerges(plan, rng);
+    const monster = args.monster || monsterForBiome(cavern.context.biome)
     const triggerPoints = getTriggerPoints(cavern, plan);
+    
     const v = mkVars(`p${plan.id}MonsterSpawner`, [
       "state",
       "onActive",
@@ -108,10 +120,10 @@ ${
   // Trigger all the monster spawns.
   (() => {
     const r: string[] = [];
-    for (let i = 0; i < args.waveSize; i++) {
+    for (let i = 0; i < waveSize; i++) {
       const emerge = emerges[i % emerges.length];
-      r.push(`wait:random(${args.delay.min.toFixed(2)})(${args.delay.max.toFixed(2)});
-emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${args.monster.id},${emerge.radius};`);
+      r.push(`wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});
+emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${monster.id},${emerge.radius};`);
     }
     return r.join("\n");
   })()
@@ -120,7 +132,7 @@ ${
   // Wait for the cooldown and retrigger if retriggering is enabled.
   args.retriggerMode === "never"
     ? ""
-    : `wait:random(${args.cooldown.min.toFixed(2)})(${args.cooldown.max.toFixed(2)});
+    : `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});
 ((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.READY}][${v.state}=${STATE.INACTIVE}];`
 }
 
@@ -131,7 +143,7 @@ ${(() => {
   }
   const triggers = plan.innerPearl[0].map(
     (point) =>
-      `when(enter:${transformPoint(cavern, point)},${args.monster.id})[${v.doRetrigger}]`,
+      `when(enter:${transformPoint(cavern, point)},${monster.id})[${v.doRetrigger}]`,
   );
   return `${triggers.join("\n")}
 ${v.doRetrigger}::;

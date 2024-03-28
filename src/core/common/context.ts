@@ -62,6 +62,11 @@ export type CavernContext = {
   hallCrystalRichness: Curve;
   caveOreRichness: Curve;
   hallOreRichness: Curve;
+  
+  /** How many monsters to spawn per minute in a cave, if monsters are enabled. */
+  monsterSpawnRate: Curve;
+  /** How many monsters to spawn at a time in a cave, if monsters are enabled. */
+  monsterWaveSize: Curve;
 
   caveHasRechargeSeamChance: number;
   hallHasRechargeSeamChance: number;
@@ -99,6 +104,8 @@ export function inferContextDefaults(
     hallOreRichness: {base: 0, hops: 0, order: 0},
     caveHasRechargeSeamChance: {rock: 0.07, ice: 0.07, lava: 0.10}[r.biome],
     hallHasRechargeSeamChance: {rock: 0.02, ice: 0.07, lava: 0.04}[r.biome],
+    monsterSpawnRate: {base: 0.30, hops: 0.56, order: 0.60},
+    monsterWaveSize: {base: 1.75, hops: 2.00, order: 3.00},
     ...r
   };
 }

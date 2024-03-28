@@ -1,9 +1,10 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect } from "./default";
-import { Rough, RoughOyster } from "./oyster";
+import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { mkVars, transformPoint } from "./utils/script";
+import { getMonsterSpawner } from "./utils/monster_spawner";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect
@@ -13,6 +14,11 @@ const g = mkVars('gHoard', ['wasTriggered', 'message', 'crystalsAvailable'])
 
 const HOARD: typeof BASE = {
   ...BASE,
+  monsterSpawnScript: getMonsterSpawner({
+    retriggerMode: 'hoard',
+    spawnRateMultiplier: 3.5,
+    waveSizeMultiplier: 1.5,
+  }),
   scriptGlobals({cavern}) {
     if (!cavern.objectives.crystals) {
       return undefined
@@ -55,7 +61,12 @@ ${g.wasTriggered}=false
 }
 
 const RICH: typeof BASE = {
-  ...BASE
+  ...BASE,
+  monsterSpawnScript: getMonsterSpawner({
+    retriggerMode: 'hoard',
+    spawnRateMultiplier: 2,
+    waveSizeMultiplier: 1.5,
+  }),
 }
 
 const TREASURE: readonly Architect<unknown>[] = [

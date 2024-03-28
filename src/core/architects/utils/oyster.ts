@@ -1,5 +1,5 @@
-import { Architect } from "../models/architect";
-import { RoughTile, Tile } from "../models/tiles";
+import { Architect } from "../../models/architect";
+import { RoughTile, Tile } from "../../models/tiles";
 
 function rr({
   floor,

@@ -1,7 +1,7 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultHallArchitect } from "./default";
-import { Rough, RoughOyster } from "./oyster";
+import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly } from "./utils/intersects";
 
 const BASE: typeof DefaultHallArchitect = {

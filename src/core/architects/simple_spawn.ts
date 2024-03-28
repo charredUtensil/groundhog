@@ -2,7 +2,7 @@ import { Architect } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect } from "./default";
-import { Rough, RoughOyster } from "./oyster";
+import { Rough, RoughOyster } from "./utils/oyster";
 import { getBuildings } from "./utils/buildings";
 import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";

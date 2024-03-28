@@ -3,7 +3,7 @@ import { Architect } from "../models/architect"
 import { randomlyInTile } from "../models/position"
 import { Tile } from "../models/tiles"
 import { DefaultCaveArchitect, PartialArchitect } from "./default"
-import { Rough, RoughOyster } from "./oyster"
+import { Rough, RoughOyster } from "./utils/oyster"
 import { mkVars, transformPoint } from "./utils/script"
 
 type Metadata = {
