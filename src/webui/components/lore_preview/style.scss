@@ -23,7 +23,7 @@
       color: white;
       border: none;
       box-sizing: border-box;
-      font-family: 'Russo One';
+      font-family: "Russo One";
       font-weight: normal;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
@@ -34,7 +34,7 @@
     }
   }
 
-  .pgWrapper {   
+  .pgWrapper {
     position: absolute;
     padding: 12px;
     left: 0;
@@ -60,7 +60,7 @@
         pointer-events: none;
 
         .link {
-          fill:none;
+          fill: none;
           stroke-width: 4px;
           &.onscreen {
             stroke: var(--color-fg);

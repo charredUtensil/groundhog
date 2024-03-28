@@ -104,9 +104,16 @@ export default function establish(
         : cavern.context.hallOreRichness,
       props,
     );
-    const monsterSpawnRate = curved(cavern.context.monsterSpawnRate, props)
-    const monsterWaveSize = curved(cavern.context.monsterWaveSize, props)
-    return { ...plan, architect, crystalRichness, oreRichness, monsterSpawnRate, monsterWaveSize };
+    const monsterSpawnRate = curved(cavern.context.monsterSpawnRate, props);
+    const monsterWaveSize = curved(cavern.context.monsterWaveSize, props);
+    return {
+      ...plan,
+      architect,
+      crystalRichness,
+      oreRichness,
+      monsterSpawnRate,
+      monsterWaveSize,
+    };
   }
   function doEstablish(plan: ArchitectedPlan) {
     const args = { cavern, plan, totalCrystals };

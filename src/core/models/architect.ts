@@ -36,7 +36,7 @@ type PrimeArgs = {
   readonly plan: PearledPlan;
 };
 
-type PlanWithMetadata<T> = Plan & {readonly metadata: T}
+type PlanWithMetadata<T> = Plan & { readonly metadata: T };
 
 export type FineArgs<T> = {
   readonly cavern: RoughPlasticCavern;
@@ -67,7 +67,7 @@ export type BaseArchitect<T extends Readonly<T>> = {
 
   roughExtent(plan: EstablishedPlan): number;
 
-  prime(args: PrimeArgs): T
+  prime(args: PrimeArgs): T;
 
   rough(args: {
     cavern: FoundationPlasticCavern;
@@ -83,9 +83,15 @@ export type BaseArchitect<T extends Readonly<T>> = {
   placeErosion(args: FineArgs<T>): void;
   placeEntities(args: FineArgs<T>): void;
 
-  scriptGlobals(args: {cavern: FencedCavern}): string | undefined;
-  script(args: {cavern: FencedCavern, plan: PlanWithMetadata<T>}): string | undefined;
-  monsterSpawnScript(args: {cavern: FencedCavern, plan: PlanWithMetadata<T>}): string | undefined;
+  scriptGlobals(args: { cavern: FencedCavern }): string | undefined;
+  script(args: {
+    cavern: FencedCavern;
+    plan: PlanWithMetadata<T>;
+  }): string | undefined;
+  monsterSpawnScript(args: {
+    cavern: FencedCavern;
+    plan: PlanWithMetadata<T>;
+  }): string | undefined;
 };
 
 export type Architect<T> = BaseArchitect<T> &

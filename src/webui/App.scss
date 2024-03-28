@@ -8,7 +8,7 @@
 
   h1 {
     color: white;
-    font-family: 'Russo One';
+    font-family: "Russo One";
     font-weight: normal;
     margin: 4px 0;
     text-align: center;
@@ -27,7 +27,8 @@
       display: flex;
       gap: 8px;
       margin: 8px;
-      a.button, button {
+      a.button,
+      button {
         font-family: "Material Symbols Outlined";
         height: 48px;
         width: 48px;
@@ -58,9 +59,8 @@
     flex-shrink: 0;
     flex-grow: 0;
     --color-grid: #999999;
-    background-image:
-       linear-gradient(var(--color-grid) 1px, transparent 1px),
-       linear-gradient(to right, var(--color-grid) 1px, transparent 1px);
+    background-image: linear-gradient(var(--color-grid) 1px, transparent 1px),
+      linear-gradient(to right, var(--color-grid) 1px, transparent 1px);
     background-size: 16px 16px;
 
     button {
@@ -76,7 +76,7 @@
       border-top-left-radius: 8px;
       border-bottom-left-radius: 8px;
       color: white;
-      font-family: 'Russo One';
+      font-family: "Russo One";
       transition: left 200ms ease-out;
 
       &.active {

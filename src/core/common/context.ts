@@ -62,7 +62,7 @@ export type CavernContext = {
   hallCrystalRichness: Curve;
   caveOreRichness: Curve;
   hallOreRichness: Curve;
-  
+
   /** How many monsters to spawn per minute in a cave, if monsters are enabled. */
   monsterSpawnRate: Curve;
   /** How many monsters to spawn at a time in a cave, if monsters are enabled. */
@@ -82,11 +82,11 @@ export function inferContextDefaults(
   dice: DiceBox,
   args: Partial<Omit<CavernContext, "seed">>,
 ): CavernContext {
-  const r: typeof args & Pick<CavernContext, "biome" | 'targetSize'> = {
-    biome: dice.init(Die.biome).uniformChoice(['rock', 'ice', 'lava']),
-    targetSize: dice.init(Die.targetSize).uniformInt({min: 50, max: 80}),
-    ...args
-  }
+  const r: typeof args & Pick<CavernContext, "biome" | "targetSize"> = {
+    biome: dice.init(Die.biome).uniformChoice(["rock", "ice", "lava"]),
+    targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 80 }),
+    ...args,
+  };
   return {
     logger: args.logger ?? ({} as Logger),
     seed: dice.seed,
@@ -98,14 +98,14 @@ export function inferContextDefaults(
     hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
     caveBaroqueness: 0.12,
     hallBaroqueness: 0.05,
-    caveCrystalRichness: {base: 0.5, hops: 1.0, order: 1.0},
-    hallCrystalRichness: {base: 0, hops: 0, order: 0},
-    caveOreRichness: {base: 3.75, hops: -0.5, order: -0.25},
-    hallOreRichness: {base: 0, hops: 0, order: 0},
-    caveHasRechargeSeamChance: {rock: 0.07, ice: 0.07, lava: 0.10}[r.biome],
-    hallHasRechargeSeamChance: {rock: 0.02, ice: 0.07, lava: 0.04}[r.biome],
-    monsterSpawnRate: {base: 0.30, hops: 0.56, order: 0.60},
-    monsterWaveSize: {base: 1.75, hops: 2.00, order: 3.00},
-    ...r
+    caveCrystalRichness: { base: 0.5, hops: 1.0, order: 1.0 },
+    hallCrystalRichness: { base: 0, hops: 0, order: 0 },
+    caveOreRichness: { base: 3.75, hops: -0.5, order: -0.25 },
+    hallOreRichness: { base: 0, hops: 0, order: 0 },
+    caveHasRechargeSeamChance: { rock: 0.07, ice: 0.07, lava: 0.1 }[r.biome],
+    hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
+    monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
+    monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
+    ...r,
   };
 }

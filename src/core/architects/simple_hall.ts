@@ -5,8 +5,8 @@ import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly } from "./utils/intersects";
 
 const BASE: typeof DefaultHallArchitect = {
-  ...DefaultHallArchitect
-}
+  ...DefaultHallArchitect,
+};
 
 const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
@@ -49,11 +49,8 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
       { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK, shrink: 1 },
     ),
-    hallBid: ({ plans, plan }) => (
-      plan.fluid === Tile.WATER &&
-      intersectsOnly(plans, plan, Tile.WATER) &&
-      1
-    )
+    hallBid: ({ plans, plan }) =>
+      plan.fluid === Tile.WATER && intersectsOnly(plans, plan, Tile.WATER) && 1,
   },
   {
     name: "Lava River",
@@ -64,7 +61,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
       { of: Rough.VOID, grow: 1 },
     ),
     hallBid: ({ plan }) => plan.fluid === Tile.LAVA && 1,
-  }
-]
+  },
+];
 
-export default SIMPLE_HALL
+export default SIMPLE_HALL;

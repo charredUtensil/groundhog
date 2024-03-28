@@ -43,27 +43,27 @@ function floodedWith(cavern: AdjuredCavern): FluidType {
 function lostCounts(cavern: AdjuredCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
-  cavern.plans.forEach(plan => {
-    const metadata = plan.metadata as {lostMinersCount?: number} | undefined
+  cavern.plans.forEach((plan) => {
+    const metadata = plan.metadata as { lostMinersCount?: number } | undefined;
     if (metadata?.lostMinersCount) {
-      lostMinerCaves++
-      lostMiners += metadata.lostMinersCount
+      lostMinerCaves++;
+      lostMiners += metadata.lostMinersCount;
     }
-  })
-  return {lostMiners, lostMinerCaves}
+  });
+  return { lostMiners, lostMinerCaves };
 }
 
 type Results = {
-  readonly premise: GenerateResult<State>
-  readonly orders: GenerateResult<State>
-}
+  readonly premise: GenerateResult<State>;
+  readonly orders: GenerateResult<State>;
+};
 
 export class Lore {
   readonly state: State;
-  private _results: Results | null = null
+  private _results: Results | null = null;
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
-    const {lostMiners, lostMinerCaves} = lostCounts(cavern)
+    const { lostMiners, lostMinerCaves } = lostCounts(cavern);
     this.state = {
       floodedWithWater: fluidType === Tile.WATER,
       floodedWithLava: fluidType === Tile.LAVA,
@@ -85,12 +85,12 @@ export class Lore {
     const r = {
       premise: PREMISE.generate(dice.lore(1), this.state),
       orders: ORDERS.generate(dice.lore(2), this.state),
-    }
-    this._results = r
-    return r
+    };
+    this._results = r;
+    return r;
   }
 
   get results() {
-    return this._results
+    return this._results;
   }
 }

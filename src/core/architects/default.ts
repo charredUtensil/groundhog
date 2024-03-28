@@ -10,19 +10,22 @@ import {
   getPlaceRechargeSeams,
 } from "./utils/resources";
 
-export type PartialArchitect<T> = Omit<Architect<T>, "name" | "rough" | "roughExtent">
+export type PartialArchitect<T> = Omit<
+  Architect<T>,
+  "name" | "rough" | "roughExtent"
+>;
 
 const DefaultArchitect: Omit<PartialArchitect<unknown>, "baroqueness"> = {
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
   prime: () => undefined,
   placeRechargeSeam: getPlaceRechargeSeams(),
-  placeBuildings: () => { },
+  placeBuildings: () => {},
   placeCrystals: defaultPlaceCrystals,
   placeOre: defaultPlaceOre,
-  placeLandslides: () => { },
-  placeErosion: () => { },
-  placeEntities: () => { },
+  placeLandslides: () => {},
+  placeErosion: () => {},
+  placeEntities: () => {},
   scriptGlobals: () => undefined,
   script: () => undefined,
   monsterSpawnScript: () => undefined,

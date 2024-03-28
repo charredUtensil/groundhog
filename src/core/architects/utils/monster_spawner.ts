@@ -66,20 +66,28 @@ export function getMonsterSpawner(
   return function ({ cavern, plan }) {
     const rng = cavern.dice.monsterSpawnScript(plan.id);
 
-    const meanWaveSize = plan.monsterWaveSize * (args.waveSizeMultiplier ?? 1)
-    const waveSize = rng.betaInt({a:5, b:2, min:1, max: meanWaveSize * 1.25})
-    const delay = {min: 2 / waveSize, max: 15 / waveSize}
+    const meanWaveSize = plan.monsterWaveSize * (args.waveSizeMultiplier ?? 1);
+    const waveSize = rng.betaInt({
+      a: 5,
+      b: 2,
+      min: 1,
+      max: meanWaveSize * 1.25,
+    });
+    const delay = { min: 2 / waveSize, max: 15 / waveSize };
 
-    const spawnRate = plan.monsterSpawnRate * (args.spawnRateMultiplier ?? 1)
-    const meanCooldown = 60 * waveSize / spawnRate
-    const cooldownOffset = meanCooldown / 4
-    const cooldown = {min: meanCooldown - cooldownOffset, max: meanCooldown + cooldownOffset}
+    const spawnRate = plan.monsterSpawnRate * (args.spawnRateMultiplier ?? 1);
+    const meanCooldown = (60 * waveSize) / spawnRate;
+    const cooldownOffset = meanCooldown / 4;
+    const cooldown = {
+      min: meanCooldown - cooldownOffset,
+      max: meanCooldown + cooldownOffset,
+    };
 
     const discoveryPoint = getDiscoveryPoint(cavern, plan);
     const emerges = getEmerges(plan, rng);
-    const monster = args.monster || monsterForBiome(cavern.context.biome)
+    const monster = args.monster || monsterForBiome(cavern.context.biome);
     const triggerPoints = getTriggerPoints(cavern, plan);
-    
+
     const v = mkVars(`p${plan.id}MonsterSpawner`, [
       "state",
       "onActive",

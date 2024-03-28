@@ -7,9 +7,9 @@ import { getMonsterSpawner } from "./utils/monster_spawner";
 const BASE = {
   ...DefaultCaveArchitect,
   monsterSpawnScript: getMonsterSpawner({
-    retriggerMode: 'automatic'
+    retriggerMode: "automatic",
   }),
-}
+};
 
 const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {

@@ -179,7 +179,9 @@ export function getPlaceRechargeSeams(
   };
 }
 
-export const defaultPlaceCrystals: Architect<unknown>["placeCrystals"] = (args) => {
+export const defaultPlaceCrystals: Architect<unknown>["placeCrystals"] = (
+  args,
+) => {
   return sprinkleCrystals(
     defaultGetRandomTile(args.cavern.dice.placeCrystals(args.plan.id), args),
     args,
@@ -193,22 +195,28 @@ export const defaultPlaceOre: Architect<unknown>["placeOre"] = (args) => {
   );
 };
 
-export function getTotalCrystals(
-  {tiles, crystals}:
-  {tiles?: Grid<Tile> | undefined, crystals?: Grid<number> | undefined}
-) {
-  let r = 0
-  tiles?.forEach(t => r += t.crystalYield)
-  crystals?.forEach(ct => r += ct)
-  return r
+export function getTotalCrystals({
+  tiles,
+  crystals,
+}: {
+  tiles?: Grid<Tile> | undefined;
+  crystals?: Grid<number> | undefined;
+}) {
+  let r = 0;
+  tiles?.forEach((t) => (r += t.crystalYield));
+  crystals?.forEach((ct) => (r += ct));
+  return r;
 }
 
-export function getTotalOre(
-  {tiles, ore}:
-  {tiles?: Grid<Tile> | undefined, ore?: Grid<number> | undefined}
-) {
-  let r = 0
-  tiles?.forEach(t => r += t.oreYield)
-  ore?.forEach(ct => r += ct)
-  return r
+export function getTotalOre({
+  tiles,
+  ore,
+}: {
+  tiles?: Grid<Tile> | undefined;
+  ore?: Grid<number> | undefined;
+}) {
+  let r = 0;
+  tiles?.forEach((t) => (r += t.oreYield));
+  ore?.forEach((ct) => (r += ct));
+  return r;
 }

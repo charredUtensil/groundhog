@@ -36,15 +36,17 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     miners: [],
     openCaveFlags: new MutableGrid<true>(),
   };
-  cavern.plans.forEach(<T>(plan: Plan & {architect: Architect<T>, metadata: T}) => {
-    const args: FineArgs<T> = { ...diorama, plan };
-    plan.architect.placeRechargeSeam(args);
-    plan.architect.placeBuildings(args);
-    plan.architect.placeCrystals(args);
-    plan.architect.placeOre(args);
-    plan.architect.placeLandslides(args);
-    plan.architect.placeErosion(args);
-    plan.architect.placeEntities(args);
-  });
+  cavern.plans.forEach(
+    <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
+      const args: FineArgs<T> = { ...diorama, plan };
+      plan.architect.placeRechargeSeam(args);
+      plan.architect.placeBuildings(args);
+      plan.architect.placeCrystals(args);
+      plan.architect.placeOre(args);
+      plan.architect.placeLandslides(args);
+      plan.architect.placeErosion(args);
+      plan.architect.placeEntities(args);
+    },
+  );
   return { ...cavern, ...diorama };
 }

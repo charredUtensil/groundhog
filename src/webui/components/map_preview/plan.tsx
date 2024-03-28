@@ -7,7 +7,7 @@ import "./style.scss";
 const SCALE = 6;
 
 function drawRadius(pearlRadius: number) {
-  return pearlRadius + 1
+  return pearlRadius + 1;
 }
 
 function caveWithOneBaseplate({

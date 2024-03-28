@@ -15,23 +15,23 @@
     .baseplate {
       font-family: "Silkscreen";
       font-size: 8px;
-    
+
       .fg {
         fill: white;
       }
-    
+
       &.stockKind .bg {
         stroke: blue;
       }
-    
+
       &.ambiguousKind .bg {
         fill: #222222;
       }
-    
+
       &.caveKind .bg {
         fill: red;
       }
-    
+
       &.hallKind .bg {
         fill: darkred;
       }
@@ -40,26 +40,26 @@
     .path {
       stroke-linecap: round;
       stroke-dasharray: 2, 3;
-    
+
       &.ambiguousKind {
         --fg-color: white;
         --fg-opacity: 0.3;
       }
-    
+
       &.spanningKind {
         --fg-color: yellow;
       }
-    
+
       &.auxiliaryKind {
         --fg-color: yellowgreen;
       }
-    
+
       & > path {
         stroke: var(--fg-color);
         stroke-opacity: var(--fg-opacity);
         stroke-width: 2px;
       }
-    
+
       & > text {
         fill: var(--fg-color);
         opacity: var(--fg-opacity);
@@ -119,7 +119,7 @@
         }
       }
     }
-    
+
     .ore {
       .ring {
         fill: none;
@@ -127,7 +127,7 @@
         stroke-width: 0.5px;
       }
     }
-    
+
     .crystals {
       .ring {
         fill: none;
@@ -135,17 +135,16 @@
         stroke-width: 0.5px;
       }
     }
-    
+
     .entity {
       fill: #ffff00;
       stroke: black;
       stroke-width: 1px;
     }
-    
+
     .entity.enemy {
       fill: #ff0000;
-    }   
-    
+    }
   }
 
   .stats {
@@ -153,7 +152,7 @@
     left: 0;
     bottom: 0;
     color: greenyellow;
-    font-family: 'Silkscreen';
+    font-family: "Silkscreen";
     font-size: 8px;
     max-width: 400px;
     border: 1px solid #999999;

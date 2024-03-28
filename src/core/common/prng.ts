@@ -123,7 +123,9 @@ export class DiceBox {
   constructor(seed: Seed) {
     this.seed = seed;
     // Patch for https://github.com/stdlib-js/stdlib/issues/1963
-    if (seed === 0) {seed = 1999}
+    if (seed === 0) {
+      seed = 1999;
+    }
     const mt = mt19937.factory({ seed });
     const boxesLength = Object.keys(Die).length;
     const boxes: Mutable<DiceBox["boxes"]> = [];
@@ -145,7 +147,7 @@ export class DiceBox {
   }
 
   init(id: number) {
-    return this.prng(Die.init, id)
+    return this.prng(Die.init, id);
   }
 
   get partition() {
@@ -176,11 +178,11 @@ export class DiceBox {
   placeErosion = (id: number) => this.prng(Die.placeErosion, id);
   placeEntities = (id: number) => this.prng(Die.placeEntities, id);
   lore = (id: number) => this.prng(Die.lore, id);
-  
+
   get scriptGlobals() {
     return this.prng(Die.scriptGlobals, 0);
   }
-  
+
   script = (id: number) => this.prng(Die.script, id);
   monsterSpawnScript = (id: number) => this.prng(Die.monsterSpawnScript, id);
 }

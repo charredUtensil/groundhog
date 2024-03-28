@@ -9,28 +9,38 @@ import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
 import ResourcePreview from "./resource";
-import { getTotalCrystals, getTotalOre } from "../../../core/architects/utils/resources";
+import {
+  getTotalCrystals,
+  getTotalOre,
+} from "../../../core/architects/utils/resources";
 
 const SCALE = 6;
 
-export default function CavernPreview(
-  { cavern, error, showCrystals, showOre }: 
-  { cavern: Cavern, error: Error | null, showCrystals: boolean, showOre: boolean }
-) {
-  const holder = createRef<HTMLDivElement>()
-  const [width, setWidth] = useState(600)
-  const [height, setHeight] = useState(600)
+export default function CavernPreview({
+  cavern,
+  error,
+  showCrystals,
+  showOre,
+}: {
+  cavern: Cavern;
+  error: Error | null;
+  showCrystals: boolean;
+  showOre: boolean;
+}) {
+  const holder = createRef<HTMLDivElement>();
+  const [width, setWidth] = useState(600);
+  const [height, setHeight] = useState(600);
   useLayoutEffect(() => {
     const onResize = () => {
       if (holder.current) {
-        setWidth(holder.current.clientWidth)
-        setHeight(holder.current.clientHeight)
+        setWidth(holder.current.clientWidth);
+        setHeight(holder.current.clientHeight);
       }
-    }
-    onResize()
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [holder])
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [holder]);
 
   return (
     <div ref={holder} className="cavernPreview">
@@ -55,29 +65,21 @@ export default function CavernPreview(
           ))}
         {cavern.tiles && <TilesPreview tiles={cavern.tiles} />}
         {showOre && cavern.ore && <ResourcePreview ore={cavern.ore} />}
-        {showCrystals && cavern.crystals && <ResourcePreview crystals={cavern.crystals} />}
+        {showCrystals && cavern.crystals && (
+          <ResourcePreview crystals={cavern.crystals} />
+        )}
         {cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
         {cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
         {cavern.miners?.map((m) => <EntityPreview entity={m} />)}
       </svg>
-      <ul className='stats'>
-        {
-          showCrystals &&
-          cavern.crystals &&
+      <ul className="stats">
+        {showCrystals && cavern.crystals && (
           <li>{getTotalCrystals(cavern)} total Energy Crystals</li>
-        }
-        {
-          showOre &&
-          cavern.ore &&
-          <li>{getTotalOre(cavern)} total Ore</li>
-        }
+        )}
+        {showOre && cavern.ore && <li>{getTotalOre(cavern)} total Ore</li>}
         {cavern.briefing?.intro && <li>Briefing: {cavern.briefing.intro}</li>}
       </ul>
-      {error && (
-        <div className="error">
-          {error.message}
-        </div>
-      )}
+      {error && <div className="error">{error.message}</div>}
     </div>
   );
 }

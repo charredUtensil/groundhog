@@ -43,7 +43,10 @@ export class Path {
 
   public get exclusiveSnakeDistance(): number {
     return Math.max(
-      this.snakeDistance - this.origin.pearlRadius - this.destination.pearlRadius,
-      0)
-  } 
+      this.snakeDistance -
+        this.origin.pearlRadius -
+        this.destination.pearlRadius,
+      0,
+    );
+  }
 }
