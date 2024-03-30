@@ -25,8 +25,12 @@ function App() {
   const [autoGenerate, setAutoGenerate] = useState(false);
 
   const [showCrystals, setShowCrystals] = useState(true);
+  const [showEntities, setShowEntities] = useState(true);
   const [showLore, setShowLore] = useState(false);
   const [showOre, setShowOre] = useState(true);
+  const [showOutlines, setShowOutlines] = useState(true);
+  const [showPearls, setShowPearls] = useState(true);
+  const [showTiles, setShowTiles] = useState(true);
 
   useEffect(() => {
     setCavern(null);
@@ -81,6 +85,20 @@ function App() {
           <h1>Settings</h1>
           <CavernContextInput onChanged={setInitialContext} />
         </div>
+      </div>
+      <div className="mainPanel">
+        {cavern && (
+          <CavernPreview
+            cavern={cavern}
+            error={cavernError}
+            showCrystals={showCrystals}
+            showEntities={showEntities}
+            showOre={showOre}
+            showOutlines={showOutlines}
+            showPearls={showPearls}
+            showTiles={showTiles}
+          />
+        )}
         <div className="controls">
           <button onClick={playPause}>
             {autoGenerate ? "pause" : "play_arrow"}
@@ -96,20 +114,28 @@ function App() {
             </a>
           )}
         </div>
-      </div>
-      <div className="mainPanel">
-        {cavern && (
-          <CavernPreview
-            cavern={cavern}
-            error={cavernError}
-            showCrystals={showCrystals}
-            showOre={showOre}
-          />
-        )}
         {showLore && <LorePreview cavern={cavern} />}
       </div>
       <div className="vizOptsPanel">
         <h1>Show</h1>
+        <button
+          className={`outlines ${showOutlines ? "active" : "inactive"}`}
+          onClick={() => setShowOutlines((v) => !v)}
+        >
+          Outlines
+        </button>
+        <button
+          className={`pearls ${showPearls ? "active" : "inactive"}`}
+          onClick={() => setShowPearls((v) => !v)}
+        >
+          Pearls
+        </button>
+        <button
+          className={`tiles ${showTiles ? "active" : "inactive"}`}
+          onClick={() => setShowTiles((v) => !v)}
+        >
+          Tiles
+        </button>
         <button
           className={`crystals ${showCrystals ? "active" : "inactive"}`}
           onClick={() => setShowCrystals((v) => !v)}
@@ -121,6 +147,12 @@ function App() {
           onClick={() => setShowOre((v) => !v)}
         >
           Ore
+        </button>
+        <button
+          className={`entities ${showEntities ? "active" : "inactive"}`}
+          onClick={() => setShowEntities((v) => !v)}
+        >
+          Entities
         </button>
         <button
           className={`lore ${showLore ? "active" : "inactive"}`}

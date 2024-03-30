@@ -1,5 +1,6 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, ReactNode, useEffect, useState } from "react";
 import {
+  Biome,
   CavernContext,
   DiceBox,
   inferContextDefaults,
@@ -12,50 +13,32 @@ export function CavernContextInput({
   onChanged: (v: CavernContext) => void;
 }) {
   const [context, setContext] = useState<Partial<CavernContext>>({});
+  const [contextWithDefaults, setContextWithDefaults] =
+    useState<CavernContext>();
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   function update<K extends keyof CavernContext>(
     key: K,
-    value: CavernContext[K],
+    value: CavernContext[K] | undefined,
   ) {
     const r = { ...context };
-    r[key] = value;
+    if (value === undefined) {
+      delete r[key]
+    } else {
+      r[key] = value;
+    }
     setContext(r);
   }
 
   useEffect(() => {
-    const result = inferContextDefaults(
-      new DiceBox(context.seed ?? 0x19930202),
-      context,
+    setContextWithDefaults(
+      inferContextDefaults(new DiceBox(context.seed ?? 0x19930202), context),
     );
-    onChanged(result);
   }, [context]);
 
-  function Input({ k }: { k: keyof CavernContext }): ReactElement {
-    switch (k) {
-      case "logger":
-      case "seed":
-        return <></>;
-      case "biome":
-      case "targetSize":
-      case "baseplateMaxOblongness":
-      case "baseplateMaxRatioOfSize":
-      case "caveCount":
-      case "auxiliaryPathCount":
-      case "auxiliaryPathMinAngle":
-      case "hasMonsters":
-      case "caveBaroqueness":
-      case "hallBaroqueness":
-      case "caveCrystalRichness":
-      case "hallCrystalRichness":
-      case "caveOreRichness":
-      case "hallOreRichness":
-      case "caveHasRechargeSeamChance":
-      case "hallHasRechargeSeamChance":
-      case "monsterSpawnRate":
-      case "monsterWaveSize":
-        return <></>;
-    }
-  }
+  useEffect(() => {
+    contextWithDefaults && onChanged(contextWithDefaults);
+  }, [contextWithDefaults]);
 
   return (
     <div>
@@ -69,6 +52,36 @@ export function CavernContextInput({
           }
         }}
       />
+      <button onClick={() => setShowAdvanced((v) => !v)}>Advanced</button>
+      {showAdvanced && (
+        <>
+          <div className="inputRow">
+            {(["rock", "ice", "lava"] as Biome[]).map((biome) => {
+              const classes = ["biome"];
+              const selected = context?.biome === biome;
+              if (selected) {
+                classes.push("selected");
+              }
+              const active = contextWithDefaults?.biome === biome;
+              if (active) {
+                classes.push("active");
+              }
+
+              return (
+                <button
+                  key={biome}
+                  className={classes.join(" ")}
+                  onClick={() => {
+                    update("biome", selected ? undefined : biome);
+                  }}
+                >
+                  {biome}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

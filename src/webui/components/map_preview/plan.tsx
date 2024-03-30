@@ -6,24 +6,31 @@ import "./style.scss";
 
 const SCALE = 6;
 
+function getGClassName(plan: Partial<Plan>) {
+  const r = ["plan"];
+  plan.kind && r.push(`${plan.kind}Kind`);
+  plan.fluid && r.push(`fluid${plan.fluid.id}`);
+  plan.hasErosion && r.push("hasErosion");
+  return r.join(" ");
+}
+
 function drawRadius(pearlRadius: number) {
   return pearlRadius + 1;
 }
 
-function caveWithOneBaseplate({
-  path,
-  pearlRadius,
-}: Pick<Plan, "path" | "pearlRadius">) {
-  const [x, y] = path.baseplates[0].center;
+function caveWithOneBaseplate(plan: Partial<Plan>) {
+  const [x, y] = plan.path!.baseplates[0].center;
   return (
-    <g className="plan caveKind">
+    <>
       <circle
         className="bg"
         cx={x * SCALE}
         cy={y * SCALE}
-        r={drawRadius(pearlRadius) * SCALE}
+        r={drawRadius(plan.pearlRadius!) * SCALE}
       />
-    </g>
+      <text className="fg" x={x * SCALE} y={y * SCALE}>{plan.id}</text>
+      {plan.architect && <text className="fg architect" x={x * SCALE} y={y * SCALE}>{plan.architect.name}</text>}
+    </>
   );
 }
 
@@ -69,8 +76,8 @@ function dWrapping(
   return path;
 }
 
-function caveWithTwoBaseplates({ path }: { path: Path }) {
-  const [a, b] = path.baseplates.map((bp) => {
+function caveWithTwoBaseplates(plan: Partial<Plan>) {
+  const [a, b] = plan.path!.baseplates.map((bp) => {
     const [x, y] = bp.center;
     return {
       x: x * SCALE,
@@ -79,29 +86,43 @@ function caveWithTwoBaseplates({ path }: { path: Path }) {
     };
   });
 
-  return (
-    <g className="plan caveKind">
-      <path className="bg" d={dWrapping(a, b)} />
-    </g>
-  );
+  const [x0, y0] = plan.path!.baseplates[0].center
+  return (<>
+    <path className="bg" d={dWrapping(a, b)} />
+    <text className="fg id" x={x0 * SCALE} y={y0 * SCALE}>{plan.id}</text>
+      {plan.architect && <text className="fg architect" x={x0 * SCALE} y={y0 * SCALE}>{plan.architect.name}</text>}
+  </>)
 }
 
-function hall({ path, pearlRadius }: Pick<Plan, "path" | "pearlRadius">) {
-  const d = path.baseplates
-    .map((bp, i) => {
+function hall(plan: Partial<Plan>) {
+  const bps = plan.path!.baseplates
+  const d = bps.map((bp, i) => {
       const [x, y] = bp.center;
       return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
     })
     .join(" ");
   return (
-    <g className="plan hallKind">
+    <>
       <path
+        id={`plan${plan.id}`}
         className="bg"
         d={d}
         fill="none"
-        strokeWidth={drawRadius(pearlRadius) * 2 * SCALE}
+        strokeWidth={drawRadius(plan.pearlRadius!) * 2 * SCALE}
       />
-    </g>
+      <text className="fg">
+        <textPath href={`#plan${plan.id}`} startOffset="50%">
+          {plan.id}
+        </textPath>
+      </text>
+      {plan.architect && (
+        <text className="fg architect">
+          <textPath href={`#plan${plan.id}`} startOffset="50%">
+            {plan.architect.name}
+          </textPath>
+        </text>
+      )}
+    </>
   );
 }
 
@@ -110,13 +131,15 @@ export default function PlanPreview({ plan }: { plan: Partial<Plan> }) {
     return null;
   }
   if (plan.pearlRadius) {
-    if (plan.kind === "cave") {
-      if (plan.path!.baseplates.length === 2) {
-        return caveWithTwoBaseplates(plan as any);
-      }
-      return caveWithOneBaseplate(plan as any);
-    }
-    return hall(plan as any);
+    return (
+      <g className={getGClassName(plan)}>
+        {plan.kind === "cave"
+          ? plan.path!.baseplates.length === 2
+            ? caveWithTwoBaseplates(plan)
+            : caveWithOneBaseplate(plan)
+          : hall(plan)}
+      </g>
+    );
   }
   if (plan.path?.baseplates.length ?? 0 > 1) {
     return <PathPreview path={plan.path!} />;

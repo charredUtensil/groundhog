@@ -20,12 +20,20 @@ export default function CavernPreview({
   cavern,
   error,
   showCrystals,
+  showEntities,
   showOre,
+  showOutlines,
+  showPearls,
+  showTiles,
 }: {
   cavern: Cavern;
   error: Error | null;
   showCrystals: boolean;
+  showEntities: boolean;
   showOre: boolean;
+  showOutlines: boolean;
+  showPearls: boolean;
+  showTiles: boolean;
 }) {
   const holder = createRef<HTMLDivElement>();
   const [width, setWidth] = useState(600);
@@ -50,27 +58,27 @@ export default function CavernPreview({
         viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
       >
-        {cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
-        {cavern.paths?.map((pa) => <PathPreview path={pa} />)}
-        {cavern.plans?.map((pl) => <PlanPreview plan={pl} />)}
-        {cavern.plans
+        {showOutlines && cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
+        {showOutlines && cavern.paths?.map((pa) => <PathPreview path={pa} />)}
+        {showOutlines && cavern.plans?.map((pl) => <PlanPreview plan={pl} />)}
+        {showPearls && cavern.plans
           ?.filter((pl) => pl.outerPearl)
           .map((pl) => (
             <PearlPreview plan={pl as PearledPlan} pearl={"outerPearl"} />
           ))}
-        {cavern.plans
+        {showPearls && cavern.plans
           ?.filter((pl) => pl.innerPearl)
           .map((pl) => (
             <PearlPreview plan={pl as PearledPlan} pearl={"innerPearl"} />
           ))}
-        {cavern.tiles && <TilesPreview tiles={cavern.tiles} />}
+        {showTiles && cavern.tiles && <TilesPreview tiles={cavern.tiles} />}
         {showOre && cavern.ore && <ResourcePreview ore={cavern.ore} />}
         {showCrystals && cavern.crystals && (
           <ResourcePreview crystals={cavern.crystals} />
         )}
-        {cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
-        {cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
-        {cavern.miners?.map((m) => <EntityPreview entity={m} />)}
+        {showEntities && cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
+        {showEntities && cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
+        {showEntities && cavern.miners?.map((m) => <EntityPreview entity={m} />)}
       </svg>
       <ul className="stats">
         {showCrystals && cavern.crystals && (

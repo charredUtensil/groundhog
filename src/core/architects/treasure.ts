@@ -5,6 +5,7 @@ import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { mkVars, transformPoint } from "./utils/script";
 import { getMonsterSpawner } from "./utils/monster_spawner";
+import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect,
@@ -14,6 +15,21 @@ const g = mkVars("gHoard", ["wasTriggered", "message", "crystalsAvailable"]);
 
 const HOARD: typeof BASE = {
   ...BASE,
+  crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 3,
+  placeCrystals: (args) => {
+    const rng = args.cavern.dice.placeCrystals(args.plan.id)
+    const bids = [
+      ...bidsForOrdinaryWalls(
+        args.plan.innerPearl.flatMap((layer) => layer),
+        args.tiles,
+      ).map(item => ({bid: 1, item})),
+      ...args.plan.innerPearl[0].map(item => ({bid: 3, item}))
+    ]
+    sprinkleCrystals(
+      () => rng.weightedChoice(bids),
+      args,
+    );
+  },
   monsterSpawnScript: getMonsterSpawner({
     retriggerMode: "hoard",
     spawnRateMultiplier: 3.5,

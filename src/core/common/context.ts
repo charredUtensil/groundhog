@@ -82,9 +82,10 @@ export function inferContextDefaults(
   dice: DiceBox,
   args: Partial<Omit<CavernContext, "seed">>,
 ): CavernContext {
-  const r: typeof args & Pick<CavernContext, "biome" | "targetSize"> = {
+  const r: typeof args & Pick<CavernContext, "biome" | "targetSize" | "caveCount"> = {
     biome: dice.init(Die.biome).uniformChoice(["rock", "ice", "lava"]),
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 80 }),
+    caveCount: 20,
     ...args,
   };
   return {
@@ -92,7 +93,6 @@ export function inferContextDefaults(
     seed: dice.seed,
     baseplateMaxOblongness: 3,
     baseplateMaxRatioOfSize: 0.33,
-    caveCount: 20,
     auxiliaryPathCount: 4,
     auxiliaryPathMinAngle: Math.PI / 4,
     hasMonsters: dice.init(Die.hasMonsters).chance(0.75),

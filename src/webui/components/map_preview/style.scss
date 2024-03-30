@@ -65,6 +65,46 @@
         opacity: var(--fg-opacity);
         font-family: "Silkscreen";
         font-size: 12px;
+        baseline-shift: 4px;
+      }
+    }
+
+    .plan {
+      --color-bg: #444444;
+      --color-fg: white;
+
+      &.caveKind {
+        .bg {
+          stroke: var(--color-bg);
+          stroke-width: 2px;
+          fill: none;
+        }
+        .fg {
+          font-size: 18px;
+        }
+      }
+      &.hallKind .bg {
+        stroke: var(--color-bg);
+        stroke-linecap: round;
+        opacity: 0.4;
+      }
+      &.fluid6 {
+        --color-bg: rgb(255, 153, 0);
+      }
+      &.fluid11 {
+        --color-bg: blue;
+      }
+      .fg {
+        text-anchor: middle;
+        fill: var(--color-fg);
+        font-family: "Silkscreen";
+        font-size: 12px;
+        stroke: black;
+        stroke-width: 0.2;
+        &.architect {
+          font-size: 8px;
+          baseline-shift: -100%;
+        }
       }
     }
 
@@ -107,17 +147,8 @@
       }
     }
 
-    .plan {
-      &.caveKind {
-        .bg {
-          fill: #444444;
-        }
-      }
-      &.hallKind {
-        .bg {
-          stroke: #222222;
-        }
-      }
+    .tiles {
+      shape-rendering: crispEdges;
     }
 
     .ore {
@@ -157,7 +188,7 @@
     max-width: 400px;
     border: 1px solid #999999;
     padding: 4px 4px 4px 14px;
-    margin: 10px;
+    margin: 8px;
   }
 
   .error {
