@@ -2,7 +2,7 @@ import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
-import { intersectsOnly } from "./utils/intersects";
+import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 
 const monsterSpawner = getMonsterSpawner({
@@ -96,6 +96,7 @@ const FLOODED: readonly Architect<unknown>[] = [
     caveBid: ({ plans, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 5 &&
+      isDeadEnd(plan) &&
       intersectsOnly(plans, plan, Tile.WATER) &&
       1,
   },
@@ -113,6 +114,7 @@ const FLOODED: readonly Architect<unknown>[] = [
     caveBid: ({ plans, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 5 &&
+      isDeadEnd(plan) &&
       intersectsOnly(plans, plan, Tile.LAVA) &&
       1,
   },

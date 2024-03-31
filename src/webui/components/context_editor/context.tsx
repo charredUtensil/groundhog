@@ -6,6 +6,7 @@ import {
   inferContextDefaults,
 } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
+import "./style.scss"
 
 export function CavernContextInput({
   onChanged,
@@ -41,7 +42,7 @@ export function CavernContextInput({
   }, [contextWithDefaults]);
 
   return (
-    <div>
+    <div className="contextInput">
       <input
         type="text"
         value={context?.seed?.toString(16) || 0}
@@ -52,7 +53,7 @@ export function CavernContextInput({
           }
         }}
       />
-      <button onClick={() => setShowAdvanced((v) => !v)}>Advanced</button>
+      <button className="showAdvanced" onClick={() => setShowAdvanced((v) => !v)}>Advanced</button>
       {showAdvanced && (
         <>
           <div className="inputRow">

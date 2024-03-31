@@ -178,7 +178,7 @@ const TREASURE: readonly Architect<unknown>[] = [
       { of: Rough.HARD_ROCK, grow: 0.5 },
     ),
     caveBid: ({ plan }) =>
-      plan.fluid === Tile.WATER &&
+      plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 3 &&
       plan.path.baseplates.length >= 1 &&
       isDeadEnd(plan) &&

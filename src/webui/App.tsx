@@ -44,6 +44,12 @@ function App() {
     }
   }, [next, autoGenerate]);
 
+  useEffect(() => {
+    if (cavern && !next) {
+      console.log('Finished generating %o', cavern)
+    }
+  }, [cavern, next])
+
   function playPause() {
     if (autoGenerate) {
       setAutoGenerate(false);
@@ -81,10 +87,8 @@ function App() {
   return (
     <div className="App">
       <div className="settingsPanel">
-        <div>
-          <h1>Settings</h1>
-          <CavernContextInput onChanged={setInitialContext} />
-        </div>
+        <h1>Settings</h1>
+        <CavernContextInput onChanged={setInitialContext} />
       </div>
       <div className="mainPanel">
         {cavern && (

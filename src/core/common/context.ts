@@ -42,6 +42,16 @@ export type CavernContext = {
    */
   auxiliaryPathMinAngle: number;
   /**
+   * How many plans to flood with water.
+   */
+  waterPlans: number;
+  /**
+   * How many plans to flood with lava.
+   */
+  lavaPlans: number;
+  waterLakes: number;
+  lavaLakes: number;
+  /**
    * Does this cavern have monsters in it?
    */
   hasMonsters: boolean;
@@ -76,16 +86,35 @@ enum Die {
   biome = 0,
   targetSize,
   hasMonsters,
+  flood,
+}
+
+function getDefaultFlooding(dice: DiceBox, biome: Biome) {
+  const rng = dice.init(Die.flood)
+  const waterPlans = rng.betaInt({a: 1.4, b: 1.4, ...({
+    rock: {min: 0, max: 8 },
+    ice: {min: 0, max: 25},
+    lava: {min: 0, max: 4 },
+  }[biome])})
+  const waterLakes = waterPlans > 3 ? rng.uniformInt({min: 1, max: waterPlans / 2}) : 1
+  const lavaPlans = rng.betaInt({a: 1.4, b: 1.4, ...({
+    rock: {min: 0, max: 4 },
+    ice: {min: 0, max: 2},
+    lava: {min: 4, max: 20},
+  }[biome])})
+  const lavaLakes = lavaPlans > 3 ? rng.uniformInt({min: 1, max: lavaPlans / 2}) : 1
+  return {waterPlans, waterLakes, lavaPlans, lavaLakes}
 }
 
 export function inferContextDefaults(
   dice: DiceBox,
   args: Partial<Omit<CavernContext, "seed">>,
 ): CavernContext {
-  const r: typeof args & Pick<CavernContext, "biome" | "targetSize" | "caveCount"> = {
-    biome: dice.init(Die.biome).uniformChoice(["rock", "ice", "lava"]),
+  const r = {
+    biome: dice.init(Die.biome).uniformChoice(["rock", "ice", "lava"] as Biome[]),
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 80 }),
     caveCount: 20,
+    auxiliaryPathCount: 4,
     ...args,
   };
   return {
@@ -93,7 +122,6 @@ export function inferContextDefaults(
     seed: dice.seed,
     baseplateMaxOblongness: 3,
     baseplateMaxRatioOfSize: 0.33,
-    auxiliaryPathCount: 4,
     auxiliaryPathMinAngle: Math.PI / 4,
     hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
     caveBaroqueness: 0.12,
@@ -106,6 +134,7 @@ export function inferContextDefaults(
     hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
     monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
     monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
+    ...getDefaultFlooding(dice, r.biome),
     ...r,
   };
 }

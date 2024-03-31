@@ -1,0 +1,23 @@
+.contextInput {
+  .inputRow {
+    display: flex;
+    justify-content: space-evenly;
+
+    .biome {
+      height: 36px;
+      width: 36px;
+      line-height: 34px;
+      border: 1px dashed #999;
+      text-align: center;
+      background: none;
+      color: white;
+      &.active {
+        border: 1px solid white;
+      }
+      &.selected {
+        background: yellow;
+        color: black;
+      }
+    }
+  }
+}
