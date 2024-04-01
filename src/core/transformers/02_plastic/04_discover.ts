@@ -1,5 +1,5 @@
 import { Mutable } from "../../common";
-import { NSEW } from "../../common/geometry";
+import { EAST, NORTH, NORTH_EAST, NORTH_WEST, NSEW, SOUTH, SOUTH_EAST, SOUTH_WEST, WEST } from "../../common/geometry";
 import { MutableGrid, Grid } from "../../common/grid";
 import { FinePlasticCavern } from "./03_fine";
 
@@ -27,7 +27,7 @@ export default function discover(cavern: FinePlasticCavern): DiscoveredCavern {
         zone = { id: nextZone++, openOnSpawn: false };
       }
       discoveryZones.set(x, y, zone);
-      const neighbors = NSEW.map(([ox, oy]) => ({
+      const neighbors = [NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST].map(([ox, oy]) => ({
         x: x + ox,
         y: y + oy,
         zone,

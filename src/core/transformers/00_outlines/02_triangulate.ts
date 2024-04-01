@@ -18,10 +18,9 @@ export default function triangulate(
   const delaunay = new Delaunator(points);
   const paths: Path[] = [];
   for (let i = 0; i < delaunay.triangles.length; i++) {
-    const sourceBpId = delaunay.triangles[i];
     if (i > delaunay.halfedges[i]) {
       const id = paths.length;
-      const source = caveBaseplates[sourceBpId];
+      const source = caveBaseplates[delaunay.triangles[i]];
       const dest =
         caveBaseplates[delaunay.triangles[i + (i % 3 === 2 ? -2 : 1)]];
       paths[id] = new Path(id, "ambiguous", [source, dest]);

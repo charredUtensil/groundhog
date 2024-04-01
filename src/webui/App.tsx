@@ -4,10 +4,20 @@ import "./App.scss";
 import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor/context";
 import { Cavern } from "../core/models/cavern";
-import CavernPreview from "./components/map_preview";
+import CavernPreview, { MapOverlay } from "./components/map_preview";
 import { CAVERN_TF } from "../core/transformers";
 import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
+
+const MAP_OVERLAY_BUTTONS: readonly {of: MapOverlay, label: String}[] = [
+  {of: 'tiles', label: 'Tiles'},
+  {of: 'crystals', label: 'Crystals'},
+  {of: 'ore', label: 'Ore'},
+  {of: 'entities', label: 'Entities'},
+  {of: 'landslides', label: 'Landslides'},
+  {of: 'discovery', label: 'Discovery'},
+  {of: 'lore', label: 'Lore'},
+]
 
 function getDownloadLink(serializedData: string) {
   return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
@@ -22,15 +32,12 @@ function App() {
     null,
   );
   const [cavernError, setCavernError] = useState<Error | null>(null);
-  const [autoGenerate, setAutoGenerate] = useState(false);
+  const [autoGenerate, setAutoGenerate] = useState(true);
 
-  const [showCrystals, setShowCrystals] = useState(true);
-  const [showEntities, setShowEntities] = useState(true);
-  const [showLore, setShowLore] = useState(false);
-  const [showOre, setShowOre] = useState(true);
-  const [showOutlines, setShowOutlines] = useState(true);
-  const [showPearls, setShowPearls] = useState(true);
-  const [showTiles, setShowTiles] = useState(true);
+  const [mapOverlay, setMapOverlay] = useState<MapOverlay>('tiles')
+
+  const [showOutlines, setShowOutlines] = useState(false);
+  const [showPearls, setShowPearls] = useState(false);
 
   useEffect(() => {
     setCavern(null);
@@ -95,19 +102,16 @@ function App() {
           <CavernPreview
             cavern={cavern}
             error={cavernError}
-            showCrystals={showCrystals}
-            showEntities={showEntities}
-            showOre={showOre}
+            mapOverlay={mapOverlay}
             showOutlines={showOutlines}
             showPearls={showPearls}
-            showTiles={showTiles}
           />
         )}
         <div className="controls">
+          {next && !autoGenerate && <button onClick={step}>step</button>}
           <button onClick={playPause}>
             {autoGenerate ? "pause" : "play_arrow"}
           </button>
-          {next && !autoGenerate && <button onClick={step}>step</button>}
           {cavern?.serialized && (
             <a
               className="button download"
@@ -118,7 +122,7 @@ function App() {
             </a>
           )}
         </div>
-        {showLore && <LorePreview cavern={cavern} />}
+        {mapOverlay === 'lore' && <LorePreview cavern={cavern} />}
       </div>
       <div className="vizOptsPanel">
         <h1>Show</h1>
@@ -134,36 +138,16 @@ function App() {
         >
           Pearls
         </button>
-        <button
-          className={`tiles ${showTiles ? "active" : "inactive"}`}
-          onClick={() => setShowTiles((v) => !v)}
-        >
-          Tiles
-        </button>
-        <button
-          className={`crystals ${showCrystals ? "active" : "inactive"}`}
-          onClick={() => setShowCrystals((v) => !v)}
-        >
-          Crystals
-        </button>
-        <button
-          className={`ore ${showOre ? "active" : "inactive"}`}
-          onClick={() => setShowOre((v) => !v)}
-        >
-          Ore
-        </button>
-        <button
-          className={`entities ${showEntities ? "active" : "inactive"}`}
-          onClick={() => setShowEntities((v) => !v)}
-        >
-          Entities
-        </button>
-        <button
-          className={`lore ${showLore ? "active" : "inactive"}`}
-          onClick={() => setShowLore((v) => !v)}
-        >
-          Lore
-        </button>
+        {
+          MAP_OVERLAY_BUTTONS.map(({of, label}) => (
+            <button
+              className={`tiles ${mapOverlay === of ? "active" : "inactive"}`}
+              onClick={() => setMapOverlay((v) => v === of ? null : of)}
+            >
+              {label}
+            </button>
+          ))
+        }
       </div>
     </div>
   );

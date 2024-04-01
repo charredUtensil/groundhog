@@ -13,26 +13,28 @@ export type FloodedPlan = MeasuredPlan & {
 
 type Lake = {
   readonly fluid: FluidType
-  readonly origin: MeasuredPlan
-  readonly size: number
   readonly skipChance: number
+  remaining: number
+  stack: MeasuredPlan[]
 }
 
 function getLakes(cavern: PartialPlannedCavern<MeasuredPlan>, rng: PseudorandomStream): readonly Lake[] {
   const plans = rng.shuffle(cavern.plans.filter(plan => plan.kind === 'cave'))
 
-  const h = (fluid: FluidType, planCount: number, lakeCount: number) => {
-    const stops = rng.shuffle([0].fill(0, 0, planCount - 1).map((_, i) => i + 1))
-      .filter((_, i) => i < lakeCount - 1)
-      .sort()
+  const h = (fluid: FluidType, planCount: number, lakeCount: number, skipChance: number) => {
+    const stops = planCount > 1
+      ? rng.shuffle(new Array(planCount - 1).fill(0).map((_, i) => i + 1)) 
+        .filter((_, i) => i < lakeCount - 1)
+        .sort()
+      : []
     return pairMap([0, ...stops, planCount], (a, b) => (
-      {fluid, origin: plans.pop()!, size: b - a, skipChance: 0.2}
+      {fluid, remaining: b - a - 1, skipChance, stack: [plans.pop()!]}
     ))
   }
   
   return [
-    ...h(Tile.WATER, cavern.context.waterPlans, cavern.context.waterLakes),
-    ...h(Tile.LAVA, cavern.context.lavaPlans, cavern.context.lavaLakes),
+    ...h(Tile.WATER, cavern.context.waterPlans, cavern.context.waterLakes, 0.2),
+    ...h(Tile.LAVA, cavern.context.lavaPlans, cavern.context.lavaLakes, 0.2),
   ]
 }
 
@@ -42,40 +44,41 @@ export default function flood(
   const rng = cavern.dice.flood;
   const lakes = getLakes(cavern, rng)
   const fluids: (FluidType | undefined)[] = []
-  const bufferZone: (Lake | 'none' | undefined)[] = []
+  const claims: (Lake | 'none' | undefined)[] = []
   for (const lake of lakes) {
-    bufferZone[lake.origin.id] = lake
-    lake.origin.intersects.forEach((v, i) => {
-      if (v) {
-        bufferZone[i] = (bufferZone[i] === undefined ? lake : 'none')
-      }
-    })
+    claims[lake.stack[0].id] = lake
   }
-  for (const lake of lakes) {
-    const stack: MeasuredPlan[] = [lake.origin]
-    for (let i = 0; i < lake.size;) {
-      const plan = stack.pop()
-      if (!plan) {
-        break
-      }
-      if (rng.chance(lake.skipChance)) {
-        stack.unshift(plan)
+  let working = true;
+  while (working) {
+    working = false;
+    for (const lake of lakes) {
+      if (lake.remaining <= 0 || lake.stack.length === 0) {
         continue
       }
+      const plan = lake.stack.pop()!
+      if (claims[plan.id] !== lake) {
+        continue
+      }
+      working = true
+      if (lake.stack.length > 0 && rng.chance(lake.skipChance)) {
+        lake.stack.unshift(plan)
+        continue
+      }
+      lake.remaining--
       fluids[plan.id] = lake.fluid
-      i++
-      stack.push(...plan.intersects
+      plan.intersects
         .map((_, i) => cavern.plans[i])
-        .filter(p => (
-          fluids[p.id] === undefined &&
-          p.kind !== plan.kind &&
-          (bufferZone[p.id] === undefined || bufferZone[p.id] === lake) &&
-          !stack.some(sp => sp.id === p.id)
-        ))
-      )
-    }
-    for (const plan of stack) {
-      fluids[plan.id] = null
+        .filter(p => p.kind !== plan.kind)
+        .forEach(p => {
+          if (claims[p.id]) {
+            if (claims[p.id] !== lake) {
+              claims[p.id] = 'none'
+            }
+          } else {
+            claims[p.id] = lake
+            lake.stack.push(p)
+          }
+        })
     }
   }
   

@@ -8,6 +8,8 @@ import {
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
 import "./style.scss"
 
+const INITIAL_SEED = Date.now() % MAX_PLUS_ONE
+
 export function CavernContextInput({
   onChanged,
 }: {
@@ -33,7 +35,7 @@ export function CavernContextInput({
 
   useEffect(() => {
     setContextWithDefaults(
-      inferContextDefaults(new DiceBox(context.seed ?? 0x19930202), context),
+      inferContextDefaults(new DiceBox(context.seed ?? INITIAL_SEED), context),
     );
   }, [context]);
 
@@ -45,7 +47,7 @@ export function CavernContextInput({
     <div className="contextInput">
       <input
         type="text"
-        value={context?.seed?.toString(16) || 0}
+        value={context?.seed?.toString(16) || INITIAL_SEED.toString(16)}
         onChange={(ev) => {
           const seed = parseInt(ev.target.value, 16);
           if (seed >= 0 && seed < MAX_PLUS_ONE) {

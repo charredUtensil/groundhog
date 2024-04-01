@@ -1,4 +1,5 @@
 import { Architect } from "../models/architect";
+import { ESTABLISHED_HQ } from "./established_hq";
 import FLOODED from "./flooded";
 import LOST_MINERS from "./lost_miners";
 import SIMPLE_CAVE from "./simple_cave";
@@ -8,6 +9,7 @@ import THIN_HALL from "./thin_hall";
 import TREASURE from "./treasure";
 
 export const ARCHITECTS: readonly Architect<unknown>[] = [
+  ...ESTABLISHED_HQ,
   ...FLOODED,
   ...LOST_MINERS,
   ...SIMPLE_CAVE,

@@ -8,32 +8,37 @@ import PearlPreview from "./pearl";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
-import ResourcePreview from "./resource";
 import {
   getTotalCrystals,
   getTotalOre,
 } from "../../../core/architects/utils/resources";
+import OpenCaveFlagPreview from "./open_cave_flag";
 
 const SCALE = 6;
+
+export type MapOverlay = (
+  | 'crystals'
+  | 'discovery'
+  | 'entities'
+  | 'landslides'
+  | 'lore'
+  | 'ore'
+  | 'tiles'
+  | null
+)
 
 export default function CavernPreview({
   cavern,
   error,
-  showCrystals,
-  showEntities,
-  showOre,
+  mapOverlay,
   showOutlines,
   showPearls,
-  showTiles,
 }: {
   cavern: Cavern;
   error: Error | null;
-  showCrystals: boolean;
-  showEntities: boolean;
-  showOre: boolean;
+  mapOverlay: MapOverlay;
   showOutlines: boolean;
   showPearls: boolean;
-  showTiles: boolean;
 }) {
   const holder = createRef<HTMLDivElement>();
   const [width, setWidth] = useState(600);
@@ -71,22 +76,19 @@ export default function CavernPreview({
           .map((pl) => (
             <PearlPreview plan={pl as PearledPlan} pearl={"innerPearl"} />
           ))}
-        {showTiles && cavern.tiles && <TilesPreview tiles={cavern.tiles} />}
-        {showOre && cavern.ore && <ResourcePreview ore={cavern.ore} />}
-        {showCrystals && cavern.crystals && (
-          <ResourcePreview crystals={cavern.crystals} />
-        )}
-        {showEntities && cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
-        {showEntities && cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
-        {showEntities && cavern.miners?.map((m) => <EntityPreview entity={m} />)}
+        {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
+        {mapOverlay === 'entities' && cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
+        {mapOverlay === 'entities' && cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
+        {mapOverlay === 'entities' && cavern.miners?.map((m) => <EntityPreview entity={m} />)}
+        {mapOverlay === 'discovery' && cavern.openCaveFlags?.map((_, x, y) => <OpenCaveFlagPreview x={x} y={y} />)}
       </svg>
-      <ul className="stats">
-        {showCrystals && cavern.crystals && (
-          <li>{getTotalCrystals(cavern)} total Energy Crystals</li>
+      <div className="stats">
+        {mapOverlay === 'crystals' && cavern.crystals && (
+          <>{getTotalCrystals(cavern)} total Energy Crystals</>
         )}
-        {showOre && cavern.ore && <li>{getTotalOre(cavern)} total Ore</li>}
-        {cavern.briefing?.intro && <li>Briefing: {cavern.briefing.intro}</li>}
-      </ul>
+        {mapOverlay === 'ore' && cavern.ore && <>{getTotalOre(cavern)} total Ore</>}
+        {cavern.briefing?.intro && <>Briefing: {cavern.briefing.intro}</>}
+      </div>
       {error && <div className="error">{error.message}</div>}
     </div>
   );

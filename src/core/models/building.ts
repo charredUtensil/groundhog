@@ -87,14 +87,14 @@ class BuildingTemplate {
 
 export const TOOL_STORE = new BuildingTemplate(
   "BuildingToolStore_C",
-  "E",
+  "Ts",
   3,
   0,
   F_DEFAULT,
 );
 export const TELEPORT_PAD = new BuildingTemplate(
   "BuildingTeleportPad_C",
-  "T",
+  "Tp",
   2,
   0,
   F_DEFAULT,
@@ -103,7 +103,7 @@ export const TELEPORT_PAD = new BuildingTemplate(
 // Note the water tile is not counted as part of the foundation
 export const DOCKS = new BuildingTemplate(
   "BuildingDocks_C",
-  "D",
+  "Dk",
   1,
   1,
   F_DEFAULT,
@@ -112,7 +112,7 @@ export const DOCKS = new BuildingTemplate(
 // the yellow/black chevron piece is the FRONT.
 export const CANTEEN = new BuildingTemplate(
   "BuildingCanteen_C",
-  "C",
+  "Cn",
   1,
   1,
   F_CANTEEN_REFINERY,
@@ -121,21 +121,21 @@ export const CANTEEN = new BuildingTemplate(
 // the crystals in.
 export const POWER_STATION = new BuildingTemplate(
   "BuildingPowerStation_C",
-  "P",
+  "Ps",
   2,
   2,
   F_POWER_STATION,
 );
 export const SUPPORT_STATION = new BuildingTemplate(
   "BuildingSupportStation_C",
-  "S",
+  "Ss",
   2,
   3,
   F_DEFAULT,
 );
 export const UPGRADE_STATION = new BuildingTemplate(
   "BuildingUpgradeStation_C",
-  "U",
+  "Us",
   3,
   3,
   F_DEFAULT,
@@ -143,7 +143,7 @@ export const UPGRADE_STATION = new BuildingTemplate(
 // Geological Center origin is the BACK of the building.
 export const GEOLOGICAL_CENTER = new BuildingTemplate(
   "BuildingGeologicalCenter_C",
-  "G",
+  "Gc",
   5,
   2,
   F_DEFAULT,
@@ -151,14 +151,14 @@ export const GEOLOGICAL_CENTER = new BuildingTemplate(
 // Ore Refinery origin is the FRONT of the building were miners put ore in.
 export const ORE_REFINERY = new BuildingTemplate(
   "BuildingOreRefinery_C",
-  "R",
+  "Or",
   4,
   3,
   F_CANTEEN_REFINERY,
 );
 export const MINING_LASER = new BuildingTemplate(
   "BuildingMiningLaser_C",
-  "L",
+  "Ml",
   1,
   1,
   F_MINING_LASER,
@@ -166,7 +166,7 @@ export const MINING_LASER = new BuildingTemplate(
 // Super teleport origin is the LEFT side of the building when facing it.
 export const SUPER_TELEPORT = new BuildingTemplate(
   "BuildingSuperTeleport_C",
-  "X",
+  "St",
   2,
   4,
   F_SUPER_TELEPORT,

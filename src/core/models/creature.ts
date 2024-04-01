@@ -4,17 +4,19 @@ import { EntityPosition, serializePosition } from "./position";
 
 class CreatureTemplate {
   readonly id: string;
-  constructor(id: string) {
+  readonly inspectAbbrev: string;
+  constructor(id: string, inspectAbbrev: string) {
     this.id = id;
+    this.inspectAbbrev = inspectAbbrev;
   }
 }
 
-export const ROCK_MONSTER = new CreatureTemplate("CreatureRockMonster_C");
-export const ICE_MONSTER = new CreatureTemplate("CreatureIceMonster_C");
-export const LAVA_MONSTER = new CreatureTemplate("CreatureLavaMonster_C");
-export const SLIMY_SLUG = new CreatureTemplate("CreatureSlimySlug_C");
-export const SMALL_SPIDER = new CreatureTemplate("CreatureSmallSpider_C");
-export const BAT = new CreatureTemplate("CreatureBat_C");
+export const ROCK_MONSTER = new CreatureTemplate("CreatureRockMonster_C", "Rm");
+export const ICE_MONSTER = new CreatureTemplate("CreatureIceMonster_C", "Im");
+export const LAVA_MONSTER = new CreatureTemplate("CreatureLavaMonster_C", "Lm");
+export const SLIMY_SLUG = new CreatureTemplate("CreatureSlimySlug_C", "Sg");
+export const SMALL_SPIDER = new CreatureTemplate("CreatureSmallSpider_C", "Sr");
+export const BAT = new CreatureTemplate("CreatureBat_C", "Bt");
 
 export function monsterForBiome(biome: Biome): CreatureTemplate {
   switch (biome) {

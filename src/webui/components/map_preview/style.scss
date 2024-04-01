@@ -149,6 +149,12 @@
 
     .tiles {
       shape-rendering: crispEdges;
+      .label {
+        text-anchor: middle;
+        font-size: 2px;
+        font-family: 'Silkscreen';
+        color: black;
+      }
     }
 
     .ore {
@@ -168,13 +174,26 @@
     }
 
     .entity {
-      fill: #ffff00;
-      stroke: black;
-      stroke-width: 1px;
+      --color-fg: yellow;
+      &.enemy {
+        --color-fg: #ff0000;
+      }
+      .marker {
+        fill: var(--color-fg);
+        stroke: black;
+        stroke-width: 1px;
+      }
+      .label {
+        fill: black;
+        font-family: 'Silkscreen';
+        font-size: 2px;
+        text-anchor: middle;
+      }
     }
 
-    .entity.enemy {
-      fill: #ff0000;
+    .openCaveFlag {
+      stroke: red;
+      fill: red;
     }
   }
 
