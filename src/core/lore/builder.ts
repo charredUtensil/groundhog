@@ -344,15 +344,17 @@ export class PhraseGraph<T extends State> {
   }
 }
 
+export type PgArgs<T extends State> = {
+  pg: (...args: PgNodeArgs<T>) => PgNode<T>;
+  state: (...args: (string & keyof T)[]) => PgNode<T>;
+  start: PgNode<T>;
+  end: PgNode<T>;
+  cut: PgNode<T>;
+  skip: PgNode<T>;
+}
+
 export default function phraseGraph<T extends State>(
-  fn: (args: {
-    pg: (...args: PgNodeArgs<T>) => PgNode<T>;
-    state: (...args: (string & keyof T)[]) => PgNode<T>;
-    start: PgNode<T>;
-    end: PgNode<T>;
-    cut: PgNode<T>;
-    skip: PgNode<T>;
-  }) => void,
+  fn: (args: PgArgs<T>) => void,
 ): PhraseGraph<T> {
   const pgBuilder = new PgBuilder<T>();
 

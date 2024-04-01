@@ -2,6 +2,7 @@ import { DiceBox } from "../common";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/02_plastic/05_adjure";
 import { GenerateResult } from "./builder";
+import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
 
@@ -56,6 +57,8 @@ function lostCounts(cavern: AdjuredCavern) {
 type Results = {
   readonly premise: GenerateResult<State>;
   readonly orders: GenerateResult<State>;
+  readonly success: GenerateResult<State & {readonly commend: boolean}>;
+  readonly failure: GenerateResult<State>;
 };
 
 export class Lore {
@@ -85,6 +88,8 @@ export class Lore {
     const r = {
       premise: PREMISE.generate(dice.lore(1), this.state),
       orders: ORDERS.generate(dice.lore(2), this.state),
+      success: SUCCESS.generate(dice.lore(3), {...this.state, commend: true}),
+      failure: FAILURE.generate(dice.lore(4), this.state),
     };
     this._results = r;
     return r;

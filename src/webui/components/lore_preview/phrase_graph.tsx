@@ -14,23 +14,25 @@ import { Lore, State } from "../../../core/lore/lore";
 import "./style.scss";
 import { Point } from "../../../core/common/geometry";
 
+// Idea: merge lanes based on "possible nexts"
+
 const PHRASE_HEIGHT = 32;
 const LANE_WIDTH = 12;
 
-function getCoord(phrase: Phrase<State>): Point {
+function getCoord<T extends State>(phrase: Phrase<T>): Point {
   const x = LANE_WIDTH * (phrase.lane! + 1);
   const y = PHRASE_HEIGHT * (phrase.id + 0.5);
   return [x, y];
 }
 
-export default function PhraseGraphPreview({
+export default function PhraseGraphPreview<T extends State>({
   lore,
   pg,
   results,
 }: {
   lore: Lore | undefined;
-  pg: PhraseGraph<State>;
-  results: GenerateResult<State> | undefined;
+  pg: PhraseGraph<T>;
+  results: GenerateResult<T> | undefined;
 }) {
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(pg.phrases.length);
@@ -80,7 +82,7 @@ export default function PhraseGraphPreview({
     return () => window.removeEventListener("resize", update);
   }, [nodesRef]);
 
-  function getLinks(phrase: Phrase<State>) {
+  function getLinks<T extends State>(phrase: Phrase<T>) {
     const [x1, y1] = getCoord(phrase);
     return phrase.after.map((a) => {
       const [x2, y2] = getCoord(a);
@@ -102,7 +104,7 @@ export default function PhraseGraphPreview({
     });
   }
 
-  function getPhraseClass(phrase: Phrase<State>) {
+  function getPhraseClass<T extends State>(phrase: Phrase<T>) {
     const r = ["phrase"];
     if (phrase.id % 2 === 0) {
       r.push("even");
@@ -116,8 +118,8 @@ export default function PhraseGraphPreview({
         r.push("start");
       } else if (phrase.requires === "end") {
         r.push("end");
-      } else if (lore) {
-        r.push(lore.state[phrase.requires] ? "present" : "notPresent");
+      } else if (lore && phrase.requires in lore.state) {
+        r.push(lore.state[phrase.requires as keyof State] ? "present" : "notPresent");
       }
     }
     if (included[phrase.id]) {
@@ -132,7 +134,7 @@ export default function PhraseGraphPreview({
     return r.join(" ");
   }
 
-  function select(phrase: Phrase<State>) {
+  function select<T extends State>(phrase: Phrase<T>) {
     if (selected === phrase.id) {
       setSelected(-1);
       setReachableFromSelected([]);
