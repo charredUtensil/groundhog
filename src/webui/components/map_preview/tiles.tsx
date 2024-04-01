@@ -59,7 +59,7 @@ function getFill(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: 
       const cooldown = cavern.landslides?.get(x, y)?.cooldown
       if (cooldown) {
         const i = Math.floor(
-          (SCALE_COLORS.length - 1) * Math.max(0, 1 - cooldown / 1000)
+          (SCALE_COLORS.length - 1) * Math.max(0, 1 - cooldown / 300)
         )
         return SCALE_COLORS[i]
       }
@@ -78,10 +78,10 @@ function getLabel(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y:
   switch (mapOverlay) {
     case 'crystals':
       const c = cavern.crystals?.get(x, y) ?? 0
-      return c > SCALE_COLORS.length ? c.toString() : null
+      return c > 4 ? c.toString() : null
     case 'ore':
       const o = cavern.ore?.get(x, y) ?? 0
-      return o > SCALE_COLORS.length ? o.toString() : null
+      return o > 4 ? o.toString() : null
     case 'landslides':
       return cavern.landslides?.get(x, y)?.cooldown.toString() ?? null
     case 'discovery':

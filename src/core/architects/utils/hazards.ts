@@ -12,8 +12,10 @@ const LANDSLIDABLE_TILES: readonly (true | undefined)[] = (() => {
   return r
 })()
 
+const BETA_SUM = 10
+
 export function placeLandslides(
-  totalFrequency: number,
+  cooldownRange: {min: number, max: number},
   {cavern, plan, tiles, landslides}:
   {cavern: RoughPlasticCavern,
   plan: Plan,
@@ -21,27 +23,27 @@ export function placeLandslides(
   landslides: MutableGrid<Landslide>,
 }) {
   const rng = cavern.dice.placeLandslides(plan.id)
-  const coverage = rng.uniform({min: 0.2, max: 0.8})
 
-  plan.innerPearl.forEach(layer => {
-    const positions = layer.filter(
+  // A spread closer to 1 means more landslide tiles, but they will tend to
+  // trigger less frequently.
+  const spread = rng.uniform({min: 0.2, max: 0.8})
+
+  plan.innerPearl
+    .flatMap(layer => layer)
+    .filter(
       point => (
         !landslides.get(...point) &&
         LANDSLIDABLE_TILES[tiles.get(...point)?.id ?? -1] &&
-        rng.chance(coverage)
+        rng.chance(spread)
       )
+    ).forEach(
+      point => {
+        const cooldown = rng.betaInt({
+          ...cooldownRange,
+          a: BETA_SUM * spread,
+          b: BETA_SUM * (1 - spread),
+        })
+        landslides.set(...point, new Landslide(cooldown))
+      }
     )
-
-    if (positions.length > 0) {
-      // The total frequency passed above is in total landslides per minute
-      // for the whole plan, but the serialized file format stores landslides
-      // as the period between landslides at that tile, in seconds.
-      const period = Math.max(
-        positions.length * 60 / totalFrequency,
-        cavern.context.minLandslideCooldown,
-      )
-      const event = new Landslide(period)
-      positions.forEach(point => landslides.set(...point, event))
-    }
-  })
 }

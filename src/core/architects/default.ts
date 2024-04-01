@@ -39,7 +39,7 @@ export const DefaultCaveArchitect: PartialArchitect<unknown> = {
       args.cavern.dice.placeLandslides(args.plan.id)
         .chance(args.cavern.context.caveHasLandslidesChance)
     ) {
-      placeLandslides(args.cavern.context.caveLandslideFrequency, args)
+      placeLandslides(args.cavern.context.caveLandslideCooldownRange, args)
     }
   },
 };
@@ -52,7 +52,7 @@ export const DefaultHallArchitect: PartialArchitect<unknown> = {
       args.cavern.dice.placeLandslides(args.plan.id)
         .chance(args.cavern.context.caveHasLandslidesChance)
     ) {
-      placeLandslides(args.cavern.context.hallLandslideFrequency, args)
+      placeLandslides(args.cavern.context.hallLandslideCooldownRange, args)
     }
   },
 };

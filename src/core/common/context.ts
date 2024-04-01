@@ -90,12 +90,10 @@ export type CavernContext = {
   caveHasLandslidesChance: number;
   /** The chance each hall will have landslides at all. */
   hallHasLandslidesChance: number;
-  /** The total number of landslides per minute in a cave that has landslides. */
-  caveLandslideFrequency: number;
-  /** The total number of landslides per minute in a hall that has landslides. */
-  hallLandslideFrequency: number;
-  /** The minimum number of seconds between landslides that one tile can have. */
-  minLandslideCooldown: number;
+  /** The range of cooldowns to use in caves that have landslides. */
+  caveLandslideCooldownRange: {min: number, max: number};
+  /** The range of cooldowns to use in halls that have landslides. */
+  hallLandslideCooldownRange: {min: number, max: number};
 };
 
 enum Die {
@@ -152,9 +150,8 @@ export function inferContextDefaults(
     hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
     caveHasLandslidesChance: 0.40,
     hallHasLandslidesChance: 0.80,
-    caveLandslideFrequency: 0.25,
-    hallLandslideFrequency: 0.60,
-    minLandslideCooldown: 15,
+    caveLandslideCooldownRange: {min: 15, max: 300},
+    hallLandslideCooldownRange: {min: 30, max: 300},
     ...getDefaultFlooding(dice, r.biome),
     ...r,
   };
