@@ -13,6 +13,7 @@ import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
 import { PearledPlan } from "../transformers/01_planning/04_pearl";
 import { FencedCavern } from "../transformers/02_plastic/07_fence";
+import { EntityPosition } from "./position";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -52,6 +53,7 @@ export type FineArgs<T> = {
   readonly minerFactory: MinerFactory;
   readonly miners: Miner[];
   readonly openCaveFlags: MutableGrid<true>;
+  readonly setCameraPosition: (position: EntityPosition) => void;
 };
 
 export type BaseArchitect<T extends Readonly<T>> = {

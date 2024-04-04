@@ -1,10 +1,5 @@
 import { Architect } from "../models/architect";
-import { FluidType } from "../models/tiles";
-import { NegotiatedPlan } from "../transformers/01_planning/00_negotiate";
-import { Pearl } from "../transformers/01_planning/04_pearl";
-import { EnscribedCavern } from "../transformers/02_plastic/06_enscribe";
-import { FencedCavern } from "../transformers/02_plastic/07_fence";
-import { placeLandslides } from "./utils/hazards";
+import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
   defaultPlaceCrystals,
   defaultPlaceOre,
@@ -24,7 +19,7 @@ const DefaultArchitect: Omit<PartialArchitect<unknown>, "baroqueness" | "placeLa
   placeBuildings: () => {},
   placeCrystals: defaultPlaceCrystals,
   placeOre: defaultPlaceOre,
-  placeErosion: () => {},
+  placeErosion: (args) => placeErosion(30, 10, args),
   placeEntities: () => {},
   scriptGlobals: () => undefined,
   script: () => undefined,

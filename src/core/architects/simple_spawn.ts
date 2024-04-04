@@ -6,6 +6,7 @@ import { Rough, RoughOyster } from "./utils/oyster";
 import { getBuildings } from "./utils/buildings";
 import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";
+import { POSITION_DEFAULTS } from "../models/position";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect,
@@ -23,6 +24,13 @@ const BASE: typeof DefaultCaveArchitect = {
     );
     args.buildings.push(toolStore);
     args.openCaveFlags.set(...toolStore.foundation[0], true);
+    args.setCameraPosition({
+      ...POSITION_DEFAULTS,
+      x: toolStore.x,
+      y: toolStore.y,
+      yaw: toolStore.yaw + Math.PI * 0.75,
+      pitch: Math.PI / 4,
+    })
   },
 };
 

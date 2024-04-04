@@ -22,6 +22,14 @@ export type State = {
   readonly treasureCaveMany: boolean;
 };
 
+type ReplaceStrings = {
+  readonly lostMinersCount: string,
+  readonly lostMinerCavesCount: string,
+  readonly enemies: string,
+  readonly resourceGoal: string,
+  readonly resourceGoalNamesOnly: string,
+}
+
 function floodedWith(cavern: AdjuredCavern): FluidType {
   let lava = 0;
   let water = 0;
@@ -54,6 +62,51 @@ function lostCounts(cavern: AdjuredCavern) {
   return { lostMiners, lostMinerCaves };
 }
 
+function joinHuman(things: string[], conjunction: string = "and"): string {
+  if (things.length === 0) {
+    return "";
+  }
+  if (things.length === 1) {
+    return things[0];
+  }
+  return `${things.slice(0, -1).join(", ")} ${conjunction} ${things[things.length - 1]}`;
+}
+
+const ONES = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+      
+function spellNumber(n: number): string {
+  if (n > 999) {
+    return n.toString();
+  }
+  const result: string[] = [];
+  while (n > 0) {
+    if (n >= 100) {
+      result.push(`${spellNumber(Math.floor(n / 100))} hundred`);
+      n %= 100;
+    } else if (n >= 20) {
+      result.push(TENS[Math.floor(n / 10) - 2]);
+      n %= 10;
+    } else {
+      result.push(ONES[n - 1]);
+      n = 0;
+    }
+  }
+  return result.join(' ');
+}
+
+function spellResourceGoal(cavern: AdjuredCavern) {
+  const a = [
+    {count: cavern.objectives.crystals, name: 'Energy Crystals'},
+    {count: cavern.objectives.ore, name: 'Ore'},
+    {count: cavern.objectives.studs, name: 'Building Studs'},
+  ].filter(({count}) => count > 0)
+  return {
+    resourceGoal: joinHuman(a.map(({count, name}) => `${spellNumber(count)} ${name}`)),
+    resourceGoalNamesOnly: joinHuman(a.map(({name}) => name)),
+  }
+}
+
 type Results = {
   readonly premise: GenerateResult<State>;
   readonly orders: GenerateResult<State>;
@@ -63,6 +116,7 @@ type Results = {
 
 export class Lore {
   readonly state: State;
+  readonly vars: ReplaceStrings;
   private _results: Results | null = null;
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
@@ -73,7 +127,7 @@ export class Lore {
       lostMinersOne: lostMiners === 1,
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
-      resourceObjective: true,
+      resourceObjective: !!(cavern.objectives.crystals || cavern.objectives.ore || cavern.objectives.studs),
       hasMonsters: cavern.context.hasMonsters,
       spawnHasErosion: false,
       spawnIsHq: false,
@@ -82,14 +136,24 @@ export class Lore {
       treasureCaveOne: false,
       treasureCaveMany: false,
     };
+    this.vars = {
+      lostMinersCount: spellNumber(lostMiners),
+      lostMinerCavesCount: spellNumber(lostMinerCaves),
+      enemies: {
+        rock: 'Rock Monsters',
+        ice: 'Ice Monsters',
+        lava: 'Lava Monsters',
+      }[cavern.context.biome],
+      ...spellResourceGoal(cavern)
+    }
   }
 
   generateBriefings(dice: DiceBox) {
     const r = {
-      premise: PREMISE.generate(dice.lore(1), this.state),
-      orders: ORDERS.generate(dice.lore(2), this.state),
-      success: SUCCESS.generate(dice.lore(3), {...this.state, commend: true}),
-      failure: FAILURE.generate(dice.lore(4), this.state),
+      premise: PREMISE.generate(dice.lore(1), this.state, this.vars),
+      orders: ORDERS.generate(dice.lore(2), this.state, this.vars),
+      success: SUCCESS.generate(dice.lore(3), {...this.state, commend: true}, this.vars),
+      failure: FAILURE.generate(dice.lore(4), this.state, this.vars),
     };
     this._results = r;
     return r;

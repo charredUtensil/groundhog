@@ -67,8 +67,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   );
 
   const baseDestroyedByMonsters = state("hasMonsters").then(
-    ", when their base was attacked by %(monster_type)s monsters.",
-    ", but an unexpected horde of %(monster_type)s attacked and destroyed much of their base.",
+    ", when their base was attacked by ${enemies}.",
+    ", but an unexpected horde of ${enemies} attacked and destroyed much of their base.",
   );
 
   const no_one_hurt_but_base_destroyed = pg(forcedToEvac, cavernCollapsed)
@@ -169,8 +169,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       "we're counting on you to find them!",
       "we don't know how long they'll last out there.",
       state("hasMonsters").then(
-        "we need to find them before the %(monster_type)s monsters do.",
-        "I hope they don't meet any of the %(monster_type)s monsters roaming this cavern.",
+        "we need to find them before the ${enemies} do.",
+        "I hope they don't meet any of the ${enemies} roaming this cavern.",
       ),
     )
     .then(state("spawnHasErosion"), skip)
@@ -234,8 +234,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   const has_monsters_texts = [
     "the tunnels here are full of large creatures that threaten our operations",
     "we are picking up signs of large creatures in the area",
-    "this cavern is inhabited by nests of %(monster_type)s monsters",
-    "we have reason to believe there are dozens of %(monster_type)s monsters just out of sight",
+    "this cavern is inhabited by nests of ${enemies}",
+    "we have reason to believe there are dozens of ${enemies} just out of sight",
   ];
 
   const has_monsters = state("hasMonsters").then(...has_monsters_texts);

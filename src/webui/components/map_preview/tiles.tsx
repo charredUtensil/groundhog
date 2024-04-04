@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Tile } from "../../../core/models/tiles";
 import { Grid } from "../../../core/common/grid";
 import { Cavern } from "../../../core/models/cavern";
@@ -30,6 +30,11 @@ const SCALE_COLORS = [
   '#ffff44',
 ] as const
 
+const MAX_COOLDOWN = {
+  landslides: 300,
+  erosion: 100,
+} as const
+
 function getFill(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: number): string | null {
   switch (mapOverlay) {
     case 'entities':
@@ -55,11 +60,15 @@ function getFill(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: 
         return UNIQUE_COLORS[dz.id % UNIQUE_COLORS.length]
       }
       break
+    case 'erosion':
+      if (t === Tile.WATER || t === Tile.LAVA) {
+        return t.inspectColor
+      }
     case 'landslides':
-      const cooldown = cavern.landslides?.get(x, y)?.cooldown
+      const cooldown = cavern[mapOverlay]?.get(x, y)?.cooldown
       if (cooldown) {
         const i = Math.floor(
-          (SCALE_COLORS.length - 1) * Math.max(0, 1 - cooldown / 300)
+          (SCALE_COLORS.length - 1) * Math.max(0, 1 - cooldown / MAX_COOLDOWN[mapOverlay])
         )
         return SCALE_COLORS[i]
       }
@@ -74,7 +83,7 @@ function getFill(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: 
   return t.isWall ? "#2D004B" : "#180032"
 }
 
-function getLabel(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: number): string | null {
+function getLabel(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: number): ReactNode | null {
   switch (mapOverlay) {
     case 'crystals':
       const c = cavern.crystals?.get(x, y) ?? 0
@@ -84,6 +93,9 @@ function getLabel(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y:
       return o > 4 ? o.toString() : null
     case 'landslides':
       return cavern.landslides?.get(x, y)?.cooldown.toString() ?? null
+    case 'erosion':
+      const er = cavern.erosion?.get(x, y)
+      return er ? (<><tspan x={(x + 0.5) * SCALE}>{er.cooldown}</tspan><tspan x={(x + 0.5) * SCALE} dy="1em">+{er.initialDelay}</tspan></>) : null
     case 'discovery':
     case 'entities':
     case 'lore':

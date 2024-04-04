@@ -1,6 +1,7 @@
 import { Mutable, PseudorandomStream } from "../common";
 
 type State = { [key: string]: boolean };
+type FormatVars = { [key: string]: string };
 
 export type Phrase<T extends State> = {
   readonly id: number;
@@ -284,6 +285,9 @@ function joinTexts<T extends State>(
   return r.join("");
 }
 
+const format = (text: string, formatVars: FormatVars) =>
+  text.replace(/\$\{([a-zA-Z0-9_]+)\}/g, (_, key) => formatVars[key]);
+
 export class PhraseGraph<T extends State> {
   private start: Phrase<T>;
   readonly phrases: readonly Phrase<T>[];
@@ -299,7 +303,7 @@ export class PhraseGraph<T extends State> {
     this.states = states;
   }
 
-  generate(rng: PseudorandomStream, requireState: T): GenerateResult<T> {
+  generate(rng: PseudorandomStream, requireState: T, formatVars: FormatVars): GenerateResult<T> {
     const states = [...this.states, "start", "end"];
     const stateRemaining: { [key: string]: boolean } = {
       start: true,
@@ -339,7 +343,7 @@ export class PhraseGraph<T extends State> {
           ? rng.uniformInt({ max: phrase.text.length })
           : -1,
     }));
-    const text = joinTexts(chosen);
+    const text = format(joinTexts(chosen), formatVars);
     return { chosen, text };
   }
 }

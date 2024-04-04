@@ -15,6 +15,7 @@ const MAP_OVERLAY_BUTTONS: readonly {of: MapOverlay, label: String}[] = [
   {of: 'ore', label: 'Ore'},
   {of: 'entities', label: 'Entities'},
   {of: 'landslides', label: 'Landslides'},
+  {of: 'erosion', label: 'Erosion'},
   {of: 'discovery', label: 'Discovery'},
   {of: 'lore', label: 'Lore'},
 ]

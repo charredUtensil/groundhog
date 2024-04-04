@@ -49,8 +49,18 @@ export type CavernContext = {
    * How many plans to flood with lava.
    */
   lavaPlans: number;
+  /**
+   * How many contiguous "lakes" to generate
+   */
   waterLakes: number;
+  /**
+   * How many contiguous lava "lakes" to generate
+   */
   lavaLakes: number;
+  /**
+   * How many plans will have erosion?
+   */
+  erosionPlans: number;
   /**
    * Does this cavern have monsters in it?
    */
@@ -117,7 +127,12 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
     lava: {min: 4, max: 16},
   }[biome])})
   const lavaLakes = lavaPlans > 3 ? rng.uniformInt({min: 1, max: Math.min(lavaPlans / 2, 3)}) : 1
-  return {waterPlans, waterLakes, lavaPlans, lavaLakes}
+  const erosionPlans = lavaPlans > 0 ? rng.betaInt({
+    rock: {a: 0.8, b: 1.4, min: 0, max: 6},
+    ice:  {a: 0.5, b: 1.8, min: 0, max: 4},
+    lava: {a: 1.4, b: 1.4, min: 0, max: 16},
+  }[biome]) : 0
+  return {waterPlans, waterLakes, lavaPlans, lavaLakes, erosionPlans}
 }
 
 export function inferContextDefaults(

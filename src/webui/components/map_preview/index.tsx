@@ -20,6 +20,7 @@ export type MapOverlay = (
   | 'crystals'
   | 'discovery'
   | 'entities'
+  | 'erosion'
   | 'landslides'
   | 'lore'
   | 'ore'
@@ -63,6 +64,7 @@ export default function CavernPreview({
         viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
       >
+        {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
         {showOutlines && cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
         {showOutlines && cavern.paths?.map((pa) => <PathPreview path={pa} />)}
         {showOutlines && cavern.plans?.map((pl) => <PlanPreview plan={pl} />)}
@@ -76,7 +78,6 @@ export default function CavernPreview({
           .map((pl) => (
             <PearlPreview plan={pl as PearledPlan} pearl={"innerPearl"} />
           ))}
-        {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
         {mapOverlay === 'entities' && cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
         {mapOverlay === 'entities' && cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
         {mapOverlay === 'entities' && cavern.miners?.map((m) => <EntityPreview entity={m} />)}

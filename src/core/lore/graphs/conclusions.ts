@@ -14,8 +14,8 @@ function objectives<T extends State>({
     );
 
   const get_resources = state("resourceObjective").then(
-    "collect all %(resources)s",
-    "get the %(resources)s we needed",
+    "collect all ${resourceGoal}",
+    "get the ${resourceGoal} we needed",
   );
 
   find_lost_miners.then("and").then(get_resources);
@@ -38,8 +38,8 @@ export const SUCCESS = phraseGraph<State & {readonly commend: boolean}>(
     (() => {
       const commend = state("commend").then("Wow!", ...COMMENDATIONS);
       const hasMonsters = state("hasMonsters").then(
-        "Those %(monster_type)s monsters were no match for you!",
-        "You had nothing to fear from those %(monster_type)s monsters!",
+        "Those ${enemies} were no match for you!",
+        "You had nothing to fear from those ${enemies}!",
       );
       const despiteTheOdds = pg(
         "Despite the odds,",
@@ -61,7 +61,7 @@ export const SUCCESS = phraseGraph<State & {readonly commend: boolean}>(
           .then(
             ".",
             state("hasMonsters").then(
-              "despite that horde of %(monster_type)s monsters!",
+              "despite that horde of ${enemies}!",
             ),
           ),
         (() => {
@@ -87,15 +87,15 @@ export const SUCCESS = phraseGraph<State & {readonly commend: boolean}>(
                 ", safe and sound.",
                 "before anything could happen to them.",
                 state("resourceObjective").then(
-                  ". You even collected %(resources)s!",
-                  "- and salvaged the operation with those %(resources)s.",
-                  ". Collecting %(resources)s was no small feat either!",
+                  ". You even collected ${resourceGoal}!",
+                  "- and salvaged the operation with those ${resourceGoal}.",
+                  ". Collecting ${resourceGoal} was no small feat either!",
                 ),
               ),
               state("resourceObjective").then(
-                "collected %(resources)s.",
-                "collected all %(resources)s.",
-                "got all %(resources)s.",
+                "collected ${resourceGoal}.",
+                "collected all ${resourceGoal}.",
+                "got all ${resourceGoal}.",
               ),
             );
         })(),

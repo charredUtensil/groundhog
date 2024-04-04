@@ -25,7 +25,7 @@ export const FOUND_HOARD = phraseGraph<State>(
         ),
         state("hasMonsters").then(
           "I hope we can collect these without attracting too much attention.",
-          "Be careful, Cadet! This is surely enough to attract those %(monster_type)s monsters.",
+          "Be careful, Cadet! This is surely enough to attract those ${enemies}.",
         ),
       )
       .then()

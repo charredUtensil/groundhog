@@ -1,5 +1,5 @@
 import { Grid, MutableGrid } from "../../common/grid"
-import { Landslide } from "../../models/hazards"
+import { Erosion, Landslide } from "../../models/hazards"
 import { Plan } from "../../models/plan"
 import { Tile } from "../../models/tiles"
 import { RoughPlasticCavern } from "../../transformers/02_plastic/01_rough"
@@ -46,4 +46,26 @@ export function placeLandslides(
         landslides.set(...point, new Landslide(cooldown))
       }
     )
+}
+
+export function placeErosion(
+  cooldown: number,
+  initialDelay: number,
+  {plan, tiles, erosion}:
+  {
+  plan: Plan,
+  tiles: Grid<Tile>,
+  erosion: MutableGrid<Erosion>,
+}
+) {
+  if (plan.hasErosion) {
+    const event = new Erosion(cooldown, initialDelay)
+    plan.innerPearl.forEach(layer => layer.forEach(
+      point => {
+        if (tiles.get(...point)?.passableByMiner) {
+          erosion.set(...point, event)
+        }
+      }
+    ))
+  }
 }

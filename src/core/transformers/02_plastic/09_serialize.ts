@@ -5,8 +5,8 @@ import { serializeCreature } from "../../models/creature";
 import { Erosion, Landslide } from "../../models/hazards";
 import { serializeMiner } from "../../models/miner";
 import { serializeObjectives } from "../../models/objectives";
+import { serializePosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
-import { FencedCavern } from "./07_fence";
 import { ProgrammedCavern } from "./08_program";
 
 export type SerializedCavern = ProgrammedCavern & {
@@ -75,7 +75,7 @@ ${indent(comments(cavern), "  ")}
 info{
 rowcount:${(cavern.right - cavern.left).toFixed()}
 colcount:${(cavern.bottom - cavern.top).toFixed()}
-camerapos:{diorama.camera_position.serialize(offset)}
+camerapos:${serializePosition(cavern.cameraPosition, offset)}
 biome:${cavern.context.biome}
 creator:groundHog
 levelname:${cavern.levelName}
@@ -88,7 +88,7 @@ spiderrate:10
 spidermin:2
 spidermax:4
 ${
-  // Version is the version of MM the level was made by.
+  // Version is the version of MM the level was "made by".
   (() => "version:2023-08-14-1")()
 }
 tiles{

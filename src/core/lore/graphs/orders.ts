@@ -37,7 +37,7 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then();
 
   const before_monsters_do = state("hasMonsters").then(
-    "before the %(monster_type)s monsters do!",
+    "before the ${enemies} do!",
   );
 
   const defend = pg(
@@ -59,8 +59,8 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   const asap = pg("as soon as possible", "as soon as you can");
 
   const collect_resources = pg(
-    "collect %(resources)s",
-    "continue our mining operation by collecting %(resources)s",
+    "collect ${resourceGoal}",
+    "continue our mining operation by collecting ${resourceGoal}",
   );
 
   const continue_mining = pg(
@@ -71,8 +71,8 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   );
 
   const we_need_resources = pg(
-    "we need %(resources)s",
-    "you need to collect %(resources)s",
+    "we need ${resourceGoal}",
+    "you need to collect ${resourceGoal}",
   );
 
   const sendoff = pg(

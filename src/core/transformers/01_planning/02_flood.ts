@@ -28,7 +28,7 @@ function getLakes(cavern: PartialPlannedCavern<MeasuredPlan>, rng: PseudorandomS
         .sort()
       : []
     return pairMap([0, ...stops, planCount], (a, b) => (
-      {fluid, remaining: b - a - 1, skipChance, stack: [plans.pop()!]}
+      {fluid, remaining: b - a, skipChance, stack: [plans.pop()!]}
     ))
   }
   
@@ -44,7 +44,7 @@ export default function flood(
   const rng = cavern.dice.flood;
   const lakes = getLakes(cavern, rng)
   const fluids: (FluidType | undefined)[] = []
-  const claims: (Lake | 'none' | undefined)[] = []
+  const claims: (Lake | 'none' | 'erosion' | undefined)[] = []
   for (const lake of lakes) {
     claims[lake.stack[0].id] = lake
   }
@@ -81,11 +81,29 @@ export default function flood(
         })
     }
   }
+  const erosion: (true | undefined)[] = []
+  const erodeQueue: MeasuredPlan[] = [
+    ...lakes.flatMap(lake => lake.fluid === Tile.LAVA ? lake.stack : []),
+    ...fluids.flatMap((f, i) => f === Tile.LAVA ? [cavern.plans[i]] : []),
+  ]
+  for (let remaining = cavern.context.erosionPlans; remaining >= 0 && erodeQueue.length > 0; remaining--) {
+    const [plan] = erodeQueue.splice(rng.uniformInt({min: 0, max: erodeQueue.length}), 1)
+    erosion[plan.id] = true
+    plan.intersects
+    .map((_, i) => cavern.plans[i])
+    .filter(p => p.kind !== plan.kind)
+    .forEach(p => {
+      if (!claims[p.id]) {
+        claims[p.id] = 'erosion'
+        erodeQueue.push(p)
+      }
+    })
+  }
   
   const plans = cavern.plans.map(plan => ({
     ...plan,
     fluid: fluids[plan.id] ?? null,
-    hasErosion: false
+    hasErosion: erosion[plan.id] === true
   }))
   return { ...cavern, plans };
 }

@@ -8,6 +8,7 @@ import { Creature, CreatureFactory } from "../../models/creature";
 import { Miner, MinerFactory } from "../../models/miner";
 import { Architect, FineArgs } from "../../models/architect";
 import { Plan } from "../../models/plan";
+import { EntityPosition } from "../../models/position";
 
 export type FinePlasticCavern = PlannedCavern & {
   readonly tiles: Grid<Tile>;
@@ -19,9 +20,11 @@ export type FinePlasticCavern = PlannedCavern & {
   readonly creatures: readonly Creature[];
   readonly miners: readonly Miner[];
   readonly openCaveFlags: Grid<true>;
+  readonly cameraPosition: EntityPosition;
 };
 
 export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
+  let cameraPosition: EntityPosition | null = null
   const diorama: Omit<FineArgs<unknown>, "plan"> = {
     cavern,
     tiles: cavern.tiles.copy(),
@@ -35,6 +38,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     minerFactory: new MinerFactory(),
     miners: [],
     openCaveFlags: new MutableGrid<true>(),
+    setCameraPosition: (pos) => cameraPosition = pos,
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
@@ -48,5 +52,8 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
       plan.architect.placeEntities(args);
     },
   );
-  return { ...cavern, ...diorama };
+  if (!cameraPosition) {
+    throw "No architect set a camera position! Spawn was expected to do this."
+  }
+  return { ...cavern, ...diorama, cameraPosition };
 }
