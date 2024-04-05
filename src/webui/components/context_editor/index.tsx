@@ -6,9 +6,9 @@ import {
   inferContextDefaults,
 } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
-import "./style.scss"
+import "./style.scss";
 
-const INITIAL_SEED = Date.now() % MAX_PLUS_ONE
+const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
 export function CavernContextInput({
   onChanged,
@@ -26,7 +26,7 @@ export function CavernContextInput({
   ) {
     const r = { ...context };
     if (value === undefined) {
-      delete r[key]
+      delete r[key];
     } else {
       r[key] = value;
     }
@@ -57,7 +57,12 @@ export function CavernContextInput({
         }}
         spellCheck={false}
       />
-      <button className="showAdvanced" onClick={() => setShowAdvanced((v) => !v)}>Advanced</button>
+      <button
+        className="showAdvanced"
+        onClick={() => setShowAdvanced((v) => !v)}
+      >
+        Advanced
+      </button>
       {showAdvanced && (
         <>
           <div className="inputRow">

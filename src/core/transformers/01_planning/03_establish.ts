@@ -63,11 +63,10 @@ export default function establish(
 
       const neighbors = plan.intersects
         .map((b, id) => (b ? id : -1))
-        .filter((id) => (
-          id >= 0 &&
-          !isQueued[id] &&
-          cavern.plans[id].kind !== plan.kind
-        ));
+        .filter(
+          (id) =>
+            id >= 0 && !isQueued[id] && cavern.plans[id].kind !== plan.kind,
+        );
       neighbors.forEach((id) => (isQueued[id] = true));
       queue.push(
         ...neighbors.map((id) => ({ plan: cavern.plans[id], hops: hops + 1 })),

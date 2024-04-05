@@ -12,98 +12,120 @@ export type FloodedPlan = MeasuredPlan & {
 };
 
 type Lake = {
-  readonly fluid: FluidType
-  readonly skipChance: number
-  remaining: number
-  stack: MeasuredPlan[]
-}
+  readonly fluid: FluidType;
+  readonly skipChance: number;
+  remaining: number;
+  stack: MeasuredPlan[];
+};
 
-function getLakes(cavern: PartialPlannedCavern<MeasuredPlan>, rng: PseudorandomStream): readonly Lake[] {
-  const plans = rng.shuffle(cavern.plans.filter(plan => plan.kind === 'cave'))
+function getLakes(
+  cavern: PartialPlannedCavern<MeasuredPlan>,
+  rng: PseudorandomStream,
+): readonly Lake[] {
+  const plans = rng.shuffle(
+    cavern.plans.filter((plan) => plan.kind === "cave"),
+  );
 
-  const h = (fluid: FluidType, planCount: number, lakeCount: number, skipChance: number) => {
-    const stops = planCount > 1
-      ? rng.shuffle(new Array(planCount - 1).fill(0).map((_, i) => i + 1)) 
-        .filter((_, i) => i < lakeCount - 1)
-        .sort()
-      : []
-    return pairMap([0, ...stops, planCount], (a, b) => (
-      {fluid, remaining: b - a, skipChance, stack: [plans.pop()!]}
-    ))
-  }
-  
+  const h = (
+    fluid: FluidType,
+    planCount: number,
+    lakeCount: number,
+    skipChance: number,
+  ) => {
+    const stops =
+      planCount > 1
+        ? rng
+            .shuffle(new Array(planCount - 1).fill(0).map((_, i) => i + 1))
+            .filter((_, i) => i < lakeCount - 1)
+            .sort()
+        : [];
+    return pairMap([0, ...stops, planCount], (a, b) => ({
+      fluid,
+      remaining: b - a,
+      skipChance,
+      stack: [plans.pop()!],
+    }));
+  };
+
   return [
     ...h(Tile.WATER, cavern.context.waterPlans, cavern.context.waterLakes, 0.2),
     ...h(Tile.LAVA, cavern.context.lavaPlans, cavern.context.lavaLakes, 0.2),
-  ]
+  ];
 }
 
 export default function flood(
   cavern: PartialPlannedCavern<MeasuredPlan>,
 ): PartialPlannedCavern<FloodedPlan> {
   const rng = cavern.dice.flood;
-  const lakes = getLakes(cavern, rng)
-  const fluids: (FluidType | undefined)[] = []
-  const claims: (Lake | 'none' | 'erosion' | undefined)[] = []
+  const lakes = getLakes(cavern, rng);
+  const fluids: (FluidType | undefined)[] = [];
+  const claims: (Lake | "none" | "erosion" | undefined)[] = [];
   for (const lake of lakes) {
-    claims[lake.stack[0].id] = lake
+    claims[lake.stack[0].id] = lake;
   }
   let working = true;
   while (working) {
     working = false;
     for (const lake of lakes) {
       if (lake.remaining <= 0 || lake.stack.length === 0) {
-        continue
+        continue;
       }
-      const plan = lake.stack.pop()!
+      const plan = lake.stack.pop()!;
       if (claims[plan.id] !== lake) {
-        continue
+        continue;
       }
-      working = true
+      working = true;
       if (lake.stack.length > 0 && rng.chance(lake.skipChance)) {
-        lake.stack.unshift(plan)
-        continue
+        lake.stack.unshift(plan);
+        continue;
       }
-      lake.remaining--
-      fluids[plan.id] = lake.fluid
+      lake.remaining--;
+      fluids[plan.id] = lake.fluid;
       plan.intersects
         .map((_, i) => cavern.plans[i])
-        .filter(p => p.kind !== plan.kind)
-        .forEach(p => {
+        .filter((p) => p.kind !== plan.kind)
+        .forEach((p) => {
           if (claims[p.id]) {
             if (claims[p.id] !== lake) {
-              claims[p.id] = 'none'
+              claims[p.id] = "none";
             }
           } else {
-            claims[p.id] = lake
-            lake.stack.push(p)
+            claims[p.id] = lake;
+            lake.stack.push(p);
           }
-        })
+        });
     }
   }
-  const erosion: (true | undefined)[] = []
+  const erosion: (true | undefined)[] = [];
   const erodeQueue: MeasuredPlan[] = [
-    ...lakes.flatMap(lake => lake.fluid === Tile.LAVA ? lake.stack : []),
-    ...fluids.flatMap((f, i) => f === Tile.LAVA ? [cavern.plans[i]] : []),
-  ]
-  for (let remaining = cavern.context.erosionPlans; remaining >= 0 && erodeQueue.length > 0; remaining--) {
-    const [plan] = erodeQueue.splice(rng.uniformInt({min: 0, max: erodeQueue.length}), 1)
-    erosion[plan.id] = true
+    ...lakes.flatMap((lake) => (lake.fluid === Tile.LAVA ? lake.stack : [])),
+    ...fluids.flatMap((f, i) => (f === Tile.LAVA ? [cavern.plans[i]] : [])),
+  ];
+  for (
+    let remaining = cavern.context.erosionPlans;
+    remaining >= 0 && erodeQueue.length > 0;
+    remaining--
+  ) {
+    const [plan] = erodeQueue.splice(
+      rng.uniformInt({ min: 0, max: erodeQueue.length }),
+      1,
+    );
+    erosion[plan.id] = true;
     plan.intersects
-    .map((_, i) => cavern.plans[i])
-    .filter(p => p.kind !== plan.kind)
-    .forEach(p => {
-      if (!claims[p.id]) {
-        claims[p.id] = 'erosion'
-        erodeQueue.push(p)
-      }
-    })
+      .map((_, i) => cavern.plans[i])
+      .filter((p) => p.kind !== plan.kind)
+      .forEach((p) => {
+        if (!claims[p.id]) {
+          claims[p.id] = "erosion";
+          erodeQueue.push(p);
+        }
+      });
   }
-  
-  const plans = cavern.plans.map(plan => ({
+
+  const plans = cavern.plans.map((plan) => ({
     ...plan,
     fluid: fluids[plan.id] ?? null,
-    hasErosion: erosion[plan.id] === true
-  }))
+    hasErosion: erosion[plan.id] === true,
+  }));
   return { ...cavern, plans };
 }

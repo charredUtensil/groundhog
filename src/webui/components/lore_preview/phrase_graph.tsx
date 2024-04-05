@@ -119,7 +119,9 @@ export default function PhraseGraphPreview<T extends State>({
       } else if (phrase.requires === "end") {
         r.push("end");
       } else if (lore && phrase.requires in lore.state) {
-        r.push(lore.state[phrase.requires as keyof State] ? "present" : "notPresent");
+        r.push(
+          lore.state[phrase.requires as keyof State] ? "present" : "notPresent",
+        );
       }
     }
     if (included[phrase.id]) {

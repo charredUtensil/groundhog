@@ -11,7 +11,10 @@ export type PartialArchitect<T> = Omit<
   "name" | "rough" | "roughExtent"
 >;
 
-const DefaultArchitect: Omit<PartialArchitect<unknown>, "baroqueness" | "placeLandslides"> = {
+const DefaultArchitect: Omit<
+  PartialArchitect<unknown>,
+  "baroqueness" | "placeLandslides"
+> = {
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
   prime: () => undefined,
@@ -31,10 +34,11 @@ export const DefaultCaveArchitect: PartialArchitect<unknown> = {
   baroqueness: ({ cavern }) => cavern.context.caveBaroqueness,
   placeLandslides: (args) => {
     if (
-      args.cavern.dice.placeLandslides(args.plan.id)
+      args.cavern.dice
+        .placeLandslides(args.plan.id)
         .chance(args.cavern.context.caveHasLandslidesChance)
     ) {
-      placeLandslides(args.cavern.context.caveLandslideCooldownRange, args)
+      placeLandslides(args.cavern.context.caveLandslideCooldownRange, args);
     }
   },
 };
@@ -44,10 +48,11 @@ export const DefaultHallArchitect: PartialArchitect<unknown> = {
   baroqueness: ({ cavern }) => cavern.context.hallBaroqueness,
   placeLandslides: (args) => {
     if (
-      args.cavern.dice.placeLandslides(args.plan.id)
+      args.cavern.dice
+        .placeLandslides(args.plan.id)
         .chance(args.cavern.context.caveHasLandslidesChance)
     ) {
-      placeLandslides(args.cavern.context.hallLandslideCooldownRange, args)
+      placeLandslides(args.cavern.context.hallLandslideCooldownRange, args);
     }
   },
 };

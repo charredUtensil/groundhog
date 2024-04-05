@@ -10,17 +10,17 @@ import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
 import About from "./components/about";
 
-const MAP_OVERLAY_BUTTONS: readonly {of: MapOverlay, label: String}[] = [
-  {of: 'tiles', label: 'Tiles'},
-  {of: 'crystals', label: 'Crystals'},
-  {of: 'ore', label: 'Ore'},
-  {of: 'entities', label: 'Entities'},
-  {of: 'landslides', label: 'Landslides'},
-  {of: 'erosion', label: 'Erosion'},
-  {of: 'discovery', label: 'Discovery'},
-  {of: 'lore', label: 'Lore'},
-  {of: 'about', label: 'About'},
-]
+const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
+  { of: "tiles", label: "Tiles" },
+  { of: "crystals", label: "Crystals" },
+  { of: "ore", label: "Ore" },
+  { of: "entities", label: "Entities" },
+  { of: "landslides", label: "Landslides" },
+  { of: "erosion", label: "Erosion" },
+  { of: "discovery", label: "Discovery" },
+  { of: "lore", label: "Lore" },
+  { of: "about", label: "About" },
+];
 
 function getDownloadLink(serializedData: string) {
   return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
@@ -37,7 +37,7 @@ function App() {
   const [cavernError, setCavernError] = useState<Error | null>(null);
   const [autoGenerate, setAutoGenerate] = useState(true);
 
-  const [mapOverlay, setMapOverlay] = useState<MapOverlay>('tiles')
+  const [mapOverlay, setMapOverlay] = useState<MapOverlay>("tiles");
 
   const [showOutlines, setShowOutlines] = useState(false);
   const [showPearls, setShowPearls] = useState(false);
@@ -56,9 +56,9 @@ function App() {
 
   useEffect(() => {
     if (cavern && !next) {
-      console.log('Finished generating %o', cavern)
+      console.log("Finished generating %o", cavern);
     }
-  }, [cavern, next])
+  }, [cavern, next]);
 
   function playPause() {
     if (autoGenerate) {
@@ -125,8 +125,8 @@ function App() {
             </a>
           )}
         </div>
-        {mapOverlay === 'lore' && <LorePreview cavern={cavern} />}
-        {mapOverlay === 'about' && <About />}
+        {mapOverlay === "lore" && <LorePreview cavern={cavern} />}
+        {mapOverlay === "about" && <About />}
       </div>
       <div className="vizOptsPanel">
         <h1>Show</h1>
@@ -142,16 +142,14 @@ function App() {
         >
           Pearls
         </button>
-        {
-          MAP_OVERLAY_BUTTONS.map(({of, label}) => (
-            <button
-              className={`tiles ${mapOverlay === of ? "active" : "inactive"}`}
-              onClick={() => setMapOverlay((v) => v === of ? null : of)}
-            >
-              {label}
-            </button>
-          ))
-        }
+        {MAP_OVERLAY_BUTTONS.map(({ of, label }) => (
+          <button
+            className={`tiles ${mapOverlay === of ? "active" : "inactive"}`}
+            onClick={() => setMapOverlay((v) => (v === of ? null : of))}
+          >
+            {label}
+          </button>
+        ))}
       </div>
     </div>
   );

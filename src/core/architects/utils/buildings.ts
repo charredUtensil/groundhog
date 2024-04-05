@@ -4,21 +4,25 @@ import { FineArgs } from "../../models/architect";
 import { Building } from "../../models/building";
 import { Tile } from "../../models/tiles";
 
-export type MakeBuildingFn = (a: { x: number; y: number; facing: Cardinal4 }) => Building
+export type MakeBuildingFn = (a: {
+  x: number;
+  y: number;
+  facing: Cardinal4;
+}) => Building;
 
 /**
  * Returns an array of Building objects positioned within the given Plan
  * according to the given rules.
- * 
+ *
  * Buildings are placed between the given from and to layers of the Plan's
  * innerPearl. The queue is an array of functions that return a building at
  * that point and facing direction. This function will check whether that
  * building fits in that space and does not overlap any other buildings.
  * If it does, that building will be added to the return value.
- * 
+ *
  * The given queue will be modified - so anything left in it on return
  * means those buildings could not be placed.
- * 
+ *
  * This function will not add buildings to the cavern or place any foundation
  * tiles, so it is the caller's responsibility to do that.
  */

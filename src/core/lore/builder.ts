@@ -303,7 +303,11 @@ export class PhraseGraph<T extends State> {
     this.states = states;
   }
 
-  generate(rng: PseudorandomStream, requireState: T, formatVars: FormatVars): GenerateResult<T> {
+  generate(
+    rng: PseudorandomStream,
+    requireState: T,
+    formatVars: FormatVars,
+  ): GenerateResult<T> {
     const states = [...this.states, "start", "end"];
     const stateRemaining: { [key: string]: boolean } = {
       start: true,
@@ -355,7 +359,7 @@ export type PgArgs<T extends State> = {
   end: PgNode<T>;
   cut: PgNode<T>;
   skip: PgNode<T>;
-}
+};
 
 export default function phraseGraph<T extends State>(
   fn: (args: PgArgs<T>) => void,

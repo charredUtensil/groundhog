@@ -5,13 +5,12 @@ function objectives<T extends State>({
   pg,
   state,
 }: Pick<PgArgs<T>, "pg" | "state">) {
-  const find_lost_miners =
-    pg(
-      state("lostMinersOne").then("find the lost Rock Raider"),
-      state("lostMinersTogether", "lostMinersApart").then(
-        "find the lost Rock Raiders",
-      ),
-    );
+  const find_lost_miners = pg(
+    state("lostMinersOne").then("find the lost Rock Raider"),
+    state("lostMinersTogether", "lostMinersApart").then(
+      "find the lost Rock Raiders",
+    ),
+  );
 
   const get_resources = state("resourceObjective").then(
     "collect all ${resourceGoal}",
@@ -33,7 +32,7 @@ const COMMENDATIONS = [
   "We were right to count on you, Cadet!",
 ] as const;
 
-export const SUCCESS = phraseGraph<State & {readonly commend: boolean}>(
+export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
   ({ pg, state, start, end, cut, skip }) => {
     (() => {
       const commend = state("commend").then("Wow!", ...COMMENDATIONS);
@@ -60,9 +59,7 @@ export const SUCCESS = phraseGraph<State & {readonly commend: boolean}>(
           .then(objectives({ pg, state }))
           .then(
             ".",
-            state("hasMonsters").then(
-              "despite that horde of ${enemies}!",
-            ),
+            state("hasMonsters").then("despite that horde of ${enemies}!"),
           ),
         (() => {
           const foundTheBase = state("findHq").then("found the base");
@@ -71,7 +68,8 @@ export const SUCCESS = phraseGraph<State & {readonly commend: boolean}>(
             "restored our mining operations",
           );
           foundTheBase.then(hqIsRuin);
-          return pg().then(foundTheBase, hqIsRuin)
+          return pg()
+            .then(foundTheBase, hqIsRuin)
             .then("and")
             .then(
               pg(

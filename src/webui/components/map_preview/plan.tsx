@@ -28,8 +28,14 @@ function caveWithOneBaseplate(plan: Partial<Plan>) {
         cy={y * SCALE}
         r={drawRadius(plan.pearlRadius!) * SCALE}
       />
-      <text className="fg" x={x * SCALE} y={y * SCALE}>{plan.id}</text>
-      {plan.architect && <text className="fg architect" x={x * SCALE} y={y * SCALE}>{plan.architect.name}</text>}
+      <text className="fg" x={x * SCALE} y={y * SCALE}>
+        {plan.id}
+      </text>
+      {plan.architect && (
+        <text className="fg architect" x={x * SCALE} y={y * SCALE}>
+          {plan.architect.name}
+        </text>
+      )}
     </>
   );
 }
@@ -86,17 +92,26 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
     };
   });
 
-  const [x0, y0] = plan.path!.baseplates[0].center
-  return (<>
-    <path className="bg" d={dWrapping(a, b)} />
-    <text className="fg id" x={x0 * SCALE} y={y0 * SCALE}>{plan.id}</text>
-      {plan.architect && <text className="fg architect" x={x0 * SCALE} y={y0 * SCALE}>{plan.architect.name}</text>}
-  </>)
+  const [x0, y0] = plan.path!.baseplates[0].center;
+  return (
+    <>
+      <path className="bg" d={dWrapping(a, b)} />
+      <text className="fg id" x={x0 * SCALE} y={y0 * SCALE}>
+        {plan.id}
+      </text>
+      {plan.architect && (
+        <text className="fg architect" x={x0 * SCALE} y={y0 * SCALE}>
+          {plan.architect.name}
+        </text>
+      )}
+    </>
+  );
 }
 
 function hall(plan: Partial<Plan>) {
-  const bps = plan.path!.baseplates
-  const d = bps.map((bp, i) => {
+  const bps = plan.path!.baseplates;
+  const d = bps
+    .map((bp, i) => {
       const [x, y] = bp.center;
       return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
     })

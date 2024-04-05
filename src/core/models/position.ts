@@ -24,13 +24,13 @@ const ENTITY_SCALE = 300;
 export type EntityPosition = {
   readonly x: number;
   readonly y: number;
-  readonly z: number
-  readonly pitch: number
+  readonly z: number;
+  readonly pitch: number;
   readonly yaw: number;
-  readonly roll: number
-  readonly scaleX: number
-  readonly scaleY: number
-  readonly scaleZ: number
+  readonly roll: number;
+  readonly scaleX: number;
+  readonly scaleY: number;
+  readonly scaleZ: number;
 };
 
 const POSITION_DEFAULTS = {
@@ -40,15 +40,18 @@ const POSITION_DEFAULTS = {
   scaleX: 1,
   scaleY: 1,
   scaleZ: 1,
-} as const
+} as const;
 
-export function position(args: EntityPositionArgs & Partial<EntityPosition>): EntityPosition {
+export function position(
+  args: EntityPositionArgs & Partial<EntityPosition>,
+): EntityPosition {
   const yaw = getYaw(args) ?? 0;
-  return {...POSITION_DEFAULTS, ...args, yaw };
+  return { ...POSITION_DEFAULTS, ...args, yaw };
 }
 
-export const atCenterOfTile: (args: EntityPositionArgs) => EntityPosition =
-  (args) => position({...args, x: args.x + 0.5, y: args.y + 0.5});
+export const atCenterOfTile: (args: EntityPositionArgs) => EntityPosition = (
+  args,
+) => position({ ...args, x: args.x + 0.5, y: args.y + 0.5 });
 
 export function randomlyInTile(
   args: EntityPositionArgs & { rng: PseudorandomStream },
@@ -56,7 +59,7 @@ export function randomlyInTile(
   const x = args.rng.uniform({}) + args.x;
   const y = args.rng.uniform({}) + args.y;
   const yaw = getYaw(args) ?? args.rng.uniform({ min: -Math.PI, max: Math.PI });
-  return {...POSITION_DEFAULTS, x, y, yaw };
+  return { ...POSITION_DEFAULTS, x, y, yaw };
 }
 
 export function serializePosition(
@@ -69,7 +72,7 @@ export function serializePosition(
   const pitch = radsToDegrees(position.pitch);
   const yaw = radsToDegrees(position.yaw + (yawOffset ?? 0));
   const roll = radsToDegrees(position.roll);
-  const {z, scaleX, scaleY, scaleZ} = position;
+  const { z, scaleX, scaleY, scaleZ } = position;
   return (
     `Translation: X=${x.toFixed(3)} Y=${y.toFixed(3)} Z=${z.toFixed(3)} ` +
     `Rotation: P=${pitch.toFixed(6)} Y=${yaw.toFixed(6)} R=${roll.toFixed(6)} ` +

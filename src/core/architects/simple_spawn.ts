@@ -24,12 +24,14 @@ const BASE: typeof DefaultCaveArchitect = {
     );
     args.buildings.push(toolStore);
     args.openCaveFlags.set(...toolStore.foundation[0], true);
-    args.setCameraPosition(position({
-      x: toolStore.x,
-      y: toolStore.y,
-      yaw: toolStore.yaw + Math.PI * 0.75,
-      pitch: Math.PI / 4,
-    }))
+    args.setCameraPosition(
+      position({
+        x: toolStore.x,
+        y: toolStore.y,
+        yaw: toolStore.yaw + Math.PI * 0.75,
+        pitch: Math.PI / 4,
+      }),
+    );
   },
 };
 

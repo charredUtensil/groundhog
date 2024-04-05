@@ -23,12 +23,12 @@ export type State = {
 };
 
 type ReplaceStrings = {
-  readonly lostMinersCount: string,
-  readonly lostMinerCavesCount: string,
-  readonly enemies: string,
-  readonly resourceGoal: string,
-  readonly resourceGoalNamesOnly: string,
-}
+  readonly lostMinersCount: string;
+  readonly lostMinerCavesCount: string;
+  readonly enemies: string;
+  readonly resourceGoal: string;
+  readonly resourceGoalNamesOnly: string;
+};
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
   let lava = 0;
@@ -72,9 +72,38 @@ function joinHuman(things: string[], conjunction: string = "and"): string {
   return `${things.slice(0, -1).join(", ")} ${conjunction} ${things[things.length - 1]}`;
 }
 
-const ONES = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-const TENS = ['twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-      
+const ONES = [
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen",
+];
+const TENS = [
+  "twenty",
+  "thirty",
+  "forty",
+  "fifty",
+  "sixty",
+  "seventy",
+  "eighty",
+  "ninety",
+];
+
 function spellNumber(n: number): string {
   if (n > 999) {
     return n.toString();
@@ -92,25 +121,27 @@ function spellNumber(n: number): string {
       n = 0;
     }
   }
-  return result.join(' ');
+  return result.join(" ");
 }
 
 function spellResourceGoal(cavern: AdjuredCavern) {
   const a = [
-    {count: cavern.objectives.crystals, name: 'Energy Crystals'},
-    {count: cavern.objectives.ore, name: 'Ore'},
-    {count: cavern.objectives.studs, name: 'Building Studs'},
-  ].filter(({count}) => count > 0)
+    { count: cavern.objectives.crystals, name: "Energy Crystals" },
+    { count: cavern.objectives.ore, name: "Ore" },
+    { count: cavern.objectives.studs, name: "Building Studs" },
+  ].filter(({ count }) => count > 0);
   return {
-    resourceGoal: joinHuman(a.map(({count, name}) => `${spellNumber(count)} ${name}`)),
-    resourceGoalNamesOnly: joinHuman(a.map(({name}) => name)),
-  }
+    resourceGoal: joinHuman(
+      a.map(({ count, name }) => `${spellNumber(count)} ${name}`),
+    ),
+    resourceGoalNamesOnly: joinHuman(a.map(({ name }) => name)),
+  };
 }
 
 type Results = {
   readonly premise: GenerateResult<State>;
   readonly orders: GenerateResult<State>;
-  readonly success: GenerateResult<State & {readonly commend: boolean}>;
+  readonly success: GenerateResult<State & { readonly commend: boolean }>;
   readonly failure: GenerateResult<State>;
 };
 
@@ -127,7 +158,11 @@ export class Lore {
       lostMinersOne: lostMiners === 1,
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
-      resourceObjective: !!(cavern.objectives.crystals || cavern.objectives.ore || cavern.objectives.studs),
+      resourceObjective: !!(
+        cavern.objectives.crystals ||
+        cavern.objectives.ore ||
+        cavern.objectives.studs
+      ),
       hasMonsters: cavern.context.hasMonsters,
       spawnHasErosion: false,
       spawnIsHq: false,
@@ -140,19 +175,23 @@ export class Lore {
       lostMinersCount: spellNumber(lostMiners),
       lostMinerCavesCount: spellNumber(lostMinerCaves),
       enemies: {
-        rock: 'Rock Monsters',
-        ice: 'Ice Monsters',
-        lava: 'Lava Monsters',
+        rock: "Rock Monsters",
+        ice: "Ice Monsters",
+        lava: "Lava Monsters",
       }[cavern.context.biome],
-      ...spellResourceGoal(cavern)
-    }
+      ...spellResourceGoal(cavern),
+    };
   }
 
   generateBriefings(dice: DiceBox) {
     const r = {
       premise: PREMISE.generate(dice.lore(1), this.state, this.vars),
       orders: ORDERS.generate(dice.lore(2), this.state, this.vars),
-      success: SUCCESS.generate(dice.lore(3), {...this.state, commend: true}, this.vars),
+      success: SUCCESS.generate(
+        dice.lore(3),
+        { ...this.state, commend: true },
+        this.vars,
+      ),
       failure: FAILURE.generate(dice.lore(4), this.state, this.vars),
     };
     this._results = r;

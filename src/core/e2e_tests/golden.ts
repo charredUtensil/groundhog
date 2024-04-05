@@ -1,8 +1,8 @@
-import * as fs from 'fs/promises';
-import path from 'node:path';
+import * as fs from "fs/promises";
+import path from "node:path";
 
-const UPDATE_GOLDENS = 'UPDATE_GOLDENS';
-const GOLDEN_DIR = 'goldens';
+const UPDATE_GOLDENS = "UPDATE_GOLDENS";
+const GOLDEN_DIR = "goldens";
 
 const updateGoldenFile = async (filePath: string, actual: string) => {
   // Write the actual output to the file path
@@ -18,8 +18,8 @@ const goldenTest = async (name: string, fn: () => string) => {
       await updateGoldenFile(filePath, actual);
       return;
     }
-    const expected = await fs.readFile(filePath, 'utf-8')
+    const expected = await fs.readFile(filePath, "utf-8");
     expect(actual).toEqual(expected);
   });
 };
-export default goldenTest
+export default goldenTest;

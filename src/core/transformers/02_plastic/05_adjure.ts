@@ -8,7 +8,10 @@ export type AdjuredCavern = DiscoveredCavern & {
 
 export default function adjure(cavern: DiscoveredCavern): AdjuredCavern {
   const objectives = {
-    crystals: Math.floor(getTotalCrystals(cavern) * cavern.context.crystalGoalRatio / 5) * 5,
+    crystals:
+      Math.floor(
+        (getTotalCrystals(cavern) * cavern.context.crystalGoalRatio) / 5,
+      ) * 5,
     ore: 0,
     studs: 0,
   };

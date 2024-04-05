@@ -24,7 +24,7 @@ export type FinePlasticCavern = PlannedCavern & {
 };
 
 export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
-  let cameraPosition: EntityPosition | null = null
+  let cameraPosition: EntityPosition | null = null;
   const diorama: Omit<FineArgs<unknown>, "plan"> = {
     cavern,
     tiles: cavern.tiles.copy(),
@@ -38,7 +38,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     minerFactory: new MinerFactory(),
     miners: [],
     openCaveFlags: new MutableGrid<true>(),
-    setCameraPosition: (pos) => cameraPosition = pos,
+    setCameraPosition: (pos) => (cameraPosition = pos),
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
@@ -53,7 +53,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     },
   );
   if (!cameraPosition) {
-    throw "No architect set a camera position! Spawn was expected to do this."
+    throw "No architect set a camera position! Spawn was expected to do this.";
   }
   return { ...cavern, ...diorama, cameraPosition };
 }
