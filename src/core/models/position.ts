@@ -33,7 +33,7 @@ export type EntityPosition = {
   readonly scaleZ: number
 };
 
-export const POSITION_DEFAULTS = {
+const POSITION_DEFAULTS = {
   z: 0,
   pitch: 0,
   roll: 0,
@@ -42,12 +42,13 @@ export const POSITION_DEFAULTS = {
   scaleZ: 1,
 } as const
 
-export function atCenterOfTile(args: EntityPositionArgs): EntityPosition {
-  const x = args.x + 0.5;
-  const y = args.y + 0.5;
+export function position(args: EntityPositionArgs & Partial<EntityPosition>): EntityPosition {
   const yaw = getYaw(args) ?? 0;
-  return {...POSITION_DEFAULTS, x, y, yaw };
+  return {...POSITION_DEFAULTS, ...args, yaw };
 }
+
+export const atCenterOfTile: (args: EntityPositionArgs) => EntityPosition =
+  (args) => position({...args, x: args.x + 0.5, y: args.y + 0.5});
 
 export function randomlyInTile(
   args: EntityPositionArgs & { rng: PseudorandomStream },

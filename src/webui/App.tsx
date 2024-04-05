@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 
 import "./App.scss";
 import { CavernContext, DiceBox } from "../core/common";
-import { CavernContextInput } from "./components/context_editor/context";
+import { CavernContextInput } from "./components/context_editor";
 import { Cavern } from "../core/models/cavern";
 import CavernPreview, { MapOverlay } from "./components/map_preview";
 import { CAVERN_TF } from "../core/transformers";
 import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
+import About from "./components/about";
 
 const MAP_OVERLAY_BUTTONS: readonly {of: MapOverlay, label: String}[] = [
   {of: 'tiles', label: 'Tiles'},
@@ -18,6 +19,7 @@ const MAP_OVERLAY_BUTTONS: readonly {of: MapOverlay, label: String}[] = [
   {of: 'erosion', label: 'Erosion'},
   {of: 'discovery', label: 'Discovery'},
   {of: 'lore', label: 'Lore'},
+  {of: 'about', label: 'About'},
 ]
 
 function getDownloadLink(serializedData: string) {
@@ -124,6 +126,7 @@ function App() {
           )}
         </div>
         {mapOverlay === 'lore' && <LorePreview cavern={cavern} />}
+        {mapOverlay === 'about' && <About />}
       </div>
       <div className="vizOptsPanel">
         <h1>Show</h1>

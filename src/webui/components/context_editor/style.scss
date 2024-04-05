@@ -1,4 +1,21 @@
 .contextInput {
+  padding: 0 8px;
+
+  .seed {
+    height: 36px;
+    font-family: "Outfit";
+    font-size: 24px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    text-align: center;
+    background: none;
+    color: white;
+    box-sizing: border-box;
+    border-radius: 8px;
+    width: 100%;
+  }
+
   .inputRow {
     display: flex;
     justify-content: space-evenly;

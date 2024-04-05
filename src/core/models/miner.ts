@@ -45,7 +45,7 @@ export function serializeMiner(miner: Miner, offset: Point) {
   return `ID=${miner.id.toFixed()}\
 ${miner.unique ? `/${miner.unique}` : ""},\
 ${serializePosition(miner, offset, Math.PI / 2)},\
-${miner.loadout.map((l) => `${l}/`).join()}\
-${"Level/".repeat(miner.level)}\
+${miner.loadout.map((l) => `${l}/`).join('')}\
+${"Level/".repeat(miner.level - 1)}\
 ${miner.essential ? ",Essential=true" : ""}`;
 }

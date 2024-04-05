@@ -6,6 +6,8 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { Rough, RoughOyster } from "./utils/oyster";
+import { position } from "../models/position";
+import { getPlaceRechargeSeams } from "./utils/resources";
 
 const T0_BUILDINGS = [
   TOOL_STORE,
@@ -67,6 +69,15 @@ function getPlaceBuildings(): Architect<unknown>['placeBuildings'] {
         }
       }
     }
+
+    const [xt, yt] = buildings.reduce(([x, y], b) => [x + b.x, y + b.y], [0, 0])
+    args.setCameraPosition(position({
+      x: buildings[0].x,
+      y: buildings[0].y,
+      aimedAt: [xt / buildings.length, yt / buildings.length],
+      pitch: Math.PI / 4,
+    }))
+
   }
 }
 
@@ -80,6 +91,7 @@ const BASE: PartialArchitect<unknown> & Pick<Architect<unknown>, 'rough' | 'roug
     {of: Rough.HARD_ROCK, grow: 0.25},
   ),
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 10,
+  placeRechargeSeam: getPlaceRechargeSeams(1),
 }
 
 export const ESTABLISHED_HQ: readonly Architect<unknown>[] = [

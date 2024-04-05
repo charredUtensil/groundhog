@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Biome,
   CavernContext,
@@ -47,13 +47,15 @@ export function CavernContextInput({
     <div className="contextInput">
       <input
         type="text"
-        value={context?.seed?.toString(16) || INITIAL_SEED.toString(16)}
+        className="seed"
+        value={(context?.seed ?? INITIAL_SEED).toString(16).toUpperCase()}
         onChange={(ev) => {
           const seed = parseInt(ev.target.value, 16);
           if (seed >= 0 && seed < MAX_PLUS_ONE) {
             update("seed", seed);
           }
         }}
+        spellCheck={false}
       />
       <button className="showAdvanced" onClick={() => setShowAdvanced((v) => !v)}>Advanced</button>
       {showAdvanced && (

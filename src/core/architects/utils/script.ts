@@ -15,5 +15,5 @@ export function mkVars<T extends string>(
 }
 
 export function transformPoint(cavern: FencedCavern, [x, y]: Point): string {
-  return `${y + cavern.top},${x + cavern.left}`;
+  return `${y - cavern.top},${x - cavern.left}`;
 }

@@ -116,7 +116,7 @@ objectives{
 ${serializeObjectives(cavern.objectives)}
 }
 buildings{
-${cavern.buildings.map((b) => serializeBuilding(b, offset))}
+${cavern.buildings.map((b) => serializeBuilding(b, offset)).join('\n')}
 }
 landslidefrequency{
 ${serializeHazards(cavern.landslides, offset)}
@@ -125,10 +125,10 @@ lavaspread{
 ${serializeHazards(cavern.erosion, offset)}
 }
 creatures{
-${cavern.creatures.map((c) => serializeCreature(c, offset))}
+${cavern.creatures.map((c) => serializeCreature(c, offset)).join('\n')}
 }
 miners{
-${cavern.miners.map((m) => serializeMiner(m, offset))}
+${cavern.miners.map((m) => serializeMiner(m, offset)).join('\n')}
 }
 briefing{
 ${cavern.briefing.intro}

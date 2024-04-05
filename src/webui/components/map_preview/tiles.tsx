@@ -73,6 +73,7 @@ function getFill(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y: 
         return SCALE_COLORS[i]
       }
       break
+    case 'about':
     case 'lore':
     case null:
       return null
@@ -96,6 +97,7 @@ function getLabel(cavern: Cavern, mapOverlay: MapOverlay, t: Tile, x: number, y:
     case 'erosion':
       const er = cavern.erosion?.get(x, y)
       return er ? (<><tspan x={(x + 0.5) * SCALE}>{er.cooldown}</tspan><tspan x={(x + 0.5) * SCALE} dy="1em">+{er.initialDelay}</tspan></>) : null
+    case 'about':
     case 'discovery':
     case 'entities':
     case 'lore':

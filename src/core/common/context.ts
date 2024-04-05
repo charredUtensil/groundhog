@@ -87,7 +87,6 @@ export type CavernContext = {
   monsterSpawnRate: Curve;
   /** How many monsters to spawn at a time in a cave, if monsters are enabled. */
   monsterWaveSize: Curve;
-
   /** 
    * The chance each cave will have a recharge seam. Some caves (such as spawn)
    * will always have a recharge seam.
@@ -95,7 +94,6 @@ export type CavernContext = {
   caveHasRechargeSeamChance: number;
   /** The chance each hall will have a recharge seam. */
   hallHasRechargeSeamChance: number;
-
   /** The chance each cave will have landslides at all. */
   caveHasLandslidesChance: number;
   /** The chance each hall will have landslides at all. */
@@ -104,6 +102,12 @@ export type CavernContext = {
   caveLandslideCooldownRange: {min: number, max: number};
   /** The range of cooldowns to use in halls that have landslides. */
   hallLandslideCooldownRange: {min: number, max: number};
+  /** 
+   * Approximately what portion of all the Energy Crystals available in the level
+   * should be used as the goal, if there is a crystal goal?
+   * Most levels in Lego Rock Raiders tend to use about 20%.
+   */
+  crystalGoalRatio: number;
 };
 
 enum Die {
@@ -155,9 +159,9 @@ export function inferContextDefaults(
     hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
     caveBaroqueness: 0.12,
     hallBaroqueness: 0.05,
-    caveCrystalRichness: { base: 0.5, hops: 1.0, order: 1.0 },
+    caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
     hallCrystalRichness: { base: 0, hops: 0, order: 0 },
-    caveOreRichness: { base: 3.75, hops: -0.5, order: -0.25 },
+    caveOreRichness: { base: 1.19, hops: -0.16, order: -0.08 },
     hallOreRichness: { base: 0, hops: 0, order: 0 },
     monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
     monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
@@ -167,6 +171,7 @@ export function inferContextDefaults(
     hallHasLandslidesChance: 0.80,
     caveLandslideCooldownRange: {min: 15, max: 300},
     hallLandslideCooldownRange: {min: 30, max: 300},
+    crystalGoalRatio: 0.20,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
   };

@@ -17,6 +17,7 @@ import OpenCaveFlagPreview from "./open_cave_flag";
 const SCALE = 6;
 
 export type MapOverlay = (
+  | 'about'
   | 'crystals'
   | 'discovery'
   | 'entities'
