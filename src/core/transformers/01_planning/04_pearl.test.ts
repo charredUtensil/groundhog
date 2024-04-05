@@ -1,7 +1,6 @@
 import { PseudorandomStream } from "../../common";
 import { Baseplate } from "../../models/baseplate";
 import { Path } from "../../models/path";
-import { Plan } from "../../models/plan";
 import { EstablishedPlan } from "./03_establish";
 import { LayerGrid, caveNucleus, hallNucleus, trail } from "./04_pearl";
 
