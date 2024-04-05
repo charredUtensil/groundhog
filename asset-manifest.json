@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/groundhog/static/css/main.da34b6a7.css",
+    "main.js": "/groundhog/static/js/main.a82ee3b5.js",
+    "index.html": "/groundhog/index.html",
+    "main.da34b6a7.css.map": "/groundhog/static/css/main.da34b6a7.css.map",
+    "main.a82ee3b5.js.map": "/groundhog/static/js/main.a82ee3b5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.da34b6a7.css",
+    "static/js/main.a82ee3b5.js"
+  ]
+}
