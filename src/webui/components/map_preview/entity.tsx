@@ -3,7 +3,7 @@ import { Building } from "../../../core/models/building";
 import { Creature } from "../../../core/models/creature";
 import { Miner } from "../../../core/models/miner";
 import { radsToDegrees } from "../../../core/common/geometry";
-import "./style.scss";
+import styles from "./style.module.scss"
 
 const SCALE = 6;
 
@@ -19,15 +19,15 @@ export default function EntityPreview({
   const v = SCALE / 4;
   return (
     <g
-      className={`entity ${enemy ? "enemy" : ""}`}
+      className={`${styles.entity} ${enemy ? styles.enemy : ""}`}
       transform={`translate(${entity.x * SCALE} ${entity.y * SCALE}) rotate(${radsToDegrees(entity.yaw)})`}
     >
       <path
-        className="marker"
+        className={styles.marker}
         d={`M${SCALE / 2} 0 L${v} ${v} L${-v} ${v} L${-v} ${-v} L${v} ${-v} Z`}
       />
       {"template" in entity && (
-        <text className="label" x={0} y={0.75}>
+        <text className={styles.label} x={0} y={0.75}>
           {entity.template.inspectAbbrev}
         </text>
       )}

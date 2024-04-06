@@ -6,7 +6,7 @@ import {
   inferContextDefaults,
 } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
-import "./style.scss";
+import styles from "./style.module.scss";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
@@ -44,10 +44,10 @@ export function CavernContextInput({
   }, [contextWithDefaults]);
 
   return (
-    <div className="contextInput">
+    <div className={styles.contextInput}>
       <input
         type="text"
-        className="seed"
+        className={styles.seed}
         value={(context?.seed ?? INITIAL_SEED).toString(16).toUpperCase()}
         onChange={(ev) => {
           const seed = parseInt(ev.target.value, 16);
@@ -58,14 +58,14 @@ export function CavernContextInput({
         spellCheck={false}
       />
       <button
-        className="showAdvanced"
+        className={styles.showAdvanced}
         onClick={() => setShowAdvanced((v) => !v)}
       >
         Advanced
       </button>
       {showAdvanced && (
         <>
-          <div className="inputRow">
+          <div className={styles.inputRow}>
             {(["rock", "ice", "lava"] as Biome[]).map((biome) => {
               const classes = ["biome"];
               const selected = context?.biome === biome;

@@ -1,6 +1,5 @@
-import React, { createRef, useLayoutEffect, useRef, useState } from "react";
+import React, { createRef, useLayoutEffect, useState } from "react";
 import { Cavern } from "../../../core/models/cavern";
-import "./style.scss";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
 import PlanPreview from "./plan";
@@ -13,6 +12,7 @@ import {
   getTotalOre,
 } from "../../../core/architects/utils/resources";
 import OpenCaveFlagPreview from "./open_cave_flag";
+import styles from "./style.module.scss"
 
 const SCALE = 6;
 
@@ -57,9 +57,9 @@ export default function CavernPreview({
   }, [holder]);
 
   return (
-    <div ref={holder} className="cavernPreview">
+    <div ref={holder} className={styles.cavernPreview}>
       <svg
-        className="map"
+        className={styles.map}
         style={{ width: width, height: height }}
         viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +92,7 @@ export default function CavernPreview({
             <OpenCaveFlagPreview x={x} y={y} />
           ))}
       </svg>
-      <div className="stats">
+      <div className={styles.stats}>
         {mapOverlay === "crystals" && cavern.crystals && (
           <>{getTotalCrystals(cavern)} total Energy Crystals</>
         )}
@@ -101,7 +101,7 @@ export default function CavernPreview({
         )}
         {cavern.briefing?.intro && <>Briefing: {cavern.briefing.intro}</>}
       </div>
-      {error && <div className="error">{error.message}</div>}
+      {error && <div className={styles.error}>{error.message}</div>}
     </div>
   );
 }

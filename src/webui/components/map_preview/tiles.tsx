@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
 import { Tile } from "../../../core/models/tiles";
-import { Grid } from "../../../core/common/grid";
 import { Cavern } from "../../../core/models/cavern";
 import { MapOverlay } from ".";
+import styles from "./style.module.scss"
 
 const SCALE = 6;
 
@@ -142,7 +142,7 @@ export default function TilesPreview({
     return <></>;
   }
   return (
-    <g className={`tiles ${mapOverlay}Overlay`}>
+    <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}>
       {cavern.tiles.map((t, x, y) => {
         const fill = getFill(cavern, mapOverlay, t, x, y);
         const label = getLabel(cavern, mapOverlay, t, x, y);
@@ -152,7 +152,7 @@ export default function TilesPreview({
         return (
           <>
             <rect
-              className="tile"
+              className={styles.tile}
               fill={fill}
               x={x * SCALE}
               y={y * SCALE}
@@ -161,7 +161,7 @@ export default function TilesPreview({
             />
             {label && (
               <text
-                className="label"
+                className={styles.label}
                 x={(x + 0.5) * SCALE}
                 y={(y + 0.5) * SCALE}
               >

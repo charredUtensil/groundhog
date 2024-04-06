@@ -97,7 +97,7 @@ const FLOODED: readonly Architect<unknown>[] = [
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 5 &&
       isDeadEnd(plan) &&
-      intersectsOnly(plans, plan, Tile.WATER) &&
+      intersectsOnly(plans, plan, null) &&
       1,
   },
   {
@@ -115,7 +115,7 @@ const FLOODED: readonly Architect<unknown>[] = [
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 5 &&
       isDeadEnd(plan) &&
-      intersectsOnly(plans, plan, Tile.LAVA) &&
+      intersectsOnly(plans, plan, null) &&
       1,
   },
 ];

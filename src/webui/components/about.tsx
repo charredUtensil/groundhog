@@ -1,8 +1,8 @@
 import React from "react";
-import "./about.scss";
+import styles from "./about.module.scss";
 
 const About = () => (
-  <div className="about">
+  <div className={styles.about}>
     <div>
       <h2>groundHog</h2>
       <p>By Christopher Dollard (aka charredUtensil)</p>

@@ -11,8 +11,8 @@ import {
   PhraseGraph,
 } from "../../../core/lore/builder";
 import { Lore, State } from "../../../core/lore/lore";
-import "./style.scss";
 import { Point } from "../../../core/common/geometry";
+import styles from "./style.module.scss"
 
 // Idea: merge lanes based on "possible nexts"
 
@@ -88,14 +88,14 @@ export default function PhraseGraphPreview<T extends State>({
       const [x2, y2] = getCoord(a);
       const d = `M${x1} ${y1} C${x1} ${y1 + PHRASE_HEIGHT / 2} ${x2} ${y1 + PHRASE_HEIGHT / 2} ${x2} ${y1 + PHRASE_HEIGHT} L${x2} ${y2}`;
       const onscreen = phrase.id >= start && a.id <= end;
-      const classes = ["link", onscreen ? "onscreen" : "offscreen"];
+      const classes = [styles.link, onscreen ? styles.onscreen : styles.offscreen];
       const isIncluded = included[phrase.id]?.next === a.id;
       if (isIncluded) {
-        classes.push("included");
+        classes.push(styles.included);
       }
       const isSelected = reachableFromSelected[phrase.id]?.[a.id];
       if (isSelected) {
-        classes.push("selected");
+        classes.push(styles.selected);
       }
       return {
         z: isSelected ? 3 : isIncluded ? 2 : onscreen ? 1 : 0,
@@ -105,33 +105,33 @@ export default function PhraseGraphPreview<T extends State>({
   }
 
   function getPhraseClass<T extends State>(phrase: Phrase<T>) {
-    const r = ["phrase"];
+    const r = [styles.phrase];
     if (phrase.id % 2 === 0) {
-      r.push("even");
+      r.push(styles.even);
     }
     if (phrase.text.length > 0) {
-      r.push("text");
+      r.push(styles.text);
     }
     if (phrase.requires) {
-      r.push("requires");
+      r.push(styles.requires);
       if (phrase.requires === "start") {
-        r.push("start");
+        r.push(styles.start);
       } else if (phrase.requires === "end") {
-        r.push("end");
+        r.push(styles.end);
       } else if (lore && phrase.requires in lore.state) {
         r.push(
-          lore.state[phrase.requires as keyof State] ? "present" : "notPresent",
+          lore.state[phrase.requires as keyof State] ? styles.present : styles.notPresent,
         );
       }
     }
     if (included[phrase.id]) {
-      r.push("included");
+      r.push(styles.included);
     }
     if (selected === phrase.id) {
-      r.push("selected");
+      r.push(styles.selected);
     }
     if (reachableFromSelected[phrase.id]) {
-      r.push("reachableFromSelected");
+      r.push(styles.reachableFromSelected);
     }
     return r.join(" ");
   }
@@ -170,13 +170,13 @@ export default function PhraseGraphPreview<T extends State>({
 
   return (
     <div
-      className="pg"
+      className={styles.pg}
       ref={nodesRef}
       onScroll={update}
       style={{ "--phrase-height": `${PHRASE_HEIGHT}px` } as CSSProperties}
     >
       <svg
-        className="graph"
+        className={styles.graph}
         style={{ width: SVG_WIDTH, height: SVG_HEIGHT }}
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
         xmlns="http://www.w3.org/2000/svg"
@@ -192,19 +192,19 @@ export default function PhraseGraphPreview<T extends State>({
           );
         })}
       </svg>
-      <div className="list">
+      <div className={styles.list}>
         {pg.phrases.map((phrase) => (
           <a role="button" onClick={() => select(phrase)}>
             <div className={getPhraseClass(phrase)}>
               {phrase.text.map((text, i) => (
                 <div
-                  className={`text ${included[phrase.id]?.text === i ? "included" : ""}`}
+                  className={`${styles.text} ${included[phrase.id]?.text === i ? styles.included : ""}`}
                 >
                   {text}
                 </div>
               ))}
               {phrase.requires ? (
-                <div className="requires">{phrase.requires}</div>
+                <div className={styles.requires}>{phrase.requires}</div>
               ) : (
                 <></>
               )}

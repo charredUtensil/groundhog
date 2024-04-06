@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import PREMISE from "../../../core/lore/graphs/premise";
 import PhraseGraphPreview from "./phrase_graph";
-import "./style.scss";
 import ORDERS from "../../../core/lore/graphs/orders";
 import { FOUND_HOARD } from "../../../core/lore/graphs/events";
 import { Cavern } from "../../../core/models/cavern";
 import { FAILURE, SUCCESS } from "../../../core/lore/graphs/conclusions";
+import styles from "./style.module.scss"
 
 export default function LorePreview({ cavern }: { cavern: Cavern | null }) {
   const [activeTab, setActiveTab] = useState(0);
@@ -17,18 +17,18 @@ export default function LorePreview({ cavern }: { cavern: Cavern | null }) {
     { name: "Found Hoard", pg: FOUND_HOARD, results: undefined },
   ];
   return (
-    <div className="lorePreview">
-      <div className="tabs">
+    <div className={styles.lorePreview}>
+      <div className={styles.tabs}>
         {tabs.map(({ name }, i) => (
           <button
-            className={`tab ${i === activeTab ? "active" : ""}`}
+            className={`${styles.tab} ${i === activeTab ? styles.active : ""}`}
             onClick={() => setActiveTab(i)}
           >
             {name}
           </button>
         ))}
       </div>
-      <div className="pgWrapper">
+      <div className={styles.pgWrapper}>
         <PhraseGraphPreview
           lore={cavern?.lore}
           pg={tabs[activeTab].pg}

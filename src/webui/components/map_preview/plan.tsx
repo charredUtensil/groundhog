@@ -1,8 +1,7 @@
 import React from "react";
 import { Plan } from "../../../core/models/plan";
 import PathPreview from "./path";
-import { Path } from "../../../core/models/path";
-import "./style.scss";
+import styles from "./style.module.scss"
 
 const SCALE = 6;
 
@@ -23,16 +22,16 @@ function caveWithOneBaseplate(plan: Partial<Plan>) {
   return (
     <>
       <circle
-        className="bg"
+        className={styles.bg}
         cx={x * SCALE}
         cy={y * SCALE}
         r={drawRadius(plan.pearlRadius!) * SCALE}
       />
-      <text className="fg" x={x * SCALE} y={y * SCALE}>
+      <text className={styles.fg} x={x * SCALE} y={y * SCALE}>
         {plan.id}
       </text>
       {plan.architect && (
-        <text className="fg architect" x={x * SCALE} y={y * SCALE}>
+        <text className={`${styles.fg} ${styles.architect}`} x={x * SCALE} y={y * SCALE}>
           {plan.architect.name}
         </text>
       )}
@@ -95,12 +94,12 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
   const [x0, y0] = plan.path!.baseplates[0].center;
   return (
     <>
-      <path className="bg" d={dWrapping(a, b)} />
-      <text className="fg id" x={x0 * SCALE} y={y0 * SCALE}>
+      <path className={styles.bg} d={dWrapping(a, b)} />
+      <text className={`${styles.fg} ${styles.id}`} x={x0 * SCALE} y={y0 * SCALE}>
         {plan.id}
       </text>
       {plan.architect && (
-        <text className="fg architect" x={x0 * SCALE} y={y0 * SCALE}>
+        <text className={`${styles.fg} ${styles.architect}`} x={x0 * SCALE} y={y0 * SCALE}>
           {plan.architect.name}
         </text>
       )}
@@ -120,18 +119,18 @@ function hall(plan: Partial<Plan>) {
     <>
       <path
         id={`plan${plan.id}`}
-        className="bg"
+        className={styles.bg}
         d={d}
         fill="none"
         strokeWidth={drawRadius(plan.pearlRadius!) * 2 * SCALE}
       />
-      <text className="fg">
+      <text className={styles.fg}>
         <textPath href={`#plan${plan.id}`} startOffset="50%">
           {plan.id}
         </textPath>
       </text>
       {plan.architect && (
-        <text className="fg architect">
+        <text className={`${styles.fg} ${styles.architect}`}>
           <textPath href={`#plan${plan.id}`} startOffset="50%">
             {plan.architect.name}
           </textPath>

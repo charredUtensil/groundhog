@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid } from "../../../core/common/grid";
-import "./style.scss";
+import styles from "./style.module.scss"
 
 const SCALE = 6;
 
@@ -14,10 +14,10 @@ export default function ResourcePreview({
   return (
     <>
       {ore && (
-        <g className="ore">
+        <g className={styles.ore}>
           {ore.map((n, x, y) => (
             <circle
-              className="ring"
+              className={styles.ring}
               cx={(x + 0.25) * SCALE}
               cy={(y + 0.25) * SCALE}
               r={(n * SCALE) / 4}
@@ -26,10 +26,10 @@ export default function ResourcePreview({
         </g>
       )}
       {crystals && (
-        <g className="crystals">
+        <g className={styles.crystals}>
           {crystals.map((n, x, y) => (
             <circle
-              className="ring"
+              className={styles.ring}
               cx={(x + 0.75) * SCALE}
               cy={(y + 0.75) * SCALE}
               r={(n * SCALE) / 4}

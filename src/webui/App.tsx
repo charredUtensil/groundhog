@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import "./App.scss";
 import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor";
 import { Cavern } from "../core/models/cavern";
@@ -9,6 +8,7 @@ import { CAVERN_TF } from "../core/transformers";
 import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
 import About from "./components/about";
+import styles from "./App.module.scss";
 
 const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
   { of: "tiles", label: "Tiles" },
@@ -95,12 +95,12 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <div className="settingsPanel">
+    <div className={styles.App}>
+      <div className={styles.settingsPanel}>
         <h1>Settings</h1>
         <CavernContextInput onChanged={setInitialContext} />
       </div>
-      <div className="mainPanel">
+      <div className={styles.mainPanel}>
         {cavern && (
           <CavernPreview
             cavern={cavern}
@@ -110,14 +110,14 @@ function App() {
             showPearls={showPearls}
           />
         )}
-        <div className="controls">
+        <div className={styles.controls}>
           {next && !autoGenerate && <button onClick={step}>step</button>}
           <button onClick={playPause}>
             {autoGenerate ? "pause" : "play_arrow"}
           </button>
           {cavern?.serialized && (
             <a
-              className="button download"
+              className={`${styles.button} ${styles.download}`}
               href={getDownloadLink(cavern.serialized)}
               download={`${cavern.levelName ?? "groundhog"}.dat`}
             >
@@ -128,7 +128,7 @@ function App() {
         {mapOverlay === "lore" && <LorePreview cavern={cavern} />}
         {mapOverlay === "about" && <About />}
       </div>
-      <div className="vizOptsPanel">
+      <div className={styles.vizOptsPanel}>
         <h1>Show</h1>
         <button
           className={`outlines ${showOutlines ? "active" : "inactive"}`}

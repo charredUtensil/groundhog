@@ -1,6 +1,6 @@
 import React from "react";
 import { Path } from "../../../core/models/path";
-import "./style.scss";
+import styles from "./style.module.scss"
 
 const SCALE = 6;
 
@@ -12,7 +12,7 @@ export default function PathPreview({ path }: { path: Path }) {
     })
     .join(" ");
   return (
-    <g key={`path${path.id}`} className={`path ${path.kind}Kind`}>
+    <g key={`path${path.id}`} className={`${styles.path} ${styles[`${path.kind}Kind`]}`}>
       <path id={`path${path.id}`} d={d} fill="none" />
       <text>
         <textPath href={`#path${path.id}`} startOffset="25%">
