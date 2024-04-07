@@ -106,9 +106,7 @@ export default function PhraseGraphPreview<T extends State>({
 
   function getPhraseClass<T extends State>(phrase: Phrase<T>) {
     const r = [styles.phrase];
-    if (phrase.id % 2 === 0) {
-      r.push(styles.even);
-    }
+    r.push(phrase.id % 2 === 0 ? styles.even : styles.odd);
     if (phrase.text.length > 0) {
       r.push(styles.text);
     }

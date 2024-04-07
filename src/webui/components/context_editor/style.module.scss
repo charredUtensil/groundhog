@@ -1,19 +1,20 @@
 .contextInput {
-  padding: 0 8px;
+  padding: 48px 8px 0;
 
   .seed {
-    height: 36px;
-    font-family: "Outfit";
+    box-sizing: border-box;
+    border: 1px solid var(--palette-lines);
     font-size: 24px;
+    height: 36px;
     margin: 0;
     padding: 0;
-    border: 1px solid #999;
-    text-align: center;
-    background: none;
-    color: white;
-    box-sizing: border-box;
-    border-radius: 8px;
     width: 100%;
+    
+    border-radius: 8px;
+    background: none;
+    color: var(--palette-fg);
+    font-family: "Outfit";
+    text-align: center;
   }
 
   .inputRow {

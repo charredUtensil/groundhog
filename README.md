@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+[groundHog](https://en.wikipedia.org/wiki/Groundhog_Day_(film))
+is a procedural map generator for
+[Manic Miners](https://manicminers.baraklava.com/)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Running
 
-## Available Scripts
+For most people, just use the web application
+[hosted on GitHub Pages](https://charredutensil.github.io/groundhog/).
 
-In the project directory, you can run:
+If you have a clever idea for getting the files from the Downloads folder
+to the Manic Miners level folder, please let me know.
 
-### `npm start`
+To run locally, run `yarn install` and `yarn start`, which will launch the
+React application at `localhost:3000`. My dev machine is Linux so I have
+no idea if this works on Windows.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Testing
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Run Jest tests with `npx yarn test`. Some of the tests are "goldens" that
+test what a cavern serializes to. These can be automatically updated by
+running `UPDATE_GOLDENS=1 npx yarn test`.
 
-### `npm test`
+# Deploying
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Deploy the current revision to GitHub Pages with
+`npx yarn deploy -m 'deploy message'`. I eventually plan to migrate this
+to a GitHub Action. 
 
-### `npm run build`
+# Contributing
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+I am on the Manic Miners discord. Ping me if you're interested in contributing
+and I can offer advice and/or suggestions.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# FAQ
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Why?
 
-### `npm run eject`
+Rock Raiders is a rather unique game from 1999. It plays kind of like an RTS,
+but with a heavy focus on economy and logistics. I enjoyed it tremendously as
+a kid and I'm enjoying Baraklava's remake now. I've also always been fascinated
+by algorithmically generated content. Many RTS games have some kind of random
+map generator. I dabbled with scripting one in Age of Empires 2 a very long
+time ago, but didn't get far. I've also loved every game I played that came
+with a level editor, from
+[Logic Quest 3D](https://www.youtube.com/watch?v=605CeYpos1U&list=PL7A1EE48A7DD84B65&ab_channel=maxmouse713)
+to [Portal](https://www.moddb.com/mods/gamma-energy).
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+After playing with the level editor in Manic Miners a few times, I realized I
+had a few interesting ideas for set pieces but not what to do with the rest of
+the cavern - and now here we are.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Which AI does this use?
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+All of the caverns are procedurally generated using an approach that
+would have been feasible back in 1999. Procedural generation means there are a
+series of specific rules that determine where everything in the level gets
+placed, and while there is some randomness within those rules, the rules
+themselves are hand-crafted.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+A modern "AI" would be somewhat unhelpful in this situation. There aren't
+nearly enough Manic Miners levels in existence to train the AI on what makes a
+level *winnable*, and the system requirements would far exceed Manic Miners
+itself, even on max graphics settings.
 
-## Learn More
+I have been using Gemini to do some limited code generation for tests and for
+translating modules from [Hognose](https://github.com/charredUtensil/hognose).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Can I use this as a template to build my custom Manic Miners level on?
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Sure! I'd appreciate it if you included a link to this GitHub page.
 
-### Code Splitting
+## Can groundHog make a level that...
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Add an issue and maybe! Generally speaking, the kind of things that would be
+easier to add would be caves with specific things in them - like
 
-### Analyzing the Bundle Size
+## Can I tweak the level generation?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Sure! I'm hoping to eventually add parameters for everything in the
+CavernContext object to the UI, but you can tweak these locally.
 
-### Making a Progressive Web App
+## Can you give me some cool seeds to play?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Not yet. As of this writing I haven't actually tested that any of the levels
+load in Manic Miners.
 
-### Advanced Configuration
+## Were any of these Qs actually FA'ed?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+No.

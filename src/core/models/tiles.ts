@@ -1,55 +1,49 @@
-class _Tile<ID extends number> {
-  readonly id: ID;
-  readonly isWall: boolean;
-  readonly passableByMiner: boolean;
-  readonly crystalYield: number;
-  readonly oreYield: number;
-  readonly inspectColor: `#${string}`;
-  constructor(
-    id: ID,
-    isWall: boolean,
-    passableByMiner: boolean,
-    crystalYield: number,
-    oreYield: number,
-    inspectColor: `#${string}`,
-  ) {
-    this.id = id;
-    this.isWall = isWall;
-    this.passableByMiner = passableByMiner;
-    this.crystalYield = crystalYield;
-    this.oreYield = oreYield;
-    this.inspectColor = inspectColor;
-  }
-}
-
 // Where possible, use colors from
 // https://github.com/trigger-segfault/legorockraiders-analysis/blob/main/docs/LegoRR_Colors.h
 
 // prettier-ignore
-export const Tile = {
-  FLOOR:              new _Tile< 1>( 1, false,  true, 0, 0, "#2D004B"),
-  LAVA:               new _Tile< 6>( 6, false, false, 0, 0, "#FF5A00"),
-  WATER:              new _Tile<11>(11, false, false, 0, 0, "#002FB5"),
-  DIRT:               new _Tile<26>(26,  true,  true, 0, 4, "#AD59EF"),
-  LOOSE_ROCK:         new _Tile<30>(30,  true,  true, 0, 4, "#943CC3"),
-  HARD_ROCK:          new _Tile<34>(34,  true,  true, 0, 4, "#731CAD"),
-  SOLID_ROCK:         new _Tile<38>(38,  true, false, 0, 0, "#800080"),
-  RUBBLE_1:           new _Tile< 2>( 2, false,  true, 0, 1, "#180032"),
-  RUBBLE_2:           new _Tile< 3>( 3, false,  true, 0, 2, "#180032"),
-  RUBBLE_3:           new _Tile< 4>( 4, false,  true, 0, 3, "#180032"),
-  RUBBLE_4:           new _Tile< 5>( 5, false,  true, 0, 4, "#180032"),
-  SLUG_HOLE:          new _Tile<12>(12, false,  true, 0, 0, "#BD2020"),
-  FOUNDATION:         new _Tile<14>(14, false,  true, 0, 0, "#BFBFBF"),
-  POWER_PATH:         new _Tile<24>(24, false,  true, 0, 0, "#9D9B00"),
-  LANDSLIDE_RUBBLE_4: new _Tile<60>(60, false,  true, 0, 0, "#180032"),
-  LANDSLIDE_RUBBLE_3: new _Tile<61>(61, false,  true, 0, 0, "#180032"),
-  LANDSLIDE_RUBBLE_2: new _Tile<62>(62, false,  true, 0, 0, "#180032"),
-  LANDSLIDE_RUBBLE_1: new _Tile<63>(63, false,  true, 0, 0, "#180032"),
-  CRYSTAL_SEAM:       new _Tile<42>(42,  true,  true, 4, 4, "#B5FF00"),
-  ORE_SEAM:           new _Tile<46>(46,  true,  true, 0, 8, "#9C4108"),
-  RECHARGE_SEAM:      new _Tile<50>(50,  true, false, 0, 0, "#FFFF00"),
-};
+const TILES = {
+  FLOOR:              {id:  1, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#2D004B"},
+  LAVA:               {id:  6, isWall: false, passableByMiner: false, crystalYield: 0, oreYield: 0, inspectColor: "#FF5A00"},
+  WATER:              {id: 11, isWall: false, passableByMiner: false, crystalYield: 0, oreYield: 0, inspectColor: "#002FB5"},
+  DIRT:               {id: 26, isWall:  true, passableByMiner:  true, crystalYield: 0, oreYield: 4, inspectColor: "#AD59EF"},
+  LOOSE_ROCK:         {id: 30, isWall:  true, passableByMiner:  true, crystalYield: 0, oreYield: 4, inspectColor: "#943CC3"},
+  HARD_ROCK:          {id: 34, isWall:  true, passableByMiner:  true, crystalYield: 0, oreYield: 4, inspectColor: "#731CAD"},
+  SOLID_ROCK:         {id: 38, isWall:  true, passableByMiner: false, crystalYield: 0, oreYield: 0, inspectColor: "#800080"},
+  RUBBLE_1:           {id:  2, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 1, inspectColor: "#180032"},
+  RUBBLE_2:           {id:  3, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 2, inspectColor: "#180032"},
+  RUBBLE_3:           {id:  4, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 3, inspectColor: "#180032"},
+  RUBBLE_4:           {id:  5, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 4, inspectColor: "#180032"},
+  SLUG_HOLE:          {id: 12, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#BD2020"},
+  FOUNDATION:         {id: 14, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#BFBFBF"},
+  POWER_PATH:         {id: 24, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#9D9B00"},
+  LANDSLIDE_RUBBLE_4: {id: 60, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#180032"},
+  LANDSLIDE_RUBBLE_3: {id: 61, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#180032"},
+  LANDSLIDE_RUBBLE_2: {id: 62, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#180032"},
+  LANDSLIDE_RUBBLE_1: {id: 63, isWall: false, passableByMiner:  true, crystalYield: 0, oreYield: 0, inspectColor: "#180032"},
+  CRYSTAL_SEAM:       {id: 42, isWall:  true, passableByMiner:  true, crystalYield: 4, oreYield: 4, inspectColor: "#B5FF00"},
+  ORE_SEAM:           {id: 46, isWall:  true, passableByMiner:  true, crystalYield: 0, oreYield: 8, inspectColor: "#9C4108"},
+  RECHARGE_SEAM:      {id: 50, isWall:  true, passableByMiner: false, crystalYield: 0, oreYield: 0, inspectColor: "#FFFF00"},
+} as const;
 
-export type Tile = _Tile<number>;
-export type RoughTile = Tile & { id: 1 | 6 | 11 | 26 | 30 | 34 | 38 };
-export type FluidType = (Tile & { id: 6 | 11 }) | null;
+export const Tile = TILES
+export type Tile = (typeof TILES)[keyof typeof TILES];
+
+export type RoughTile = (
+  | typeof TILES.FLOOR
+  | typeof TILES.LAVA
+  | typeof TILES.WATER
+  | typeof TILES.DIRT
+  | typeof TILES.LOOSE_ROCK
+  | typeof TILES.HARD_ROCK
+  | typeof TILES.SOLID_ROCK
+);
+export type FluidType = typeof TILES.LAVA | typeof TILES.WATER | null;
+
+export const TILE_STYLE_VARS = (() => {
+  const r: {[K: string]: string} = {};
+  (Object.keys(TILES) as (keyof typeof TILES)[]).forEach(k => {
+    r[`--palette-tile-${TILES[k].id}`] = TILES[k].inspectColor
+  });
+  return r
+})()

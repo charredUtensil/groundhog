@@ -73,17 +73,18 @@ export function sprinkleOre(
 export function bidsForOuterPearl(args: {
   cavern: RoughPlasticCavern;
   plan: Plan;
+  tiles: Grid<Tile>;
 }): { item: Point; bid: number }[] {
   return args.plan.outerPearl.flatMap((layer) =>
     layer
       .map((item) => {
-        const tile = args.cavern.tiles.get(...item) ?? Tile.SOLID_ROCK;
+        const tile = args.tiles.get(...item) ?? Tile.SOLID_ROCK;
         if (tile === Tile.SOLID_ROCK) {
           let rechargeSeamCount = 0;
           let solidRockCount = 0;
           for (const offset of NSEW) {
             const neighbor =
-              args.cavern.tiles.get(...offsetBy(item, offset)) ??
+              args.tiles.get(...offsetBy(item, offset)) ??
               Tile.SOLID_ROCK;
             if (neighbor === Tile.RECHARGE_SEAM) {
               rechargeSeamCount++;

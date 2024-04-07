@@ -1,47 +1,57 @@
 .lorePreview {
   position: absolute;
-  left: 48px;
-  top: 48px;
-  right: 48px;
-  bottom: 48px;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 
   --color-bg: #333333;
-  --color-bg-alt: #222222;
-  --color-fg: #69d426;
-  --color-offscreen: #397513;
-  --color-included: #9999ff;
-  --color-requires: #ecb724;
+  --color-bg-odd: #ffffff11;
+  --color-fg: #a0a0a0;
+  --color-offscreen: #727272;
+  --color-included: var(--palette-brand);
   --color-selected: white;
 
   --tab-height: 24px;
 
   .tabs {
+    position: absolute;
+    top: 0;
     height: var(--tab-height);
+    z-index: 1;
+
     .tab {
+      position: relative;
+      top: -4px;
       height: var(--tab-height);
-      background: #397513;
-      color: white;
-      border: none;
       box-sizing: border-box;
-      font-family: "Russo One";
+      border: 1px solid var(--palette-lines);
+      border-top: none;
+
+      color: var(--palette-fg);
+      background: var(--palette-bg);
+      font-family: var(--font-body);
       font-weight: normal;
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
+      line-height: calc(var(--tab-height) - 2px);
+
       &.active {
-        background: white;
-        color: black;
+        top: 0;
+        background: var(--palette-fg);
+        color: var(--palette-bg);
       }
     }
   }
 
   .pgWrapper {
     position: absolute;
-    padding: 12px;
     left: 0;
-    top: var(--tab-height);
+    top: 0;
     right: 0;
     bottom: 0;
-    background: var(--color-bg);
+    padding: 12px;
+
+    background: var(--palette-bg);
+    z-index: 0;
 
     .pg {
       position: absolute;
@@ -49,12 +59,14 @@
       top: 0;
       right: 0;
       bottom: 0;
+      padding-top: var(--tab-height);
       overflow-x: hidden;
       overflow-y: scroll;
+      scrollbar-color: var(--palette-lines) transparent;
 
       .graph {
         position: absolute;
-        top: 0;
+        top: var(--tab-height);
         left: 0;
         z-index: 1;
         pointer-events: none;
@@ -109,8 +121,8 @@
           column-gap: 24px;
           align-items: center;
 
-          &.even {
-            background: var(--color-bg-alt);
+          &.odd {
+            background: var(--color-bg-odd);
           }
 
           &.notPresent {
@@ -118,7 +130,8 @@
           }
 
           &.requires {
-            color: var(--color-requires);
+            font-family: var(--font-body);
+            font-size: 14px;
           }
 
           &.selected {

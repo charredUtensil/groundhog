@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { CavernContext, DiceBox } from "../core/common";
+import { Biome, CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor";
 import { Cavern } from "../core/models/cavern";
 import CavernPreview, { MapOverlay } from "./components/map_preview";
@@ -9,6 +9,7 @@ import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
 import About from "./components/about";
 import styles from "./App.module.scss";
+import { TILE_STYLE_VARS } from "../core/models/tiles";
 
 const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
   { of: "tiles", label: "Tiles" },
@@ -30,6 +31,7 @@ function App() {
   const [initialContext, setInitialContext] = useState<CavernContext | null>(
     null,
   );
+  const [biome, setBiome] = useState<Biome | null>(null);
   const [cavern, setCavern] = useState<Cavern | null>(null);
   const [next, setNext] = useState<(() => TransformResult<Cavern>) | null>(
     null,
@@ -43,9 +45,20 @@ function App() {
   const [showPearls, setShowPearls] = useState(false);
 
   useEffect(() => {
+    setBiome(cavern?.context.biome || initialContext?.biome || null)
+  }, [cavern, initialContext])
+
+  useEffect(() => {
     setCavern(null);
     setCavernError(null);
-    setNext(() => (initialContext ? init : null));
+    setNext(() => (initialContext ? () => {
+      const dice = new DiceBox(initialContext!.seed);
+      const cavern = {
+        dice,
+        context: { ...initialContext!, logger: { info: () => {} } },
+      };
+      return CAVERN_TF.first(cavern);
+    } : null));
   }, [initialContext]);
 
   useEffect(() => {
@@ -71,15 +84,6 @@ function App() {
     }
   }
 
-  function init() {
-    const dice = new DiceBox(initialContext!.seed);
-    const cavern = {
-      dice,
-      context: { ...initialContext!, logger: { info: () => {} } },
-    };
-    return CAVERN_TF.first(cavern);
-  }
-
   function step() {
     try {
       const r = next!();
@@ -95,9 +99,11 @@ function App() {
   }
 
   return (
-    <div className={styles.App}>
+    <div 
+      className={`${styles.App} ${styles[`${biome}Biome`]}`}
+      style={TILE_STYLE_VARS}
+    >
       <div className={styles.settingsPanel}>
-        <h1>Settings</h1>
         <CavernContextInput onChanged={setInitialContext} />
       </div>
       <div className={styles.mainPanel}>
@@ -131,20 +137,20 @@ function App() {
       <div className={styles.vizOptsPanel}>
         <h1>Show</h1>
         <button
-          className={`outlines ${showOutlines ? "active" : "inactive"}`}
+          className={showOutlines ? styles.active : styles.inactive}
           onClick={() => setShowOutlines((v) => !v)}
         >
           Outlines
         </button>
         <button
-          className={`pearls ${showPearls ? "active" : "inactive"}`}
+          className={showPearls ? styles.active : styles.inactive}
           onClick={() => setShowPearls((v) => !v)}
         >
           Pearls
         </button>
         {MAP_OVERLAY_BUTTONS.map(({ of, label }) => (
           <button
-            className={`tiles ${mapOverlay === of ? "active" : "inactive"}`}
+            className={mapOverlay === of ? styles.active : styles.inactive}
             onClick={() => setMapOverlay((v) => (v === of ? null : of))}
           >
             {label}

@@ -6,9 +6,9 @@ import styles from "./style.module.scss"
 const SCALE = 6;
 
 function getGClassName(plan: Partial<Plan>) {
-  const r = ["plan"];
-  plan.kind && r.push(`${plan.kind}Kind`);
-  plan.fluid && r.push(`fluid${plan.fluid.id}`);
+  const r = [styles.plan];
+  plan.kind && r.push(styles[`${plan.kind}Kind`]);
+  plan.fluid && r.push(styles[`fluid${plan.fluid.id}`]);
   plan.hasErosion && r.push("hasErosion");
   return r.join(" ");
 }

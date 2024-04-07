@@ -8,11 +8,11 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: #03cadf;
-  background: #121212;
+  background: var(--palette-bg);
+  color: var(--palette-brand);
   font-family: "Outfit";
 
   a {
-    color: white;
+    color: var(--palette-fg);
   }
 }
