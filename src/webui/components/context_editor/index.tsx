@@ -36,9 +36,13 @@ export function CavernContextInput({
   ) {
     const r = { ...context };
     if (value === undefined) {
-      delete r[key];
+      if (key in r) {
+        delete r[key];
+      }
     } else {
-      r[key] = value;
+      if (r[key] !== value) {
+        r[key] = value;
+      }
     }
     setContext(r);
   }
@@ -213,6 +217,7 @@ export function CavernContextInput({
               "monsterSpawnRate",
             ] as const).map((of) => (
               <CurveSliders
+                key={of}
                 of={of}
                 min={-0.5}
                 max={1.5}
@@ -241,6 +246,7 @@ export function CavernContextInput({
               "hallHasLandslidesChance",
             ] as const).map((of) => (
               <Slider
+                key={of}
                 of={of}
                 min={0}
                 max={1}

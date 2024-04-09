@@ -6,7 +6,6 @@ import {
   GEOLOGICAL_CENTER,
   MINING_LASER,
   POWER_STATION,
-  SUPER_TELEPORT,
   SUPPORT_STATION,
   TELEPORT_PAD,
   TOOL_STORE,
@@ -28,7 +27,11 @@ const T2_BUILDINGS = [
 ] as const;
 const T3_BUILDINGS = [MINING_LASER, MINING_LASER] as const;
 
-function getPlaceBuildings(): Architect<unknown>["placeBuildings"] {
+function getPlaceBuildings({
+  asRuin = false,
+  asSpawn = false,
+  discovered = false,
+}): Architect<unknown>["placeBuildings"] {
   return (args) => {
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
     let crystalBudget = rng.uniformInt({
@@ -47,10 +50,18 @@ function getPlaceBuildings(): Architect<unknown>["placeBuildings"] {
       if (crystalBudget > bt.crystals) {
         bq.push((pos) => bt.atTile(pos));
         crystalBudget -= bt.crystals;
+      } else {
+        break;
       }
     }
     const buildings = getBuildings({ from: 2, queue: bq }, args);
     buildings.forEach((b) => {
+      if (!asSpawn && b.template === TOOL_STORE) {
+        if (asRuin) {
+          b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.LANDSLIDE_RUBBLE_4))
+        }
+        return
+      }
       b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));
       args.buildings.push(b);
     });
@@ -72,23 +83,30 @@ function getPlaceBuildings(): Architect<unknown>["placeBuildings"] {
       }
     }
 
-    const [xt, yt] = buildings.reduce(
-      ([x, y], b) => [x + b.x, y + b.y],
-      [0, 0],
-    );
-    args.setCameraPosition(
-      position({
-        x: buildings[0].x,
-        y: buildings[0].y,
-        aimedAt: [xt / buildings.length, yt / buildings.length],
-        pitch: Math.PI / 4,
-      }),
-    );
+    if (discovered) {
+      args.openCaveFlags.set(...buildings[0].foundation[0], true)
+    }
+
+    if (asSpawn) {
+      const [xt, yt] = buildings.reduce(
+        ([x, y], b) => [x + b.x, y + b.y],
+        [0, 0],
+      );
+      args.setCameraPosition(
+        position({
+          x: buildings[0].x,
+          y: buildings[0].y,
+          aimedAt: [xt / buildings.length, yt / buildings.length],
+          pitch: Math.PI / 4,
+        }),
+      );
+    }
   };
 }
 
 const BASE: PartialArchitect<unknown> &
-  Pick<Architect<unknown>, "rough" | "roughExtent"> = {
+  Pick<Architect<unknown>, "rough" | "roughExtent"> &
+  {isHq: true} = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
     { of: Rough.ALWAYS_FLOOR, grow: 2 },
@@ -99,13 +117,30 @@ const BASE: PartialArchitect<unknown> &
   ),
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 10,
   placeRechargeSeam: getPlaceRechargeSeams(1),
+  isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly Architect<unknown>[] = [
+export const ESTABLISHED_HQ: readonly (Architect<unknown> & {isHq: true, isRuin: boolean})[] = [
   {
     name: "Established HQ Spawn",
     ...BASE,
-    placeBuildings: getPlaceBuildings(),
+    crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 16,
+    placeBuildings: getPlaceBuildings({asSpawn: true, discovered: true}),
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 1,
+    isRuin: false,
+  },
+  {
+    name: "Find Established HQ",
+    ...BASE,
+    crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 10,
+    placeBuildings: getPlaceBuildings({asSpawn: true, discovered: true}),
+    caveBid: ({ plan, hops, plans }) => (
+      !plan.fluid &&
+      plan.pearlRadius > 5 &&
+      hops <= 4 &&
+      !plans.some(p => 'architect' in p && 'isHq' in p.architect) &&
+      0.5
+    ),
+    isRuin: false,
   },
 ];
