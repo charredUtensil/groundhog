@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Biome,
   CavernContext,
   DiceBox,
   inferContextDefaults,
@@ -70,7 +69,7 @@ export function CavernContextInput({
           spellCheck={false}
         />
         <button className={styles.icon} onClick={() => update("seed", Math.floor(Math.random() * MAX_PLUS_ONE))}>
-          casino
+          ifl
         </button>
       </div>
       <div className={styles.inputRow}>
