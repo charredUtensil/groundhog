@@ -11,6 +11,8 @@ export type Curve = {
 export type CavernContext = {
   logger: Logger;
   seed: number;
+
+  hasOverrides: boolean;
   /**
    * Which biome this map is in.
    */
@@ -158,7 +160,7 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 
 export function inferContextDefaults(
   dice: DiceBox,
-  args: Partial<Omit<CavernContext, "seed">>,
+  args: Partial<Omit<CavernContext, "seed" | "hasOverrides">>,
 ): CavernContext {
   const r = {
     biome: dice
@@ -193,5 +195,6 @@ export function inferContextDefaults(
     crystalGoalRatio: 0.2,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
+    hasOverrides: Object.keys(args).length > 0,
   };
 }
