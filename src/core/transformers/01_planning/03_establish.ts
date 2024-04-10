@@ -32,12 +32,32 @@ function curved(curve: Curve, props: CurveProps): number {
   return curve.base + curve.hops * props.hops + curve.order * props.order;
 }
 
+function encourageDisable(
+  architects: readonly Architect<unknown>[],
+  cavern: PartialPlannedCavern<FloodedPlan>,
+) {
+  return architects
+    .filter(a => cavern.context.architects?.[a.name] !== 'disable')
+    .map(a => {
+      if (cavern.context.architects?.[a.name] === 'encourage') {
+        const r = {...a}
+        r.caveBid = (args) => !!a.caveBid?.(args) && 999999;
+        r.hallBid = (args) => !!a.hallBid?.(args) && 999999;
+        r.spawnBid = (args) => !!a.spawnBid?.(args) && 999999;
+        return r
+      }
+      return a
+    })
+}
+
 export default function establish(
   cavern: PartialPlannedCavern<FloodedPlan>,
 ): PartialPlannedCavern<EstablishedPlan> {
+  const architects = encourageDisable(ARCHITECTS, cavern)
+
   // Choose a spawn and an architect for that spawn.
   const spawn = cavern.dice.pickSpawn.weightedChoice(
-    ARCHITECTS.filter((architect) => architect.spawnBid).flatMap((architect) =>
+    architects.filter((architect) => architect.spawnBid).flatMap((architect) =>
       cavern.plans
         .filter((p) => p.kind === "cave")
         .map((plan) => ({
@@ -86,7 +106,7 @@ export default function establish(
     const architect =
       plan.architect ||
       cavern.dice.pickArchitect(plan.id).weightedChoice(
-        ARCHITECTS.map((architect) => {
+        architects.map((architect) => {
           const bid =
             plan.kind === "cave" ? architect.caveBid : architect.hallBid;
           return {

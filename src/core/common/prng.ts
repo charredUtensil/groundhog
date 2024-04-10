@@ -58,7 +58,7 @@ export class PseudorandomStream {
     const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
     let randomValue = this.uniform({ max: totalWeight });
 
-    for (const { bid, item } of bids) {
+    for (const { bid, item } of b) {
       randomValue -= bid;
       if (randomValue <= 0) {
         return item;

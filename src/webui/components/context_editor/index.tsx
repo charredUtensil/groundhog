@@ -7,6 +7,7 @@ import {
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
 import styles from "./style.module.scss";
 import { Choice, CurveSliders, Slider } from "./controls";
+import { ArchitectsInput } from "./architects";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
@@ -25,9 +26,7 @@ export function CavernContextInput({
 }: {
   onChanged: (v: CavernContext) => void;
 }) {
-  const [context, setContext] = useState<Partial<CavernContext>>({});
-  const [contextWithDefaults, setContextWithDefaults] =
-    useState<CavernContext>();
+  const [context, setContext] = useState<Partial<CavernContext> & Pick<CavernContext, 'seed'>>({seed: INITIAL_SEED});
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   function update<K extends keyof CavernContext>(
@@ -47,15 +46,9 @@ export function CavernContextInput({
     setContext(r);
   }
 
-  useEffect(() => {
-    setContextWithDefaults(
-      inferContextDefaults(new DiceBox(context.seed ?? INITIAL_SEED), context),
-    );
-  }, [context]);
+  const contextWithDefaults = inferContextDefaults(context)
 
-  useEffect(() => {
-    contextWithDefaults && onChanged(contextWithDefaults);
-  }, [contextWithDefaults]);
+  useEffect(() => onChanged(inferContextDefaults(context)), [context]);
 
   return (
     <div className={styles.contextInput}>
@@ -233,6 +226,12 @@ export function CavernContextInput({
             min={-1}
             max={5}
             step={0.25}
+            update={update}
+            context={context}
+            contextWithDefaults={contextWithDefaults}
+          />
+          <h2>Architects</h2>
+          <ArchitectsInput
             update={update}
             context={context}
             contextWithDefaults={contextWithDefaults}

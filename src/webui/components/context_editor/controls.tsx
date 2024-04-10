@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./style.module.scss"
 import { CavernContext, Curve } from "../../../core/common";
 
-type UpdateData = {
+export type UpdateData = {
   update: <K extends keyof CavernContext>(
     key: K,
     value: CavernContext[K] | undefined,

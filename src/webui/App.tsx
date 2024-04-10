@@ -67,11 +67,11 @@ function App() {
     }
   }, [next, autoGenerate]);
 
-  //useEffect(() => {
-  //  if (cavern && !next) {
-  //    console.log("Finished generating %o", cavern);
-  //  }
-  //}, [cavern, next]);
+  useEffect(() => {
+    if (cavern && !next) {
+      (window as any).lastCavern = cavern;
+    }
+  }, [cavern, next]);
 
   function playPause() {
     if (autoGenerate) {

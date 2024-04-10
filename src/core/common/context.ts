@@ -89,6 +89,7 @@ export type CavernContext = {
   monsterSpawnRate: Curve;
   /** How many monsters to spawn at a time in a cave, if monsters are enabled. */
   monsterWaveSize: Curve;
+  architects: {[key: string]: 'encourage' | 'disable'}
   /**
    * The chance each cave will have a recharge seam. Some caves (such as spawn)
    * will always have a recharge seam.
@@ -159,9 +160,9 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 }
 
 export function inferContextDefaults(
-  dice: DiceBox,
-  args: Partial<Omit<CavernContext, "seed" | "hasOverrides">>,
+  args: Partial<Omit<CavernContext, "hasOverrides">> & Pick<CavernContext, "seed">,
 ): CavernContext {
+  const dice = new DiceBox(args.seed)
   const r = {
     biome: dice
       .init(Die.biome)
@@ -173,7 +174,6 @@ export function inferContextDefaults(
   };
   return {
     logger: args.logger ?? ({} as Logger),
-    seed: dice.seed,
     baseplateMaxOblongness: 3,
     baseplateMaxRatioOfSize: 0.33,
     auxiliaryPathMinAngle: Math.PI / 4,
@@ -186,6 +186,7 @@ export function inferContextDefaults(
     hallOreRichness: { base: 0, hops: 0, order: 0 },
     monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
     monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
+    architects: {},
     caveHasRechargeSeamChance: { rock: 0.07, ice: 0.07, lava: 0.1 }[r.biome],
     hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
     caveHasLandslidesChance: 0.4,
