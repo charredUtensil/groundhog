@@ -1,5 +1,5 @@
 import Delaunator from "delaunator";
-import { Point, plotLine } from "../common/geometry";
+import { NORTH, Point, plotLine } from "../common/geometry";
 import { Architect } from "../models/architect";
 import {
   Building,
@@ -17,6 +17,10 @@ import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
 import { getPlaceRechargeSeams } from "./utils/resources";
+import { placeLandslides } from "./utils/hazards";
+
+const DESTROY_PATH_CHANCE = 0.62;
+const DESTROY_BUILDING_CHANCE = 0.45
 
 const T0_BUILDINGS = [TOOL_STORE] as const;
 const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
@@ -27,66 +31,113 @@ const T2_BUILDINGS = [
 ] as const;
 const T3_BUILDINGS = [MINING_LASER, MINING_LASER] as const;
 
+type Metadata = {
+  crystalsInBuildings: number
+}
+
+function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
+  return ({ cavern, plan }) => {
+    const rng = cavern.dice.prime(plan.id);
+    const crystalsInBuildings = rng.betaInt({a: 1, b: 1.75, min: 3, max: maxCrystals});
+    return { crystalsInBuildings };
+  }
+}
+
 function getPlaceBuildings({
   asRuin = false,
   asSpawn = false,
   discovered = false,
-}): Architect<unknown>["placeBuildings"] {
+  from = 2,
+}): Architect<Metadata>["placeBuildings"] {
   return (args) => {
+    // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
-    let crystalBudget = rng.uniformInt({
-      min: 3,
-      max: Math.max(10, args.plan.crystals / 3),
-    });
-
     const tq = [
       ...T0_BUILDINGS,
       ...rng.shuffle(T1_BUILDINGS),
       ...rng.shuffle(T2_BUILDINGS),
       ...rng.shuffle(T3_BUILDINGS),
     ];
+
+    // Choose which buildings will be created based on total crystal budget.
+    let crystalBudget = args.plan.metadata.crystalsInBuildings
     const bq: MakeBuildingFn[] = [];
     for (const bt of tq) {
-      if (crystalBudget > bt.crystals) {
-        bq.push((pos) => bt.atTile(pos));
-        crystalBudget -= bt.crystals;
-      } else {
+      if (crystalBudget < bt.crystals) {
         break;
       }
+      bq.push((pos) => bt.atTile(pos));
+      crystalBudget -= bt.crystals;
     }
-    const buildings = getBuildings({ from: 2, queue: bq }, args);
+
+    // Create and place the buildings.
+    const buildings = getBuildings({ from, queue: bq }, args);
+
+    // Return buildings that weren't created to the budget.
+    if (crystalBudget > 0) {
+      for (const fn of bq) {
+        const b = fn({x: 0, y: 0, facing: NORTH})
+        crystalBudget += b.template.crystals
+      }
+    }
+
+    // Place the buildings.
     buildings.forEach((b) => {
+      // Special case: Do not include the Tool Store unless this is spawn.
       if (!asSpawn && b.template === TOOL_STORE) {
         if (asRuin) {
           b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.LANDSLIDE_RUBBLE_4))
         }
         return
       }
+      // Randomly destroy some buildings if this is ruin.
+      if (asRuin && b.template !== TOOL_STORE && rng.chance(DESTROY_BUILDING_CHANCE)) {
+        b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.LANDSLIDE_RUBBLE_4))
+        args.crystals.set(
+          ...b.foundation[0],
+          (args.crystals.get(...b.foundation[0]) ?? 0) + b.template.crystals,
+        )
+        return
+      }
+      // Place the building itself and its foundation tiles.
       b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));
       args.buildings.push(b);
     });
 
+    // Place power path trails between the buildings.
     const getPorch: (b: Building) => Point = (b) =>
       b.foundation[b.foundation.length - 1];
-
-    const points = buildings.flatMap(getPorch);
-    const delaunay = new Delaunator(points);
-    for (let i = 0; i < delaunay.triangles.length; i++) {
-      if (i > delaunay.halfedges[i]) {
-        const source = buildings[delaunay.triangles[i]];
-        const dest = buildings[delaunay.triangles[i + (i % 3 === 2 ? -2 : 1)]];
-        for (const point of plotLine(getPorch(source), getPorch(dest))) {
-          if (args.tiles.get(...point) === Tile.FLOOR) {
+    const addPath = (source: Building, dest: Building) => {
+      for (const point of plotLine(getPorch(source), getPorch(dest))) {
+        if (args.tiles.get(...point) === Tile.FLOOR) {
+          if (asRuin && rng.chance(DESTROY_PATH_CHANCE)) {
+            args.tiles.set(...point, Tile.LANDSLIDE_RUBBLE_4);
+          } else {
             args.tiles.set(...point, Tile.POWER_PATH);
           }
         }
       }
     }
+    if (buildings.length > 2) {
+      const points = buildings.flatMap(getPorch);
+      const delaunay = new Delaunator(points);
+      for (let i = 0; i < delaunay.triangles.length; i++) {
+        if (i > delaunay.halfedges[i]) {
+          const source = buildings[delaunay.triangles[i]];
+          const dest = buildings[delaunay.triangles[i + (i % 3 === 2 ? -2 : 1)]];
+          addPath(source, dest)
+        }
+      }
+    } else if (buildings.length > 1) {
+      addPath(buildings[0], buildings[1])
+    }
 
+    // Place open cave flag if this is discovered.
     if (discovered) {
       args.openCaveFlags.set(...buildings[0].foundation[0], true)
     }
 
+    // Set initial camera if this is spawn.
     if (asSpawn) {
       const [xt, yt] = buildings.reduce(
         ([x, y], b) => [x + b.x, y + b.y],
@@ -101,11 +152,16 @@ function getPlaceBuildings({
         }),
       );
     }
+
+    // Some crystals remain that were not used.
+    if (crystalBudget > 0) {
+      // TODO: ?????
+    }
   };
 }
 
-const BASE: PartialArchitect<unknown> &
-  Pick<Architect<unknown>, "rough" | "roughExtent"> &
+const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
+  Pick<Architect<Metadata>, "rough" | "roughExtent"> &
   {isHq: true} = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
@@ -115,25 +171,34 @@ const BASE: PartialArchitect<unknown> &
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
     { of: Rough.HARD_ROCK, grow: 0.25 },
   ),
-  crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 10,
+  crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + plan.metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
   isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly (Architect<unknown> & {isHq: true, isRuin: boolean})[] = [
+export const ESTABLISHED_HQ: readonly (Architect<Metadata> & {isHq: true, isRuin: boolean})[] = [
   {
     name: "Established HQ Spawn",
     ...BASE,
-    crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 16,
+    prime: getPrime(10),
     placeBuildings: getPlaceBuildings({asSpawn: true, discovered: true}),
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 1,
+    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
     isRuin: false,
+  },
+  {
+    name: "Ruined HQ Spawn",
+    ...BASE,
+    prime: getPrime(12),
+    placeBuildings: getPlaceBuildings({asRuin: true, asSpawn: true, discovered: true, from: 3}),
+    placeLandslides: (args) => placeLandslides({min: 15, max: 100}, args),
+    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
+    isRuin: true,
   },
   {
     name: "Find Established HQ",
     ...BASE,
-    crystals: ({ plan }) => plan.crystalRichness * plan.perimeter + 10,
-    placeBuildings: getPlaceBuildings({asSpawn: true, discovered: true}),
+    prime: getPrime(15),
+    placeBuildings: getPlaceBuildings({}),
     caveBid: ({ plan, hops, plans }) => (
       !plan.fluid &&
       plan.pearlRadius > 5 &&
@@ -142,5 +207,20 @@ export const ESTABLISHED_HQ: readonly (Architect<unknown> & {isHq: true, isRuin:
       0.5
     ),
     isRuin: false,
+  },
+  {
+    name: "Find Ruined HQ",
+    ...BASE,
+    prime: getPrime(15),
+    placeBuildings: getPlaceBuildings({asRuin: true, from: 3}),
+    placeLandslides: (args) => placeLandslides({min: 15, max: 100}, args),
+    caveBid: ({ plan, hops, plans }) => (
+      !plan.fluid &&
+      plan.pearlRadius > 6 &&
+      hops <= 4 &&
+      !plans.some(p => 'architect' in p && 'isHq' in p.architect) &&
+      0.5
+    ),
+    isRuin: true,
   },
 ];
