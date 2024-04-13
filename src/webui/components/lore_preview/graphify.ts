@@ -18,7 +18,10 @@ export function graphify<T extends {
   readonly before: readonly T[],
   readonly after: readonly T[],
 }>(nodes: readonly T[]): Graph<T> {
-  const lanes: (true[] & {readonly y0: number} | undefined)[] = []
+  const lanes: ({
+    readonly destinations: true[],
+    readonly y0: number
+  } | undefined)[] = []
 
   const positions: {readonly node: T, readonly x: number, readonly y: number}[] = []
   const links: Link[] = []
@@ -27,7 +30,7 @@ export function graphify<T extends {
     // or the first lane that has this node in it.
     const lane = (() => {
       for (let i = 0; i < lanes.length; i++) {
-        if (!lanes[i] || lanes[i]![node.id]) {
+        if (!lanes[i] || lanes[i]!.destinations[node.id]) {
           return i
         }
       }
@@ -36,25 +39,25 @@ export function graphify<T extends {
     // Convert lanes to links where they point at this node.
     for (let i = 0; i < lanes.length; i++) {
       const atLane = lanes[i]
-      if (atLane?.[node.id]) {
+      if (atLane?.destinations[node.id]) {
         links.push({
           x1: i,
           y1: atLane.y0,
           x2: lane,
           y2: node.id,
         })
-        delete atLane[node.id]
-        if (!atLane.some(v => v)) {
+        delete atLane.destinations[node.id]
+        if (!atLane.destinations.some(v => v)) {
           delete lanes[i]
         }
       }
     }
     // Merge lanes that have become identical.
     for (let i = 0; i < lanes.length; i++) {
-      const li = lanes[i]?.join(' ')
+      const li = lanes[i]?.destinations.join(' ')
       if (li) {
         for (let j = i + 1; j < lanes.length; j++) {
-          if (lanes[j]?.join(' ') === li) {
+          if (lanes[j]?.destinations.join(' ') === li) {
             links.push({
               x1: j,
               y1: node.id - 1,
@@ -82,9 +85,10 @@ export function graphify<T extends {
             x2: i,
             y2: node.id,
           })
-          const r: any = [...lanes[lane]!]
-          r.y0 = node.id
-          lanes[i] = r
+          lanes[i] = {
+            destinations: [...lanes[lane]!.destinations],
+            y0: node.id,
+          }
           delete lanes[lane]
           break;
         }
@@ -95,12 +99,11 @@ export function graphify<T extends {
     // Apply the lanes afterward
     if (node.after.length > 0) {
       lanes[lane] = (() => {
-        const r: any = []
+        const destinations: true[] = []
         for (const n of node.after) {
-          r[n.id] = true
+          destinations[n.id] = true
         }
-        r.y0 = node.id
-        return r
+        return {destinations, y0: node.id}
       })()
     }
   };
