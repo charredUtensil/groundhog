@@ -48,13 +48,12 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     return pg(spawnHasErosion, hasMonstersTexts).then(".").then(end);
   })();
 
-  // Maybe treasure.
+  // Maybe treasure, maybe spawn is HQ.
   greeting
     .then(
       pg(
         "A recent scan",
-        "The Hognose scanner",
-        "The Hognose scanner aboard the L.M.S. Explorer",
+        "Our most recent geological survey",
       ).then("found", "has discovered", "has indicated"),
       pg("We", "The scanners", "The scanners aboard the L.M.S. Explorer").then(
         "have found",
@@ -62,7 +61,6 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "have discovered",
       ),
     )
-    .then()
     .then(
       state("treasureCaveOne").then(
         "a large Energy Crystal signature near here",
@@ -74,8 +72,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       ),
       "another cavern where we can continue our mining operations",
     )
-    .then()
     .then(
+      pg(".").then(end),
       pg(
         ". \n\nHowever,",
         ". \n\nUnfortunately,",
@@ -85,7 +83,20 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         ", but proceed with caution!\n\n",
         ", but this is no walk in the park.",
       ).then(additionalHardship),
-      pg(".").then(end),
+      state("spawnIsHq").then(
+        ', and we have established our Rock Raider HQ.',
+        ', and our HQ is ready to go!',
+      ).then(
+        pg(
+          "\n\nHowever,",
+          "\n\nUnfortunately,",
+          "\n\nUnfortunately for us,",
+          "\n\nThe bad news?",
+          "Don't be fooled, though.",
+          "I do ask that you be careful down there!",
+        ).then(additionalHardship),
+        end,
+      ),
     );
 
   const negativeGreeting = pg(
@@ -115,30 +126,40 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "I hope they don't meet any of the ${enemies} roaming this cavern.",
       ),
     )
-    .then(state("spawnHasErosion"), end);
+    .then(state("spawnHasErosion"), skip)
+    .then(end);
 
-  // Lost miners.
+  // maybe treasure, maybe find spawn or spawn is HQ, lost miners.
   negativeGreeting
+    .then(state('treasureCaveOne', 'treasureCaveMany'), skip)
+    .then(state('spawnIsHq', 'findHq').then(
+      'We have established our Rock Raider HQ, but',
+      'We constructed our base and were ready to begin mining. Unfortunately,'
+    ))
     .then(
       state("lostMinersOne").then(
-        "A teleporter malfunction sent one of our Rock Raiders to a cavern near here.",
-        "The teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.",
-        "One of our Rock Raiders was accidentally sent to the wrong cavern!",
+        "a teleporter malfunction sent one of our Rock Raiders to a cavern near here.",
+        "the teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.",
+        "one of our Rock Raiders was accidentally sent to the wrong cavern!",
       ),
       state("lostMinersTogether").then(
-        "A teleporter malfunction sent a group of our Rock Raiders to a cavern near here.",
-        "The teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern.",
+        "a teleporter malfunction sent a group of our Rock Raiders to a cavern near here.",
+        "the teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern.",
       ),
       state("lostMinersApart").then(
-        "A teleporter malfunction scattered ${lostMinersCount} of our Rock Raiders throughout this cavern.",
-        "The teleporters have failed again and ${lostMinerCavesCount} groups of Rock Raiders are lost somewhere in this cavern.",
+        "a teleporter malfunction scattered ${lostMinersCount} of our Rock Raiders throughout this cavern.",
+        "the teleporters have failed again and ${lostMinerCavesCount} groups of Rock Raiders are lost somewhere in this cavern.",
       ),
     )
-    .then(alsoAdditionalHardship, findThem);
+    .then(pg(
+      'Our engineers have assured us the teleporters have been repaired, but',
+      'While the teleporters are back in working order,',
+    ).then(additionalHardship), alsoAdditionalHardship, findThem);
 
-  // HQ is ruin, spawn is HQ or find HQ, lost miners or not.
+  // HQ is ruin, maybe treasure, spawn is HQ or find HQ, maybe lost miners.
   negativeGreeting
     .then(state("hqIsRuin"))
+    .then(state('treasureCaveOne', 'treasureCaveMany'), skip)
     .then(
       "Recent seismic activity has damaged our Rock Raider HQ",
       "An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ",
