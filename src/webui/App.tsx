@@ -67,11 +67,11 @@ function App() {
     }
   }, [next, autoGenerate]);
 
-  //useEffect(() => {
-  //  if (cavern && !next) {
-  //    console.log("Finished generating %o", cavern);
-  //  }
-  //}, [cavern, next]);
+  useEffect(() => {
+    if (cavern && !next) {
+      (window as any).lastCavern = cavern;
+    }
+  }, [cavern, next]);
 
   function playPause() {
     if (autoGenerate) {
@@ -121,14 +121,18 @@ function App() {
           <button onClick={playPause}>
             {autoGenerate ? "pause" : "play_arrow"}
           </button>
-          {cavern?.serialized && (
+          {cavern?.serialized ? (
             <a
-              className={`${styles.button} ${styles.download}`}
+              className={styles.button}
               href={getDownloadLink(cavern.serialized)}
               download={`${cavern.levelName ?? "groundhog"}.dat`}
             >
               download
             </a>
+          ) : (
+            <div className={`${styles.button} ${styles.disabled}`}>
+              download
+            </div>
           )}
         </div>
         {mapOverlay === "lore" && <LorePreview cavern={cavern} />}
@@ -150,6 +154,7 @@ function App() {
         </button>
         {MAP_OVERLAY_BUTTONS.map(({ of, label }) => (
           <button
+            key={of}
             className={mapOverlay === of ? styles.active : styles.inactive}
             onClick={() => setMapOverlay((v) => (v === of ? null : of))}
           >

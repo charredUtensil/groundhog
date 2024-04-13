@@ -185,7 +185,7 @@ export type Building = EntityPosition & {
 export function serializeBuilding(building: Building, offset: Point) {
   let r = `${building.template.id},${serializePosition(building, offset, Math.PI / 2)}`;
   if (building.level > 1) {
-    r += `,Level=${building.level.toFixed()}}`;
+    r += `,Level=${building.level.toFixed()}`;
   }
   if (building.isEssential) {
     r += ",Essential=True";

@@ -2,7 +2,7 @@ import { State } from "../lore";
 import phraseGraph from "../builder";
 
 const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
-  // Complete premises in one line.
+  // Complete, fully-constructed premises in one line.
   start
     .then(
       "Our mining operations have been going smoothly, and we are ready to move on to the next cavern.",
@@ -48,7 +48,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     return pg(spawnHasErosion, hasMonstersTexts).then(".").then(end);
   })();
 
-  // Nothing interesting, but the cavern may have treasure.
+  // Maybe treasure.
   greeting
     .then(
       pg(
@@ -106,8 +106,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     "It gets worse:",
   ).then(additionalHardship);
 
-  const findThem = pg()
-    .then(
+  const findThem =
+    pg(
       "we're counting on you to find them!",
       "we don't know how long they'll last out there.",
       state("hasMonsters").then(
@@ -115,11 +115,10 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "I hope they don't meet any of the ${enemies} roaming this cavern.",
       ),
     )
-    .then(state("spawnHasErosion"), skip)
-    .then();
+    .then(state("spawnHasErosion"), end);
 
-  // Lost miners, no nonsense with the HQ.
-  pg()
+  // Lost miners.
+  negativeGreeting
     .then(
       state("lostMinersOne").then(
         "A teleporter malfunction sent one of our Rock Raiders to a cavern near here.",
@@ -135,14 +134,18 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "The teleporters have failed again and ${lostMinerCavesCount} groups of Rock Raiders are lost somewhere in this cavern.",
       ),
     )
-    .then()
     .then(alsoAdditionalHardship, findThem);
 
-  // Destroyed HQ
-  state("hqIsRuin")
+  // HQ is ruin, spawn is HQ or find HQ, lost miners or not.
+  negativeGreeting
+    .then(state("hqIsRuin"))
     .then(
       "Recent seismic activity has damaged our Rock Raider HQ",
       "An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ",
+      state("hasMonsters").then(
+        "A horde of ${enemies} attacked our Rock Raider HQ",
+        "Our Rock Raiders were caught unaware by a horde of ${enemies}",
+      ),
     )
     .then(
       pg(", and")
@@ -157,7 +160,6 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
             "our Rock Raiders are trapped throughout the cavern.",
           ),
         )
-        .then()
         .then(
           state("findHq").then(alsoAdditionalHardship, findThem),
           state("spawnIsHq").then(additionalHardship, findThem),
@@ -180,6 +182,5 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         )
         .then(additionalHardship, end),
     );
-
-  //
 });
+export default PREMISE

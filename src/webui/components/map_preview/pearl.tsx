@@ -27,11 +27,12 @@ export default function PearlPreview({
 }) {
   const io = pearl === "outerPearl" ? plan.innerPearl.length : 0;
   return (
-    <g key={`pearl${plan.id}`} className={
+    <g className={
       `${styles.pearl} ${styles[pearl]} ${styles[`${plan.kind}Kind`]}`
     }>
       {plan[pearl].map((layer, i) => (
         <path
+          key={i}
           className={`${styles.layer} ${styles[`layer${(i + io) % 4}`]}`}
           d={dPearl(layer)}
           fill="none"

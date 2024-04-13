@@ -46,6 +46,6 @@ export class CreatureFactory {
 
 export function serializeCreature(creature: Creature, offset: Point) {
   return `${creature.template.id}
-${serializePosition(creature, offset, Math.PI / 2)}
+${serializePosition(creature, offset)}
 ID=${creature.id.toFixed()}${creature.sleep ? ",Sleep=true" : ""}`;
 }

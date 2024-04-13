@@ -7,6 +7,7 @@ import {
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
 import styles from "./style.module.scss";
 import { Choice, CurveSliders, Slider } from "./controls";
+import { ArchitectsInput } from "./architects";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
@@ -25,9 +26,7 @@ export function CavernContextInput({
 }: {
   onChanged: (v: CavernContext) => void;
 }) {
-  const [context, setContext] = useState<Partial<CavernContext>>({});
-  const [contextWithDefaults, setContextWithDefaults] =
-    useState<CavernContext>();
+  const [context, setContext] = useState<Partial<CavernContext> & Pick<CavernContext, 'seed'>>({seed: INITIAL_SEED});
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   function update<K extends keyof CavernContext>(
@@ -36,22 +35,20 @@ export function CavernContextInput({
   ) {
     const r = { ...context };
     if (value === undefined) {
-      delete r[key];
+      if (key in r) {
+        delete r[key];
+      }
     } else {
-      r[key] = value;
+      if (r[key] !== value) {
+        r[key] = value;
+      }
     }
     setContext(r);
   }
 
-  useEffect(() => {
-    setContextWithDefaults(
-      inferContextDefaults(new DiceBox(context.seed ?? INITIAL_SEED), context),
-    );
-  }, [context]);
+  const contextWithDefaults = inferContextDefaults(context)
 
-  useEffect(() => {
-    contextWithDefaults && onChanged(contextWithDefaults);
-  }, [contextWithDefaults]);
+  useEffect(() => onChanged(inferContextDefaults(context)), [context]);
 
   return (
     <div className={styles.contextInput}>
@@ -213,6 +210,7 @@ export function CavernContextInput({
               "monsterSpawnRate",
             ] as const).map((of) => (
               <CurveSliders
+                key={of}
                 of={of}
                 min={-0.5}
                 max={1.5}
@@ -232,6 +230,12 @@ export function CavernContextInput({
             context={context}
             contextWithDefaults={contextWithDefaults}
           />
+          <h2>Architects</h2>
+          <ArchitectsInput
+            update={update}
+            context={context}
+            contextWithDefaults={contextWithDefaults}
+          />
           <h2>Plastic</h2>
           {
             ([
@@ -241,6 +245,7 @@ export function CavernContextInput({
               "hallHasLandslidesChance",
             ] as const).map((of) => (
               <Slider
+                key={of}
                 of={of}
                 min={0}
                 max={1}

@@ -8,6 +8,15 @@ export type FencedCavern = EnscribedCavern & {
 };
 
 export default function fence(cavern: EnscribedCavern): FencedCavern {
-  const bounds = cavern.tiles.bounds;
-  return { ...cavern, ...bounds };
+  let {left, top, right, bottom} = cavern.tiles.bounds;
+  const width = right - left;
+  const height = bottom - top;
+  const size = Math.max(width, height);
+
+  left = left - Math.floor((size - width) / 2) - 1
+  top = top - Math.floor((size - height) / 2) - 1
+  right = left + size + 2
+  bottom = top + size + 2
+
+  return {...cavern, left, top, right, bottom};
 }
