@@ -9,15 +9,17 @@ type SortedPlan = {
   hops: number;
   index: number;
 };
-export type ArchitectedPlan = FloodedPlan & {
+export type ArchitectedPlan<T> = FloodedPlan & {
+  readonly hops: number;
   /** The architect to use to build out the plan. */
-  readonly architect: Architect<unknown>;
+  readonly architect: Architect<T>;
+  readonly metadata: T;
   readonly crystalRichness: number;
   readonly oreRichness: number;
   readonly monsterSpawnRate: number;
   readonly monsterWaveSize: number;
 };
-export type EstablishedPlan = ArchitectedPlan & {
+export type EstablishedPlan = ArchitectedPlan<unknown> & {
   /** How blobby the pearl should be. */
   readonly baroqueness: number;
   /** How many crystals the Plan will add. */
@@ -101,7 +103,7 @@ export default function establish(
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
-  function doArchitect({ plan, hops, index }: SortedPlan): ArchitectedPlan {
+  function doArchitect({ plan, hops, index }: SortedPlan): ArchitectedPlan<any> {
     const props = { hops: hops / maxHops, order: index / maxIndex };
     const architect =
       plan.architect ||
@@ -115,6 +117,7 @@ export default function establish(
           };
         }),
       );
+    const metadata = architect.prime({cavern, plan});
     const crystalRichness = curved(
       plan.kind === "cave"
         ? cavern.context.caveCrystalRichness
@@ -131,14 +134,16 @@ export default function establish(
     const monsterWaveSize = curved(cavern.context.monsterWaveSize, props);
     return {
       ...plan,
+      hops,
       architect,
+      metadata,
       crystalRichness,
       oreRichness,
       monsterSpawnRate,
       monsterWaveSize,
     };
   }
-  function doEstablish(plan: ArchitectedPlan) {
+  function doEstablish<T>(plan: ArchitectedPlan<T>) {
     const args = { cavern, plan, totalCrystals };
     const baroqueness = plan.architect.baroqueness(args);
     const crystals = Math.round(plan.architect.crystals(args));
@@ -152,7 +157,7 @@ export default function establish(
     };
     plans[plan.id] = established;
   }
-  inOrder.forEach((path) => doEstablish(doArchitect(path)));
+  inOrder.forEach((plan) => doEstablish(doArchitect(plan)));
 
   return { ...cavern, plans: plans as EstablishedPlan[] };
 }

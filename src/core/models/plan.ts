@@ -1,3 +1,2 @@
-import { PrimedPlan } from "../transformers/01_planning/05_prime";
-
-export type Plan = PrimedPlan;
+import { PearledPlan } from "../transformers/01_planning/04_pearl";
+export type Plan = PearledPlan;

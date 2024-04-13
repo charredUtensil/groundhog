@@ -1,3 +1,4 @@
+import { EstablishedHqArchitect } from "../architects/established_hq";
 import { DiceBox } from "../common";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/02_plastic/05_adjure";
@@ -152,6 +153,11 @@ export class Lore {
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
     const { lostMiners, lostMinerCaves } = lostCounts(cavern);
+    const spawn = cavern.plans.find(p => p.hops === 0)!;
+    const hq = cavern.plans.find(p => (p.architect as any).isHq)
+    const spawnIsHq = spawn === hq
+    const findHq = !!hq && !spawnIsHq
+    const hqIsRuin = !!hq && (hq.architect as EstablishedHqArchitect).isRuin
     this.state = {
       floodedWithWater: fluidType === Tile.WATER,
       floodedWithLava: fluidType === Tile.LAVA,
@@ -164,10 +170,10 @@ export class Lore {
         cavern.objectives.studs
       ),
       hasMonsters: cavern.context.hasMonsters,
-      spawnHasErosion: false,
-      spawnIsHq: false,
-      findHq: false,
-      hqIsRuin: false,
+      spawnHasErosion: spawn.hasErosion,
+      spawnIsHq,
+      findHq,
+      hqIsRuin,
       treasureCaveOne: false,
       treasureCaveMany: false,
     };
