@@ -91,6 +91,7 @@ ${
   // Version is the version of MM the level was "made by".
   (() => "version:2023-08-14-1")()
 }
+}
 tiles{
 ${grid(cavern, (x, y) => {
   const tile = cavern.tiles.get(x, y) ?? Tile.SOLID_ROCK;

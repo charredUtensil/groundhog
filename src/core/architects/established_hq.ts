@@ -35,6 +35,8 @@ type Metadata = {
   crystalsInBuildings: number
 }
 
+export type EstablishedHqArchitect = (Architect<Metadata> & {isHq: true, isRuin: boolean})
+
 function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
@@ -110,11 +112,12 @@ function getPlaceBuildings({
     const addPath = (source: Building, dest: Building) => {
       for (const point of plotLine(getPorch(source), getPorch(dest))) {
         if (args.tiles.get(...point) === Tile.FLOOR) {
-          if (asRuin && rng.chance(DESTROY_PATH_CHANCE)) {
-            args.tiles.set(...point, Tile.LANDSLIDE_RUBBLE_4);
-          } else {
-            args.tiles.set(...point, Tile.POWER_PATH);
-          }
+          args.tiles.set(
+            ...point,
+            asRuin && rng.chance(DESTROY_PATH_CHANCE)
+              ? Tile.LANDSLIDE_RUBBLE_4
+              : Tile.POWER_PATH
+          );
         }
       }
     }
@@ -131,6 +134,19 @@ function getPlaceBuildings({
     } else if (buildings.length > 1) {
       addPath(buildings[0], buildings[1])
     }
+
+    // Place more rubble if this is ruin.
+    args.plan.innerPearl.forEach(layer => layer.forEach(point => {
+      if (args.tiles.get(...point) === Tile.FLOOR) {
+        args.tiles.set(...point, rng.betaChoice([
+          Tile.FLOOR,
+          Tile.LANDSLIDE_RUBBLE_1,
+          Tile.LANDSLIDE_RUBBLE_2,
+          Tile.LANDSLIDE_RUBBLE_3,
+          Tile.LANDSLIDE_RUBBLE_4,
+        ], {a: 1, b: 4}))
+      }
+    }))
 
     // Place open cave flag if this is discovered.
     if (discovered) {
@@ -176,7 +192,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly (Architect<Metadata> & {isHq: true, isRuin: boolean})[] = [
+export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
   {
     name: "Established HQ Spawn",
     ...BASE,

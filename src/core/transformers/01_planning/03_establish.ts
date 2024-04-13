@@ -10,6 +10,7 @@ type SortedPlan = {
   index: number;
 };
 export type ArchitectedPlan<T> = FloodedPlan & {
+  readonly hops: number;
   /** The architect to use to build out the plan. */
   readonly architect: Architect<T>;
   readonly metadata: T;
@@ -133,6 +134,7 @@ export default function establish(
     const monsterWaveSize = curved(cavern.context.monsterWaveSize, props);
     return {
       ...plan,
+      hops,
       architect,
       metadata,
       crystalRichness,
@@ -155,7 +157,7 @@ export default function establish(
     };
     plans[plan.id] = established;
   }
-  inOrder.forEach((path) => doEstablish(doArchitect(path)));
+  inOrder.forEach((plan) => doEstablish(doArchitect(plan)));
 
   return { ...cavern, plans: plans as EstablishedPlan[] };
 }

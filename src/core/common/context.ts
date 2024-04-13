@@ -159,6 +159,11 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
   return { waterPlans, waterLakes, lavaPlans, lavaLakes, erosionPlans };
 }
 
+const NOT_CONSIDERED_OVERRIDE = {
+  seed: true,
+  logger: true,
+} as const
+
 export function inferContextDefaults(
   args: Partial<Omit<CavernContext, "hasOverrides">> & Pick<CavernContext, "seed">,
 ): CavernContext {
@@ -196,6 +201,6 @@ export function inferContextDefaults(
     crystalGoalRatio: 0.2,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
-    hasOverrides: Object.keys(args).length > 0,
+    hasOverrides: Object.keys(args).some(k => !(k in NOT_CONSIDERED_OVERRIDE)),
   };
 }
