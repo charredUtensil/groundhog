@@ -66,30 +66,30 @@ export default function CavernPreview({
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
         {showOutlines &&
-          cavern.baseplates?.map((bp) => <BaseplatePreview baseplate={bp} />)}
-        {showOutlines && cavern.paths?.map((pa) => <PathPreview path={pa} />)}
-        {showOutlines && cavern.plans?.map((pl) => <PlanPreview plan={pl} />)}
+          cavern.baseplates?.map((bp) => <BaseplatePreview key={bp.id} baseplate={bp} />)}
+        {showOutlines && cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
+        {showOutlines && cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
         {showPearls &&
           cavern.plans
             ?.filter((pl) => pl.outerPearl)
             .map((pl) => (
-              <PearlPreview plan={pl as PearledPlan} pearl={"outerPearl"} />
+              <PearlPreview key={pl.id} plan={pl as PearledPlan} pearl={"outerPearl"} />
             ))}
         {showPearls &&
           cavern.plans
             ?.filter((pl) => pl.innerPearl)
             .map((pl) => (
-              <PearlPreview plan={pl as PearledPlan} pearl={"innerPearl"} />
+              <PearlPreview key={pl.id} plan={pl as PearledPlan} pearl={"innerPearl"} />
             ))}
         {mapOverlay === "entities" &&
-          cavern.buildings?.map((b) => <EntityPreview entity={b} />)}
+          cavern.buildings?.map((b, i) => <EntityPreview key={i} entity={b} />)}
         {mapOverlay === "entities" &&
-          cavern.creatures?.map((c) => <EntityPreview entity={c} enemy />)}
+          cavern.creatures?.map((c) => <EntityPreview key={c.id} entity={c} enemy />)}
         {mapOverlay === "entities" &&
-          cavern.miners?.map((m) => <EntityPreview entity={m} />)}
+          cavern.miners?.map((m) => <EntityPreview key={m.id} entity={m} />)}
         {mapOverlay === "discovery" &&
           cavern.openCaveFlags?.map((_, x, y) => (
-            <OpenCaveFlagPreview x={x} y={y} />
+            <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
           ))}
       </svg>
       <div className={styles.stats}>

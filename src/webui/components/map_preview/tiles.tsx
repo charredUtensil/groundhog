@@ -147,10 +147,10 @@ export default function TilesPreview({
         const fill = getFill(cavern, mapOverlay, t, x, y);
         const label = getLabel(cavern, mapOverlay, t, x, y);
         if (!fill) {
-          return <></>;
+          return <React.Fragment key={`${x},${y}`} />;
         }
         return (
-          <>
+          <React.Fragment key={`${x},${y}`}>
             <rect
               className={styles.tile}
               fill={fill}
@@ -168,7 +168,7 @@ export default function TilesPreview({
                 {label}
               </text>
             )}
-          </>
+          </React.Fragment>
         );
       })}
     </g>

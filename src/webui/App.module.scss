@@ -33,7 +33,7 @@
   font-family: var(--font-body);
 
   .settingsPanel {
-    width: 200px;
+    width: 240px;
     flex-shrink: 0;
     flex-grow: 1;
     background: var(--palette-settings-bg);
@@ -52,8 +52,8 @@
       bottom: 0;
       right: 0;
 
-      a.button,
-      button {
+      button,
+      .button {
         display: block;
         height: 48px;
         width: 48px;
@@ -69,6 +69,11 @@
         font-family: "Material Symbols Outlined";
         text-align: center;
         text-decoration: none;
+
+        &.disabled {
+          border-style: dashed;
+          color: var(--palette-lines);
+        }
       }
     }
   }

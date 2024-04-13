@@ -20,9 +20,9 @@ class Partitioner {
   constructor({ context, dice }: { context: CavernContext; dice: DiceBox }) {
     this.context = context;
     this.rng = dice.partition;
-    this.baseplateMaxSize = Math.round(
+    this.baseplateMaxSize = Math.max(Math.round(
       context.targetSize * context.baseplateMaxRatioOfSize,
-    );
+    ), 3);
 
     const bound = context.targetSize >> 1;
     this.queue = [

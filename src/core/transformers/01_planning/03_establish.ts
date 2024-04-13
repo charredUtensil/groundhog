@@ -9,15 +9,17 @@ type SortedPlan = {
   hops: number;
   index: number;
 };
-export type ArchitectedPlan = FloodedPlan & {
+export type ArchitectedPlan<T> = FloodedPlan & {
+  readonly hops: number;
   /** The architect to use to build out the plan. */
-  readonly architect: Architect<unknown>;
+  readonly architect: Architect<T>;
+  readonly metadata: T;
   readonly crystalRichness: number;
   readonly oreRichness: number;
   readonly monsterSpawnRate: number;
   readonly monsterWaveSize: number;
 };
-export type EstablishedPlan = ArchitectedPlan & {
+export type EstablishedPlan = ArchitectedPlan<unknown> & {
   /** How blobby the pearl should be. */
   readonly baroqueness: number;
   /** How many crystals the Plan will add. */
@@ -32,12 +34,32 @@ function curved(curve: Curve, props: CurveProps): number {
   return curve.base + curve.hops * props.hops + curve.order * props.order;
 }
 
+function encourageDisable(
+  architects: readonly Architect<unknown>[],
+  cavern: PartialPlannedCavern<FloodedPlan>,
+) {
+  return architects
+    .filter(a => cavern.context.architects?.[a.name] !== 'disable')
+    .map(a => {
+      if (cavern.context.architects?.[a.name] === 'encourage') {
+        const r = {...a}
+        r.caveBid = (args) => !!a.caveBid?.(args) && 999999;
+        r.hallBid = (args) => !!a.hallBid?.(args) && 999999;
+        r.spawnBid = (args) => !!a.spawnBid?.(args) && 999999;
+        return r
+      }
+      return a
+    })
+}
+
 export default function establish(
   cavern: PartialPlannedCavern<FloodedPlan>,
 ): PartialPlannedCavern<EstablishedPlan> {
+  const architects = encourageDisable(ARCHITECTS, cavern)
+
   // Choose a spawn and an architect for that spawn.
   const spawn = cavern.dice.pickSpawn.weightedChoice(
-    ARCHITECTS.filter((architect) => architect.spawnBid).flatMap((architect) =>
+    architects.filter((architect) => architect.spawnBid).flatMap((architect) =>
       cavern.plans
         .filter((p) => p.kind === "cave")
         .map((plan) => ({
@@ -81,12 +103,12 @@ export default function establish(
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
-  function doArchitect({ plan, hops, index }: SortedPlan): ArchitectedPlan {
+  function doArchitect({ plan, hops, index }: SortedPlan): ArchitectedPlan<any> {
     const props = { hops: hops / maxHops, order: index / maxIndex };
     const architect =
       plan.architect ||
       cavern.dice.pickArchitect(plan.id).weightedChoice(
-        ARCHITECTS.map((architect) => {
+        architects.map((architect) => {
           const bid =
             plan.kind === "cave" ? architect.caveBid : architect.hallBid;
           return {
@@ -95,6 +117,7 @@ export default function establish(
           };
         }),
       );
+    const metadata = architect.prime({cavern, plan});
     const crystalRichness = curved(
       plan.kind === "cave"
         ? cavern.context.caveCrystalRichness
@@ -111,14 +134,16 @@ export default function establish(
     const monsterWaveSize = curved(cavern.context.monsterWaveSize, props);
     return {
       ...plan,
+      hops,
       architect,
+      metadata,
       crystalRichness,
       oreRichness,
       monsterSpawnRate,
       monsterWaveSize,
     };
   }
-  function doEstablish(plan: ArchitectedPlan) {
+  function doEstablish<T>(plan: ArchitectedPlan<T>) {
     const args = { cavern, plan, totalCrystals };
     const baroqueness = plan.architect.baroqueness(args);
     const crystals = Math.round(plan.architect.crystals(args));
@@ -132,7 +157,7 @@ export default function establish(
     };
     plans[plan.id] = established;
   }
-  inOrder.forEach((path) => doEstablish(doArchitect(path)));
+  inOrder.forEach((plan) => doEstablish(doArchitect(plan)));
 
   return { ...cavern, plans: plans as EstablishedPlan[] };
 }

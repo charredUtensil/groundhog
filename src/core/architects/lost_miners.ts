@@ -8,7 +8,6 @@ import { mkVars, transformPoint } from "./utils/script";
 
 type Metadata = {
   readonly lostMinersCount: number;
-  readonly lostMinersPoint: Point;
 };
 
 const g = mkVars("gFoundMiners", [
@@ -23,11 +22,10 @@ const BASE: PartialArchitect<Metadata> = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const lostMinersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
-    const lostMinersPoint = rng.uniformChoice(plan.innerPearl[0]);
-    return { lostMinersCount, lostMinersPoint };
+    return { lostMinersCount };
   },
   placeEntities: ({ cavern, plan, tiles, miners, minerFactory }) => {
-    const [x, y] = plan.metadata.lostMinersPoint;
+    const [x, y] = plan.innerPearl[0][0];
     tiles.set(x, y, Tile.FLOOR); // Ensure this tile is a floor tile just in case.
     const rng = cavern.dice.placeEntities(plan.id);
     for (let i = 0; i < plan.metadata.lostMinersCount; i++) {
@@ -54,7 +52,7 @@ ${g.done}=1;
   script({ cavern, plan }) {
     const lostMinersPoint = transformPoint(
       cavern,
-      plan.metadata.lostMinersPoint,
+      plan.innerPearl[0][0],
     );
     const message = "???";
     const v = mkVars(`p${plan.id}FoundMiners`, [

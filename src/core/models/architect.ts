@@ -26,15 +26,15 @@ type BidArgs = SpawnBidArgs & {
   readonly totalCrystals: number;
 };
 
-type EstablishArgs = {
+type EstablishArgs<T> = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
-  readonly plan: ArchitectedPlan;
+  readonly plan: ArchitectedPlan<T>;
   readonly totalCrystals: number;
 };
 
 type PrimeArgs = {
-  readonly cavern: PartialPlannedCavern<PearledPlan>;
-  readonly plan: PearledPlan;
+  readonly cavern: PartialPlannedCavern<FloodedPlan>;
+  readonly plan: FloodedPlan;
 };
 
 type PlanWithMetadata<T> = Plan & { readonly metadata: T };
@@ -63,13 +63,13 @@ export type BaseArchitect<T extends Readonly<T>> = {
   hallBid?(args: BidArgs): number | false;
   spawnBid?(args: SpawnBidArgs): number | false;
 
-  baroqueness(args: EstablishArgs): number;
-  crystals(args: EstablishArgs): number;
-  ore(args: EstablishArgs): number;
+  prime(args: PrimeArgs): T;
+
+  baroqueness(args: EstablishArgs<T>): number;
+  crystals(args: EstablishArgs<T>): number;
+  ore(args: EstablishArgs<T>): number;
 
   roughExtent(plan: EstablishedPlan): number;
-
-  prime(args: PrimeArgs): T;
 
   rough(args: {
     cavern: FoundationPlasticCavern;
