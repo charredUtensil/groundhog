@@ -75,6 +75,11 @@
           fill: none;
           stroke-width: 4px;
           stroke: var(--color-fg);
+
+          &.long {
+            stroke-dasharray: 8 4;
+            opacity: 40%;
+          }
         }
 
         .phrase {

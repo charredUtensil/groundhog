@@ -48,6 +48,29 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     return pg(spawnHasErosion, hasMonstersTexts).then(".").then(end);
   })();
 
+  // Weird case to explain: Find HQ, but the HQ is intact and there are no lost miners.
+  // Blame Canada... or bureaucracy.
+  greeting
+    .then(state('findHq'))
+    .then(
+      'We established our Rock Raider HQ here,',
+      "We've had our eyes on this region and were all set to mine here,",
+    )
+    .then(
+      'but pulled back when we found a more suitable cavern.',
+      "but due to a minor bureaucratic mishap with Form 27B-6, we forgot to mine it!",
+    )
+    .then(
+      "We aren't entirely sure where the buildings are.",
+      "That base should still be somewhere near here.",
+      state("hasMonsters").then(
+        "We hope the ${enemies} have left it alone.",
+        "Unfortunately, it seems we've attracted some unwanted attention.",
+      )
+    )
+    .then(skip, state("spawnHasErosion"))
+    .then(end)
+
   // Maybe treasure, maybe spawn is HQ.
   greeting
     .then(
@@ -132,10 +155,12 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   // maybe treasure, maybe find spawn or spawn is HQ, lost miners.
   negativeGreeting
     .then(state('treasureCaveOne', 'treasureCaveMany'), skip)
-    .then(state('spawnIsHq', 'findHq').then(
-      'We have established our Rock Raider HQ, but',
-      'We constructed our base and were ready to begin mining. Unfortunately,'
-    ))
+    .then(
+      skip,
+      state('spawnIsHq', 'findHq').then(
+        'We have established our Rock Raider HQ, but',
+        'We constructed our base and were ready to begin mining. Unfortunately,'
+      ))
     .then(
       state("lostMinersOne").then(
         "a teleporter malfunction sent one of our Rock Raiders to a cavern near here.",
@@ -195,6 +220,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
           state("findHq").then(
             ", but this is as close as we can get for now.",
             ", but the teleporter seems to have been destroyed.",
+            ", but we cannot risk teleporting in any closer.",
           ),
           state("spawnIsHq").then(
             ", but this is all that's left.",

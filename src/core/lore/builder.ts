@@ -206,28 +206,36 @@ function align<T extends State>(phrases: readonly Phrase<T>[]) {
   }
 }
 
+function getReachableStates<T extends State>(phrase: Phrase<T>) {
+  const reachableAfter: { [key: string]: true } = {};
+  for (const a of phrase.after) {
+    Object.assign(reachableAfter, a.reachableStates);
+  }
+
+  if (Object.keys(reachableAfter).length === 0) {
+    return phrase.requires ? {[phrase.requires]: true} : {};
+  }
+
+  if (!phrase.requires) {
+    return reachableAfter;
+  }
+
+  const reachable: { [key: string]: true } = {};
+  for (const ra in reachableAfter) {
+    const states = ra.split(",");
+    if (!states.some((s) => s === phrase.requires)) {
+      states.push(phrase.requires);
+      states.sort();
+      reachable[states.join(",")] = true;
+    }
+  }
+  return reachable;
+}
+
 function traverse<T extends State>(phrases: readonly Phrase<T>[]) {
   for (let i = phrases.length - 1; i >= 0; i--) {
     const phrase = phrases[i] as Mutable<Phrase<T>>;
-    const reachableAfter: { [key: string]: true } = {};
-    for (const a of phrase.after) {
-      Object.assign(reachableAfter, a.reachableStates!);
-    }
-    if (phrase.requires) {
-      const reachable: { [key: string]: true } = {};
-      reachable[phrase.requires] = true;
-      for (const prevStates in reachableAfter) {
-        const states = prevStates.split(",");
-        if (!states.some((s) => s === phrase.requires)) {
-          states.push(phrase.requires);
-          states.sort();
-          reachable[states.join(",")] = true;
-        }
-      }
-      phrase.reachableStates = reachable;
-    } else {
-      phrase.reachableStates = reachableAfter;
-    }
+    phrase.reachableStates = getReachableStates(phrase);
   }
 }
 
@@ -334,6 +342,7 @@ export class PhraseGraph<T extends State> {
         (a) => reachedState in a.reachableStates,
       );
       if (continuations.length === 0) {
+        console.log('No continutation has %s at phrase %o', reachedState, phrase);
         throw new Error(
           `No continuation has ${reachedState} at phrase ${phrase.id}`,
         );
@@ -392,3 +401,5 @@ export default function phraseGraph<T extends State>(
 
   return new PhraseGraph(newStart, phrases, states);
 }
+
+export const _forTests = {merge}

@@ -20,7 +20,7 @@ export function graphify<T extends {
 }>(nodes: readonly T[]): Graph<T> {
   const lanes: ({
     readonly destinations: true[],
-    readonly y0: number
+    y0: number
   } | undefined)[] = []
 
   const positions: {readonly node: T, readonly x: number, readonly y: number}[] = []
@@ -40,24 +40,39 @@ export function graphify<T extends {
     for (let i = 0; i < lanes.length; i++) {
       const atLane = lanes[i]
       if (atLane?.destinations[node.id]) {
-        links.push({
-          x1: i,
-          y1: atLane.y0,
-          x2: lane,
-          y2: node.id,
-        })
         delete atLane.destinations[node.id]
-        if (!atLane.destinations.some(v => v)) {
+        if (atLane.destinations.some(v => v)) {
+          if (atLane.y0 < node.id - 1) {
+            links.push({
+              x1: i,
+              y1: atLane.y0,
+              x2: i,
+              y2: node.id - 1,
+            })
+          }
+          links.push({
+            x1: i,
+            y1: node.id - 1,
+            x2: lane,
+            y2: node.id,
+          })
+          atLane.y0 = node.id - 1
+        } else {
+          links.push({
+            x1: i,
+            y1: atLane.y0,
+            x2: lane,
+            y2: node.id,
+          })
           delete lanes[i]
         }
       }
     }
     // Merge lanes that have become identical.
     for (let i = 0; i < lanes.length; i++) {
-      const li = lanes[i]?.destinations.join(' ')
-      if (li) {
+      if (lanes[i]?.destinations.some(v => v)) {
         for (let j = i + 1; j < lanes.length; j++) {
-          if (lanes[j]?.destinations.join(' ') === li) {
+          if (!lanes[i]?.destinations.some((_, k) => !lanes[j]?.destinations[k])) {
             links.push({
               x1: j,
               y1: node.id - 1,
@@ -70,7 +85,12 @@ export function graphify<T extends {
               x2: j,
               y2: node.id - 1,
             })
-            delete lanes[j]
+            lanes[i]?.destinations.forEach((_, k) => delete lanes[j]!.destinations[k])
+            if (lanes[j]?.destinations.some(v => v)) {
+              lanes[j]!.y0 = node.id - 1
+            } else {
+              delete lanes[j]
+            }
           }
         }
       }
@@ -96,15 +116,32 @@ export function graphify<T extends {
     }
     // Push the node itself.
     positions.push({node, x: lane, y: node.id})
-    // Apply the lanes afterward
+    // Apply the lane afterward.
     if (node.after.length > 0) {
-      lanes[lane] = (() => {
+      const after = (() => {
         const destinations: true[] = []
         for (const n of node.after) {
           destinations[n.id] = true
         }
         return {destinations, y0: node.id}
-      })()
+      })();
+      (() => {
+        if (!after.destinations[node.id + 1]) {
+          const al = after.destinations.join(' ')
+          for (let i = 0; i < lanes.length; i++) {
+            if (lanes[i]?.destinations.join(' ') === al) {
+              links.push({
+                x1: lane,
+                y1: node.id,
+                x2: i,
+                y2: node.id + 1,
+              })
+              return
+            }
+          }
+        }
+        lanes[lane] = after;
+      })();
     }
   };
   return {positions, links}
