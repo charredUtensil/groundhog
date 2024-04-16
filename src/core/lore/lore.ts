@@ -1,4 +1,5 @@
 import { EstablishedHqArchitect } from "../architects/established_hq";
+import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/02_plastic/05_adjure";
@@ -48,19 +49,6 @@ function floodedWith(cavern: AdjuredCavern): FluidType {
     return Tile.WATER;
   }
   return null;
-}
-
-function lostCounts(cavern: AdjuredCavern) {
-  let lostMiners: number = 0;
-  let lostMinerCaves: number = 0;
-  cavern.plans.forEach((plan) => {
-    const metadata = plan.metadata as { lostMinersCount?: number } | undefined;
-    if (metadata?.lostMinersCount) {
-      lostMinerCaves++;
-      lostMiners += metadata.lostMinersCount;
-    }
-  });
-  return { lostMiners, lostMinerCaves };
 }
 
 function joinHuman(things: string[], conjunction: string = "and"): string {
@@ -152,7 +140,7 @@ export class Lore {
   private _results: Results | null = null;
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
-    const { lostMiners, lostMinerCaves } = lostCounts(cavern);
+    const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
     const spawn = cavern.plans.find(p => p.hops === 0)!;
     const hq = cavern.plans.find(p => (p.architect as any).isHq)
     const spawnIsHq = spawn === hq

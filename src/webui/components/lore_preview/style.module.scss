@@ -74,17 +74,11 @@
         .link {
           fill: none;
           stroke-width: 4px;
-          &.onscreen {
-            stroke: var(--color-fg);
-          }
-          &.offscreen {
-            stroke: var(--color-offscreen);
-          }
-          &.included {
-            stroke: var(--color-included);
-          }
-          &.selected {
-            stroke: var(--color-selected);
+          stroke: var(--color-fg);
+
+          &.long {
+            stroke-dasharray: 8 4;
+            opacity: 40%;
           }
         }
 
@@ -106,7 +100,7 @@
       }
 
       .list {
-        font-family: "Silkscreen";
+        font-family: var(--font-tiny);
         font-size: 8px;
         color: var(--color-fg);
 

@@ -48,7 +48,7 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
       };
     });
 
-  for (let i = 0; i < cavern.context.auxiliaryPathCount && queue.length; i++) {
+  for (let i = 0; i < cavern.context.auxiliaryPathCount; i++) {
     queue = queue
       .map((args) => {
         const minAngle = (nfo: number[]) => {
@@ -70,6 +70,9 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
           Math.min(t1, t2) >= cavern.context.auxiliaryPathMinAngle,
       )
       .sort((a, b) => a.t1 + a.t2 - b.t1 - b.t2);
+    if (!queue.length) {
+      break;
+    }
     const path = queue.splice(
       rng.betaInt({ a: 1, b: 5, max: queue.length }),
       1,
