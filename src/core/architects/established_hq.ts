@@ -11,13 +11,20 @@ import {
   TOOL_STORE,
   UPGRADE_STATION,
 } from "../models/building";
-import { Tile } from "../models/tiles";
+import { FluidType, Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
+import { Objectives } from "../models/objectives";
+import { NegotiatedPlan } from "../transformers/01_planning/00_negotiate";
+import { Pearl } from "../transformers/01_planning/04_pearl";
+import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
+import { FencedCavern } from "../transformers/02_plastic/07_fence";
+import { mkVars, transformPoint } from "./utils/script";
+import { getDiscoveryPoint } from "./utils/discovery";
 
 const DESTROY_PATH_CHANCE = 0.62;
 const DESTROY_BUILDING_CHANCE = 0.45
@@ -136,17 +143,19 @@ function getPlaceBuildings({
     }
 
     // Place more rubble if this is ruin.
-    args.plan.innerPearl.forEach(layer => layer.forEach(point => {
-      if (args.tiles.get(...point) === Tile.FLOOR) {
-        args.tiles.set(...point, rng.betaChoice([
-          Tile.FLOOR,
-          Tile.LANDSLIDE_RUBBLE_1,
-          Tile.LANDSLIDE_RUBBLE_2,
-          Tile.LANDSLIDE_RUBBLE_3,
-          Tile.LANDSLIDE_RUBBLE_4,
-        ], {a: 1, b: 4}))
-      }
-    }))
+    if (asRuin) {
+      args.plan.innerPearl.forEach(layer => layer.forEach(point => {
+        if (args.tiles.get(...point) === Tile.FLOOR) {
+          args.tiles.set(...point, rng.betaChoice([
+            Tile.FLOOR,
+            Tile.LANDSLIDE_RUBBLE_1,
+            Tile.LANDSLIDE_RUBBLE_2,
+            Tile.LANDSLIDE_RUBBLE_3,
+            Tile.LANDSLIDE_RUBBLE_4,
+          ], {a: 1, b: 4}))
+        }
+      }))
+    }
 
     // Place open cave flag if this is discovered.
     if (discovered) {
@@ -174,6 +183,46 @@ function getPlaceBuildings({
       // TODO: ?????
     }
   };
+}
+
+const g = mkVars('gFoundHq', [
+  'foundHq',
+])
+
+const WITH_FIND_OBJECTIVE: Pick<Architect<Metadata>, 'objectives' | 'scriptGlobals' | 'script'> = {
+  objectives: () => ({
+    variables: [{ condition: `${g.foundHq}>0`, description: 'Find the lost Rock Raider HQ' }],
+    sufficient: false,
+  }),
+  scriptGlobals: () => `# Objective: Find HQ
+int ${g.foundHq}=0`,
+  script: ({cavern, plan}) => {
+    const discoPoint = getDiscoveryPoint(cavern, plan)
+    if (!discoPoint) {
+      throw new Error('Cave has Find HQ objective but no undiscovered points.');
+    }
+
+    const camPoint = plan.path.baseplates.reduce((r, p) => {
+      return (r.pearlRadius > p.pearlRadius) ? r : p
+    }).center;
+    
+    const message = "???";
+
+    const v = mkVars(`p${plan.id}FoundHq`, [
+      "messageDiscover",
+      "onDiscover",
+    ]);
+    
+    return `# Objective: Find the lost Rock Raider HQ
+string ${v.messageDiscover}="${message}"
+if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]
+${v.onDiscover}::;
+msg:${v.messageDiscover};
+pan:${transformPoint(cavern, camPoint)};
+wait:1;
+${g.foundHq}=1;
+`
+  }
 }
 
 const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
@@ -223,6 +272,7 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
       0.5
     ),
     isRuin: false,
+    ...WITH_FIND_OBJECTIVE,
   },
   {
     name: "Find Ruined HQ",
@@ -238,5 +288,6 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
       0.5
     ),
     isRuin: true,
+    ...WITH_FIND_OBJECTIVE,
   },
 ];

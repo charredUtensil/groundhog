@@ -24,6 +24,7 @@ const DefaultArchitect: Omit<
   placeOre: defaultPlaceOre,
   placeErosion: (args) => placeErosion(30, 10, args),
   placeEntities: () => {},
+  objectives: () => undefined,
   scriptGlobals: () => undefined,
   script: () => undefined,
   monsterSpawnScript: () => undefined,
