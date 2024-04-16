@@ -4,6 +4,7 @@ import { Architect } from "../../models/architect";
 import { ROCK_MONSTER, monsterForBiome } from "../../models/creature";
 import { Plan } from "../../models/plan";
 import { FencedCavern } from "../../transformers/02_plastic/07_fence";
+import { getDiscoveryPoint } from "./discovery";
 import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
 
 type MonsterSpawnerArgs = {
@@ -29,22 +30,6 @@ const RETRIGGER_MODES = {
 } as const;
 
 export type RetriggerMode = keyof typeof RETRIGGER_MODES;
-
-function getDiscoveryPoint(
-  cavern: FencedCavern,
-  plan: Plan,
-): Point | undefined {
-  for (let i = 0; i < plan.innerPearl.length; i++) {
-    const layer = plan.innerPearl[i];
-    for (let j = 0; j < layer.length; j++) {
-      const point = layer[j];
-      const dz = cavern.discoveryZones.get(...point);
-      if (dz) {
-        return dz.openOnSpawn ? undefined : point;
-      }
-    }
-  }
-}
 
 function getEmerges(plan: Plan, rng: PseudorandomStream) {
   return rng.shuffle(

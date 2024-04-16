@@ -4,13 +4,13 @@ import phraseGraph from "../builder";
 const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
 
   const collect_resources = pg(
-    "collect ${resourceGoal}",
-    "continue our mining operation by collecting ${resourceGoal}",
+    "collect ${resourceGoal}.",
+    "continue our mining operation by collecting ${resourceGoal}.",
   );
 
   const we_need = pg(
-    "we need ${resourceGoal}",
-    "you need to collect ${resourceGoal}",
+    "we need ${resourceGoal}.",
+    "you need to collect ${resourceGoal}.",
   );
 
   const tail = pg(
@@ -22,47 +22,60 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
 
   start
     .then(
-      skip,
-      state("spawnHasErosion").then(
-        "get your Rock Raiders to safety,",
-        "make sure your Rock Raiders are safe,",
-      ),
-      state("spawnIsHq")
-        .then(state("hqIsRuin", "spawnHasErosion"))
-        .then(
-          "move to a safer cavern,",
-          "find a more suitable location,",
+      state("hasMonsters").then(
+        "defend the Rock Radier HQ",
+        "build up your defenses",
+        "arm your Rock Raiders",
+      ).then("and"),
+      pg(
+        skip,
+        state("spawnHasErosion").then(
+          "get your Rock Raiders to safety,",
+          "make sure your Rock Raiders are safe,",
         ),
-      state("hasMonsters").then(
-        "defend the Rock Radier HQ,",
-        "build up your defenses,",
-        "arm your Rock Raiders,",
+        state("spawnIsHq")
+          .then(state("hqIsRuin", "spawnHasErosion"))
+          .then(
+            "move to a safer cavern,",
+            "find a more suitable location,",
+          )
       )
-    )
-    .then(
-      "build the Rock Raider HQ",
-      "build up your base",
-      state("spawnIsHq")
-        .then(state("hqIsRuin"))
-        .then(
-          "clean up this mess",
-          "get the Rock Raider HQ back in operation"),
-      state("findHq").then(
-        "reach the Rock Raider HQ",
-        "locate the base",
+      .then(
+        "build the Rock Raider HQ",
+        "build up your base",
+        state("spawnIsHq")
+          .then(
+            "send some Rock Raiders down to this base",
+            pg("resume mining operations and").then(collect_resources).then(cut),
+            state("hqIsRuin")
+            .then(
+              "clean up this mess",
+              "get the Rock Raider HQ back in operation")
+          ),
+        state("findHq").then(
+          "reach the Rock Raider HQ",
+          "locate the base",
+        ).then(
+          skip,
+          state('hqIsRuin').then(
+            ", salvage what's left",
+            ", repair it",
+            ", get it back in working order",
+          )
+        )
       )
-    )
-    .then(
-      "and",
-      "and use it to",
-      ", and when you are ready,",
-      state("hasMonsters").then(
-        "and keep it safe.",
-        "and make sure it is heavily defended.",
-      ).then(
-        "Then",
-        we_need.then(cut)
-      ),
+      .then(
+        "and",
+        "and use it to",
+        ", and when you are ready,",
+        state("hasMonsters").then(
+          "and keep it safe.",
+          "and make sure it is heavily defended.",
+        ).then(
+          "Then,",
+          we_need.then(cut)
+        ),
+      )
     )
     .then(
       collect_resources,
@@ -97,7 +110,7 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
           tail,
           pg(
             "Once you've found them,",
-            "With them safe",
+            "With them safe,",
             "When they are safe,"
           ).then(we_need, collect_resources)
         ),

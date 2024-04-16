@@ -1,5 +1,6 @@
 import { Point } from "../common/geometry";
 import { Architect } from "../models/architect";
+import { PlannedCavern } from "../models/cavern";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
@@ -17,6 +18,19 @@ const g = mkVars("gFoundMiners", [
   "done",
 ]);
 
+export function countLostMiners(cavern: PlannedCavern) {
+  let lostMiners: number = 0;
+  let lostMinerCaves: number = 0;
+  cavern.plans.forEach((plan) => {
+    const metadata = plan.metadata as Partial<Metadata> | undefined;
+    if (metadata?.lostMinersCount) {
+      lostMinerCaves++;
+      lostMiners += metadata.lostMinersCount;
+    }
+  });
+  return { lostMiners, lostMinerCaves };
+}
+
 const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
@@ -32,15 +46,23 @@ const BASE: PartialArchitect<Metadata> = {
       miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
     }
   },
+  objectives: ({cavern}) => {
+    const {lostMiners, lostMinerCaves} = countLostMiners(cavern);
+    const description = lostMiners === 1
+      ? 'Find the lost Rock Raider'
+      : lostMinerCaves === 1
+        ? 'Find the cave with the lost Rock Radiers'
+        : `Find ${lostMiners} lost Rock Raiders`
+    return ({ 
+      variables: [{ condition: `${g.done}>0`, description}],
+      sufficient: true,
+    });
+  },
   scriptGlobals({ cavern }) {
-    const totalMiners = cavern.plans.reduce(
-      (t, plan) =>
-        t + ((plan.metadata as Metadata | undefined)?.lostMinersCount ?? 0),
-      0,
-    );
+    const lostMiners = countLostMiners(cavern);
     const message = "???";
     return `# Lost Miners Globals
-int ${g.lostMinersCount}=${totalMiners}
+int ${g.lostMinersCount}=${lostMiners}
 int ${g.done}=0
 string ${g.messageFoundAll}="${message}"
 ${g.onFoundAll}::;

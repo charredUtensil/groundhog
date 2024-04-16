@@ -2,14 +2,14 @@ export type Objectives = {
   readonly crystals: number;
   readonly ore: number;
   readonly studs: number;
-  // public hq: {x: number, y: number, description: string} | null = null
-  // public miners: {x: number, y: number, minersCount: number}[] = []
+  readonly variables: readonly {readonly condition: string, readonly description: string}[];
 };
 
 export function serializeObjectives({
   crystals,
   ore,
   studs,
+  variables,
 }: Objectives): string {
   const result = [];
   if (crystals || ore || studs) {
@@ -17,5 +17,6 @@ export function serializeObjectives({
       `resources: ${crystals.toFixed()},${ore.toFixed()},${studs.toFixed()}`,
     );
   }
+  result.push(...variables.map(({condition, description}) => `${condition}/${description}`))
   return result.join("\n");
 }

@@ -14,6 +14,8 @@ import { Miner, MinerFactory } from "./miner";
 import { PearledPlan } from "../transformers/01_planning/04_pearl";
 import { FencedCavern } from "../transformers/02_plastic/07_fence";
 import { EntityPosition } from "./position";
+import { Objectives } from "./objectives";
+import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -84,6 +86,8 @@ export type BaseArchitect<T extends Readonly<T>> = {
   placeLandslides(args: FineArgs<T>): void;
   placeErosion(args: FineArgs<T>): void;
   placeEntities(args: FineArgs<T>): void;
+
+  objectives(args: {cavern: DiscoveredCavern}): (Partial<Objectives> & {sufficient: boolean}) | undefined;
 
   scriptGlobals(args: { cavern: FencedCavern }): string | undefined;
   script(args: {
