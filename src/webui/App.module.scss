@@ -7,19 +7,19 @@
   --palette-bg: #121212;
   --palette-lines: #999999;
   --palette-settings-bg: #333333;
-  --palette-brand: #4cec24;
+  --palette-brand: #c96f12;
 
 
   &.iceBiome {
     --palette-bg: #060716;
-    --palette-settings-bg: #223559;
-    --palette-brand: #03cadf;
+    --palette-settings-bg: hsl(200, 45%, 24%);
+    --palette-brand: hsl(186, 97%, 44%);
   }
 
   &.lavaBiome {
-    --palette-bg: #160c06;
-    --palette-settings-bg: #4d2914;
-    --palette-brand: #ecb724;
+    --palette-bg: #140b05;
+    --palette-settings-bg: #4d2114;
+    --palette-brand: #ca0b0b;
   }
 
   display: flex;
