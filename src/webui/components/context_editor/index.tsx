@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   CavernContext,
-  DiceBox,
   inferContextDefaults,
 } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
@@ -21,34 +20,36 @@ const expectedTotalPlans = (contextWithDefaults: CavernContext | undefined) => (
     : 50
 )
 
-export function CavernContextInput({
-  onChanged,
-}: {
-  onChanged: (v: CavernContext) => void;
-}) {
-  const [context, setContext] = useState<Partial<CavernContext> & Pick<CavernContext, 'seed'>>({seed: INITIAL_SEED});
-  const [showAdvanced, setShowAdvanced] = useState(false);
+type PartialContext = Partial<CavernContext> & Pick<CavernContext, 'seed'>;
 
-  function update<K extends keyof CavernContext>(
-    key: K,
-    value: CavernContext[K] | undefined,
-  ) {
-    const r = { ...context };
-    if (value === undefined) {
-      if (key in r) {
-        delete r[key];
+export function CavernContextInput({
+  dispatchState,
+}: {
+  dispatchState: (args: {context: CavernContext}) => void;
+}) {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  const [context, update] = useReducer(
+    (
+      was: PartialContext,
+      args: {[K in keyof CavernContext]?: CavernContext[K] | undefined}
+    ): PartialContext => {
+      const r = { ...was, ...args };
+      for (const key of Object.keys(r) as (keyof typeof r)[]) {
+        if (r[key] === undefined) {
+          if (key in r) {
+            delete r[key];
+          }
+        }
       }
-    } else {
-      if (r[key] !== value) {
-        r[key] = value;
-      }
-    }
-    setContext(r);
-  }
+      return r
+    },
+    {seed: INITIAL_SEED},
+  );
 
   const contextWithDefaults = inferContextDefaults(context)
 
-  useEffect(() => onChanged(inferContextDefaults(context)), [context]);
+  useEffect(() => dispatchState({context: inferContextDefaults(context)}), [context, dispatchState]);
 
   return (
     <div className={styles.contextInput}>
@@ -60,18 +61,18 @@ export function CavernContextInput({
           onChange={(ev) => {
             const seed = parseInt(ev.target.value, 16);
             if (seed >= 0 && seed < MAX_PLUS_ONE) {
-              update("seed", seed);
+              update({seed: seed});
             }
           }}
           spellCheck={false}
         />
-        <button className={styles.icon} onClick={() => update("seed", Math.floor(Math.random() * MAX_PLUS_ONE))}>
+        <button className={styles.icon} onClick={() => update({seed: Math.floor(Math.random() * MAX_PLUS_ONE)})}>
           ifl
         </button>
       </div>
       <div className={styles.inputRow}>
         <button
-          className={styles.showAdvanced}
+          className={`${styles.showAdvanced} ${Object.keys(context).length > 1 ? styles.override : ''}`}
           onClick={() => setShowAdvanced((v) => !v)}
         >
           <span>Advanced</span>
@@ -96,6 +97,7 @@ export function CavernContextInput({
             context={context}
             contextWithDefaults={contextWithDefaults}
           />
+          <div>
           <h2>
             Outlines
           </h2>
@@ -140,6 +142,8 @@ export function CavernContextInput({
             context={context}
             contextWithDefaults={contextWithDefaults}
           />
+          </div>
+          <div>
           <h2>
             Planning
           </h2>
@@ -230,12 +234,16 @@ export function CavernContextInput({
             context={context}
             contextWithDefaults={contextWithDefaults}
           />
+          </div>
+          <div>
           <h2>Architects</h2>
           <ArchitectsInput
             update={update}
             context={context}
             contextWithDefaults={contextWithDefaults}
           />
+          </div>
+          <div>
           <h2>Plastic</h2>
           {
             ([
@@ -265,6 +273,7 @@ export function CavernContextInput({
             context={context}
             contextWithDefaults={contextWithDefaults}
           />
+          </div>
         </>
       )}
     </div>

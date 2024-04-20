@@ -6,20 +6,18 @@ import styles from "./style.module.scss"
 import React from "react";
 
 
-export const ArchitectsInput = ({update, context, contextWithDefaults}: UpdateData) => {
-  const [architects, setArchitects] = useState<CavernContext['architects']>()
-
+export const ArchitectsInput = ({update, context}: UpdateData) => {
   function updateArchitects(
     key: string,
     value: 'encourage' | 'disable' | undefined,
   ) {
-    const r = { ...architects };
+    const r = { ...context.architects };
     if (value === undefined) {
       if (key in r) {
         delete r[key];
       }
       if (Object.keys(r).length === 0) {
-        setArchitects(undefined)
+        update({architects: undefined});
         return
       }
     } else {
@@ -27,15 +25,11 @@ export const ArchitectsInput = ({update, context, contextWithDefaults}: UpdateDa
         r[key] = value;
       }
     }
-    setArchitects(r);
+    update({architects: r});
   }
 
-  useEffect(() => {
-    update('architects', architects)
-  }, [architects])
-
   return [...ARCHITECTS].sort((a, b) => a.name.localeCompare(b.name)).map(a => {
-    const state = architects?.[a.name]
+    const state = context.architects?.[a.name]
     return (
       <React.Fragment key={a.name}>
         <p>

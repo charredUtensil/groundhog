@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 
-import { Biome, CavernContext, DiceBox } from "../core/common";
+import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor";
 import { Cavern } from "../core/models/cavern";
 import CavernPreview, { MapOverlay } from "./components/map_preview";
@@ -27,76 +27,62 @@ function getDownloadLink(serializedData: string) {
   return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
 }
 
+type State = {
+  cavern?: Cavern,
+  next?: () => TransformResult<Cavern>,
+  error?: Error,
+}
+
 function App() {
-  const [initialContext, setInitialContext] = useState<CavernContext | null>(
-    null,
-  );
-  const [biome, setBiome] = useState<Biome | null>(null);
-  const [cavern, setCavern] = useState<Cavern | null>(null);
-  const [next, setNext] = useState<(() => TransformResult<Cavern>) | null>(
-    null,
-  );
-  const [cavernError, setCavernError] = useState<Error | null>(null);
+  const [state, dispatchState] = useReducer((was: State, action: State | {context: CavernContext}) => {
+    if ('context' in action) {
+      const cavern: Cavern = {
+        context: action.context,
+        dice: new DiceBox(action.context.seed),
+      };
+      const next = () => CAVERN_TF.first(cavern);
+      return {cavern, next}
+    } else if ('error' in action) {
+      return {...was, action};
+    }
+    return action
+  }, {})
+
   const [autoGenerate, setAutoGenerate] = useState(true);
-
   const [mapOverlay, setMapOverlay] = useState<MapOverlay>("tiles");
-
   const [showOutlines, setShowOutlines] = useState(false);
   const [showPearls, setShowPearls] = useState(false);
 
-  useEffect(() => {
-    setBiome(cavern?.context.biome || initialContext?.biome || null)
-  }, [cavern, initialContext])
+  const biome = state?.cavern?.context.biome;
 
-  useEffect(() => {
-    setCavern(null);
-    setCavernError(null);
-    setNext(() => (initialContext ? () => {
-      const dice = new DiceBox(initialContext!.seed);
-      const cavern = {
-        dice,
-        context: { ...initialContext!, logger: { info: () => {} } },
-      };
-      return CAVERN_TF.first(cavern);
-    } : null));
-  }, [initialContext]);
-
-  useEffect(() => {
-    if (next && autoGenerate) {
-      setTimeout(step, 1);
+  function step() {
+    try {
+      const r = state.next!();
+      dispatchState({
+        cavern: r.result,
+        next: r.next || undefined,
+      })
+    } catch (error: unknown) {
+      console.error(error);
+      if (error instanceof Error) {
+        dispatchState({error})
+      }
     }
-  }, [next, autoGenerate]);
-
-  useEffect(() => {
-    if (cavern && !next) {
-      (window as any).lastCavern = cavern;
-    }
-  }, [cavern, next]);
+  }
 
   function playPause() {
     if (autoGenerate) {
       setAutoGenerate(false);
     } else {
       setAutoGenerate(true);
-      if (next) {
-        step();
-      }
     }
   }
 
-  function step() {
-    try {
-      const r = next!();
-      setCavern(r.result);
-      setNext(() => r.next);
-    } catch (e: unknown) {
-      console.error(e);
-      if (e instanceof Error) {
-        setNext(null);
-        setCavernError(e);
-      }
+  useEffect(() => {
+    if (state.next && autoGenerate) {
+      step()
     }
-  }
+  }, [autoGenerate, state])
 
   return (
     <div 
@@ -104,28 +90,28 @@ function App() {
       style={TILE_STYLE_VARS}
     >
       <div className={styles.settingsPanel}>
-        <CavernContextInput onChanged={setInitialContext} />
+        <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
-        {cavern && (
+        {state.cavern && (
           <CavernPreview
-            cavern={cavern}
-            error={cavernError}
+            cavern={state.cavern}
+            error={state.error}
             mapOverlay={mapOverlay}
             showOutlines={showOutlines}
             showPearls={showPearls}
           />
         )}
         <div className={styles.controls}>
-          {next && !autoGenerate && <button onClick={step}>step</button>}
+          {state.next && !autoGenerate && <button onClick={step}>step</button>}
           <button onClick={playPause}>
             {autoGenerate ? "pause" : "play_arrow"}
           </button>
-          {cavern?.serialized ? (
+          {state.cavern?.serialized ? (
             <a
               className={styles.button}
-              href={getDownloadLink(cavern.serialized)}
-              download={`${cavern.levelName ?? "groundhog"}.dat`}
+              href={getDownloadLink(state.cavern.serialized)}
+              download={`${state.cavern.levelName ?? "groundhog"}.dat`}
             >
               download
             </a>
@@ -135,7 +121,7 @@ function App() {
             </div>
           )}
         </div>
-        {mapOverlay === "lore" && <LorePreview cavern={cavern} />}
+        {mapOverlay === "lore" && <LorePreview cavern={state.cavern} />}
         {mapOverlay === "about" && <About />}
       </div>
       <div className={styles.vizOptsPanel}>

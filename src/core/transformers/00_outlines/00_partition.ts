@@ -136,10 +136,6 @@ export default function partition(cavern: BaseCavern): PartitionedCavern {
   const partitioner = new Partitioner(cavern);
   while (!partitioner.done) {
     partitioner.step();
-    cavern.context.logger.info({
-      ...cavern,
-      baseplates: partitioner.baseplates,
-    });
   }
   return { ...cavern, baseplates: partitioner.baseplates };
 }

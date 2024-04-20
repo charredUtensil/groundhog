@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { CSSProperties, useEffect, useReducer, useState } from "react";
 import styles from "./style.module.scss"
 import { CavernContext, Curve } from "../../../core/common";
 
 export type UpdateData = {
-  update: <K extends keyof CavernContext>(
-    key: K,
-    value: CavernContext[K] | undefined,
-  ) => void,
+  update: React.Dispatch<Partial<CavernContext>>,
   context: Partial<CavernContext>,
   contextWithDefaults: CavernContext | undefined,
 }
@@ -36,7 +33,7 @@ export const Choice = <K extends keyof CavernContext>(
             key={`${choice}`}
             className={classes.join(" ")}
             onClick={() => {
-              update(of, selected ? undefined : choice);
+              update({[of]: selected ? undefined : choice});
             }}
           >
             {`${choice}`}
@@ -56,21 +53,12 @@ export const CurveSliders = (
     step: number
   } & UpdateData
 ) => {
-  const [base, setBase]   = useState<number>()
-  const [hops, setHops]   = useState<number>()
-  const [order, setOrder] = useState<number>()
-  
-  useEffect(() => {
-    if (base === undefined && hops === undefined && order === undefined) {
-      update(of, undefined)
-    } else {
-      update(of, {
-        base: base ?? (context[of] ?? contextWithDefaults?.[of])?.base!,
-        hops: hops ?? (context[of] ?? contextWithDefaults?.[of])?.hops!,
-        order: order ?? (context[of] ?? contextWithDefaults?.[of])?.order!,
-      })
-    }
-  }, [base, hops, order])
+  function updateCurve(
+    key: 'base' | 'hops' | 'order',
+    value: number,
+  ) {
+    update({[of]: {...contextWithDefaults?.[of], ...context?.[of], [key]: value}})
+  }
 
   return (
     <>
@@ -78,47 +66,31 @@ export const CurveSliders = (
         {of}:
       </p>
       <p>
-        {(base ?? (context[of] ?? contextWithDefaults?.[of])?.base)?.toFixed(2)},{' '}
-        {(hops ?? (context[of] ?? contextWithDefaults?.[of])?.hops)?.toFixed(2)},{' '}
-        {(order ?? (context[of] ?? contextWithDefaults?.[of])?.order)?.toFixed(2)}
+        {contextWithDefaults?.[of]?.base?.toFixed(2)},{' '}
+        {contextWithDefaults?.[of]?.hops?.toFixed(2)},{' '}
+        {contextWithDefaults?.[of]?.order?.toFixed(2)}
       </p>
       <div className={styles.inputRow}>
         <div className={styles.curve}>
-          <input
-            className={styles.slider}
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={base ?? (context[of] ?? contextWithDefaults?.[of])?.base}
-            onChange={(ev) => setBase(ev.target.valueAsNumber)}
-          />
-          <input
-            className={styles.slider}
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={hops ?? (context[of] ?? contextWithDefaults?.[of])?.hops}
-            onChange={(ev) => setHops(ev.target.valueAsNumber)}
-          />
-          <input
-            className={styles.slider}
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={order ?? (context[of] ?? contextWithDefaults?.[of])?.order}
-            onChange={(ev) => setOrder(ev.target.valueAsNumber)}
-          />
+          {(['base', 'hops', 'order'] as const).map(key => {
+            const value = contextWithDefaults?.[of]?.[key] ?? min;
+            return (
+              <input
+                key={key}
+                className={styles.slider}
+                type="range"
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                style={{'--completion': `${100 * (value - min) / (max - min)}%`} as CSSProperties}
+                onChange={(ev) => updateCurve(key, ev.target.valueAsNumber)} />
+            );
+          })}
         </div>
         <button
-          className={`${styles.icon} ${context[of] === undefined ? styles.inactive : styles.override}`}
-          onClick={() => {
-            setBase(undefined)
-            setHops(undefined)
-            setOrder(undefined)
-          }}>cancel</button>
+          className={`${styles.icon} ${of in context ? styles.override : styles.inactive}`}
+          onClick={() => update({[of]: undefined})}>cancel</button>
       </div>
     </>
   );
@@ -133,31 +105,28 @@ export const Slider = (
     percent?: boolean,
     step?: number
   } & UpdateData
-) => (
-  <>
-    <p>
-      {of}:{' '}
-      {
-        percent
-        ? `${((context[of] ?? contextWithDefaults?.[of] ?? 0) * 100).toFixed()}%`
-        : (context[of] ?? contextWithDefaults?.[of])
-      }
-    </p>
-    <div className={styles.inputRow}>
-      <input
-        className={styles.slider}
-        type="range"
-        min={min}
-        max={max}
-        step={step || (percent ? 0.01 : 1)}
-        value={context[of] ?? contextWithDefaults?.[of]}
-        onChange={(ev) => update(of, ev.target.valueAsNumber)}
-      />
-      <button 
-        className={`${styles.icon} ${
-          context[of] === undefined ? styles.inactive : styles.override
-        }`}
-        onClick={() => update(of, undefined)}>cancel</button>
-    </div>
-  </>
-)
+) => {
+  const value = context[of] ?? contextWithDefaults?.[of] ?? min;
+  return (
+    <>
+      <p>
+        {of}:{' '}
+        {percent ? `${(value * 100).toFixed()}%` : value}
+      </p>
+      <div className={styles.inputRow}>
+        <input
+          className={styles.slider}
+          type="range"
+          min={min}
+          max={max}
+          step={step || (percent ? 0.01 : 1)}
+          value={value}
+          style={{ '--completion': `${100 * (value - min) / (max - min)}%` } as CSSProperties}
+          onChange={(ev) => update({ [of]: ev.target.valueAsNumber })} />
+        <button
+          className={`${styles.icon} ${context[of] === undefined ? styles.inactive : styles.override}`}
+          onClick={() => update({ [of]: undefined })}>cancel</button>
+      </div>
+    </>
+  );
+}

@@ -9,6 +9,7 @@ import { Miner, MinerFactory } from "../../models/miner";
 import { Architect, FineArgs } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { EntityPosition } from "../../models/position";
+import { Vehicle, VehicleFactory } from "../../models/vehicle";
 
 export type FinePlasticCavern = PlannedCavern & {
   readonly tiles: Grid<Tile>;
@@ -19,6 +20,7 @@ export type FinePlasticCavern = PlannedCavern & {
   readonly erosion: Grid<Erosion>;
   readonly creatures: readonly Creature[];
   readonly miners: readonly Miner[];
+  readonly vehicles: readonly Vehicle[];
   readonly openCaveFlags: Grid<true>;
   readonly cameraPosition: EntityPosition;
 };
@@ -37,6 +39,8 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     creatures: [],
     minerFactory: new MinerFactory(),
     miners: [],
+    vehicleFactory: new VehicleFactory(),
+    vehicles: [],
     openCaveFlags: new MutableGrid<true>(),
     setCameraPosition: (pos) => (cameraPosition = pos),
   };

@@ -1,10 +1,12 @@
 import { EstablishedHqArchitect } from "../architects/established_hq";
 import { countLostMiners } from "../architects/lost_miners";
-import { DiceBox } from "../common";
+import { DiceBox, PseudorandomStream } from "../common";
+import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/02_plastic/05_adjure";
 import { GenerateResult } from "./builder";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
+import { FOUND_ALL_LOST_MINERS, FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS } from "./graphs/events";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
 
@@ -24,6 +26,11 @@ export type State = {
   readonly treasureCaveMany: boolean;
 };
 
+export type FoundLostMinersState = State & {
+  readonly foundMinersOne: boolean;
+  readonly foundMinersTogether: boolean;
+}
+
 type ReplaceStrings = {
   readonly lostMinersCount: string;
   readonly lostMinerCavesCount: string;
@@ -31,6 +38,16 @@ type ReplaceStrings = {
   readonly resourceGoal: string;
   readonly resourceGoalNamesOnly: string;
 };
+
+enum Die {
+  premise = 0,
+  orders,
+  success,
+  failure,
+  foundHoard,
+  foundHq,
+  foundAllLostMiners,
+}
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
   let lava = 0;
@@ -128,16 +145,20 @@ function spellResourceGoal(cavern: AdjuredCavern) {
 }
 
 type Results = {
-  readonly premise: GenerateResult<State>;
-  readonly orders: GenerateResult<State>;
-  readonly success: GenerateResult<State & { readonly commend: boolean }>;
-  readonly failure: GenerateResult<State>;
+  readonly premise?: GenerateResult<State>;
+  readonly orders?: GenerateResult<State>;
+  readonly success?: GenerateResult<State & { readonly commend: boolean }>;
+  readonly failure?: GenerateResult<State>;
+  readonly foundHoard?: GenerateResult<State>;
+  readonly foundHq?: GenerateResult<State>;
+  readonly foundLostMiners?: GenerateResult<FoundLostMinersState>;
+  readonly foundAllLostMiners?: GenerateResult<State>;
 };
 
 export class Lore {
   readonly state: State;
   readonly vars: ReplaceStrings;
-  private _results: Results | null = null;
+  private _results: Results = {};
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
@@ -179,18 +200,57 @@ export class Lore {
 
   generateBriefings(dice: DiceBox) {
     const r = {
-      premise: PREMISE.generate(dice.lore(1), this.state, this.vars),
-      orders: ORDERS.generate(dice.lore(2), this.state, this.vars),
+      premise: PREMISE.generate(dice.lore(Die.premise), this.state, this.vars),
+      orders: ORDERS.generate(dice.lore(Die.orders), this.state, this.vars),
       success: SUCCESS.generate(
-        dice.lore(3),
+        dice.lore(Die.success),
         { ...this.state, commend: true },
         this.vars,
       ),
-      failure: FAILURE.generate(dice.lore(4), this.state, this.vars),
+      failure: FAILURE.generate(dice.lore(Die.failure), this.state, this.vars),
     };
-    this._results = r;
+    this._results = {...this._results, ...r};
     return r;
   }
+
+  generateFoundHoard(dice: DiceBox) {
+    const foundHoard = FOUND_HOARD.generate(dice.lore(Die.foundHoard), this.state, this.vars)
+    this._results = {...this._results, foundHoard}
+    return foundHoard
+  }
+
+  generateFoundHq(dice: DiceBox) {
+    const foundHq = FOUND_HQ.generate(dice.lore(Die.foundHq), this.state, this.vars)
+    this._results = {...this._results, foundHq}
+    return foundHq
+  }
+
+  generateFoundLostMiners(
+    rng: PseudorandomStream,
+    foundMinersCount: number,
+  ) {
+    const foundLostMiners = FOUND_LOST_MINERS.generate(
+      rng,
+      {
+        ...this.state,
+        foundMinersOne: foundMinersCount <= 1,
+        foundMinersTogether: foundMinersCount > 1,
+      },
+      {
+        ...this.vars,
+        foundMinersCount: foundMinersCount.toFixed(),
+      }
+    )
+    this._results = {...this._results, foundLostMiners}
+    return foundLostMiners
+  }
+
+  generateFoundAllLostMiners(dice: DiceBox) {
+    const foundAllLostMiners = FOUND_ALL_LOST_MINERS.generate(dice.lore(Die.foundAllLostMiners), this.state, this.vars)
+    this._results = {...this._results, foundAllLostMiners}
+    return foundAllLostMiners
+  }
+
 
   get results() {
     return this._results;

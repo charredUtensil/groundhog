@@ -36,7 +36,7 @@ export default function CavernPreview({
   showPearls,
 }: {
   cavern: Cavern;
-  error: Error | null;
+  error: Error | undefined;
   mapOverlay: MapOverlay;
   showOutlines: boolean;
   showPearls: boolean;
@@ -81,12 +81,12 @@ export default function CavernPreview({
             .map((pl) => (
               <PearlPreview key={pl.id} plan={pl as PearledPlan} pearl={"innerPearl"} />
             ))}
-        {mapOverlay === "entities" &&
-          cavern.buildings?.map((b, i) => <EntityPreview key={i} entity={b} />)}
-        {mapOverlay === "entities" &&
-          cavern.creatures?.map((c) => <EntityPreview key={c.id} entity={c} enemy />)}
-        {mapOverlay === "entities" &&
-          cavern.miners?.map((m) => <EntityPreview key={m.id} entity={m} />)}
+        {mapOverlay === "entities" && (<>
+          {cavern.buildings?.map((b, i) => <EntityPreview key={i} entity={b} building />)}
+          {cavern.creatures?.map((c) => <EntityPreview key={c.id} entity={c} creature />)}
+          {cavern.miners?.map((m) => <EntityPreview key={m.id} entity={m} miner />)}
+          {cavern.vehicles?.map((v) => <EntityPreview key={v.id} entity={v} vehicle />)}
+        </>)}
         {mapOverlay === "discovery" &&
           cavern.openCaveFlags?.map((_, x, y) => (
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />

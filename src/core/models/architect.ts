@@ -16,6 +16,7 @@ import { FencedCavern } from "../transformers/02_plastic/07_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
+import { Vehicle, VehicleFactory } from "./vehicle";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -54,6 +55,8 @@ export type FineArgs<T> = {
   readonly creatures: Creature[];
   readonly minerFactory: MinerFactory;
   readonly miners: Miner[];
+  readonly vehicleFactory: VehicleFactory;
+  readonly vehicles: Vehicle[];
   readonly openCaveFlags: MutableGrid<true>;
   readonly setCameraPosition: (position: EntityPosition) => void;
 };

@@ -1,8 +1,12 @@
-import { Point } from "../common/geometry";
+import { PseudorandomStream } from "../common";
+import { Grid } from "../common/grid";
 import { Architect } from "../models/architect";
 import { PlannedCavern } from "../models/cavern";
+import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
+import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
+import { RoughPlasticCavern } from "../transformers/02_plastic/01_rough";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { mkVars, transformPoint } from "./utils/script";
@@ -31,6 +35,44 @@ export function countLostMiners(cavern: PlannedCavern) {
   return { lostMiners, lostMinerCaves };
 }
 
+function placeBreadcrumb(
+  cavern: RoughPlasticCavern,
+  plan: Plan,
+  tiles: Grid<Tile>,
+  vehicles: Vehicle[],
+  vehicleFactory: VehicleFactory,
+  rng: PseudorandomStream,
+) {
+  const p2 = plan.intersects.reduce((r, v, i) => v ? (() => {
+    const p = cavern.plans[i]
+    return p.hops < r.hops ? p : r
+  })() : r, plan)
+  plan.outerPearl.some(layer => {
+    const points = layer.filter(point => 
+      cavern.intersectsPearlInner.get(...point)?.[p2.id] && tiles.get(...point)?.isWall === false)
+    if (!points.length) {
+      return false;
+    }
+    const [x, y] = rng.uniformChoice(points);
+    const tile = tiles.get(x, y)
+    const fluid = (tile === Tile.LAVA || tile === Tile.WATER) ? tile : null
+    const template = rng.weightedChoice<VehicleTemplate | null>([
+      {item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2},
+      {item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5},
+      {item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75},
+      {item: VehicleTemplate.RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0},
+      {item: VehicleTemplate.TUNNEL_SCOUT, bid: 0.25},
+      {item: null, bid: 0.0025},
+    ])
+    if (template) {
+      vehicles.push(vehicleFactory.create({...randomlyInTile({
+        x, y, aimedAt: plan.path.baseplates[0].center, rng
+      }), template}))
+    }
+    return true;
+  }) || placeBreadcrumb(cavern, p2, tiles, vehicles, vehicleFactory, rng)
+}
+
 const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
@@ -38,13 +80,18 @@ const BASE: PartialArchitect<Metadata> = {
     const lostMinersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
     return { lostMinersCount };
   },
-  placeEntities: ({ cavern, plan, tiles, miners, minerFactory }) => {
-    const [x, y] = plan.innerPearl[0][0];
-    tiles.set(x, y, Tile.FLOOR); // Ensure this tile is a floor tile just in case.
+  placeEntities: ({ cavern, plan, tiles, miners, minerFactory, vehicles, vehicleFactory }) => {
     const rng = cavern.dice.placeEntities(plan.id);
-    for (let i = 0; i < plan.metadata.lostMinersCount; i++) {
-      miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
-    }
+    // First, place the lost miners
+    (() => {
+      const [x, y] = plan.innerPearl[0][0];
+      tiles.set(x, y, Tile.FLOOR); // Ensure this tile is a floor tile just in case.
+      for (let i = 0; i < plan.metadata.lostMinersCount; i++) {
+        miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
+      }
+    })()
+    // Next, place a breadcrumb
+    placeBreadcrumb(cavern, plan, tiles, vehicles, vehicleFactory, rng)
   },
   objectives: ({cavern}) => {
     const {lostMiners, lostMinerCaves} = countLostMiners(cavern);
@@ -60,11 +107,10 @@ const BASE: PartialArchitect<Metadata> = {
   },
   scriptGlobals({ cavern }) {
     const lostMiners = countLostMiners(cavern);
-    const message = "???";
     return `# Lost Miners Globals
 int ${g.lostMinersCount}=${lostMiners}
 int ${g.done}=0
-string ${g.messageFoundAll}="${message}"
+string ${g.messageFoundAll}="${cavern.lore.generateFoundAllLostMiners(cavern.dice)}"
 ${g.onFoundAll}::;
 msg:${g.messageFoundAll};
 wait:3;
@@ -76,7 +122,11 @@ ${g.done}=1;
       cavern,
       plan.innerPearl[0][0],
     );
-    const message = "???";
+    const rng = cavern.dice.script(plan.id)
+    const message = cavern.lore.generateFoundLostMiners(
+      rng,
+      plan.metadata.lostMinersCount,
+    );
     const v = mkVars(`p${plan.id}FoundMiners`, [
       "messageDiscover",
       "onDiscover",

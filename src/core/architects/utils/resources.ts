@@ -5,6 +5,7 @@ import { Plan } from "../../models/plan";
 import { Tile } from "../../models/tiles";
 import { RoughPlasticCavern } from "../../transformers/02_plastic/01_rough";
 import { NSEW, Point, offsetBy } from "../../common/geometry";
+import { Vehicle } from "../../models/vehicle";
 
 /** Sprinkles resources throughout the tiles given by getRandomTile. */
 export function sprinkle(
@@ -199,13 +200,16 @@ export const defaultPlaceOre: Architect<unknown>["placeOre"] = (args) => {
 export function getTotalCrystals({
   tiles,
   crystals,
+  vehicles,
 }: {
-  tiles?: Grid<Tile> | undefined;
-  crystals?: Grid<number> | undefined;
+  tiles?: Grid<Tile>;
+  crystals?: Grid<number>;
+  vehicles?: readonly Vehicle[]
 }) {
   let r = 0;
   tiles?.forEach((t) => (r += t.crystalYield));
   crystals?.forEach((ct) => (r += ct));
+  vehicles?.forEach(v => r += v.template.crystals);
   return r;
 }
 

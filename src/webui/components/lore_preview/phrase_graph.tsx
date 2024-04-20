@@ -11,7 +11,6 @@ import {
   PhraseGraph,
 } from "../../../core/lore/builder";
 import { Lore, State } from "../../../core/lore/lore";
-import { Point } from "../../../core/common/geometry";
 import styles from "./style.module.scss"
 import { Graph, Link, graphify } from "./graphify";
 
@@ -39,16 +38,16 @@ function phraseClassName({id, requires}: Phrase<any>) {
   return r.join(' ')
 }
 
-export default function PhraseGraphPreview<T extends State>({
+export default function PhraseGraphPreview({
   lore,
   pg,
   results,
 }: {
   lore: Lore | undefined;
-  pg: PhraseGraph<T>;
-  results: GenerateResult<T> | undefined;
+  pg: PhraseGraph<State & any>;
+  results: GenerateResult<State & any> | undefined;
 }) {
-  const [graph, setGraph] = useState<Graph<Phrase<T>> | null>(null)
+  const [graph, setGraph] = useState<Graph<Phrase<State & any>> | null>(null)
 
   useEffect(() => {
     setGraph(graphify(pg.phrases))
@@ -69,13 +68,11 @@ export default function PhraseGraphPreview<T extends State>({
         {
           graph?.links.map((link) => {
             const {x1, y1, x2, y2} = link
-            const d = [
-              `M${tx(x1)} ${ty(y1)}`,
-              (x1 === x2
+            const d =
+              `M${tx(x1)} ${ty(y1)} ${x1 === x2
                 ? `L${tx(x1)} ${ty(y2)}`
                 : `L${tx(x1)} ${ty(y2 - 1)} C${tx(x1)} ${ty(y2 - 0.5)} ${tx(x2)} ${ty(y2 - 0.5)} ${tx(x2)} ${ty(y2)}`
-              ),
-            ].join(' ');
+              }`;
             return (
               <path className={linkClassName(link)} d={d} />
             )

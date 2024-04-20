@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+
 import { DiceBox } from "./prng";
 
 export type Biome = "rock" | "ice" | "lava";
@@ -9,7 +9,6 @@ export type Curve = {
 };
 
 export type CavernContext = {
-  logger: Logger;
   seed: number;
 
   hasOverrides: boolean;
@@ -161,7 +160,6 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 
 const NOT_CONSIDERED_OVERRIDE = {
   seed: true,
-  logger: true,
 } as const
 
 export function inferContextDefaults(
@@ -178,7 +176,6 @@ export function inferContextDefaults(
     ...args,
   };
   return {
-    logger: args.logger ?? ({} as Logger),
     baseplateMaxOblongness: 3,
     baseplateMaxRatioOfSize: 0.33,
     auxiliaryPathMinAngle: Math.PI / 4,
@@ -196,8 +193,8 @@ export function inferContextDefaults(
     hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
     caveHasLandslidesChance: 0.4,
     hallHasLandslidesChance: 0.8,
-    caveLandslideCooldownRange: { min: 15, max: 300 },
-    hallLandslideCooldownRange: { min: 30, max: 300 },
+    caveLandslideCooldownRange: { min: 15, max: 120 },
+    hallLandslideCooldownRange: { min: 30, max: 150 },
     crystalGoalRatio: 0.2,
     ...getDefaultFlooding(dice, r.biome),
     ...r,

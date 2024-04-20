@@ -205,8 +205,6 @@ int ${g.foundHq}=0`,
     const camPoint = plan.path.baseplates.reduce((r, p) => {
       return (r.pearlRadius > p.pearlRadius) ? r : p
     }).center;
-    
-    const message = "???";
 
     const v = mkVars(`p${plan.id}FoundHq`, [
       "messageDiscover",
@@ -214,7 +212,7 @@ int ${g.foundHq}=0`,
     ]);
     
     return `# Objective: Find the lost Rock Raider HQ
-string ${v.messageDiscover}="${message}"
+string ${v.messageDiscover}="${cavern.lore.generateFoundHq(cavern.dice)}"
 if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]
 ${v.onDiscover}::;
 msg:${v.messageDiscover};
@@ -255,7 +253,7 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
     ...BASE,
     prime: getPrime(12),
     placeBuildings: getPlaceBuildings({asRuin: true, asSpawn: true, discovered: true, from: 3}),
-    placeLandslides: (args) => placeLandslides({min: 15, max: 100}, args),
+    placeLandslides: (args) => placeLandslides({min: 15, max: 60}, args),
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
     isRuin: true,
   },
