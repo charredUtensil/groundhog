@@ -11,18 +11,13 @@ import {
   TOOL_STORE,
   UPGRADE_STATION,
 } from "../models/building";
-import { FluidType, Tile } from "../models/tiles";
+import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
-import { Objectives } from "../models/objectives";
-import { NegotiatedPlan } from "../transformers/01_planning/00_negotiate";
-import { Pearl } from "../transformers/01_planning/04_pearl";
-import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
-import { FencedCavern } from "../transformers/02_plastic/07_fence";
 import { mkVars, transformPoint } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
 
