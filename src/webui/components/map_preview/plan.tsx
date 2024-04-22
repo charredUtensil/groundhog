@@ -1,7 +1,7 @@
 import React from "react";
 import { Plan } from "../../../core/models/plan";
 import PathPreview from "./path";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
 
 const SCALE = 6;
 
@@ -31,7 +31,11 @@ function caveWithOneBaseplate(plan: Partial<Plan>) {
         {plan.id}
       </text>
       {plan.architect && (
-        <text className={`${styles.fg} ${styles.architect}`} x={x * SCALE} y={y * SCALE}>
+        <text
+          className={`${styles.fg} ${styles.architect}`}
+          x={x * SCALE}
+          y={y * SCALE}
+        >
           {plan.architect.name}
         </text>
       )}
@@ -95,11 +99,19 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
   return (
     <>
       <path className={styles.bg} d={dWrapping(a, b)} />
-      <text className={`${styles.fg} ${styles.id}`} x={x0 * SCALE} y={y0 * SCALE}>
+      <text
+        className={`${styles.fg} ${styles.id}`}
+        x={x0 * SCALE}
+        y={y0 * SCALE}
+      >
         {plan.id}
       </text>
       {plan.architect && (
-        <text className={`${styles.fg} ${styles.architect}`} x={x0 * SCALE} y={y0 * SCALE}>
+        <text
+          className={`${styles.fg} ${styles.architect}`}
+          x={x0 * SCALE}
+          y={y0 * SCALE}
+        >
           {plan.architect.name}
         </text>
       )}

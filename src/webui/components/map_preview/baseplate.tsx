@@ -1,6 +1,6 @@
 import React from "react";
 import { Baseplate } from "../../../core/models/baseplate";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
 
 const SCALE = 6;
 
@@ -10,7 +10,10 @@ export default function BaseplatePreview({
   baseplate: Baseplate;
 }) {
   return (
-    <g key={`bp${baseplate.id}`} className={`${styles.baseplate} ${styles[`${baseplate.kind}Kind`]}`}>
+    <g
+      key={`bp${baseplate.id}`}
+      className={`${styles.baseplate} ${styles[`${baseplate.kind}Kind`]}`}
+    >
       <rect
         className={styles.bg}
         x={baseplate.left * SCALE}

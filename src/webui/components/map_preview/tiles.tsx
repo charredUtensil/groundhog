@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { Tile } from "../../../core/models/tiles";
 import { Cavern } from "../../../core/models/cavern";
 import { MapOverlay } from ".";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
 
 const SCALE = 6;
 

@@ -85,8 +85,7 @@ export function bidsForOuterPearl(args: {
           let solidRockCount = 0;
           for (const offset of NSEW) {
             const neighbor =
-              args.tiles.get(...offsetBy(item, offset)) ??
-              Tile.SOLID_ROCK;
+              args.tiles.get(...offsetBy(item, offset)) ?? Tile.SOLID_ROCK;
             if (neighbor === Tile.RECHARGE_SEAM) {
               rechargeSeamCount++;
             } else if (neighbor === Tile.SOLID_ROCK) {
@@ -204,12 +203,12 @@ export function getTotalCrystals({
 }: {
   tiles?: Grid<Tile>;
   crystals?: Grid<number>;
-  vehicles?: readonly Vehicle[]
+  vehicles?: readonly Vehicle[];
 }) {
   let r = 0;
   tiles?.forEach((t) => (r += t.crystalYield));
   crystals?.forEach((ct) => (r += ct));
-  vehicles?.forEach(v => r += v.template.crystals);
+  vehicles?.forEach((v) => (r += v.template.crystals));
   return r;
 }
 

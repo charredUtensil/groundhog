@@ -2,7 +2,6 @@ import { State } from "../lore";
 import phraseGraph from "../builder";
 
 const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
-
   const collect_resources = pg(
     "collect ${resourceGoal}.",
     "continue our mining operation by collecting ${resourceGoal}.",
@@ -22,11 +21,13 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
 
   start
     .then(
-      state("hasMonsters").then(
-        "defend the Rock Radier HQ",
-        "build up your defenses",
-        "arm your Rock Raiders",
-      ).then("and"),
+      state("hasMonsters")
+        .then(
+          "defend the Rock Radier HQ",
+          "build up your defenses",
+          "arm your Rock Raiders",
+        )
+        .then("and"),
       pg(
         skip,
         state("spawnHasErosion").then(
@@ -35,47 +36,40 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         ),
         state("spawnIsHq")
           .then(state("hqIsRuin", "spawnHasErosion"))
-          .then(
-            "move to a safer cavern,",
-            "find a more suitable location,",
-          )
+          .then("move to a safer cavern,", "find a more suitable location,"),
       )
-      .then(
-        "build the Rock Raider HQ",
-        "build up your base",
-        state("spawnIsHq")
-          .then(
+        .then(
+          "build the Rock Raider HQ",
+          "build up your base",
+          state("spawnIsHq").then(
             "send some Rock Raiders down to this base",
-            pg("resume mining operations and").then(collect_resources).then(cut),
-            state("hqIsRuin")
-            .then(
+            pg("resume mining operations and")
+              .then(collect_resources)
+              .then(cut),
+            state("hqIsRuin").then(
               "clean up this mess",
-              "get the Rock Raider HQ back in operation")
+              "get the Rock Raider HQ back in operation",
+            ),
           ),
-        state("findHq").then(
-          "reach the Rock Raider HQ",
-          "locate the base",
-        ).then(
-          skip,
-          state('hqIsRuin').then(
-            ", salvage what's left",
-            ", repair it",
-            ", get it back in working order",
-          )
+          state("findHq")
+            .then("reach the Rock Raider HQ", "locate the base")
+            .then(
+              skip,
+              state("hqIsRuin").then(
+                ", salvage what's left",
+                ", repair it",
+                ", get it back in working order",
+              ),
+            ),
         )
-      )
-      .then(
-        "and",
-        "and use it to",
-        ", and when you are ready,",
-        state("hasMonsters").then(
-          "and keep it safe.",
-          "and make sure it is heavily defended.",
-        ).then(
-          "Then,",
-          we_need.then(cut)
+        .then(
+          "and",
+          "and use it to",
+          ", and when you are ready,",
+          state("hasMonsters")
+            .then("and keep it safe.", "and make sure it is heavily defended.")
+            .then("Then,", we_need.then(cut)),
         ),
-      )
     )
     .then(
       collect_resources,
@@ -84,7 +78,9 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "explore the cavern.",
         "resume our mining operation.",
         "search the cavern.",
-      ).then(we_need).then(cut),
+      )
+        .then(we_need)
+        .then(cut),
       pg("find", "locate", "search the cavern for")
         .then(
           state("lostMinersOne")
@@ -100,23 +96,18 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
             .then("the", "those")
             .then("lost Rock Raiders", "missing Rock Raiders"),
         )
-        .then(
-          ".",
-          state("hasMonsters").then(
-            "before the ${enemies} do!",
-          )
-        )
+        .then(".", state("hasMonsters").then("before the ${enemies} do!"))
         .then(
           tail,
           pg(
             "Once you've found them,",
             "With them safe,",
-            "When they are safe,"
-          ).then(we_need, collect_resources)
+            "When they are safe,",
+          ).then(we_need, collect_resources),
         ),
-    )
-  
-  pg(we_need, collect_resources).then(state('resourceObjective')).then(tail)
+    );
+
+  pg(we_need, collect_resources).then(state("resourceObjective")).then(tail);
 });
 
 export default ORDERS;

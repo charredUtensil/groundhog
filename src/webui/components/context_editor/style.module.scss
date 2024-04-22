@@ -2,7 +2,7 @@
   overflow-x: hidden;
   overflow-y: scroll;
   height: 100%;
-  
+
   scrollbar-color: var(--palette-fg) transparent;
   scrollbar-width: thin;
 
@@ -20,7 +20,11 @@
     margin: 0;
     padding: 0.5em 0;
     background: linear-gradient(
-      0deg, transparent, var(--palette-settings-bg) 33%, var(--palette-settings-bg));
+      0deg,
+      transparent,
+      var(--palette-settings-bg) 33%,
+      var(--palette-settings-bg)
+    );
   }
 
   p {
@@ -111,7 +115,8 @@
         var(--palette-brand) 4px,
         var(--palette-brand) var(--completion),
         var(--palette-fg) var(--completion),
-        var(--palette-fg) 100%);
+        var(--palette-fg) 100%
+      );
 
       &::-webkit-slider-thumb {
         -webkit-appearance: none;

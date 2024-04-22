@@ -1,11 +1,11 @@
-import { EnscribedCavern } from "./06_enscribe"
-import fence, { FencedCavern } from "./07_fence"
+import { EnscribedCavern } from "./06_enscribe";
+import fence, { FencedCavern } from "./07_fence";
 
-function bounds({left, right, bottom, top}: FencedCavern) {
-  return {left, right, bottom, top}
+function bounds({ left, right, bottom, top }: FencedCavern) {
+  return { left, right, bottom, top };
 }
 
-test('fence keeps a square square', () => {
+test("fence keeps a square square", () => {
   const r = fence({
     tiles: {
       bounds: {
@@ -15,12 +15,12 @@ test('fence keeps a square square', () => {
         bottom: 3,
       },
     },
-  } as EnscribedCavern)
+  } as EnscribedCavern);
 
-  expect(bounds(r)).toEqual({left: -3, top: -4, right: 5, bottom: 4})
-})
+  expect(bounds(r)).toEqual({ left: -3, top: -4, right: 5, bottom: 4 });
+});
 
-test('fence makes a wide rectangle square', () => {
+test("fence makes a wide rectangle square", () => {
   const r = fence({
     tiles: {
       bounds: {
@@ -30,7 +30,7 @@ test('fence makes a wide rectangle square', () => {
         bottom: 0,
       },
     },
-  } as EnscribedCavern)
+  } as EnscribedCavern);
 
-  expect(bounds(r)).toEqual({left: -8, top: -10, right: 5, bottom: 3})
-})
+  expect(bounds(r)).toEqual({ left: -8, top: -10, right: 5, bottom: 3 });
+});

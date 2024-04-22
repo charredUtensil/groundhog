@@ -13,18 +13,18 @@ export type EnscribedCavern = AdjuredCavern & {
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
   const levelName = (() => {
-    const seed = cavern.context.seed.toString(16).padStart(8, "0")
+    const seed = cavern.context.seed.toString(16).padStart(8, "0");
     return [
-      'gh',
+      "gh",
       seed.substring(0, 3),
       seed.substring(3, 6),
       [
         seed.substring(6),
-        {rock: 'k', ice: 'e', lava: 'a'}[cavern.context.biome],
-        (cavern.context.hasOverrides ? 'x' : ''),
-      ].join('')
-    ].join('-')
-  })()
+        { rock: "k", ice: "e", lava: "a" }[cavern.context.biome],
+        cavern.context.hasOverrides ? "x" : "",
+      ].join(""),
+    ].join("-");
+  })();
 
   const lore = new Lore(cavern);
   const { premise, orders, success, failure } = lore.generateBriefings(

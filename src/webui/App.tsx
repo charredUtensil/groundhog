@@ -28,25 +28,28 @@ function getDownloadLink(serializedData: string) {
 }
 
 type State = {
-  cavern?: Cavern,
-  next?: () => TransformResult<Cavern>,
-  error?: Error,
-}
+  cavern?: Cavern;
+  next?: () => TransformResult<Cavern>;
+  error?: Error;
+};
 
 function App() {
-  const [state, dispatchState] = useReducer((was: State, action: State | {context: CavernContext}) => {
-    if ('context' in action) {
-      const cavern: Cavern = {
-        context: action.context,
-        dice: new DiceBox(action.context.seed),
-      };
-      const next = () => CAVERN_TF.first(cavern);
-      return {cavern, next}
-    } else if ('error' in action) {
-      return {cavern: was.cavern, ...action};
-    }
-    return action
-  }, {})
+  const [state, dispatchState] = useReducer(
+    (was: State, action: State | { context: CavernContext }) => {
+      if ("context" in action) {
+        const cavern: Cavern = {
+          context: action.context,
+          dice: new DiceBox(action.context.seed),
+        };
+        const next = () => CAVERN_TF.first(cavern);
+        return { cavern, next };
+      } else if ("error" in action) {
+        return { cavern: was.cavern, ...action };
+      }
+      return action;
+    },
+    {},
+  );
 
   const [autoGenerate, setAutoGenerate] = useState(true);
   const [mapOverlay, setMapOverlay] = useState<MapOverlay>("tiles");
@@ -61,11 +64,11 @@ function App() {
       dispatchState({
         cavern: r.result,
         next: r.next || undefined,
-      })
+      });
     } catch (error: unknown) {
       console.error(error);
       if (error instanceof Error) {
-        dispatchState({error})
+        dispatchState({ error });
       }
     }
   }
@@ -80,12 +83,12 @@ function App() {
 
   useEffect(() => {
     if (state.next && autoGenerate) {
-      step()
+      step();
     }
-  }, [autoGenerate, state])
+  }, [autoGenerate, state]);
 
   return (
-    <div 
+    <div
       className={`${styles.App} ${styles[`${biome}Biome`]}`}
       style={TILE_STYLE_VARS}
     >

@@ -213,7 +213,7 @@ function getReachableStates<T extends State>(phrase: Phrase<T>) {
   }
 
   if (Object.keys(reachableAfter).length === 0) {
-    return phrase.requires ? {[phrase.requires]: true} : {};
+    return phrase.requires ? { [phrase.requires]: true } : {};
   }
 
   if (!phrase.requires) {
@@ -342,7 +342,11 @@ export class PhraseGraph<T extends State> {
         (a) => reachedState in a.reachableStates,
       );
       if (continuations.length === 0) {
-        console.log('No continutation has %s at phrase %o', reachedState, phrase);
+        console.log(
+          "No continutation has %s at phrase %o",
+          reachedState,
+          phrase,
+        );
         throw new Error(
           `No continuation has ${reachedState} at phrase ${phrase.id}`,
         );
@@ -402,4 +406,4 @@ export default function phraseGraph<T extends State>(
   return new PhraseGraph(newStart, phrases, states);
 }
 
-export const _forTests = {merge}
+export const _forTests = { merge };

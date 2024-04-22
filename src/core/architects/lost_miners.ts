@@ -43,34 +43,51 @@ function placeBreadcrumb(
   vehicleFactory: VehicleFactory,
   rng: PseudorandomStream,
 ) {
-  const p2 = plan.intersects.reduce((r, v, i) => v ? (() => {
-    const p = cavern.plans[i]
-    return p.hops < r.hops ? p : r
-  })() : r, plan)
-  plan.outerPearl.some(layer => {
-    const points = layer.filter(point => 
-      cavern.intersectsPearlInner.get(...point)?.[p2.id] && tiles.get(...point)?.isWall === false)
+  const p2 = plan.intersects.reduce(
+    (r, v, i) =>
+      v
+        ? (() => {
+            const p = cavern.plans[i];
+            return p.hops < r.hops ? p : r;
+          })()
+        : r,
+    plan,
+  );
+  plan.outerPearl.some((layer) => {
+    const points = layer.filter(
+      (point) =>
+        cavern.intersectsPearlInner.get(...point)?.[p2.id] &&
+        tiles.get(...point)?.isWall === false,
+    );
     if (!points.length) {
       return false;
     }
     const [x, y] = rng.uniformChoice(points);
-    const tile = tiles.get(x, y)
-    const fluid = (tile === Tile.LAVA || tile === Tile.WATER) ? tile : null
+    const tile = tiles.get(x, y);
+    const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
     const template = rng.weightedChoice<VehicleTemplate | null>([
-      {item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2},
-      {item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5},
-      {item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75},
-      {item: VehicleTemplate.RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0},
-      {item: VehicleTemplate.TUNNEL_SCOUT, bid: 0.25},
-      {item: null, bid: 0.0025},
-    ])
+      { item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2 },
+      { item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
+      { item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
+      { item: VehicleTemplate.RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
+      { item: VehicleTemplate.TUNNEL_SCOUT, bid: 0.25 },
+      { item: null, bid: 0.0025 },
+    ]);
     if (template) {
-      vehicles.push(vehicleFactory.create({...randomlyInTile({
-        x, y, aimedAt: plan.path.baseplates[0].center, rng
-      }), template}))
+      vehicles.push(
+        vehicleFactory.create({
+          ...randomlyInTile({
+            x,
+            y,
+            aimedAt: plan.path.baseplates[0].center,
+            rng,
+          }),
+          template,
+        }),
+      );
     }
     return true;
-  }) || placeBreadcrumb(cavern, p2, tiles, vehicles, vehicleFactory, rng)
+  }) || placeBreadcrumb(cavern, p2, tiles, vehicles, vehicleFactory, rng);
 }
 
 const BASE: PartialArchitect<Metadata> = {
@@ -80,7 +97,15 @@ const BASE: PartialArchitect<Metadata> = {
     const lostMinersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
     return { lostMinersCount };
   },
-  placeEntities: ({ cavern, plan, tiles, miners, minerFactory, vehicles, vehicleFactory }) => {
+  placeEntities: ({
+    cavern,
+    plan,
+    tiles,
+    miners,
+    minerFactory,
+    vehicles,
+    vehicleFactory,
+  }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     // First, place the lost miners
     (() => {
@@ -89,21 +114,22 @@ const BASE: PartialArchitect<Metadata> = {
       for (let i = 0; i < plan.metadata.lostMinersCount; i++) {
         miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
       }
-    })()
+    })();
     // Next, place a breadcrumb
-    placeBreadcrumb(cavern, plan, tiles, vehicles, vehicleFactory, rng)
+    placeBreadcrumb(cavern, plan, tiles, vehicles, vehicleFactory, rng);
   },
-  objectives: ({cavern}) => {
-    const {lostMiners, lostMinerCaves} = countLostMiners(cavern);
-    const description = lostMiners === 1
-      ? 'Find the lost Rock Raider'
-      : lostMinerCaves === 1
-        ? 'Find the cave with the lost Rock Radiers'
-        : `Find ${lostMiners} lost Rock Raiders`
-    return ({ 
-      variables: [{ condition: `${g.done}>0`, description}],
+  objectives: ({ cavern }) => {
+    const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
+    const description =
+      lostMiners === 1
+        ? "Find the lost Rock Raider"
+        : lostMinerCaves === 1
+          ? "Find the cave with the lost Rock Radiers"
+          : `Find ${lostMiners} lost Rock Raiders`;
+    return {
+      variables: [{ condition: `${g.done}>0`, description }],
       sufficient: true,
-    });
+    };
   },
   scriptGlobals({ cavern }) {
     const lostMiners = countLostMiners(cavern);
@@ -118,11 +144,8 @@ ${g.done}=1;
 `;
   },
   script({ cavern, plan }) {
-    const lostMinersPoint = transformPoint(
-      cavern,
-      plan.innerPearl[0][0],
-    );
-    const rng = cavern.dice.script(plan.id)
+    const lostMinersPoint = transformPoint(cavern, plan.innerPearl[0][0]);
+    const rng = cavern.dice.script(plan.id);
     const message = cavern.lore.generateFoundLostMiners(
       rng,
       plan.metadata.lostMinersCount,

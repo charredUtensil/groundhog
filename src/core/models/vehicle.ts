@@ -17,8 +17,8 @@ const TEMPLATES = {
   TUNNEL_TRANSPORT:      {id: "VehicleTunnelTransport_C",     inspectAbbrev: "TuTr", frame: 'large', crystals: 10},
 } as const
 
-export const VehicleTemplate = TEMPLATES
-export type VehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES]
+export const VehicleTemplate = TEMPLATES;
+export type VehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES];
 
 export type Vehicle = EntityPosition & {
   readonly id: number;
@@ -27,9 +27,7 @@ export type Vehicle = EntityPosition & {
 
 export class VehicleFactory {
   private id: number = 0;
-  create(
-    args: EntityPosition & { template: VehicleTemplate },
-  ): Vehicle {
+  create(args: EntityPosition & { template: VehicleTemplate }): Vehicle {
     return { ...args, id: this.id++ };
   }
 }

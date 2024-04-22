@@ -12,7 +12,7 @@ import {
   getTotalOre,
 } from "../../../core/architects/utils/resources";
 import OpenCaveFlagPreview from "./open_cave_flag";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
 
 const SCALE = 6;
 
@@ -66,27 +66,49 @@ export default function CavernPreview({
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
         {showOutlines &&
-          cavern.baseplates?.map((bp) => <BaseplatePreview key={bp.id} baseplate={bp} />)}
-        {showOutlines && cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
-        {showOutlines && cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
+          cavern.baseplates?.map((bp) => (
+            <BaseplatePreview key={bp.id} baseplate={bp} />
+          ))}
+        {showOutlines &&
+          cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
+        {showOutlines &&
+          cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
         {showPearls &&
           cavern.plans
             ?.filter((pl) => pl.outerPearl)
             .map((pl) => (
-              <PearlPreview key={pl.id} plan={pl as PearledPlan} pearl={"outerPearl"} />
+              <PearlPreview
+                key={pl.id}
+                plan={pl as PearledPlan}
+                pearl={"outerPearl"}
+              />
             ))}
         {showPearls &&
           cavern.plans
             ?.filter((pl) => pl.innerPearl)
             .map((pl) => (
-              <PearlPreview key={pl.id} plan={pl as PearledPlan} pearl={"innerPearl"} />
+              <PearlPreview
+                key={pl.id}
+                plan={pl as PearledPlan}
+                pearl={"innerPearl"}
+              />
             ))}
-        {mapOverlay === "entities" && (<>
-          {cavern.buildings?.map((b, i) => <EntityPreview key={i} entity={b} building />)}
-          {cavern.creatures?.map((c) => <EntityPreview key={c.id} entity={c} creature />)}
-          {cavern.miners?.map((m) => <EntityPreview key={m.id} entity={m} miner />)}
-          {cavern.vehicles?.map((v) => <EntityPreview key={v.id} entity={v} vehicle />)}
-        </>)}
+        {mapOverlay === "entities" && (
+          <>
+            {cavern.buildings?.map((b, i) => (
+              <EntityPreview key={i} entity={b} building />
+            ))}
+            {cavern.creatures?.map((c) => (
+              <EntityPreview key={c.id} entity={c} creature />
+            ))}
+            {cavern.miners?.map((m) => (
+              <EntityPreview key={m.id} entity={m} miner />
+            ))}
+            {cavern.vehicles?.map((v) => (
+              <EntityPreview key={v.id} entity={v} vehicle />
+            ))}
+          </>
+        )}
         {mapOverlay === "discovery" &&
           cavern.openCaveFlags?.map((_, x, y) => (
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />

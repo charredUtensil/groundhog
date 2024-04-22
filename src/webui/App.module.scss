@@ -1,14 +1,13 @@
 .App {
-  --font-body: 'Outfit';
-  --font-cyber: 'Russo One';
-  --font-tiny: 'Silkscreen';
-  
+  --font-body: "Outfit";
+  --font-cyber: "Russo One";
+  --font-tiny: "Silkscreen";
+
   --palette-fg: white;
   --palette-bg: #121212;
   --palette-lines: #999999;
   --palette-settings-bg: #333333;
   --palette-brand: #c96f12;
-
 
   &.iceBiome {
     --palette-bg: #060716;
@@ -63,7 +62,7 @@
         border: 1px solid var(--palette-lines);
         padding: 0;
         margin: 0;
-        
+
         color: var(--palette-fg);
         background: var(--palette-bg);
         font-family: "Material Symbols Outlined";
@@ -83,7 +82,7 @@
     width: 128px;
     flex-shrink: 0;
     flex-grow: 0;
-    
+
     background-image: linear-gradient(var(--palette-lines) 1px, transparent 1px),
       linear-gradient(to right, var(--palette-lines) 1px, transparent 1px);
     background-size: 16px 16px;

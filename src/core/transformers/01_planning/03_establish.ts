@@ -39,34 +39,36 @@ function encourageDisable(
   cavern: PartialPlannedCavern<FloodedPlan>,
 ) {
   return architects
-    .filter(a => cavern.context.architects?.[a.name] !== 'disable')
-    .map(a => {
-      if (cavern.context.architects?.[a.name] === 'encourage') {
-        const r = {...a}
+    .filter((a) => cavern.context.architects?.[a.name] !== "disable")
+    .map((a) => {
+      if (cavern.context.architects?.[a.name] === "encourage") {
+        const r = { ...a };
         r.caveBid = (args) => !!a.caveBid?.(args) && 999999;
         r.hallBid = (args) => !!a.hallBid?.(args) && 999999;
         r.spawnBid = (args) => !!a.spawnBid?.(args) && 999999;
-        return r
+        return r;
       }
-      return a
-    })
+      return a;
+    });
 }
 
 export default function establish(
   cavern: PartialPlannedCavern<FloodedPlan>,
 ): PartialPlannedCavern<EstablishedPlan> {
-  const architects = encourageDisable(ARCHITECTS, cavern)
+  const architects = encourageDisable(ARCHITECTS, cavern);
 
   // Choose a spawn and an architect for that spawn.
   const spawn = cavern.dice.pickSpawn.weightedChoice(
-    architects.filter((architect) => architect.spawnBid).flatMap((architect) =>
-      cavern.plans
-        .filter((p) => p.kind === "cave")
-        .map((plan) => ({
-          item: { ...plan, architect },
-          bid: architect.spawnBid!({ cavern, plan }) || 0,
-        })),
-    ),
+    architects
+      .filter((architect) => architect.spawnBid)
+      .flatMap((architect) =>
+        cavern.plans
+          .filter((p) => p.kind === "cave")
+          .map((plan) => ({
+            item: { ...plan, architect },
+            bid: architect.spawnBid!({ cavern, plan }) || 0,
+          })),
+      ),
   );
 
   // Sort the plans in a breadth-first search order, starting from spawn and
@@ -103,7 +105,11 @@ export default function establish(
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
-  function doArchitect({ plan, hops, index }: SortedPlan): ArchitectedPlan<any> {
+  function doArchitect({
+    plan,
+    hops,
+    index,
+  }: SortedPlan): ArchitectedPlan<any> {
     const props = { hops: hops / maxHops, order: index / maxIndex };
     const architect =
       plan.architect ||
@@ -117,7 +123,7 @@ export default function establish(
           };
         }),
       );
-    const metadata = architect.prime({cavern, plan});
+    const metadata = architect.prime({ cavern, plan });
     const crystalRichness = curved(
       plan.kind === "cave"
         ? cavern.context.caveCrystalRichness

@@ -84,43 +84,51 @@ export function getMonsterSpawner(
       `int ${v.state}=${STATE.INACTIVE}`,
       discoveryPoint
         ? /*
-          * If there is a non-wall tile that starts undiscovered, generate an onActive
-          * event chain that triggers when that tile changes (i.e. it becomes
-          * discovered).
-          */
+           * If there is a non-wall tile that starts undiscovered, generate an onActive
+           * event chain that triggers when that tile changes (i.e. it becomes
+           * discovered).
+           */
           `if(change:${transformPoint(cavern, discoveryPoint)})[${v.onActive}]`
         : // Otherwise, just enable on init.
           `if(time:0)[${v.onActive}]`,
       eventChain(
         v.onActive,
-        args.initialCooldown && `wait:random(${args.initialCooldown.min.toFixed(2)})(${args.initialCooldown.max.toFixed(2)});`,
+        args.initialCooldown &&
+          `wait:random(${args.initialCooldown.min.toFixed(2)})(${args.initialCooldown.max.toFixed(2)});`,
         `${v.state}=${STATE.READY};`,
         args.spawnImmediatelyWhenReady && `${v.doSpawn};`,
       ),
-      ...triggerPoints.map((point) => `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`),
+      ...triggerPoints.map(
+        (point) => `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`,
+      ),
       eventChain(
         v.doSpawn,
         `((${v.state}<${STATE.READY}))return;`,
         `${v.state}=${RETRIGGER_MODES[args.retriggerMode].afterTriggerState};`,
         // Trigger all the monster spawns.
-        ...Array
-          .from({length: waveSize}, (_, i) => emerges[i % emerges.length])
-          .flatMap(emerge => [
-            `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
-            `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${monster.id},${emerge.radius};`,
-          ]),
+        ...Array.from(
+          { length: waveSize },
+          (_, i) => emerges[i % emerges.length],
+        ).flatMap((emerge) => [
+          `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
+          `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${monster.id},${emerge.radius};`,
+        ]),
         // Wait for the cooldown and retrigger if retriggering is enabled.
-        args.retriggerMode !== "never" && `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
+        args.retriggerMode !== "never" &&
+          `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
         `((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.READY}][${v.state}=${STATE.INACTIVE}];`,
       ),
       // Enable retriggering if a monster reaches the crystal hoard.
-      ...(args.retriggerMode === "hoard" ? plan.innerPearl[0].map(point =>
-        `when(enter:${transformPoint(cavern, point)},${monster.id})[${v.doRetrigger}]`,
-        eventChain(
-          v.doRetrigger,
-          `((${v.state}==${STATE.RETRIGGERABLE}))${v.state}=${STATE.COOLDOWN};`
-        ),
-      ) : []),
-    )
-  }
+      ...(args.retriggerMode === "hoard"
+        ? plan.innerPearl[0].map(
+            (point) =>
+              `when(enter:${transformPoint(cavern, point)},${monster.id})[${v.doRetrigger}]`,
+            eventChain(
+              v.doRetrigger,
+              `((${v.state}==${STATE.RETRIGGERABLE}))${v.state}=${STATE.COOLDOWN};`,
+            ),
+          )
+        : []),
+    );
+  };
 }

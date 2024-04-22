@@ -90,7 +90,9 @@ export type BaseArchitect<T extends Readonly<T>> = {
   placeErosion(args: FineArgs<T>): void;
   placeEntities(args: FineArgs<T>): void;
 
-  objectives(args: {cavern: DiscoveredCavern}): (Partial<Objectives> & {sufficient: boolean}) | undefined;
+  objectives(args: {
+    cavern: DiscoveredCavern;
+  }): (Partial<Objectives> & { sufficient: boolean }) | undefined;
 
   scriptGlobals(args: { cavern: FencedCavern }): string | undefined;
   script(args: {

@@ -2,7 +2,7 @@ import React from "react";
 import { Point, isAdjacent8 } from "../../../core/common/geometry";
 import { pairMap } from "../../../core/common/utils";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
 
 const SCALE = 6;
 
@@ -27,9 +27,9 @@ export default function PearlPreview({
 }) {
   const io = pearl === "outerPearl" ? plan.innerPearl.length : 0;
   return (
-    <g className={
-      `${styles.pearl} ${styles[pearl]} ${styles[`${plan.kind}Kind`]}`
-    }>
+    <g
+      className={`${styles.pearl} ${styles[pearl]} ${styles[`${plan.kind}Kind`]}`}
+    >
       {plan[pearl].map((layer, i) => (
         <path
           key={i}

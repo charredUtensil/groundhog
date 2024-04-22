@@ -26,24 +26,23 @@ const TILES = {
   RECHARGE_SEAM:      {id: 50, isWall:  true, passableByMiner: false, crystalYield: 0, oreYield: 0, inspectColor: "#FFFF00"},
 } as const;
 
-export const Tile = TILES
+export const Tile = TILES;
 export type Tile = (typeof TILES)[keyof typeof TILES];
 
-export type RoughTile = (
+export type RoughTile =
   | typeof TILES.FLOOR
   | typeof TILES.LAVA
   | typeof TILES.WATER
   | typeof TILES.DIRT
   | typeof TILES.LOOSE_ROCK
   | typeof TILES.HARD_ROCK
-  | typeof TILES.SOLID_ROCK
-);
+  | typeof TILES.SOLID_ROCK;
 export type FluidType = typeof TILES.LAVA | typeof TILES.WATER | null;
 
 export const TILE_STYLE_VARS = (() => {
-  const r: {[K: string]: string} = {};
-  (Object.keys(TILES) as (keyof typeof TILES)[]).forEach(k => {
-    r[`--palette-tile-${TILES[k].id}`] = TILES[k].inspectColor
+  const r: { [K: string]: string } = {};
+  (Object.keys(TILES) as (keyof typeof TILES)[]).forEach((k) => {
+    r[`--palette-tile-${TILES[k].id}`] = TILES[k].inspectColor;
   });
-  return r
-})()
+  return r;
+})();

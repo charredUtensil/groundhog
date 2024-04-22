@@ -7,17 +7,17 @@ import { mkVars, transformPoint } from "./utils/script";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 
-const BASE: typeof DefaultCaveArchitect & {isTreasure: true} = {
+const BASE: typeof DefaultCaveArchitect & { isTreasure: true } = {
   ...DefaultCaveArchitect,
   isTreasure: true,
-  objectives: ({cavern}) => {
+  objectives: ({ cavern }) => {
     const crystals = cavern.plans
-      .filter(plan => 'isTreasure' in plan.architect)
-      .reduce((r, plan) => Math.max(r, plan.crystals), 0)
+      .filter((plan) => "isTreasure" in plan.architect)
+      .reduce((r, plan) => Math.max(r, plan.crystals), 0);
     if (crystals < 15) {
       return undefined;
     }
-    return {crystals: Math.floor(crystals / 5) * 5, sufficient: false};
+    return { crystals: Math.floor(crystals / 5) * 5, sufficient: false };
   },
 };
 
@@ -95,7 +95,7 @@ const RICH: typeof BASE = {
   }),
 };
 
-const TREASURE: readonly (Architect<unknown> & {isTreasure: true})[] = [
+const TREASURE: readonly (Architect<unknown> & { isTreasure: true })[] = [
   {
     name: "Open Hoard",
     ...HOARD,

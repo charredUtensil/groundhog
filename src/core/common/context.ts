@@ -1,4 +1,3 @@
-
 import { DiceBox } from "./prng";
 
 export type Biome = "rock" | "ice" | "lava";
@@ -88,7 +87,7 @@ export type CavernContext = {
   monsterSpawnRate: Curve;
   /** How many monsters to spawn at a time in a cave, if monsters are enabled. */
   monsterWaveSize: Curve;
-  architects: {[key: string]: 'encourage' | 'disable'}
+  architects: { [key: string]: "encourage" | "disable" };
   /**
    * The chance each cave will have a recharge seam. Some caves (such as spawn)
    * will always have a recharge seam.
@@ -160,12 +159,13 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 
 const NOT_CONSIDERED_OVERRIDE = {
   seed: true,
-} as const
+} as const;
 
 export function inferContextDefaults(
-  args: Partial<Omit<CavernContext, "hasOverrides">> & Pick<CavernContext, "seed">,
+  args: Partial<Omit<CavernContext, "hasOverrides">> &
+    Pick<CavernContext, "seed">,
 ): CavernContext {
-  const dice = new DiceBox(args.seed)
+  const dice = new DiceBox(args.seed);
   const r = {
     biome: dice
       .init(Die.biome)
@@ -198,6 +198,8 @@ export function inferContextDefaults(
     crystalGoalRatio: 0.2,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
-    hasOverrides: Object.keys(args).some(k => !(k in NOT_CONSIDERED_OVERRIDE)),
+    hasOverrides: Object.keys(args).some(
+      (k) => !(k in NOT_CONSIDERED_OVERRIDE),
+    ),
   };
 }

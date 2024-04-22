@@ -51,13 +51,13 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   // Weird case to explain: Find HQ, but the HQ is intact and there are no lost miners.
   // Blame Canada... or bureaucracy.
   greeting
-    .then(state('findHq'))
+    .then(state("findHq"))
     .then(
-      'We established our Rock Raider HQ here,',
+      "We established our Rock Raider HQ here,",
       "We've had our eyes on this region and were all set to mine here,",
     )
     .then(
-      'but pulled back when we found a more suitable cavern.',
+      "but pulled back when we found a more suitable cavern.",
       "but due to a minor bureaucratic mishap with Form 27B-6, we forgot to mine it!",
     )
     .then(
@@ -66,18 +66,19 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       state("hasMonsters").then(
         "We hope the ${enemies} have left it alone.",
         "Unfortunately, it seems we've attracted some unwanted attention.",
-      )
+      ),
     )
     .then(skip, state("spawnHasErosion"))
-    .then(end)
+    .then(end);
 
   // Maybe treasure, maybe spawn is HQ.
   greeting
     .then(
-      pg(
-        "A recent scan",
-        "Our most recent geological survey",
-      ).then("found", "has discovered", "has indicated"),
+      pg("A recent scan", "Our most recent geological survey").then(
+        "found",
+        "has discovered",
+        "has indicated",
+      ),
       pg("We", "The scanners", "The scanners aboard the L.M.S. Explorer").then(
         "have found",
         "have located",
@@ -106,20 +107,22 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         ", but proceed with caution!\n\n",
         ", but this is no walk in the park.",
       ).then(additionalHardship),
-      state("spawnIsHq").then(
-        ', and we have established our Rock Raider HQ.',
-        ', and our HQ is ready to go!',
-      ).then(
-        pg(
-          "\n\nHowever,",
-          "\n\nUnfortunately,",
-          "\n\nUnfortunately for us,",
-          "\n\nThe bad news?",
-          "Don't be fooled, though.",
-          "I do ask that you be careful down there!",
-        ).then(additionalHardship),
-        end,
-      ),
+      state("spawnIsHq")
+        .then(
+          ", and we have established our Rock Raider HQ.",
+          ", and our HQ is ready to go!",
+        )
+        .then(
+          pg(
+            "\n\nHowever,",
+            "\n\nUnfortunately,",
+            "\n\nUnfortunately for us,",
+            "\n\nThe bad news?",
+            "Don't be fooled, though.",
+            "I do ask that you be careful down there!",
+          ).then(additionalHardship),
+          end,
+        ),
     );
 
   const negativeGreeting = pg(
@@ -140,27 +143,27 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     "It gets worse:",
   ).then(additionalHardship);
 
-  const findThem =
-    pg(
-      "we're counting on you to find them!",
-      "we don't know how long they'll last out there.",
-      state("hasMonsters").then(
-        "we need to find them before the ${enemies} do.",
-        "I hope they don't meet any of the ${enemies} roaming this cavern.",
-      ),
-    )
+  const findThem = pg(
+    "we're counting on you to find them!",
+    "we don't know how long they'll last out there.",
+    state("hasMonsters").then(
+      "we need to find them before the ${enemies} do.",
+      "I hope they don't meet any of the ${enemies} roaming this cavern.",
+    ),
+  )
     .then(state("spawnHasErosion"), skip)
     .then(end);
 
   // maybe treasure, maybe find spawn or spawn is HQ, lost miners.
   negativeGreeting
-    .then(state('treasureCaveOne', 'treasureCaveMany'), skip)
+    .then(state("treasureCaveOne", "treasureCaveMany"), skip)
     .then(
       skip,
-      state('spawnIsHq', 'findHq').then(
-        'We have established our Rock Raider HQ, but',
-        'We constructed our base and were ready to begin mining. Unfortunately,'
-      ))
+      state("spawnIsHq", "findHq").then(
+        "We have established our Rock Raider HQ, but",
+        "We constructed our base and were ready to begin mining. Unfortunately,",
+      ),
+    )
     .then(
       state("lostMinersOne").then(
         "a teleporter malfunction sent one of our Rock Raiders to a cavern near here.",
@@ -176,15 +179,19 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "the teleporters have failed again and ${lostMinerCavesCount} groups of Rock Raiders are lost somewhere in this cavern.",
       ),
     )
-    .then(pg(
-      'Our engineers have assured us the teleporters have been repaired, but',
-      'While the teleporters are back in working order,',
-    ).then(additionalHardship), alsoAdditionalHardship, findThem);
+    .then(
+      pg(
+        "Our engineers have assured us the teleporters have been repaired, but",
+        "While the teleporters are back in working order,",
+      ).then(additionalHardship),
+      alsoAdditionalHardship,
+      findThem,
+    );
 
   // HQ is ruin, maybe treasure, spawn is HQ or find HQ, maybe lost miners.
   negativeGreeting
     .then(state("hqIsRuin"))
-    .then(state('treasureCaveOne', 'treasureCaveMany'), skip)
+    .then(state("treasureCaveOne", "treasureCaveMany"), skip)
     .then(
       "Recent seismic activity has damaged our Rock Raider HQ",
       "An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ",
@@ -230,4 +237,4 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         .then(additionalHardship, end),
     );
 });
-export default PREMISE
+export default PREMISE;

@@ -19,9 +19,12 @@ export function transformPoint(cavern: FencedCavern, [x, y]: Point): string {
 }
 
 export function scriptFragment(...rest: (string | false | null | undefined)[]) {
-  return rest.filter(s => s).join('\n')
+  return rest.filter((s) => s).join("\n");
 }
 
-export function eventChain(name: string, ...rest: (string | false | null | undefined)[]) {
-  return `${name}::;\n${scriptFragment(...rest)}\n`
+export function eventChain(
+  name: string,
+  ...rest: (string | false | null | undefined)[]
+) {
+  return `${name}::;\n${scriptFragment(...rest)}\n`;
 }

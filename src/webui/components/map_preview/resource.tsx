@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid } from "../../../core/common/grid";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
 
 const SCALE = 6;
 
