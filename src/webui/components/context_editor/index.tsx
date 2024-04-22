@@ -32,8 +32,11 @@ export function CavernContextInput({
   const [context, update] = useReducer(
     (
       was: PartialContext,
-      args: {[K in keyof CavernContext]?: CavernContext[K] | undefined}
+      args: {[K in keyof CavernContext]?: CavernContext[K] | undefined} | 'reset'
     ): PartialContext => {
+      if (args === 'reset') {
+        return {seed: was.seed}
+      }
       const r = { ...was, ...args };
       for (const key of Object.keys(r) as (keyof typeof r)[]) {
         if (r[key] === undefined) {
@@ -48,8 +51,7 @@ export function CavernContextInput({
   );
 
   const contextWithDefaults = inferContextDefaults(context)
-
-  useEffect(() => dispatchState({context: inferContextDefaults(context)}), [context, dispatchState]);
+  useEffect(() => dispatchState({context: contextWithDefaults}), [context, dispatchState]);
 
   return (
     <div className={styles.contextInput}>
@@ -57,7 +59,7 @@ export function CavernContextInput({
         <input
           type="text"
           className={styles.seed}
-          value={(context?.seed ?? INITIAL_SEED).toString(16).toUpperCase()}
+          value={(context?.seed ?? INITIAL_SEED).toString(16).padStart(8, "0").toUpperCase()}
           onChange={(ev) => {
             const seed = parseInt(ev.target.value, 16);
             if (seed >= 0 && seed < MAX_PLUS_ONE) {
@@ -72,7 +74,7 @@ export function CavernContextInput({
       </div>
       <div className={styles.inputRow}>
         <button
-          className={`${styles.showAdvanced} ${Object.keys(context).length > 1 ? styles.override : ''}`}
+          className={`${styles.showAdvanced} ${Object.keys(context).length > 1 && !showAdvanced ? styles.override : ''}`}
           onClick={() => setShowAdvanced((v) => !v)}
         >
           <span>Advanced</span>
@@ -83,6 +85,12 @@ export function CavernContextInput({
       </div>
       {showAdvanced && (
         <>
+          <div className={styles.inputRow}>
+            {contextWithDefaults.hasOverrides ? <button
+              className={styles.override} onClick={() => update('reset')}>
+              Clear All Overrides
+            </button> : <div className={styles.invisible} />}
+          </div>
           <Choice
             of="biome"
             choices={["rock", "ice", "lava"]}
@@ -138,6 +146,7 @@ export function CavernContextInput({
             of="auxiliaryPathMinAngle"
             min={0}
             max={Math.PI}
+            angle
             update={update}
             context={context}
             contextWithDefaults={contextWithDefaults}

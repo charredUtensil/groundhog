@@ -19,7 +19,8 @@
     top: 0;
     margin: 0;
     padding: 0.5em 0;
-    background: linear-gradient(0deg, transparent, var(--palette-settings-bg), var(--palette-settings-bg));
+    background: linear-gradient(
+      0deg, transparent, var(--palette-settings-bg) 33%, var(--palette-settings-bg));
   }
 
   p {
@@ -35,7 +36,7 @@
 
     > *:not([type="range"]) {
       height: 36px;
-      width: 36px;
+      width: 100%;
       line-height: 34px;
       box-sizing: border-box;
       border: 1px solid var(--palette-lines);
@@ -53,11 +54,16 @@
       font-family: "Material Symbols Outlined";
       font-size: 24px;
       flex-shrink: 0;
+      width: 36px;
     }
 
     .inactive {
       color: var(--palette-lines);
       border-style: dashed;
+    }
+
+    .invisible {
+      opacity: 0;
     }
 
     .override {
@@ -67,7 +73,6 @@
 
     .seed {
       font-size: 24px;
-      width: 100%;
     }
 
     .showAdvanced {
@@ -80,33 +85,30 @@
       line-height: 22px;
     }
 
-    .choice {
-      width: 100%;
-    }
-
-    .slider {
-      width: 100%;
-    }
-
     .curve {
       display: flex;
       height: fit-content;
-      width: 100%;
       flex-direction: column;
       border: none;
+      padding: 6px 0;
+      gap: 6px;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     input[type="range"] {
       -webkit-appearance: none;
-      appearance: none; 
+      appearance: none;
       width: 100%;
       cursor: pointer;
       outline: none;
-      border-radius: 15px;
+      border-radius: 2px;
       height: 6px;
       background: linear-gradient(
         to right,
-        var(--palette-brand) 7px,
+        var(--palette-brand) 4px,
         var(--palette-brand) var(--completion),
         var(--palette-fg) var(--completion),
         var(--palette-fg) 100%);
@@ -114,18 +116,18 @@
       &::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        height: 15px;
-        width: 15px;
+        height: 14px;
+        width: 8px;
         background-color: var(--palette-brand);
-        border-radius: 50%;
+        border-radius: 2px;
         border: none;
       }
 
       &::-moz-range-thumb {
-        height: 15px;
-        width: 15px;
+        height: 14px;
+        width: 8px;
         background-color: var(--palette-brand);
-        border-radius: 50%;
+        border-radius: 2px;
         border: none;
       }
     }

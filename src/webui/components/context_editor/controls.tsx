@@ -1,6 +1,7 @@
 import React, { CSSProperties, useEffect, useReducer, useState } from "react";
 import styles from "./style.module.scss"
 import { CavernContext, Curve } from "../../../core/common";
+import { radsToDegrees } from "../../../core/common/geometry";
 
 export type UpdateData = {
   update: React.Dispatch<Partial<CavernContext>>,
@@ -88,21 +89,30 @@ export const CurveSliders = (
             );
           })}
         </div>
-        <button
-          className={`${styles.icon} ${of in context ? styles.override : styles.inactive}`}
-          onClick={() => update({[of]: undefined})}>cancel</button>
+          {
+            of in context
+            ? (
+              <button
+            className={`${styles.icon} ${styles.override}`}
+            onClick={() => update({ [of]: undefined })}>undo</button>
+            )
+            : (
+              <div className={`${styles.icon} ${styles.invisible}`} />
+            )
+          }
       </div>
     </>
   );
 }
 
 export const Slider = (
-  {of, min, max, percent, step, update, context, contextWithDefaults}:
+  {of, min, max, percent, angle, step, update, context, contextWithDefaults}:
   {
     of: KeysMatching<CavernContext, number>,
     min: number,
     max: number,
     percent?: boolean,
+    angle?: boolean,
     step?: number
   } & UpdateData
 ) => {
@@ -111,7 +121,7 @@ export const Slider = (
     <>
       <p>
         {of}:{' '}
-        {percent ? `${(value * 100).toFixed()}%` : value}
+        {percent ? <>{(value * 100).toFixed()}%</> : angle ? <>{radsToDegrees(value).toFixed()}&deg;</> : value}
       </p>
       <div className={styles.inputRow}>
         <input
@@ -119,13 +129,21 @@ export const Slider = (
           type="range"
           min={min}
           max={max}
-          step={step || (percent ? 0.01 : 1)}
+          step={step || (percent ? 0.01 : angle ? Math.PI / 36 : 1)}
           value={value}
           style={{ '--completion': `${100 * (value - min) / (max - min)}%` } as CSSProperties}
           onChange={(ev) => update({ [of]: ev.target.valueAsNumber })} />
-        <button
-          className={`${styles.icon} ${context[of] === undefined ? styles.inactive : styles.override}`}
-          onClick={() => update({ [of]: undefined })}>cancel</button>
+        {
+          context[of] === undefined
+          ? (
+            <div className={`${styles.icon} ${styles.invisible}`} />
+          )
+          : (
+            <button
+          className={`${styles.icon} ${styles.override}`}
+          onClick={() => update({ [of]: undefined })}>undo</button>
+          )
+        }
       </div>
     </>
   );

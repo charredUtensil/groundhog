@@ -43,7 +43,7 @@ function App() {
       const next = () => CAVERN_TF.first(cavern);
       return {cavern, next}
     } else if ('error' in action) {
-      return {...was, action};
+      return {cavern: was.cavern, ...action};
     }
     return action
   }, {})
