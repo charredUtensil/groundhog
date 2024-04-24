@@ -2,7 +2,7 @@ import { DiceBox } from "../common";
 import { CavernContext } from "../common/context";
 import { TriangulatedCavern } from "../transformers/00_outlines/02_triangulate";
 import { PartialPlannedCavern } from "../transformers/01_planning/00_negotiate";
-import { SerializedCavern } from "../transformers/02_plastic/09_serialize";
+import { SerializedCavern } from "../transformers/02_plastic/10_serialize";
 import { Plan } from "./plan";
 
 export type BaseCavern = {

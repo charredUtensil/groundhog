@@ -1,5 +1,5 @@
-import { EnscribedCavern } from "./06_enscribe";
-import fence, { FencedCavern } from "./07_fence";
+import { EnscribedCavern } from "./07_enscribe";
+import fence, { FencedCavern } from "./08_fence";
 
 function bounds({ left, right, bottom, top }: FencedCavern) {
   return { left, right, bottom, top };

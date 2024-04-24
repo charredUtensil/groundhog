@@ -1,4 +1,4 @@
-import { EnscribedCavern } from "./06_enscribe";
+import { EnscribedCavern } from "./07_enscribe";
 
 export type FencedCavern = EnscribedCavern & {
   left: number;

@@ -3,7 +3,7 @@ import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
-import { AdjuredCavern } from "../transformers/02_plastic/05_adjure";
+import { AdjuredCavern } from "../transformers/02_plastic/06_adjure";
 import { GenerateResult } from "./builder";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {

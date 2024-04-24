@@ -18,7 +18,7 @@ import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
-import { mkVars, transformPoint } from "./utils/script";
+import { escapeString, mkVars, transformPoint } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
 
 const DESTROY_PATH_CHANCE = 0.62;
@@ -235,7 +235,7 @@ int ${g.foundHq}=0`,
     const v = mkVars(`p${plan.id}FoundHq`, ["messageDiscover", "onDiscover"]);
 
     return `# Objective: Find the lost Rock Raider HQ
-string ${v.messageDiscover}="${cavern.lore.generateFoundHq(cavern.dice)}"
+string ${v.messageDiscover}="${escapeString(cavern.lore.generateFoundHq(cavern.dice).text)}"
 if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]
 ${v.onDiscover}::;
 msg:${v.messageDiscover};

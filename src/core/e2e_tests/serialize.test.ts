@@ -27,8 +27,8 @@ import { MinerFactory } from "../models/miner";
 import { atCenterOfTile, position } from "../models/position";
 import { Tile } from "../models/tiles";
 import discover from "../transformers/02_plastic/04_discover";
-import fence from "../transformers/02_plastic/07_fence";
-import serialize from "../transformers/02_plastic/09_serialize";
+import fence from "../transformers/02_plastic/08_fence";
+import serialize from "../transformers/02_plastic/10_serialize";
 import goldenTest from "./golden";
 
 function fill<T>(

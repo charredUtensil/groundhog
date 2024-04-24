@@ -7,9 +7,10 @@ import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
 import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
 import { RoughPlasticCavern } from "../transformers/02_plastic/01_rough";
+import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
-import { mkVars, transformPoint } from "./utils/script";
+import { escapeString, mkVars, transformPoint } from "./utils/script";
 
 type Metadata = {
   readonly lostMinersCount: number;
@@ -36,13 +37,13 @@ export function countLostMiners(cavern: PlannedCavern) {
 }
 
 function placeBreadcrumb(
-  cavern: RoughPlasticCavern,
+  cavern: DiscoveredCavern,
   plan: Plan,
-  tiles: Grid<Tile>,
   vehicles: Vehicle[],
   vehicleFactory: VehicleFactory,
   rng: PseudorandomStream,
 ) {
+  // Find the next closest plan
   const p2 = plan.intersects.reduce(
     (r, v, i) =>
       v
@@ -57,13 +58,13 @@ function placeBreadcrumb(
     const points = layer.filter(
       (point) =>
         cavern.intersectsPearlInner.get(...point)?.[p2.id] &&
-        tiles.get(...point)?.isWall === false,
+        cavern.tiles.get(...point)?.isWall === false,
     );
     if (!points.length) {
       return false;
     }
     const [x, y] = rng.uniformChoice(points);
-    const tile = tiles.get(x, y);
+    const tile = cavern.tiles.get(x, y);
     const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
     const template = rng.weightedChoice<VehicleTemplate | null>([
       { item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2 },
@@ -87,7 +88,7 @@ function placeBreadcrumb(
       );
     }
     return true;
-  }) || placeBreadcrumb(cavern, p2, tiles, vehicles, vehicleFactory, rng);
+  }) || placeBreadcrumb(cavern, p2, vehicles, vehicleFactory, rng);
 }
 
 const BASE: PartialArchitect<Metadata> = {
@@ -100,7 +101,6 @@ const BASE: PartialArchitect<Metadata> = {
   placeEntities: ({
     cavern,
     plan,
-    tiles,
     miners,
     minerFactory,
     vehicles,
@@ -110,13 +110,12 @@ const BASE: PartialArchitect<Metadata> = {
     // First, place the lost miners
     (() => {
       const [x, y] = plan.innerPearl[0][0];
-      tiles.set(x, y, Tile.FLOOR); // Ensure this tile is a floor tile just in case.
       for (let i = 0; i < plan.metadata.lostMinersCount; i++) {
         miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
       }
     })();
     // Next, place a breadcrumb
-    placeBreadcrumb(cavern, plan, tiles, vehicles, vehicleFactory, rng);
+    placeBreadcrumb(cavern, plan, vehicles, vehicleFactory, rng);
   },
   objectives: ({ cavern }) => {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
@@ -136,7 +135,7 @@ const BASE: PartialArchitect<Metadata> = {
     return `# Lost Miners Globals
 int ${g.lostMinersCount}=${lostMiners}
 int ${g.done}=0
-string ${g.messageFoundAll}="${cavern.lore.generateFoundAllLostMiners(cavern.dice)}"
+string ${g.messageFoundAll}="${escapeString(cavern.lore.generateFoundAllLostMiners(cavern.dice).text)}"
 ${g.onFoundAll}::;
 msg:${g.messageFoundAll};
 wait:3;
@@ -149,14 +148,14 @@ ${g.done}=1;
     const message = cavern.lore.generateFoundLostMiners(
       rng,
       plan.metadata.lostMinersCount,
-    );
+    ).text;
     const v = mkVars(`p${plan.id}FoundMiners`, [
       "messageDiscover",
       "onDiscover",
       "onIncomplete",
     ]);
     return `# Found Lost Miners ${plan.id}
-string ${v.messageDiscover}="${message}"
+string ${v.messageDiscover}="${escapeString(message)}"
 if(change:${lostMinersPoint})[${v.onDiscover}]
 ${v.onDiscover}::;
 pan:${lostMinersPoint};

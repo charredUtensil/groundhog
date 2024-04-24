@@ -12,7 +12,7 @@ import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
 import { PearledPlan } from "../transformers/01_planning/04_pearl";
-import { FencedCavern } from "../transformers/02_plastic/07_fence";
+import { FencedCavern } from "../transformers/02_plastic/08_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
@@ -49,6 +49,13 @@ export type FineArgs<T> = {
   readonly crystals: MutableGrid<number>;
   readonly ore: MutableGrid<number>;
   readonly buildings: Building[];
+  readonly openCaveFlags: MutableGrid<true>;
+  readonly setCameraPosition: (position: EntityPosition) => void;
+};
+
+export type PopulateArgs<T> = {
+  readonly cavern: DiscoveredCavern;
+  readonly plan: PlanWithMetadata<T>;
   readonly landslides: MutableGrid<Landslide>;
   readonly erosion: MutableGrid<Erosion>;
   readonly creatureFactory: CreatureFactory;
@@ -57,9 +64,7 @@ export type FineArgs<T> = {
   readonly miners: Miner[];
   readonly vehicleFactory: VehicleFactory;
   readonly vehicles: Vehicle[];
-  readonly openCaveFlags: MutableGrid<true>;
-  readonly setCameraPosition: (position: EntityPosition) => void;
-};
+}
 
 export type BaseArchitect<T extends Readonly<T>> = {
   readonly name: string;
@@ -86,9 +91,10 @@ export type BaseArchitect<T extends Readonly<T>> = {
   placeBuildings(args: FineArgs<T>): void;
   placeCrystals(args: FineArgs<T>): void;
   placeOre(args: FineArgs<T>): void;
-  placeLandslides(args: FineArgs<T>): void;
-  placeErosion(args: FineArgs<T>): void;
-  placeEntities(args: FineArgs<T>): void;
+
+  placeLandslides(args: PopulateArgs<T>): void;
+  placeErosion(args: PopulateArgs<T>): void;
+  placeEntities(args: PopulateArgs<T>): void;
 
   objectives(args: {
     cavern: DiscoveredCavern;

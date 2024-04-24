@@ -1,5 +1,5 @@
 import { Architect } from "../../models/architect";
-import { FencedCavern } from "./07_fence";
+import { FencedCavern } from "./08_fence";
 
 export type ProgrammedCavern = FencedCavern & {
   readonly script: string;

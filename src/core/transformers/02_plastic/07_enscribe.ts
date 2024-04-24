@@ -1,5 +1,5 @@
 import { Lore } from "../../lore/lore";
-import { AdjuredCavern } from "./05_adjure";
+import { AdjuredCavern } from "./06_adjure";
 
 export type EnscribedCavern = AdjuredCavern & {
   lore: Lore;

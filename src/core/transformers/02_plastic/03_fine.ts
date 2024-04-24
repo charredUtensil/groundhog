@@ -1,26 +1,16 @@
-import { PlannedCavern } from "../../models/cavern";
 import { RoughPlasticCavern } from "./01_rough";
 import { MutableGrid, Grid } from "../../common/grid";
 import { Tile } from "../../models/tiles";
 import { Building } from "../../models/building";
-import { Erosion, Landslide } from "../../models/hazards";
-import { Creature, CreatureFactory } from "../../models/creature";
-import { Miner, MinerFactory } from "../../models/miner";
 import { Architect, FineArgs } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { EntityPosition } from "../../models/position";
-import { Vehicle, VehicleFactory } from "../../models/vehicle";
 
-export type FinePlasticCavern = PlannedCavern & {
+export type FinePlasticCavern = Omit<RoughPlasticCavern, 'tiles'> & {
   readonly tiles: Grid<Tile>;
   readonly crystals: Grid<number>;
   readonly ore: Grid<number>;
   readonly buildings: readonly Building[];
-  readonly landslides: Grid<Landslide>;
-  readonly erosion: Grid<Erosion>;
-  readonly creatures: readonly Creature[];
-  readonly miners: readonly Miner[];
-  readonly vehicles: readonly Vehicle[];
   readonly openCaveFlags: Grid<true>;
   readonly cameraPosition: EntityPosition;
 };
@@ -33,14 +23,6 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     crystals: new MutableGrid<number>(),
     ore: new MutableGrid<number>(),
     buildings: [],
-    landslides: new MutableGrid<Landslide>(),
-    erosion: new MutableGrid<Erosion>(),
-    creatureFactory: new CreatureFactory(),
-    creatures: [],
-    minerFactory: new MinerFactory(),
-    miners: [],
-    vehicleFactory: new VehicleFactory(),
-    vehicles: [],
     openCaveFlags: new MutableGrid<true>(),
     setCameraPosition: (pos) => (cameraPosition = pos),
   };
@@ -51,9 +33,6 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
       plan.architect.placeBuildings(args);
       plan.architect.placeCrystals(args);
       plan.architect.placeOre(args);
-      plan.architect.placeLandslides(args);
-      plan.architect.placeErosion(args);
-      plan.architect.placeEntities(args);
     },
   );
   if (!cameraPosition) {

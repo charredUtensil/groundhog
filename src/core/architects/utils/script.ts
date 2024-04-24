@@ -1,5 +1,5 @@
 import { Point } from "../../common/geometry";
-import { FencedCavern } from "../../transformers/02_plastic/07_fence";
+import { FencedCavern } from "../../transformers/02_plastic/08_fence";
 
 type VarType<T extends string> = {
   [p in T]: string;
@@ -27,4 +27,8 @@ export function eventChain(
   ...rest: (string | false | null | undefined)[]
 ) {
   return `${name}::;\n${scriptFragment(...rest)}\n`;
+}
+
+export function escapeString(s: string) {
+  return s.replace('"', '\\"');
 }

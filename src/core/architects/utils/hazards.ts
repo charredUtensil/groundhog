@@ -1,8 +1,8 @@
-import { Grid, MutableGrid } from "../../common/grid";
+import { MutableGrid } from "../../common/grid";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Plan } from "../../models/plan";
 import { Tile } from "../../models/tiles";
-import { RoughPlasticCavern } from "../../transformers/02_plastic/01_rough";
+import { DiscoveredCavern } from "../../transformers/02_plastic/04_discover";
 
 const LANDSLIDABLE_TILES: readonly (true | undefined)[] = (() => {
   const r: (true | undefined)[] = [];
@@ -19,12 +19,10 @@ export function placeLandslides(
   {
     cavern,
     plan,
-    tiles,
     landslides,
   }: {
-    cavern: RoughPlasticCavern;
+    cavern: DiscoveredCavern;
     plan: Plan;
-    tiles: Grid<Tile>;
     landslides: MutableGrid<Landslide>;
   },
 ) {
@@ -39,7 +37,7 @@ export function placeLandslides(
     .filter(
       (point) =>
         !landslides.get(...point) &&
-        LANDSLIDABLE_TILES[tiles.get(...point)?.id ?? -1] &&
+        LANDSLIDABLE_TILES[cavern.tiles.get(...point)?.id ?? -1] &&
         rng.chance(spread),
     )
     .forEach((point) => {
@@ -56,12 +54,12 @@ export function placeErosion(
   cooldown: number,
   initialDelay: number,
   {
+    cavern,
     plan,
-    tiles,
     erosion,
   }: {
+    cavern: DiscoveredCavern;
     plan: Plan;
-    tiles: Grid<Tile>;
     erosion: MutableGrid<Erosion>;
   },
 ) {
@@ -69,7 +67,7 @@ export function placeErosion(
     const event = new Erosion(cooldown, initialDelay);
     plan.innerPearl.forEach((layer) =>
       layer.forEach((point) => {
-        if (tiles.get(...point)?.passableByMiner) {
+        if (cavern.tiles.get(...point)?.passableByMiner) {
           erosion.set(...point, event);
         }
       }),
