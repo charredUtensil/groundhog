@@ -76,13 +76,15 @@ easier to add would be caves with specific things in them - like
 
 ## Can I tweak the level generation?
 
-Sure! I'm hoping to eventually add parameters for everything in the
-CavernContext object to the UI, but you can tweak these locally.
+Yes! Just click "Advanced" and you have a few dozen parameters to change.
+Some should be fairly self-explanatory while others... aren't. Please note
+that changing these settings, especially at the extreme edges, is likely to
+cause errors at this time.
 
 ## Can you give me some cool seeds to play?
 
-Not yet. As of this writing I haven't actually tested that any of the levels
-load in Manic Miners.
+Not yet. And I'm probably going to break level generation a few times before
+this project hits a 1.0 release.
 
 ## Were any of these Qs actually FA'ed?
 

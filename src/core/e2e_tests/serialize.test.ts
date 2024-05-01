@@ -13,6 +13,7 @@ import {
   TOOL_STORE,
   UPGRADE_STATION,
 } from "../models/building";
+import { Cavern } from "../models/cavern";
 import {
   BAT,
   CreatureFactory,
@@ -63,10 +64,28 @@ const DUMMY_CAVERN = {
   landslides: new MutableGrid<Landslide>(),
   miners: [],
   ore: new MutableGrid<number>(),
-  objectives: {},
+  objectives: {
+    crystals: 50,
+    ore: 0,
+    studs: 0,
+    variables: [],
+  },
   openCaveFlags: new MutableGrid<true>(),
   script: "[SCRIPT]",
 };
+
+function ds(args: Partial<Cavern>) {
+  return serialize(
+    fence(
+      discover({
+        ...DUMMY_CAVERN,
+        ...args,
+      } as any) as any,
+    ) as any,
+  ).serialized.replace(
+    /groundHog v\S+/,
+    "groundHog [VERSION]");
+}
 
 goldenTest("mvp", () => {
   const crystals = new MutableGrid<number>();
@@ -86,17 +105,12 @@ goldenTest("mvp", () => {
   );
   openCaveFlags.set(0, 1, true);
 
-  return serialize(
-    fence(
-      discover({
-        ...DUMMY_CAVERN,
-        crystals,
-        tiles,
-        buildings,
-        openCaveFlags,
-      } as any) as any,
-    ) as any,
-  ).serialized;
+  return ds({
+    crystals,
+    tiles,
+    buildings,
+    openCaveFlags,
+  });
 });
 
 goldenTest("building_zoo", () => {
@@ -159,16 +173,11 @@ goldenTest("building_zoo", () => {
     b.foundation.forEach((point) => tiles.set(...point, Tile.FOUNDATION)),
   );
 
-  return serialize(
-    fence(
-      discover({
-        ...DUMMY_CAVERN,
-        tiles,
-        buildings,
-        openCaveFlags,
-      } as any) as any,
-    ) as any,
-  ).serialized;
+  return ds({
+    tiles,
+    buildings,
+    openCaveFlags,
+  });
 });
 
 goldenTest("entity_zoo", () => {
@@ -179,63 +188,63 @@ goldenTest("entity_zoo", () => {
   const size = 12;
   fill(tiles, 0, 0, size, size, Tile.FLOOR);
 
-  const minersFacing: Point = [1.5, 1.5];
+  const minersAimedAt: Point = [1.5, 1.5];
   const mf = new MinerFactory();
   const miners = [
     mf.create({
-      ...atCenterOfTile({ x: 0, y: 0, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 0, y: 0, aimedAt: minersAimedAt }),
       level: 1,
     }),
     mf.create({
-      ...atCenterOfTile({ x: 1, y: 0, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 1, y: 0, aimedAt: minersAimedAt }),
       level: 2,
     }),
     mf.create({
-      ...atCenterOfTile({ x: 2, y: 0, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 2, y: 0, aimedAt: minersAimedAt }),
       level: 3,
     }),
     mf.create({
-      ...atCenterOfTile({ x: 3, y: 0, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 3, y: 0, aimedAt: minersAimedAt }),
       level: 4,
     }),
     mf.create({
-      ...atCenterOfTile({ x: 4, y: 0, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 4, y: 0, aimedAt: minersAimedAt }),
       level: 5,
     }),
     mf.create({
-      ...atCenterOfTile({ x: 0, y: 1, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 0, y: 1, aimedAt: minersAimedAt }),
       essential: true,
     }),
     mf.create({
-      ...atCenterOfTile({ x: 2, y: 1, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 2, y: 1, aimedAt: minersAimedAt }),
       unique: "OFFICER",
     }),
     mf.create({
-      ...atCenterOfTile({ x: 3, y: 1, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 3, y: 1, aimedAt: minersAimedAt }),
       unique: "Chief",
     }),
     mf.create({
-      ...atCenterOfTile({ x: 0, y: 2, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 0, y: 2, aimedAt: minersAimedAt }),
       unique: "Axle",
       loadout: ["Drill", "JobDriver"],
     }),
     mf.create({
-      ...atCenterOfTile({ x: 1, y: 2, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 1, y: 2, aimedAt: minersAimedAt }),
       unique: "Bandit",
       loadout: ["Drill", "JobSailor"],
     }),
     mf.create({
-      ...atCenterOfTile({ x: 2, y: 2, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 2, y: 2, aimedAt: minersAimedAt }),
       unique: "Docs",
       loadout: ["Drill", "JobGeologist"],
     }),
     mf.create({
-      ...atCenterOfTile({ x: 3, y: 2, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 3, y: 2, aimedAt: minersAimedAt }),
       unique: "Jet",
       loadout: ["Drill", "JobPilot"],
     }),
     mf.create({
-      ...atCenterOfTile({ x: 4, y: 2, aimedAt: minersFacing }),
+      ...atCenterOfTile({ x: 4, y: 2, aimedAt: minersAimedAt }),
       unique: "Sparks",
       loadout: ["Drill", "JobEngineer"],
     }),
@@ -292,15 +301,10 @@ goldenTest("entity_zoo", () => {
     }),
   ];
 
-  return serialize(
-    fence(
-      discover({
-        ...DUMMY_CAVERN,
-        tiles,
-        miners,
-        creatures,
-        openCaveFlags,
-      } as any) as any,
-    ) as any,
-  ).serialized;
+  return ds({
+    tiles,
+    miners,
+    creatures,
+    openCaveFlags,
+  });
 });

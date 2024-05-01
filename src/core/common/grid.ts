@@ -53,6 +53,13 @@ export class MutableGrid<T> {
     this.forEach((...args) => result.push(fn(...args)));
     return result;
   }
+
+  flatMap<V>(fn: (value: T, x: number, y: number) => V[]) {
+    const result: V[] = [];
+    this.forEach((...args) => result.push(...fn(...args)));
+    return result;
+  }
+
 }
 
 export type Grid<T> = Omit<MutableGrid<T>, "set">;

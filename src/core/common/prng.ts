@@ -111,8 +111,8 @@ enum Die {
  * A box of pseudo-random streams. Streams are separated into "kinds" - each one
  * having its own root seed. Some kinds are further separated by applying
  * a fixed numerical offset to these root seeds. The result is a pile of consistent
- * but mostly independent pseudo-random number generators that should prevent changes
- * in one area of cavern generation from affecting other areas.
+ * but mostly independent pseudo-random number generators that should prevent
+ * independent changes in one area of cavern generation from affecting other areas.
  */
 export class DiceBox {
   seed: number;
@@ -168,8 +168,8 @@ export class DiceBox {
   }
 
   pickArchitect = (id: number) => this.prng(Die.pickArchitect, id);
-  pearl = (id: number) => this.prng(Die.pearl, id);
   prime = (id: number) => this.prng(Die.prime, id);
+  pearl = (id: number) => this.prng(Die.pearl, id);
   rough = (id: number) => this.prng(Die.rough, id);
 
   get patch() {
