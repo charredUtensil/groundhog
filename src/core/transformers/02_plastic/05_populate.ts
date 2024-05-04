@@ -16,7 +16,7 @@ export type PopulatedCavern = DiscoveredCavern & {
 };
 
 export default function populate(cavern: DiscoveredCavern): PopulatedCavern {
-  const diorama: Omit<PopulateArgs<unknown>, 'plan'> = {
+  const diorama: Omit<PopulateArgs<unknown>, "plan"> = {
     cavern,
     landslides: new MutableGrid<Landslide>(),
     erosion: new MutableGrid<Erosion>(),
@@ -29,7 +29,7 @@ export default function populate(cavern: DiscoveredCavern): PopulatedCavern {
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
-      const args  = { ...diorama, plan };
+      const args = { ...diorama, plan };
       plan.architect.placeLandslides(args);
       plan.architect.placeErosion(args);
       plan.architect.placeEntities(args);

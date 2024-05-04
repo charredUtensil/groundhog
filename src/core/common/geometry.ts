@@ -21,8 +21,8 @@ export const NSEW = [NORTH, SOUTH, EAST, WEST] as const;
 
 export function isAdjacent4(a: Point, b: Point) {
   return (
-    (a[0] == b[0] && Math.abs(a[1] - b[1]) <= 1) ||
-    (a[1] == b[1] && Math.abs(a[0] - b[0]) <= 1)
+    (a[0] === b[0] && Math.abs(a[1] - b[1]) <= 1) ||
+    (a[1] === b[1] && Math.abs(a[0] - b[0]) <= 1)
   );
 }
 

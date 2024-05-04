@@ -6,7 +6,7 @@ import { Architect, FineArgs } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { EntityPosition } from "../../models/position";
 
-export type FinePlasticCavern = Omit<RoughPlasticCavern, 'tiles'> & {
+export type FinePlasticCavern = Omit<RoughPlasticCavern, "tiles"> & {
   readonly tiles: Grid<Tile>;
   readonly crystals: Grid<number>;
   readonly ore: Grid<number>;
@@ -36,7 +36,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     },
   );
   if (!cameraPosition) {
-    throw "No architect set a camera position! Spawn was expected to do this.";
+    throw new Error("No architect set a camera position! Spawn was expected to do this.");
   }
   return { ...cavern, ...diorama, cameraPosition };
 }

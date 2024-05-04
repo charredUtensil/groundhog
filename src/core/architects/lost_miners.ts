@@ -1,12 +1,10 @@
 import { PseudorandomStream } from "../common";
-import { Grid } from "../common/grid";
 import { Architect } from "../models/architect";
 import { PlannedCavern } from "../models/cavern";
 import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
 import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
-import { RoughPlasticCavern } from "../transformers/02_plastic/01_rough";
 import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";

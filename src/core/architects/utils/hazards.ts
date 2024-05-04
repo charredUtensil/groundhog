@@ -67,7 +67,7 @@ export function placeErosion(
     const event = new Erosion(cooldown, initialDelay);
     plan.innerPearl.forEach((layer) =>
       layer.forEach((point) => {
-        if (cavern.tiles.get(...point)?.passableByMiner) {
+        if (cavern.tiles.get(...point)?.isFluid === false) {
           erosion.set(...point, event);
         }
       }),

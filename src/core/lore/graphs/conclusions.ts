@@ -1,3 +1,5 @@
+/* eslint-disable no-template-curly-in-string */
+
 import phraseGraph, { PgArgs } from "../builder";
 import { State } from "../lore";
 

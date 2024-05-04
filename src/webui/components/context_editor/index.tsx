@@ -52,7 +52,7 @@ export function CavernContextInput({
   const contextWithDefaults = inferContextDefaults(context);
   useEffect(
     () => dispatchState({ context: contextWithDefaults }),
-    [context, dispatchState],
+    [contextWithDefaults, dispatchState],
   );
 
   return (

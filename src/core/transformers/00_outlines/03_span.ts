@@ -28,7 +28,7 @@ export default function span(cavern: TriangulatedCavern): TriangulatedCavern {
         continue;
       }
       // Merge clusters
-      clusters.map((c, i) => {
+      clusters.forEach((c, i) => {
         if (c === dc) {
           clusters[i] = oc;
         }

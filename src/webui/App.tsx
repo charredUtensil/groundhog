@@ -58,21 +58,6 @@ function App() {
 
   const biome = state?.cavern?.context.biome;
 
-  function step() {
-    try {
-      const r = state.next!();
-      dispatchState({
-        cavern: r.result,
-        next: r.next || undefined,
-      });
-    } catch (error: unknown) {
-      console.error(error);
-      if (error instanceof Error) {
-        dispatchState({ error });
-      }
-    }
-  }
-
   function playPause() {
     if (autoGenerate) {
       setAutoGenerate(false);
@@ -83,7 +68,18 @@ function App() {
 
   useEffect(() => {
     if (state.next && autoGenerate) {
-      step();
+      try {
+        const r = state.next!();
+        dispatchState({
+          cavern: r.result,
+          next: r.next || undefined,
+        });
+      } catch (error: unknown) {
+        console.error(error);
+        if (error instanceof Error) {
+          dispatchState({ error });
+        }
+      }
     }
   }, [autoGenerate, state]);
 

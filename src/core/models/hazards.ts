@@ -1,6 +1,3 @@
-import { Point } from "../common/geometry";
-import { Grid } from "../common/grid";
-
 export class Landslide {
   readonly cooldown: number;
   constructor(cooldown: number) {

@@ -64,7 +64,7 @@ class Partitioner {
   }
 
   public get done(): boolean {
-    return this.queue.length == 0;
+    return this.queue.length === 0;
   }
 
   // Perform one step of partitioning.

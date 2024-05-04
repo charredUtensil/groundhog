@@ -74,6 +74,7 @@ function getFill(
       if (t === Tile.WATER || t === Tile.LAVA) {
         return t.inspectColor;
       }
+      // Fall through
     case "landslides":
       const cooldown = cavern[mapOverlay]?.get(x, y)?.cooldown;
       if (cooldown) {

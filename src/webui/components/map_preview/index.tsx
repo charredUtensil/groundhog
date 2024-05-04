@@ -14,8 +14,6 @@ import {
 import OpenCaveFlagPreview from "./open_cave_flag";
 import styles from "./style.module.scss";
 
-const SCALE = 6;
-
 export type MapOverlay =
   | "about"
   | "crystals"

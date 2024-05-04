@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { CavernContext } from "../../../core/common";
 import { UpdateData } from "./controls";
 import { ARCHITECTS } from "../../../core/architects";
 import styles from "./style.module.scss";

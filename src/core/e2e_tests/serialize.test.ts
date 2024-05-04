@@ -82,9 +82,7 @@ function ds(args: Partial<Cavern>) {
         ...args,
       } as any) as any,
     ) as any,
-  ).serialized.replace(
-    /groundHog v\S+/,
-    "groundHog [VERSION]");
+  ).serialized.replace(/groundHog v\S+/, "groundHog [VERSION]");
 }
 
 goldenTest("mvp", () => {

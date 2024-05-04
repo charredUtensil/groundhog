@@ -1,5 +1,14 @@
 import { Mutable } from "../common";
-import { NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST } from "../common/geometry";
+import {
+  NORTH,
+  NORTH_EAST,
+  EAST,
+  SOUTH_EAST,
+  SOUTH,
+  SOUTH_WEST,
+  WEST,
+  NORTH_WEST,
+} from "../common/geometry";
 import { Grid, MutableGrid } from "../common/grid";
 import { Tile } from "./tiles";
 
@@ -15,10 +24,7 @@ export function getDiscoveryZones(tiles: Grid<Tile>) {
   let nextZone = 0;
   while (queue.length > 0) {
     let { x, y, zone } = queue.shift()!;
-    if (
-      result.get(x, y) === undefined &&
-      tiles.get(x, y)?.isWall == false
-    ) {
+    if (result.get(x, y) === undefined && tiles.get(x, y)?.isWall === false) {
       if (!zone) {
         zone = { id: nextZone++, openOnSpawn: false };
       }

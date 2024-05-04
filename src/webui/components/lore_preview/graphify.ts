@@ -1,6 +1,3 @@
-import { Phrase } from "../../../core/lore/builder";
-import { State } from "../../../core/lore/lore";
-
 export type Link = {
   readonly x1: number;
   readonly y1: number;

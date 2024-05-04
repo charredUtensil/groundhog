@@ -59,7 +59,6 @@ export class MutableGrid<T> {
     this.forEach((...args) => result.push(...fn(...args)));
     return result;
   }
-
 }
 
 export type Grid<T> = Omit<MutableGrid<T>, "set">;

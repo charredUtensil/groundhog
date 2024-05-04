@@ -18,7 +18,7 @@ const TEMPLATES = {
 } as const
 
 export const VehicleTemplate = TEMPLATES;
-export type VehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES];
+export type VehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES]; // eslint-disable-line @typescript-eslint/no-redeclare
 
 export type Vehicle = EntityPosition & {
   readonly id: number;

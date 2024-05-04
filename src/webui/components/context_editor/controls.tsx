@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useReducer, useState } from "react";
+import React, { CSSProperties } from "react";
 import styles from "./style.module.scss";
 import { CavernContext, Curve } from "../../../core/common";
 import { radsToDegrees } from "../../../core/common/geometry";

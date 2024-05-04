@@ -1,8 +1,6 @@
 import React, {
   CSSProperties,
-  createRef,
   useEffect,
-  useLayoutEffect,
   useState,
 } from "react";
 import {
@@ -85,6 +83,7 @@ export default function PhraseGraphPreview({
       </svg>
       <div className={styles.list}>
         {pg.phrases.map((phrase) => (
+          // eslint-disable-next-line jsx-a11y/anchor-is-valid
           <a role="button">
             <div className={phraseClassName(phrase)}>
               {phrase.text.map((text, i) => (

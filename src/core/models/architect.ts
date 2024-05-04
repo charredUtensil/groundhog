@@ -11,7 +11,6 @@ import { Building } from "./building";
 import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
-import { PearledPlan } from "../transformers/01_planning/04_pearl";
 import { FencedCavern } from "../transformers/02_plastic/08_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
@@ -64,7 +63,7 @@ export type PopulateArgs<T> = {
   readonly miners: Miner[];
   readonly vehicleFactory: VehicleFactory;
   readonly vehicles: Vehicle[];
-}
+};
 
 export type BaseArchitect<T extends Readonly<T>> = {
   readonly name: string;

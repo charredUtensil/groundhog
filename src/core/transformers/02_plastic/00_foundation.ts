@@ -11,7 +11,7 @@ export default function foundation(
 ): FoundationPlasticCavern {
   const intersectsPearlInner = new MutableGrid<boolean[]>();
   const intersectsPearlOuter = new MutableGrid<boolean[]>();
-  cavern.plans.map((plan) => {
+  cavern.plans.forEach((plan) => {
     plan.innerPearl.forEach((layer) =>
       layer.forEach(([x, y]) => {
         const v = intersectsPearlInner.get(x, y) || [];
