@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor";
@@ -66,22 +66,26 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    if (state.next && autoGenerate) {
-      try {
-        const r = state.next!();
-        dispatchState({
-          cavern: r.result,
-          next: r.next || undefined,
-        });
-      } catch (error: unknown) {
-        console.error(error);
-        if (error instanceof Error) {
-          dispatchState({ error });
-        }
+  const step = useCallback(() => {
+    try {
+      const r = state.next!();
+      dispatchState({
+        cavern: r.result,
+        next: r.next || undefined,
+      });
+    } catch (error: unknown) {
+      console.error(error);
+      if (error instanceof Error) {
+        dispatchState({ error });
       }
     }
-  }, [autoGenerate, state]);
+  }, [state])
+
+  useEffect(() => {
+    if (state.next && autoGenerate) {
+      step();
+    }
+  }, [autoGenerate, state, step]);
 
   return (
     <div

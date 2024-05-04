@@ -49,11 +49,11 @@ export function CavernContextInput({
     { seed: INITIAL_SEED },
   );
 
-  const contextWithDefaults = inferContextDefaults(context);
   useEffect(
-    () => dispatchState({ context: contextWithDefaults }),
-    [contextWithDefaults, dispatchState],
+    () => dispatchState({ context: inferContextDefaults(context) }),
+    [context, dispatchState],
   );
+  const contextWithDefaults = inferContextDefaults(context);
 
   return (
     <div className={styles.contextInput}>
