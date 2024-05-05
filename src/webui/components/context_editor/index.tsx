@@ -270,6 +270,10 @@ export function CavernContextInput({
               [
                 "caveHasRechargeSeamChance",
                 "hallHasRechargeSeamChance",
+                "caveCrystalSeamBias",
+                "hallCrystalSeamBias",
+                "caveOreSeamBias",
+                "hallOreSeamBias",
                 "caveHasLandslidesChance",
                 "hallHasLandslidesChance",
               ] as const

@@ -1,6 +1,6 @@
 import { Cardinal4, NSEW } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
-import { FineArgs } from "../../models/architect";
+import { Architect } from "../../models/architect";
 import { Building } from "../../models/building";
 import { Tile } from "../../models/tiles";
 
@@ -36,7 +36,7 @@ export function getBuildings(
     to?: number;
     queue: MakeBuildingFn[];
   },
-  { cavern, plan, tiles }: FineArgs<any>,
+  { cavern, plan, tiles }: Parameters<Architect<any>['placeBuildings']>[0],
 ) {
   const placed = new MutableGrid<true>();
   const porches = new MutableGrid<number>();

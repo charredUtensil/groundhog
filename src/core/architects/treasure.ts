@@ -35,7 +35,11 @@ const HOARD: typeof BASE = {
       ).map((item) => ({ bid: 1, item })),
       ...args.plan.innerPearl[0].map((item) => ({ bid: 3, item })),
     ];
-    sprinkleCrystals(() => rng.weightedChoice(bids), args);
+    sprinkleCrystals(
+      args.cavern.context.caveCrystalSeamBias,
+      args,
+      () => rng.weightedChoice(bids),
+    );
   },
   monsterSpawnScript: getMonsterSpawner({
     retriggerMode: "hoard",

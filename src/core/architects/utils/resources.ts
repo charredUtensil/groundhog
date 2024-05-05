@@ -6,10 +6,20 @@ import { Tile } from "../../models/tiles";
 import { RoughPlasticCavern } from "../../transformers/02_plastic/01_rough";
 import { NSEW, Point, offsetBy } from "../../common/geometry";
 import { Vehicle } from "../../models/vehicle";
+import { Building } from "../../models/building";
+
+const SEAMABLE = {
+  [Tile.SOLID_ROCK.id]: true,
+  [Tile.HARD_ROCK.id]: true,
+  [Tile.LOOSE_ROCK.id]: true,
+  [Tile.DIRT.id]: true,
+} as const;
 
 /** Sprinkles resources throughout the tiles given by getRandomTile. */
-export function sprinkle(
+function sprinkle(
   getRandomTile: () => Point,
+  seamBias: number,
+  rng: PseudorandomStream,
   tiles: MutableGrid<Tile>,
   resource: MutableGrid<number>,
   seam: Tile,
@@ -17,18 +27,25 @@ export function sprinkle(
 ) {
   for (let remaining = count; remaining > 0; remaining--) {
     const [x, y] = getRandomTile();
-    const r = resource.get(x, y) ?? 0;
     const t = tiles.get(x, y) ?? Tile.SOLID_ROCK;
-    if (t === Tile.SOLID_ROCK) {
-      if (remaining >= 4) {
-        tiles.set(x, y, seam);
-        remaining -= 3;
-        continue;
-      } else {
-        tiles.set(x, y, Tile.LOOSE_ROCK);
-      }
+    if (
+      remaining >= 4 && (
+        t === Tile.SOLID_ROCK || (
+          t.id in SEAMABLE &&
+          seamBias > 0 &&
+          rng.chance(seamBias)
+        )
+      )
+    ) {
+      tiles.set(x, y, seam);
+      remaining -= 3;
+      continue;
     }
-    if (r >= 3 && t !== seam && t.isWall) {
+    if (t === Tile.SOLID_ROCK) {
+      tiles.set(x, y, Tile.LOOSE_ROCK);
+    }
+    const r = resource.get(x, y) ?? 0;
+    if (r >= 3 && t.id in SEAMABLE) {
       tiles.set(x, y, seam);
       resource.set(x, y, r - 3);
     } else {
@@ -38,15 +55,15 @@ export function sprinkle(
 }
 
 export function sprinkleCrystals(
-  getRandomTile: () => Point,
-  args: {
-    crystals: MutableGrid<number>;
-    tiles: MutableGrid<Tile>;
-    plan: Plan;
-  },
+  seamBias: number,
+  args: Parameters<Architect<unknown>['placeCrystals']>[0],
+  getRandomTile?: () => Point,
 ) {
+  const rng = args.cavern.dice.placeCrystals(args.plan.id);
   return sprinkle(
-    getRandomTile,
+    getRandomTile ?? defaultGetRandomTile(rng, args),
+    seamBias,
+    rng,
     args.tiles,
     args.crystals,
     Tile.CRYSTAL_SEAM,
@@ -55,15 +72,15 @@ export function sprinkleCrystals(
 }
 
 export function sprinkleOre(
-  getRandomTile: () => Point,
-  args: {
-    ore: MutableGrid<number>;
-    tiles: MutableGrid<Tile>;
-    plan: Plan;
-  },
+  seamBias: number,
+  args: Parameters<Architect<unknown>['placeOre']>[0],
+  getRandomTile?: () => Point,
 ) {
+  const rng = args.cavern.dice.placeOre(args.plan.id);
   return sprinkle(
-    getRandomTile,
+    getRandomTile ?? defaultGetRandomTile(rng, args),
+    seamBias,
+    rng,
     args.tiles,
     args.ore,
     Tile.ORE_SEAM,
@@ -180,34 +197,21 @@ export function getPlaceRechargeSeams(
   };
 }
 
-export const defaultPlaceCrystals: Architect<unknown>["placeCrystals"] = (
-  args,
-) => {
-  return sprinkleCrystals(
-    defaultGetRandomTile(args.cavern.dice.placeCrystals(args.plan.id), args),
-    args,
-  );
-};
-
-export const defaultPlaceOre: Architect<unknown>["placeOre"] = (args) => {
-  return sprinkleOre(
-    defaultGetRandomTile(args.cavern.dice.placeOre(args.plan.id), args),
-    args,
-  );
-};
-
 export function getTotalCrystals({
   tiles,
   crystals,
+  buildings,
   vehicles,
 }: {
   tiles?: Grid<Tile>;
   crystals?: Grid<number>;
+  buildings?: readonly Building[];
   vehicles?: readonly Vehicle[];
 }) {
   let r = 0;
   tiles?.forEach((t) => (r += t.crystalYield));
   crystals?.forEach((ct) => (r += ct));
+  buildings?.forEach(b => r += b.template.crystals);
   vehicles?.forEach((v) => (r += v.template.crystals));
   return r;
 }

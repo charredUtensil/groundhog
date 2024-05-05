@@ -95,6 +95,10 @@ export type CavernContext = {
   caveHasRechargeSeamChance: number;
   /** The chance each hall will have a recharge seam. */
   hallHasRechargeSeamChance: number;
+  caveCrystalSeamBias: number;
+  hallCrystalSeamBias: number;
+  caveOreSeamBias: number;
+  hallOreSeamBias: number;
   /** The chance each cave will have landslides at all. */
   caveHasLandslidesChance: number;
   /** The chance each hall will have landslides at all. */
@@ -170,7 +174,7 @@ export function inferContextDefaults(
     biome: dice
       .init(Die.biome)
       .uniformChoice(["rock", "ice", "lava"] as Biome[]),
-    targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 80 }),
+    targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 70 }),
     caveCount: 20,
     auxiliaryPathCount: 4,
     ...args,
@@ -183,14 +187,18 @@ export function inferContextDefaults(
     caveBaroqueness: 0.12,
     hallBaroqueness: 0.05,
     caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
-    hallCrystalRichness: { base: 0, hops: 0, order: 0 },
+    hallCrystalRichness: { base: 0.07, hops: 0, order: 0 },
     caveOreRichness: { base: 1.19, hops: -0.16, order: -0.08 },
-    hallOreRichness: { base: 0, hops: 0, order: 0 },
+    hallOreRichness: { base: 0.12, hops: 0, order: 0 },
     monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
     monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
     architects: {},
     caveHasRechargeSeamChance: { rock: 0.07, ice: 0.07, lava: 0.1 }[r.biome],
     hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
+    caveCrystalSeamBias: 0.05,
+    hallCrystalSeamBias: 0.05,
+    caveOreSeamBias: 0.05,
+    hallOreSeamBias: 0.05,
     caveHasLandslidesChance: 0.4,
     hallHasLandslidesChance: 0.8,
     caveLandslideCooldownRange: { min: 15, max: 120 },

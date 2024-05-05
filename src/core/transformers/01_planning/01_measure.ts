@@ -33,10 +33,13 @@ export default function measure(
     );
 
     /*
-     * Estimate the perimeter to be half the circumference of each end plus
-     * twice the length of the path:
+     * For caves, estimate the perimeter to be half the circumference of each
+     * end plus twice the length of the path:
      * (2*pi*a.pr) / 2 + (2*pi*b.pr) / 2 + pd * 2
      * pi * (a.pr + b.pr) + 2 * pd
+     * 
+     * For halls, it's just double the length of the hall that isn't part of
+     * some cave.
      *
      * This doesn't need to be super accurate because:
      * 1. It's only used as a multiplier for values from context, not any
@@ -44,10 +47,12 @@ export default function measure(
      * 2. Later steps are going to make blobby shapes anyway.
      */
     const perimeter = Math.round(
-      Math.PI *
-        (Math.min(pearlRadius, plan.path.origin.pearlRadius) +
-          Math.min(pearlRadius, plan.path.destination.pearlRadius)) +
-        plan.path.snakeDistance * 2,
+      plan.kind === "cave"
+        ? Math.PI *
+            (Math.min(pearlRadius, plan.path.origin.pearlRadius) +
+              Math.min(pearlRadius, plan.path.destination.pearlRadius)) +
+          plan.path.snakeDistance * 2
+        : 2 * plan.path.exclusiveSnakeDistance
     );
     return { ...plan, intersects, pearlRadius, perimeter };
   });

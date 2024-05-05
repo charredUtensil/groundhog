@@ -5,7 +5,7 @@ import {
   SUPPORT_STATION,
 } from "../models/building";
 import { DefaultHallArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 
 const BASE: typeof DefaultHallArchitect = {
   ...DefaultHallArchitect,
@@ -29,7 +29,13 @@ const THIN_HALL: readonly Architect<unknown>[] = [
   {
     name: "Thin Filled Hall",
     ...BASE,
-    ...new RoughOyster({ of: Rough.LOOSE_ROCK }, { of: Rough.VOID, grow: 1 }),
+    ...new RoughOyster(
+      { of: weightedSprinkle(
+        {item: Rough.FLOOR, bid: 1},
+        {item: Rough.LOOSE_ROCK, bid: 0.5},
+      )},
+      { of: Rough.VOID, grow: 1 }
+    ),
     hallBid: ({ plan }) => !plan.fluid && 0.1,
   },
   {

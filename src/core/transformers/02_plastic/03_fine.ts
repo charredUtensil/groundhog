@@ -2,7 +2,7 @@ import { RoughPlasticCavern } from "./01_rough";
 import { MutableGrid, Grid } from "../../common/grid";
 import { Tile } from "../../models/tiles";
 import { Building } from "../../models/building";
-import { Architect, FineArgs } from "../../models/architect";
+import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { EntityPosition } from "../../models/position";
 
@@ -17,18 +17,18 @@ export type FinePlasticCavern = Omit<RoughPlasticCavern, "tiles"> & {
 
 export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
   let cameraPosition: EntityPosition | null = null;
-  const diorama: Omit<FineArgs<unknown>, "plan"> = {
+  const diorama = {
     cavern,
     tiles: cavern.tiles.copy(),
     crystals: new MutableGrid<number>(),
     ore: new MutableGrid<number>(),
-    buildings: [],
+    buildings: [] as Building[],
     openCaveFlags: new MutableGrid<true>(),
-    setCameraPosition: (pos) => (cameraPosition = pos),
+    setCameraPosition: (pos: EntityPosition) => (cameraPosition = pos),
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
-      const args: FineArgs<T> = { ...diorama, plan };
+      const args = { ...diorama, plan };
       plan.architect.placeRechargeSeam(args);
       plan.architect.placeBuildings(args);
       plan.architect.placeCrystals(args);

@@ -1,9 +1,10 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getMonsterSpawner } from "./utils/monster_spawner";
+import { defaultGetRandomTile, sprinkleCrystals } from "./utils/resources";
 
 const monsterSpawner = getMonsterSpawner({
   retriggerMode: "automatic",
@@ -117,6 +118,34 @@ const FLOODED: readonly Architect<unknown>[] = [
       isDeadEnd(plan) &&
       intersectsOnly(plans, plan, null) &&
       1,
+  },
+  {
+    name: "Lava Stalagmite Cave",
+    ...BASE,
+    crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
+    ...new RoughOyster(
+      { of: weightedSprinkle(
+        {item: Rough.ALWAYS_DIRT, bid: 0.01},
+        {item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.1},
+        {item: Rough.LAVA, bid: 1},
+        ), width: 4, grow: 1 },
+      { of: weightedSprinkle(
+        {item: Rough.AT_MOST_DIRT, bid: 0.25},
+        {item: Rough.AT_MOST_LOOSE_ROCK, bid: 1},
+        )},
+      { of: Rough.AT_MOST_HARD_ROCK },
+    ),
+    placeCrystals(args) {
+      sprinkleCrystals(
+        Math.max(args.cavern.context.caveCrystalSeamBias, 0.6),
+        args,
+      )
+    },
+    caveBid: ({ plan }) => 
+      plan.fluid === Tile.LAVA &&
+      plan.hasErosion &&
+      plan.pearlRadius > 5 &&
+      1
   },
 ];
 
