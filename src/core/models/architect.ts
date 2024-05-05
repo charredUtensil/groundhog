@@ -1,6 +1,6 @@
 import { PartialPlannedCavern } from "../transformers/01_planning/00_negotiate";
-import { FoundationPlasticCavern } from "../transformers/02_plastic/00_foundation";
-import { RoughPlasticCavern } from "../transformers/02_plastic/01_rough";
+import { FoundationPlasticCavern } from "../transformers/02_tiles/00_foundation";
+import { RoughPlasticCavern } from "../transformers/02_tiles/01_rough";
 import { Plan } from "./plan";
 import { EstablishedPlan } from "../transformers/01_planning/03_establish";
 import { ArchitectedPlan } from "../transformers/01_planning/03_establish";
@@ -11,10 +11,10 @@ import { Building } from "./building";
 import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
-import { FencedCavern } from "../transformers/02_plastic/08_fence";
+import { FencedCavern } from "../transformers/03_plastic/08_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
-import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
+import { DiscoveredCavern } from "../transformers/03_plastic/04_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
 
 type SpawnBidArgs = {

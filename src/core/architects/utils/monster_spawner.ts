@@ -3,7 +3,7 @@ import { Point } from "../../common/geometry";
 import { Architect } from "../../models/architect";
 import { ROCK_MONSTER, monsterForBiome } from "../../models/creature";
 import { Plan } from "../../models/plan";
-import { FencedCavern } from "../../transformers/02_plastic/08_fence";
+import { FencedCavern } from "../../transformers/03_plastic/08_fence";
 import { getDiscoveryPoint } from "./discovery";
 import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
 

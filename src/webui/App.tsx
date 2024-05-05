@@ -37,12 +37,12 @@ function App() {
   const [state, dispatchState] = useReducer(
     (was: State, action: State | { context: CavernContext }) => {
       if ("context" in action) {
-        const cavern: Cavern = {
+        const cavern = {
           context: action.context,
           dice: new DiceBox(action.context.seed),
         };
         const next = () => CAVERN_TF.first(cavern);
-        return { cavern, next };
+        return { cavern, next } as State;
       } else if ("error" in action) {
         return { cavern: was.cavern, ...action };
       }

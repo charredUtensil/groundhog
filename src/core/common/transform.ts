@@ -5,6 +5,9 @@ type TfResult<T, Current extends T> = {
 
 export type TransformResult<T> = TfResult<T, any>;
 
+export type AnyTfResultOf<BT extends TfBuilder<any, any, any>> =
+  BT extends TfBuilder<infer T, any, any> ? T : unknown;
+
 class TfBuilder<T, In extends T, Out extends T> {
   private fns: ((it: T) => T)[];
   constructor(fns: ((it: T) => T)[]) {

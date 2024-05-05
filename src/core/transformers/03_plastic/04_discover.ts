@@ -1,6 +1,6 @@
 import { Grid } from "../../common/grid";
 import { DiscoveryZone, getDiscoveryZones } from "../../models/discovery_zone";
-import { FinePlasticCavern } from "./03_fine";
+import { FinePlasticCavern } from "../02_tiles/03_fine";
 
 export type DiscoveredCavern = FinePlasticCavern & {
   readonly discoveryZones: Grid<DiscoveryZone>;

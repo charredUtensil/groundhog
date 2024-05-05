@@ -3,7 +3,7 @@ import { MutableGrid, Grid } from "../../common/grid";
 import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { Tile } from "../../models/tiles";
-import { RoughPlasticCavern } from "../../transformers/02_plastic/01_rough";
+import { RoughPlasticCavern } from "../../transformers/02_tiles/01_rough";
 import { NSEW, Point, offsetBy } from "../../common/geometry";
 import { Vehicle } from "../../models/vehicle";
 import { Building } from "../../models/building";

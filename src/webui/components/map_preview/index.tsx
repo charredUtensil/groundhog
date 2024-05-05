@@ -73,7 +73,7 @@ export default function CavernPreview({
           cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
         {showPearls &&
           cavern.plans
-            ?.filter((pl) => pl.outerPearl)
+            ?.filter((pl) => 'outerPearl' in pl)
             .map((pl) => (
               <PearlPreview
                 key={pl.id}
@@ -83,7 +83,7 @@ export default function CavernPreview({
             ))}
         {showPearls &&
           cavern.plans
-            ?.filter((pl) => pl.innerPearl)
+            ?.filter((pl) => 'innerPearl' in pl)
             .map((pl) => (
               <PearlPreview
                 key={pl.id}
