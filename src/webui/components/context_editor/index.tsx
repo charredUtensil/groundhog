@@ -132,6 +132,14 @@ export function CavernContextInput({
               contextWithDefaults={contextWithDefaults}
             />
             <Slider
+              of="baseplateMaxOblongness"
+              min={0}
+              max={10}
+              update={update}
+              context={context}
+              contextWithDefaults={contextWithDefaults}
+            />
+            <Slider
               of="baseplateMaxRatioOfSize"
               min={0}
               max={1}
@@ -270,6 +278,10 @@ export function CavernContextInput({
               [
                 "caveHasRechargeSeamChance",
                 "hallHasRechargeSeamChance",
+                "caveCrystalSeamBias",
+                "hallCrystalSeamBias",
+                "caveOreSeamBias",
+                "hallOreSeamBias",
                 "caveHasLandslidesChance",
                 "hallHasLandslidesChance",
               ] as const

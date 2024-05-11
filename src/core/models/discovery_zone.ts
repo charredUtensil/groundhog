@@ -1,14 +1,5 @@
 import { Mutable } from "../common";
-import {
-  NORTH,
-  NORTH_EAST,
-  EAST,
-  SOUTH_EAST,
-  SOUTH,
-  SOUTH_WEST,
-  WEST,
-  NORTH_WEST,
-} from "../common/geometry";
+import { NEIGHBORS8 } from "../common/geometry";
 import { Grid, MutableGrid } from "../common/grid";
 import { Tile } from "./tiles";
 
@@ -29,16 +20,7 @@ export function getDiscoveryZones(tiles: Grid<Tile>) {
         zone = { id: nextZone++, openOnSpawn: false };
       }
       result.set(x, y, zone);
-      const neighbors = [
-        NORTH,
-        NORTH_EAST,
-        EAST,
-        SOUTH_EAST,
-        SOUTH,
-        SOUTH_WEST,
-        WEST,
-        NORTH_WEST,
-      ].map(([ox, oy]) => ({
+      const neighbors = NEIGHBORS8.map(([ox, oy]) => ({
         x: x + ox,
         y: y + oy,
         zone,

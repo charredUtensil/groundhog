@@ -1,3 +1,4 @@
+import { PseudorandomStream } from "../../common";
 import { Architect } from "../../models/architect";
 import { RoughTile, Tile } from "../../models/tiles";
 
@@ -53,7 +54,7 @@ function roughNotFloodedTo(to: RoughTile) {
   });
 }
 
-type ReplaceFn<T extends Tile> = (has: T) => T | null;
+type ReplaceFn<T extends Tile> = (has: T, rng: PseudorandomStream) => T | null;
 
 export const Rough = {
   // VOID: No effect whatsoever
@@ -127,7 +128,19 @@ export const Rough = {
     hardRock: Tile.FLOOR,
     solidRock: Tile.LOOSE_ROCK,
   }),
-};
+} as const;
+
+export const uniformSprinkle = <T extends Tile>(
+  ...args: ReplaceFn<T>[]
+) => (
+  has: T, rng: PseudorandomStream
+) => rng.uniformChoice(args)(has, rng)
+
+export const weightedSprinkle = <T extends Tile>(
+  ...args: {bid: number, item: ReplaceFn<T>}[]
+) => (
+  has: T, rng: PseudorandomStream
+) => rng.weightedChoice(args)(has, rng)
 
 type Layer<T> = {
   of: T;
@@ -226,11 +239,12 @@ export class RoughOyster
     }
     return 0;
   };
-  rough: Architect<unknown>["rough"] = ({ plan, tiles }) => {
+  rough: Architect<unknown>["rough"] = ({ cavern, plan, tiles }) => {
+    const rng = cavern.dice.rough(plan.id);
     const replacements = this._expand(plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {
       layer.forEach(([x, y]) => {
-        const r = replacements[i](tiles.get(x, y) ?? Tile.SOLID_ROCK);
+        const r = replacements[i](tiles.get(x, y) ?? Tile.SOLID_ROCK, rng);
         if (r) {
           tiles.set(x, y, r);
         }

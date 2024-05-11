@@ -2,7 +2,7 @@ import { MutableGrid, Grid } from "../../common/grid";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Creature, CreatureFactory } from "../../models/creature";
 import { Miner, MinerFactory } from "../../models/miner";
-import { Architect, PopulateArgs } from "../../models/architect";
+import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { Vehicle, VehicleFactory } from "../../models/vehicle";
 import { DiscoveredCavern } from "./04_discover";
@@ -16,16 +16,16 @@ export type PopulatedCavern = DiscoveredCavern & {
 };
 
 export default function populate(cavern: DiscoveredCavern): PopulatedCavern {
-  const diorama: Omit<PopulateArgs<unknown>, "plan"> = {
+  const diorama = {
     cavern,
     landslides: new MutableGrid<Landslide>(),
     erosion: new MutableGrid<Erosion>(),
     creatureFactory: new CreatureFactory(),
-    creatures: [],
+    creatures: [] as Creature[],
     minerFactory: new MinerFactory(),
-    miners: [],
+    miners: [] as Miner[],
     vehicleFactory: new VehicleFactory(),
-    vehicles: [],
+    vehicles: [] as Vehicle[],
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {

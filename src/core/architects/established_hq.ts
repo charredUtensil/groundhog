@@ -1,8 +1,9 @@
 import Delaunator from "delaunator";
-import { NORTH, Point, plotLine } from "../common/geometry";
+import { Point, plotLine } from "../common/geometry";
 import { Architect } from "../models/architect";
 import {
   Building,
+  CANTEEN,
   GEOLOGICAL_CENTER,
   MINING_LASER,
   POWER_STATION,
@@ -22,16 +23,21 @@ import { escapeString, mkVars, transformPoint } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
 
 const DESTROY_PATH_CHANCE = 0.62;
-const DESTROY_BUILDING_CHANCE = 0.45;
 
 const T0_BUILDINGS = [TOOL_STORE] as const;
 const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
 const T2_BUILDINGS = [
   UPGRADE_STATION,
   GEOLOGICAL_CENTER,
+] as const;
+const T3_BUILDINGS = [
+  CANTEEN,
+  MINING_LASER,
+  MINING_LASER,
   MINING_LASER,
 ] as const;
-const T3_BUILDINGS = [MINING_LASER, MINING_LASER] as const;
+
+const OMIT_T1 = T0_BUILDINGS.length;
 
 type Metadata = {
   crystalsInBuildings: number;
@@ -66,7 +72,7 @@ function getPlaceBuildings({
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
     const tq = [
       ...T0_BUILDINGS,
-      ...rng.shuffle(T1_BUILDINGS),
+      ...((asSpawn && !asRuin) ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
       ...rng.shuffle(T2_BUILDINGS),
       ...rng.shuffle(T3_BUILDINGS),
     ];
@@ -74,54 +80,45 @@ function getPlaceBuildings({
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
     const bq: MakeBuildingFn[] = [];
-    for (const bt of tq) {
-      if (crystalBudget < bt.crystals) {
-        break;
+    tq.some((bt, i) => {
+      const include = (() => {
+        if (crystalBudget < bt.crystals) {
+          return false;
+        }
+        if (bt === TOOL_STORE) {
+          return asSpawn;
+        }
+        if (asRuin && i === OMIT_T1) {
+          return false;
+        }
+        return true;
+      })();
+      if (include) {
+        bq.push((pos) => bt.atTile(pos));
+        crystalBudget -= bt.crystals;
+        if (crystalBudget <= 0) {
+          return true;
+        }
+      } else if (asRuin) {
+        bq.push((pos) => {
+          const b = bt.atTile(pos);
+          (b as any).destroyed_now = true;
+          return b;
+        });
       }
-      bq.push((pos) => bt.atTile(pos));
-      crystalBudget -= bt.crystals;
-    }
+    });
 
     // Create and place the buildings.
     const buildings = getBuildings({ from, queue: bq }, args);
 
-    // Return buildings that weren't created to the budget.
-    if (crystalBudget > 0) {
-      for (const fn of bq) {
-        const b = fn({ x: 0, y: 0, facing: NORTH });
-        crystalBudget += b.template.crystals;
-      }
-    }
-
     // Place the buildings.
     buildings.forEach((b) => {
-      // Special case: Do not include the Tool Store unless this is spawn.
-      if (!asSpawn && b.template === TOOL_STORE) {
-        if (asRuin) {
-          b.foundation.forEach(([x, y]) =>
-            args.tiles.set(x, y, Tile.LANDSLIDE_RUBBLE_4),
-          );
-        }
-        return;
+      if ('destroyed_now' in b) {
+        b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.RUBBLE_4));
+      } else {
+        b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));
+        args.buildings.push(b);
       }
-      // Randomly destroy some buildings if this is ruin.
-      if (
-        asRuin &&
-        b.template !== TOOL_STORE &&
-        rng.chance(DESTROY_BUILDING_CHANCE)
-      ) {
-        b.foundation.forEach(([x, y]) =>
-          args.tiles.set(x, y, Tile.LANDSLIDE_RUBBLE_4),
-        );
-        args.crystals.set(
-          ...b.foundation[0],
-          (args.crystals.get(...b.foundation[0]) ?? 0) + b.template.crystals,
-        );
-        return;
-      }
-      // Place the building itself and its foundation tiles.
-      b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));
-      args.buildings.push(b);
     });
 
     // Place power path trails between the buildings.

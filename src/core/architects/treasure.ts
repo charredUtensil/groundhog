@@ -27,15 +27,23 @@ const HOARD: typeof BASE = {
   ...BASE,
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 3,
   placeCrystals: (args) => {
-    const rng = args.cavern.dice.placeCrystals(args.plan.id);
+    const wallBids = bidsForOrdinaryWalls(
+      args.plan.innerPearl.flatMap((layer) => layer),
+      args.tiles,
+    )
+    const centerPoints = args.plan.innerPearl[0].length > 1
+      ? args.plan.innerPearl[0]
+      : [...args.plan.innerPearl[0], ...args.plan.innerPearl[1]];
     const bids = [
-      ...bidsForOrdinaryWalls(
-        args.plan.innerPearl.flatMap((layer) => layer),
-        args.tiles,
-      ).map((item) => ({ bid: 1, item })),
-      ...args.plan.innerPearl[0].map((item) => ({ bid: 3, item })),
+      ...wallBids.map((item) => ({ bid: 1 / wallBids.length, item })),
+      ...centerPoints.map((item) => ({ bid: 3 / centerPoints.length, item })),
     ];
-    sprinkleCrystals(() => rng.weightedChoice(bids), args);
+    const rng = args.cavern.dice.placeCrystals(args.plan.id);
+    sprinkleCrystals(
+      0,
+      args,
+      () => rng.weightedChoice(bids),
+    );
   },
   monsterSpawnScript: getMonsterSpawner({
     retriggerMode: "hoard",

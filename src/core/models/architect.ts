@@ -1,6 +1,6 @@
 import { PartialPlannedCavern } from "../transformers/01_planning/00_negotiate";
-import { FoundationPlasticCavern } from "../transformers/02_plastic/00_foundation";
-import { RoughPlasticCavern } from "../transformers/02_plastic/01_rough";
+import { FoundationPlasticCavern } from "../transformers/02_tiles/00_foundation";
+import { RoughPlasticCavern } from "../transformers/02_tiles/01_rough";
 import { Plan } from "./plan";
 import { EstablishedPlan } from "../transformers/01_planning/03_establish";
 import { ArchitectedPlan } from "../transformers/01_planning/03_establish";
@@ -11,10 +11,10 @@ import { Building } from "./building";
 import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
-import { FencedCavern } from "../transformers/02_plastic/08_fence";
+import { FencedCavern } from "../transformers/03_plastic/08_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
-import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
+import { DiscoveredCavern } from "../transformers/03_plastic/04_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
 
 type SpawnBidArgs = {
@@ -41,30 +41,6 @@ type PrimeArgs = {
 
 type PlanWithMetadata<T> = Plan & { readonly metadata: T };
 
-export type FineArgs<T> = {
-  readonly cavern: RoughPlasticCavern;
-  readonly plan: PlanWithMetadata<T>;
-  readonly tiles: MutableGrid<Tile>;
-  readonly crystals: MutableGrid<number>;
-  readonly ore: MutableGrid<number>;
-  readonly buildings: Building[];
-  readonly openCaveFlags: MutableGrid<true>;
-  readonly setCameraPosition: (position: EntityPosition) => void;
-};
-
-export type PopulateArgs<T> = {
-  readonly cavern: DiscoveredCavern;
-  readonly plan: PlanWithMetadata<T>;
-  readonly landslides: MutableGrid<Landslide>;
-  readonly erosion: MutableGrid<Erosion>;
-  readonly creatureFactory: CreatureFactory;
-  readonly creatures: Creature[];
-  readonly minerFactory: MinerFactory;
-  readonly miners: Miner[];
-  readonly vehicleFactory: VehicleFactory;
-  readonly vehicles: Vehicle[];
-};
-
 export type BaseArchitect<T extends Readonly<T>> = {
   readonly name: string;
 
@@ -86,14 +62,54 @@ export type BaseArchitect<T extends Readonly<T>> = {
     tiles: MutableGrid<RoughTile>;
   }): void;
 
-  placeRechargeSeam(args: FineArgs<T>): void;
-  placeBuildings(args: FineArgs<T>): void;
-  placeCrystals(args: FineArgs<T>): void;
-  placeOre(args: FineArgs<T>): void;
+  placeRechargeSeam(args: {
+    readonly cavern: RoughPlasticCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly tiles: MutableGrid<Tile>;
+  }): void;
+  placeBuildings(args: {
+    readonly cavern: RoughPlasticCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly tiles: MutableGrid<Tile>;
+    readonly crystals: MutableGrid<number>;
+    readonly ore: MutableGrid<number>;
+    readonly buildings: Building[];
+    readonly openCaveFlags: MutableGrid<true>;
+    readonly setCameraPosition: (position: EntityPosition) => void;
+  }): void;
+  placeCrystals(args: {
+    readonly cavern: RoughPlasticCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly tiles: MutableGrid<Tile>;
+    readonly crystals: MutableGrid<number>;
+  }): void;
+  placeOre(args: {
+    readonly cavern: RoughPlasticCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly tiles: MutableGrid<Tile>;
+    readonly ore: MutableGrid<number>;
+  }): void;
 
-  placeLandslides(args: PopulateArgs<T>): void;
-  placeErosion(args: PopulateArgs<T>): void;
-  placeEntities(args: PopulateArgs<T>): void;
+  placeLandslides(args: {
+    readonly cavern: DiscoveredCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly landslides: MutableGrid<Landslide>;
+  }): void;
+  placeErosion(args: {
+    readonly cavern: DiscoveredCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly erosion: MutableGrid<Erosion>;
+  }): void;
+  placeEntities(args: {
+    readonly cavern: DiscoveredCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly creatureFactory: CreatureFactory;
+    readonly creatures: Creature[];
+    readonly minerFactory: MinerFactory;
+    readonly miners: Miner[];
+    readonly vehicleFactory: VehicleFactory;
+    readonly vehicles: Vehicle[];
+  }): void;
 
   objectives(args: {
     cavern: DiscoveredCavern;

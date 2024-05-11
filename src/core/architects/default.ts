@@ -1,9 +1,9 @@
+import { CavernContext } from "../common";
 import { Architect } from "../models/architect";
 import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
-  defaultPlaceCrystals,
-  defaultPlaceOre,
-  getPlaceRechargeSeams,
+  defaultGetRandomTile,
+  getPlaceRechargeSeams, sprinkleCrystals, sprinkleOre,
 } from "./utils/resources";
 
 export type PartialArchitect<T> = Omit<
@@ -11,49 +11,59 @@ export type PartialArchitect<T> = Omit<
   "name" | "rough" | "roughExtent"
 >;
 
-const DefaultArchitect: Omit<
-  PartialArchitect<unknown>,
-  "baroqueness" | "placeLandslides"
-> = {
+export const [DefaultCaveArchitect, DefaultHallArchitect] = ([
+  {
+    crystalSeamBias: 'caveCrystalSeamBias',
+    oreSeamBias: 'caveOreSeamBias',
+    hasLandslidesChance: 'caveHasLandslidesChance',
+    landslideCooldownRange: 'caveLandslideCooldownRange',
+    baroqueness: 'caveBaroqueness',
+  },
+  {
+    crystalSeamBias: 'hallCrystalSeamBias',
+    oreSeamBias: 'hallOreSeamBias',
+    hasLandslidesChance: 'hallHasLandslidesChance',
+    landslideCooldownRange: 'hallLandslideCooldownRange',
+    baroqueness: 'hallBaroqueness',
+  },
+] as const).map(({
+  crystalSeamBias,
+  oreSeamBias,
+  hasLandslidesChance,
+  landslideCooldownRange,
+  baroqueness,
+}) => ({
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
   prime: () => undefined,
   placeRechargeSeam: getPlaceRechargeSeams(),
   placeBuildings: () => {},
-  placeCrystals: defaultPlaceCrystals,
-  placeOre: defaultPlaceOre,
+  placeCrystals: (args) => {
+    return sprinkleCrystals(
+      args.cavern.context[crystalSeamBias],
+      args,
+    );
+  },
+  placeOre: (args) => {
+    return sprinkleOre(
+      args.cavern.context[oreSeamBias],
+      args,
+    );
+  },
+  placeLandslides: (args) => {
+    if (
+      args.cavern.dice
+        .placeLandslides(args.plan.id)
+        .chance(args.cavern.context[hasLandslidesChance])
+    ) {
+      placeLandslides(args.cavern.context[landslideCooldownRange], args);
+    }
+  },
   placeErosion: (args) => placeErosion(30, 10, args),
   placeEntities: () => {},
   objectives: () => undefined,
   scriptGlobals: () => undefined,
   script: () => undefined,
   monsterSpawnScript: () => undefined,
-};
-
-export const DefaultCaveArchitect: PartialArchitect<unknown> = {
-  ...DefaultArchitect,
-  baroqueness: ({ cavern }) => cavern.context.caveBaroqueness,
-  placeLandslides: (args) => {
-    if (
-      args.cavern.dice
-        .placeLandslides(args.plan.id)
-        .chance(args.cavern.context.caveHasLandslidesChance)
-    ) {
-      placeLandslides(args.cavern.context.caveLandslideCooldownRange, args);
-    }
-  },
-};
-
-export const DefaultHallArchitect: PartialArchitect<unknown> = {
-  ...DefaultArchitect,
-  baroqueness: ({ cavern }) => cavern.context.hallBaroqueness,
-  placeLandslides: (args) => {
-    if (
-      args.cavern.dice
-        .placeLandslides(args.plan.id)
-        .chance(args.cavern.context.caveHasLandslidesChance)
-    ) {
-      placeLandslides(args.cavern.context.hallLandslideCooldownRange, args);
-    }
-  },
-};
+  baroqueness: ({ cavern }) => cavern.context[baroqueness],
+} as PartialArchitect<unknown>));

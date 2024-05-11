@@ -18,6 +18,16 @@ export const WEST = [-1, 0] as const;
 export const NORTH_WEST = [-1, -1] as const;
 
 export const NSEW = [NORTH, SOUTH, EAST, WEST] as const;
+export const NEIGHBORS8 = [
+  NORTH,
+  NORTH_EAST,
+  EAST,
+  SOUTH_EAST,
+  SOUTH,
+  SOUTH_WEST,
+  WEST,
+  NORTH_WEST,
+] as const;
 
 export function isAdjacent4(a: Point, b: Point) {
   return (

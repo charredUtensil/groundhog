@@ -43,46 +43,50 @@ function caveWithOneBaseplate(plan: Partial<Plan>) {
   );
 }
 
-// TODO: I tried making AI write this but it's subtly janky and the points are
-// definitely not in the right place. Rewrite this and do it properly. This probably
-// requires breaking out the paper & pencil do do _actual geometry_.
 function dWrapping(
-  circle1: { x: number; y: number; radius: number },
-  circle2: { x: number; y: number; radius: number },
+  a: { x: number; y: number; radius: number },
+  b: { x: number; y: number; radius: number },
 ): string {
-  // Calculate the distance and angle between circle centers
-  const dx = circle2.x - circle1.x;
-  const dy = circle2.y - circle1.y;
-  const distance = Math.hypot(dx, dy);
-  const angle = Math.atan2(dy, dx) - Math.PI / 2; // Offset angle by 90 degrees
+  // There's no "picture" comments here, so accept this explanation that
+  // vaguely resembles the geometry proofs I literally haven't had to deal
+  // with in like 20 years.
 
-  // Calculate start and end points for the path on each circle
-  const startPoint1 = {
-    x: circle1.x + Math.cos(angle) * circle1.radius,
-    y: circle1.y + Math.sin(angle) * circle1.radius,
-  };
-  const endPoint1 = {
-    x: circle1.x - Math.cos(angle) * circle1.radius,
-    y: circle1.y - Math.sin(angle) * circle1.radius,
-  };
-  const startPoint2 = {
-    x: circle2.x + Math.cos(angle) * circle2.radius,
-    y: circle2.y + Math.sin(angle) * circle2.radius,
-  };
-  const endPoint2 = {
-    x: circle2.x - Math.cos(angle) * circle2.radius,
-    y: circle2.y - Math.sin(angle) * circle2.radius,
-  };
+  // Given: Two circles with centers A and B.
+  // Given: Point A' which is on the circumference of A
+  // Given: Point A'' which is the reflection of A' over line AB
+  // Given: Point B' which is on the circumference of B
+  // Given: Point B'' which is the reflection of B' over line AB
+  // Given: The radius of A is greater than B
+  if (a.radius < b.radius) {
+    [a, b] = [b, a];
+  }
+  // First, get the polar coordinates of B relative to A.
+  const [dx, dy] = [b.x - a.x, b.y - a.y];
+  const lengthAB = Math.hypot(dx, dy);
+  const angleAB = Math.atan2(dy, dx);
+
+  // Create point C on AA'
+  // Create a line BC which is perpendicular to AA'
+  // ABC is a right triangle with hypotenuse AB
+  // We know the length of AB and AC. Find angle BAC
+  const lengthAC = a.radius - b.radius;
+  const angleBAC = Math.acos(lengthAC / lengthAB);
+
+  // This is enough to determine the locations of all the points.
+  const prime1 = {x: Math.cos(angleAB - angleBAC), y: Math.sin(angleAB - angleBAC)};
+  const prime2 = {x: Math.cos(angleAB + angleBAC), y: Math.sin(angleAB + angleBAC)};
+  const aPrime1 = [a.x + a.radius * prime1.x, a.y + a.radius * prime1.y];
+  const aPrime2 = [a.x + a.radius * prime2.x, a.y + a.radius * prime2.y];
+  const bPrime1 = [b.x + b.radius * prime1.x, b.y + b.radius * prime1.y];
+  const bPrime2 = [b.x + b.radius * prime2.x, b.y + b.radius * prime2.y];
 
   // Create SVG path segments
-  const largeArcFlag = distance > 2 * (circle1.radius + circle2.radius) ? 1 : 0;
-  const path = `M ${startPoint1.x},${startPoint1.y} 
-                A ${circle1.radius},${circle1.radius} 0 0 ${largeArcFlag} ${endPoint1.x},${endPoint1.y}
-                L ${endPoint2.x},${endPoint2.y} 
-                A ${circle2.radius},${circle2.radius} 0 0 ${largeArcFlag} ${startPoint2.x},${startPoint2.y} 
-                Z`; // Close the path
-
-  return path;
+  return [
+    `M ${aPrime2.join(',')}`,
+    `A ${a.radius},${a.radius} 0 1 1 ${aPrime1.join(',')}`,
+    `L ${bPrime1.join(',')}`,
+    `A ${b.radius},${b.radius} 0 0 1 ${bPrime2.join(',')} Z`, 
+  ].join();
 }
 
 function caveWithTwoBaseplates(plan: Partial<Plan>) {

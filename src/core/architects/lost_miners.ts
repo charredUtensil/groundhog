@@ -5,7 +5,7 @@ import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
 import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
-import { DiscoveredCavern } from "../transformers/02_plastic/04_discover";
+import { DiscoveredCavern } from "../transformers/03_plastic/04_discover";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { escapeString, mkVars, transformPoint } from "./utils/script";
@@ -179,10 +179,11 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
     ),
-    caveBid: ({ cavern, plans, plan }) =>
+    caveBid: ({ cavern, hops, plans, plan }) =>
       !plan.fluid &&
       plan.pearlRadius >= 2 &&
       plan.pearlRadius < 10 &&
+      hops <= 8 &&
       plans.reduce((r, p) => r + ("architect" in p ? 0 : 1), 0) <= 3 &&
       MULTIPLIERS[cavern.context.biome],
   },

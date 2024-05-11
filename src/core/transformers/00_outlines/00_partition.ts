@@ -99,8 +99,18 @@ class Partitioner {
       this.clone(bp, this.id(), { top: y });
     } else {
       // Determine size to clip from center
-      let w = this.rng.betaInt({ a: 5, b: 2.5, min: 3, max: bp.width });
-      let h = this.rng.betaInt({ a: 5, b: 2.5, min: 3, max: bp.height });
+      let w = this.rng.betaInt({
+        a: 5,
+        b: 2.5,
+        min: 3,
+        max: Math.min(this.baseplateMaxSize, bp.width)
+      });
+      let h = this.rng.betaInt({
+        a: 5,
+        b: 2.5,
+        min: 3,
+        max: Math.min(this.baseplateMaxSize, bp.height)
+      });
       // Limit to max oblongness
       w = Math.min(w, h + this.context.baseplateMaxOblongness);
       h = Math.min(h, w + this.context.baseplateMaxOblongness);
