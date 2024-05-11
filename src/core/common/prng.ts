@@ -104,7 +104,7 @@ enum Die {
   scriptGlobals,
   script,
   monsterSpawnScript,
-  patch,
+  brace,
 }
 
 /**
@@ -172,8 +172,8 @@ export class DiceBox {
   pearl = (id: number) => this.prng(Die.pearl, id);
   rough = (id: number) => this.prng(Die.rough, id);
 
-  get patch() {
-    return this.prng(Die.patch, 0);
+  get brace() {
+    return this.prng(Die.brace, 0);
   }
 
   placeRechargeSeam = (id: number) => this.prng(Die.placeRechargeSeam, id);

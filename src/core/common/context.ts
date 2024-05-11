@@ -8,6 +8,7 @@ export type Curve = {
 };
 
 export type CavernContext = {
+  /** The root seed for the dice box. */
   seed: number;
 
   hasOverrides: boolean;
@@ -161,10 +162,6 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
   return { waterPlans, waterLakes, lavaPlans, lavaLakes, erosionPlans };
 }
 
-const NOT_CONSIDERED_OVERRIDE = {
-  seed: true,
-} as const;
-
 export function inferContextDefaults(
   args: Partial<Omit<CavernContext, "hasOverrides">> &
     Pick<CavernContext, "seed">,
@@ -174,7 +171,7 @@ export function inferContextDefaults(
     biome: dice
       .init(Die.biome)
       .uniformChoice(["rock", "ice", "lava"] as Biome[]),
-    targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 70 }),
+    targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 78 }),
     caveCount: 20,
     auxiliaryPathCount: 4,
     ...args,
@@ -184,7 +181,7 @@ export function inferContextDefaults(
     baseplateMaxRatioOfSize: 0.33,
     auxiliaryPathMinAngle: Math.PI / 4,
     hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
-    caveBaroqueness: 0.12,
+    caveBaroqueness: 0.14,
     hallBaroqueness: 0.05,
     caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
     hallCrystalRichness: { base: 0.07, hops: 0, order: 0 },
@@ -206,8 +203,6 @@ export function inferContextDefaults(
     crystalGoalRatio: 0.2,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
-    hasOverrides: Object.keys(args).some(
-      (k) => !(k in NOT_CONSIDERED_OVERRIDE),
-    ),
+    hasOverrides: Object.keys(args).length > 1,
   };
 }

@@ -145,7 +145,7 @@ const FLOODED: readonly Architect<unknown>[] = [
       plan.fluid === Tile.LAVA &&
       plan.hasErosion &&
       plan.pearlRadius > 5 &&
-      1
+      0.4
   },
 ];
 

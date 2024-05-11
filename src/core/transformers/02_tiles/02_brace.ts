@@ -4,7 +4,8 @@ import { Tile } from "../../models/tiles";
 import { Cardinal4, NSEW } from "../../common/geometry";
 import { getDiscoveryZones } from "../../models/discovery_zone";
 
-export default function patch(cavern: RoughPlasticCavern): RoughPlasticCavern {
+export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
+  const rng = cavern.dice.brace;
   const tiles = cavern.tiles.copy();
   const discoveryZones = getDiscoveryZones(tiles);
   const visited: MutableGrid<true> = new MutableGrid();
@@ -26,27 +27,23 @@ export default function patch(cavern: RoughPlasticCavern): RoughPlasticCavern {
       );
 
       if (!wallNeighbors.length) {
-        const n = neighbors[0];
+        const n = rng.uniformChoice(neighbors);
         tiles.set(n.x, n.y, Tile.DIRT);
         wallNeighbors.push(n);
       }
 
-      const needsPatch = () => {
-        if (wallNeighbors.length < 2) {
-          return true;
-        } else if (wallNeighbors.length === 2) {
+      const needsBrace = () => {
+        if (wallNeighbors.length === 2) {
           const [a, b] = wallNeighbors;
-          if (a.x === b.x || a.y === b.y) {
-            return (
-              discoveryZones.get(a.x, a.y) === discoveryZones.get(b.x, b.y)
-            );
-          }
-          return false;
+          return (
+            (a.x === b.x || a.y === b.y) && 
+            discoveryZones.get(a.x, a.y) === discoveryZones.get(b.x, b.y)
+          );
         }
-        return false;
+        return wallNeighbors.length < 2;
       };
 
-      if (needsPatch()) {
+      if (needsBrace()) {
         const [ox, oy] = facing || wallNeighbors[0].facing.map((v) => -v);
         const n = { x: x - oy, y: y + ox, facing: [-oy, ox] as Cardinal4 };
         tiles.set(n.x, n.y, Tile.DIRT);

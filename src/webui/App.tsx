@@ -29,6 +29,7 @@ function getDownloadLink(serializedData: string) {
 
 type State = {
   cavern?: Cavern;
+  name?: string;
   next?: () => TransformResult<Cavern>;
   error?: Error;
 };
@@ -41,8 +42,12 @@ function App() {
           context: action.context,
           dice: new DiceBox(action.context.seed),
         };
-        const next = () => CAVERN_TF.first(cavern);
-        return { cavern, next } as State;
+        const r = CAVERN_TF.first(cavern);
+        return {
+          cavern: r.result,
+          name: r.name,
+          next: r.next || undefined,
+        } as State
       } else if ("error" in action) {
         return { cavern: was.cavern, ...action };
       }
@@ -71,6 +76,7 @@ function App() {
       const r = state.next!();
       dispatchState({
         cavern: r.result,
+        name: r.name,
         next: r.next || undefined,
       });
     } catch (error: unknown) {
@@ -78,6 +84,13 @@ function App() {
       if (error instanceof Error) {
         dispatchState({ error });
       }
+    }
+  }, [state])
+
+  const reset = useCallback(() => {
+    setAutoGenerate(false);
+    if (state.cavern) {
+      dispatchState({context: state.cavern.context})
     }
   }, [state])
 
@@ -105,11 +118,24 @@ function App() {
             showPearls={showPearls}
           />
         )}
+        {!autoGenerate && state.name && (
+          <div className={styles.stepName}>
+            {state.name}
+          </div>
+        )}
         <div className={styles.controls}>
-          {state.next && !autoGenerate && <button onClick={step}>step</button>}
-          <button onClick={playPause}>
-            {autoGenerate ? "pause" : "play_arrow"}
-          </button>
+          {state.next ? (
+            <>
+              {!autoGenerate && <button onClick={step}>step</button>}
+              <button onClick={playPause}>
+                {autoGenerate ? "pause" : "play_arrow"}
+              </button>
+            </>
+          ) : (
+            <button onClick={reset}>
+              restart_alt
+            </button>
+          )}
           {state.cavern?.serialized ? (
             <a
               className={styles.button}

@@ -1,5 +1,6 @@
 type TfResult<T, Current extends T> = {
   result: Current;
+  name: string;
   next: (() => TfResult<T, any>) | null;
 };
 
@@ -13,18 +14,23 @@ class TfBuilder<T, In extends T, Out extends T> {
   constructor(fns: ((it: T) => T)[]) {
     this.fns = fns;
   }
-  private mkNext<Current extends T>(
+  private mkResult<Current extends T>(
     result: Current,
     i: number,
   ): TfResult<T, Current> {
+    const name = [
+      `${i}/${this.fns.length}`,
+      this.fns[i - 1]?.name ?? 'init',
+      i < this.fns.length ? `(next: ${this.fns[i].name})` : undefined,
+    ].join(' ');
     const next =
       i < this.fns.length
-        ? () => this.mkNext(this.fns[i](result), i + 1)
+        ? () => this.mkResult(this.fns[i](result), i + 1)
         : null;
-    return { result, next };
+    return { result, name, next };
   }
   first(result: In): TfResult<T, In> {
-    return this.mkNext(result, 0);
+    return this.mkResult(result, 0);
   }
   chain<ThatT, ThatOut extends ThatT>(
     that: TfBuilder<ThatT | Out, Out, ThatOut>,

@@ -35,6 +35,19 @@ const MAX_COOLDOWN = {
   erosion: 100,
 } as const;
 
+function getBoundsFill(
+  cavern: Cavern,
+  mapOverlay: MapOverlay,
+): string | null {
+  switch (mapOverlay) {
+    case "entities":
+    case "tiles":
+      return Tile.SOLID_ROCK.inspectColor;
+    default:
+      return null;
+  }
+}
+
 function getFill(
   cavern: Cavern,
   mapOverlay: MapOverlay,
@@ -142,8 +155,21 @@ export default function TilesPreview({
   if (!cavern.tiles || !mapOverlay) {
     return <></>;
   }
+  const boundsFill = getBoundsFill(cavern, mapOverlay);
   return (
     <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}>
+      {
+        boundsFill && cavern.top && (
+          <rect
+            className={styles.bounds}
+            fill={boundsFill}
+            x={cavern.left! * SCALE}
+            y={cavern.top! * SCALE}
+            width={(cavern.right! - cavern.left!) * SCALE}
+            height={(cavern.bottom! - cavern.top!) * SCALE}
+          />
+        )
+      }
       {cavern.tiles.map((t, x, y) => {
         const fill = getFill(cavern, mapOverlay, t, x, y);
         const label = getLabel(cavern, mapOverlay, t, x, y);

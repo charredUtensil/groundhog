@@ -107,7 +107,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
         ), grow: 1 },
       { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.25 },
     ),
-    caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5
+    caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.2
   },
 ];
 export default SIMPLE_CAVE;

@@ -41,7 +41,10 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
     crystals: ({ plan }) => 3 * plan.crystalRichness * plan.perimeter,
     ...new RoughOyster(
       { of: Rough.WATER, width: 2, grow: 1 },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: weightedSprinkle(
+        {item: Rough.AT_MOST_HARD_ROCK, bid: 1},
+        {item: Rough.VOID, bid: 0.5},
+      )},
       { of: Rough.VOID, grow: 1 },
     ),
     placeCrystals(args) {
