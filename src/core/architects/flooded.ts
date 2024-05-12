@@ -4,7 +4,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getMonsterSpawner } from "./utils/monster_spawner";
-import { defaultGetRandomTile, sprinkleCrystals } from "./utils/resources";
+import { sprinkleCrystals } from "./utils/resources";
 
 const monsterSpawner = getMonsterSpawner({
   retriggerMode: "automatic",
