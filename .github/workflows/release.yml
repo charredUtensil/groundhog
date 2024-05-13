@@ -15,9 +15,8 @@ jobs:
           node-version: 18
       - run: yarn install
       - run: yarn test
-      - run: git config user.name "github-actions-bot"
-      - run: git config user.email "support+actions@github.com"
+      - run: yarn build
       - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-      - run: yarn deploy
+      - run: gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
