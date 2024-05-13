@@ -16,3 +16,5 @@ jobs:
       - run: yarn install
       - run: yarn test
       - run: yarn deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
