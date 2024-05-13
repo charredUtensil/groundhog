@@ -106,6 +106,7 @@ function getPlaceBuildings({
           return b;
         });
       }
+      return false;
     });
 
     // Create and place the buildings.

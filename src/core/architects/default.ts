@@ -1,8 +1,6 @@
-import { CavernContext } from "../common";
 import { Architect } from "../models/architect";
 import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
-  defaultGetRandomTile,
   getPlaceRechargeSeams, sprinkleCrystals, sprinkleOre,
 } from "./utils/resources";
 
