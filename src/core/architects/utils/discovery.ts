@@ -1,6 +1,6 @@
 import { Point } from "../../common/geometry";
 import { Plan } from "../../models/plan";
-import { DiscoveredCavern } from "../../transformers/03_plastic/04_discover";
+import { DiscoveredCavern } from "../../transformers/03_plastic/00_discover";
 
 export function getDiscoveryPoint(
   cavern: DiscoveredCavern,

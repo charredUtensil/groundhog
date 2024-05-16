@@ -2,7 +2,7 @@ import { MutableGrid } from "../../common/grid";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Plan } from "../../models/plan";
 import { Tile } from "../../models/tiles";
-import { DiscoveredCavern } from "../../transformers/03_plastic/04_discover";
+import { DiscoveredCavern } from "../../transformers/03_plastic/00_discover";
 
 const LANDSLIDABLE_TILES: readonly (true | undefined)[] = (() => {
   const r: (true | undefined)[] = [];

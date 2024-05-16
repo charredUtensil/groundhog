@@ -1,5 +1,5 @@
 import { Point } from "../../common/geometry";
-import { FencedCavern } from "../../transformers/03_plastic/08_fence";
+import { FencedCavern } from "../../transformers/03_plastic/04_fence";
 
 type VarType<T extends string> = {
   [p in T]: string;

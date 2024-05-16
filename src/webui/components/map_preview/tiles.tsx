@@ -99,6 +99,7 @@ function getFill(
       }
       break;
     case "about":
+    case 'height':
     case "lore":
     case null:
       return null;
@@ -139,6 +140,7 @@ function getLabel(
     case "discovery":
     case "entities":
     case "lore":
+    case 'height':
     case "tiles":
     case null:
       return null;

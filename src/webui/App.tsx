@@ -19,6 +19,7 @@ const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
   { of: "landslides", label: "Landslides" },
   { of: "erosion", label: "Erosion" },
   { of: "discovery", label: "Discovery" },
+  { of: 'height', label: 'Height'},
   { of: "lore", label: "Lore" },
   { of: "about", label: "About" },
 ];
@@ -99,6 +100,10 @@ function App() {
       step();
     }
   }, [autoGenerate, state, step]);
+
+  useEffect(() => {
+    (window as any).cavern = state.cavern;
+  }, [state])
 
   return (
     <div

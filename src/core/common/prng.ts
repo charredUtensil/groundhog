@@ -105,6 +105,7 @@ enum Die {
   script,
   monsterSpawnScript,
   brace,
+  height,
 }
 
 /**
@@ -186,6 +187,10 @@ export class DiceBox {
   placeEntities = (id: number) => this.prng(Die.placeEntities, id);
 
   lore = (id: number) => this.prng(Die.lore, id);
+
+  get height() {
+    return this.prng(Die.height, 0);
+  }
 
   get scriptGlobals() {
     return this.prng(Die.scriptGlobals, 0);

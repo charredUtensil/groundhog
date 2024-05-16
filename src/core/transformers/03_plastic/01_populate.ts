@@ -5,7 +5,7 @@ import { Miner, MinerFactory } from "../../models/miner";
 import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { Vehicle, VehicleFactory } from "../../models/vehicle";
-import { DiscoveredCavern } from "./04_discover";
+import { DiscoveredCavern } from "./00_discover";
 
 export type PopulatedCavern = DiscoveredCavern & {
   readonly landslides: Grid<Landslide>;

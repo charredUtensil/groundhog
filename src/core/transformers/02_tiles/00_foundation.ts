@@ -2,15 +2,15 @@ import { MutableGrid, Grid } from "../../common/grid";
 import { PlannedCavern } from "../../models/cavern";
 
 export type FoundationPlasticCavern = PlannedCavern & {
-  readonly intersectsPearlInner: Grid<readonly boolean[]>;
-  readonly intersectsPearlOuter: Grid<readonly boolean[]>;
+  readonly intersectsPearlInner: Grid<readonly true[]>;
+  readonly intersectsPearlOuter: Grid<readonly true[]>;
 };
 
 export default function foundation(
   cavern: PlannedCavern,
 ): FoundationPlasticCavern {
-  const intersectsPearlInner = new MutableGrid<boolean[]>();
-  const intersectsPearlOuter = new MutableGrid<boolean[]>();
+  const intersectsPearlInner = new MutableGrid<true[]>();
+  const intersectsPearlOuter = new MutableGrid<true[]>();
   cavern.plans.forEach((plan) => {
     plan.innerPearl.forEach((layer) =>
       layer.forEach(([x, y]) => {

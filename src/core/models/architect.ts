@@ -11,10 +11,10 @@ import { Building } from "./building";
 import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
-import { FencedCavern } from "../transformers/03_plastic/08_fence";
+import { FencedCavern } from "../transformers/03_plastic/04_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
-import { DiscoveredCavern } from "../transformers/03_plastic/04_discover";
+import { DiscoveredCavern } from "../transformers/03_plastic/00_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
 
 type SpawnBidArgs = {
