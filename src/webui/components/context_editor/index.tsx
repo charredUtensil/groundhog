@@ -306,6 +306,13 @@ export function CavernContextInput({
               context={context}
               contextWithDefaults={contextWithDefaults}
             />
+            <Choice
+              of="hasHeightMap"
+              choices={[true, false]}
+              update={update}
+              context={context}
+              contextWithDefaults={contextWithDefaults}
+            />
           </div>
         </>
       )}

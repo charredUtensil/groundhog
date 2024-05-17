@@ -6,17 +6,48 @@ import { StrataformedCavern } from "./05_strataform";
 const HEIGHT_MIN = 0;
 const HEIGHT_MAX = 100;
 
+const FENCES = [
+  [-1, -1],
+  [-1, 0],
+  [0, -1],
+  [0, 0],
+] as const;
+
 type PointInfo = {
   readonly target: number | undefined;
+  readonly x: number;
+  readonly y: number;
   min: number;
   max: number;
   range: number;
 };
 
+function superflat(cavern: StrataformedCavern): Grid<number> {
+  const result = new MutableGrid<number>();
+  for (let x = cavern.left; x <= cavern.right; x++) {
+    for (let y = cavern.top; y <= cavern.bottom; y++) {
+      result.set(x, y, 0);
+    }
+  }
+  return result;
+}
+
 const sortFn = (
-  [{range: a}]: [PointInfo, number, number],
-  [{range: b}]: [PointInfo, number, number],
+  {range: a}: PointInfo,
+  {range: b}: PointInfo,
 ) => b - a;
+
+function getShores(cavern: StrataformedCavern): Grid<boolean> {
+  const result = new MutableGrid<boolean>();
+  for (let x = cavern.left; x <= cavern.right; x++) {
+    for (let y = cavern.top; y <= cavern.bottom; y++) {
+      result.set(x, y, !!FENCES.some(([ox, oy]) => (
+        cavern.tiles.get(x + ox, y + oy)?.isFluid || cavern.erosion.get(x + ox, y + oy)
+      )));
+    }
+  }
+  return result;
+}
 
 function getSlopes(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
@@ -52,10 +83,15 @@ function getRandomHeight(info: PointInfo, rng: PseudorandomStream): number {
 }
 
 export default function strataflux(cavern: StrataformedCavern): StrataformedCavern {
+  if (!cavern.context.hasHeightMap) {
+    return {...cavern, height: superflat(cavern)};
+  }
+
+  const shores = getShores(cavern);
   const slopes = getSlopes(cavern);
   const height = new MutableGrid<number>();
   const rq = new MutableGrid<PointInfo>();
-  const inOrder: [PointInfo, number, number][] = [];
+  const inOrder: PointInfo[] = [];
 
   const [startX, startY] = cavern.plans.find(plan => plan.hops === 0)!.innerPearl[0][0];
 
@@ -63,34 +99,39 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
     for (let y = cavern.top; y <= cavern.bottom; y++) {
       const info: PointInfo = {
         target: cavern.height.get(x, y),
+        x,
+        y,
         min: HEIGHT_MIN,
         max: HEIGHT_MAX,
-        range: HEIGHT_MAX - HEIGHT_MIN
+        range: HEIGHT_MAX - HEIGHT_MIN,
       };
       rq.set(x, y, info);
       if (x === startX && y === startY) {
-        inOrder.unshift([info, x, y]);
+        inOrder.unshift(info);
       } else {
-        inOrder.push([info, x, y])
+        inOrder.push(info)
       }
     }
   }
 
   const rng = cavern.dice.height;
+  const visit = () => {
+    const info = inOrder.pop()!;
+    const h = getRandomHeight(info, rng);
+    height.set(info.x, info.y, h);
+    info.min = h;
+    info.max = h;
+    info.range = 0;
+    return info;
+  };
 
   while (inOrder.length) {
-    const uq = [(() => {
-      const [info, ...pos] = inOrder.pop()!;
-      const h = getRandomHeight(info, rng);
-      height.set(...pos, h);
-      info.min = h;
-      info.max = h;
-      info.range = 0;
-      return [info, ...pos] as [PointInfo, ...Point];
-    })()];
+    const uq = [visit()];
 
     while (uq.length) {
-      const [info, x, y] = uq.shift()!;
+      const info = uq.shift()!;
+      const x = info.x;
+      const y = info.y;
       NSEW.forEach(([ox, oy]) => {
         const nInfo = rq.get(x + ox, y + oy);
         if (!nInfo || !nInfo.range) {
@@ -111,12 +152,12 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
             oy === -1 ? y - 1 : y,
           ) ?? Infinity,
         );
-        nInfo.min = Math.max(nInfo.min, info.min - slope);
-        nInfo.max = Math.min(nInfo.max, info.max + slope);
+        nInfo.min = Math.max(nInfo.min, shores.get(x, y) ? info.min : info.min - slope);
+        nInfo.max = Math.min(nInfo.max, shores.get(x + ox, y + oy) ? info.max : info.max + slope);
         const range = nInfo.max - nInfo.min;
         if (range < nInfo.range) {
           nInfo.range = range;
-          uq.push([nInfo, x + ox, y + oy]);
+          uq.push(nInfo);
         }
       });
     }

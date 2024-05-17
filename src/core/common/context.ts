@@ -114,6 +114,10 @@ export type CavernContext = {
    * Most levels in Lego Rock Raiders tend to use about 20%.
    */
   crystalGoalRatio: number;
+  /**
+   * Include a heightmap? If false, a flat map will be generated.
+   */
+  hasHeightMap: boolean;
 };
 
 enum Die {
@@ -201,6 +205,7 @@ export function inferContextDefaults(
     caveLandslideCooldownRange: { min: 15, max: 120 },
     hallLandslideCooldownRange: { min: 30, max: 150 },
     crystalGoalRatio: 0.2,
+    hasHeightMap: true,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
     hasOverrides: Object.keys(args).length > 1,

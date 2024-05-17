@@ -3,8 +3,9 @@ import { FencedCavern } from "./04_fence";
 
 const HEIGHT_MIN = 20;
 const HEIGHT_MAX = 80;
+const FLUID_OFFSET = -20;
 
-const OFFSETS = [
+const FENCES = [
   [-1, -1],
   [-1, 0],
   [0, -1],
@@ -16,6 +17,10 @@ export type StrataformedCavern = FencedCavern & {
 }
 
 export default function strataform(cavern: FencedCavern): StrataformedCavern {
+  if (!cavern.context.hasHeightMap) {
+    return {...cavern, height: new MutableGrid()}
+  }
+
   const queued: true[] = [];
   const planHeights: (number | null)[] = [];
   const rng = cavern.dice.height;
@@ -49,7 +54,8 @@ export default function strataform(cavern: FencedCavern): StrataformedCavern {
     for (let y = cavern.top; y <= cavern.bottom; y++) {
       let sum = 0;
       let count = 0;
-      OFFSETS.forEach(([ox, oy]) => {
+      let isFluid = false;
+      FENCES.forEach(([ox, oy]) => {
         cavern.intersectsPearlInner.get(x + ox, y + oy)?.forEach((_, i) => {
           const h = planHeights[i];
           if (h != null) {
@@ -57,9 +63,13 @@ export default function strataform(cavern: FencedCavern): StrataformedCavern {
             count++;
           }
         });
+        isFluid ||= !!(
+          cavern.tiles.get(x + ox, y + oy)?.isFluid
+          || cavern.erosion.get(x + ox, y + oy)
+        );
       });
       if (count) {
-        height.set(x, y, Math.round(sum / count));
+        height.set(x, y, Math.round(sum / count) + (isFluid ? FLUID_OFFSET : 0));
       }
     }
   }

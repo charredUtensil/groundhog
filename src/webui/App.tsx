@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { CSSProperties, useCallback, useEffect, useReducer, useState } from "react";
 
 import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor";
@@ -31,6 +31,7 @@ function getDownloadLink(serializedData: string) {
 type State = {
   cavern?: Cavern;
   name?: string;
+  progress?: number;
   next?: () => TransformResult<Cavern>;
   error?: Error;
 };
@@ -78,6 +79,7 @@ function App() {
       dispatchState({
         cavern: r.result,
         name: r.name,
+        progress: r.progress,
         next: r.next || undefined,
       });
     } catch (error: unknown) {
@@ -114,6 +116,12 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
+        {autoGenerate && state.progress !== undefined && (
+          <div
+            className={`${styles.progressBar} ${state.progress < 1 ? '' : styles.complete}`}
+            style={{'--progress': `${(state.progress * 100).toFixed()}%`} as CSSProperties}
+          />
+        )}
         {state.cavern && (
           <CavernPreview
             cavern={state.cavern}

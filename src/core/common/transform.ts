@@ -1,6 +1,7 @@
 type TfResult<T, Current extends T> = {
   result: Current;
   name: string;
+  progress: number;
   next: (() => TfResult<T, any>) | null;
 };
 
@@ -23,11 +24,12 @@ class TfBuilder<T, In extends T, Out extends T> {
       this.fns[i - 1]?.name ?? 'init',
       i < this.fns.length ? `(next: ${this.fns[i].name})` : undefined,
     ].join(' ');
+    const progress = i / this.fns.length;
     const next =
       i < this.fns.length
         ? () => this.mkResult(this.fns[i](result), i + 1)
         : null;
-    return { result, name, next };
+    return { result, name, progress, next };
   }
   first(result: In): TfResult<T, In> {
     return this.mkResult(result, 0);

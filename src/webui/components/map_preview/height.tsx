@@ -4,6 +4,12 @@ import styles from "./style.module.scss";
 
 const SCALE = 6;
 
+function toColor(h: number) {
+  const lum = h;
+  const hue = 50 + 200 * (1 - lum / 100);
+  return `hsl(${hue.toFixed()} 50% ${lum.toFixed()}%)`
+}
+
 export default function HeightPreview({
   height
 }: {
@@ -11,16 +17,21 @@ export default function HeightPreview({
 }) {
   return (
     <g className={styles.height}>
-      {height.map((v, x, y) => {
-        const vs = v.toString(16).padStart(2, '0');
+      {height.map((h, x, y) => {
         return (
-          <rect
-            className={styles.point}
-            fill={`#${vs}${vs}${vs}`}
-            x={(x - 0.5) * SCALE}
-            y={(y - 0.5) * SCALE}
-            width={SCALE}
-            height={SCALE}
+          // <rect
+          //   className={styles.point}
+          //   fill={toColor(h)}
+          //   x={(x - 0.5) * SCALE}
+          //   y={(y - 0.5) * SCALE}
+          //   width={SCALE}
+          //   height={SCALE}
+          // />
+          <circle
+            fill={toColor(h)}
+            cx={x * SCALE}
+            cy={y * SCALE}
+            r={3}
           />
         );
       })}
