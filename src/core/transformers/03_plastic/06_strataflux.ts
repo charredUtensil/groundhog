@@ -3,8 +3,10 @@ import { NSEW, Point } from "../../common/geometry";
 import { Grid, MutableGrid } from "../../common/grid";
 import { StrataformedCavern } from "./05_strataform";
 
-const HEIGHT_MIN = 0;
-const HEIGHT_MAX = 100;
+export const HEIGHT_MIN = -600;
+export const HEIGHT_MAX = 600;
+const NORMAL_SLOPE = 75;
+const VOID_SLOPE = 120;
 
 const FENCES = [
   [-1, -1],
@@ -44,12 +46,31 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
   for (let x = cavern.left; x < cavern.right; x++) {
     for (let y = cavern.top; y < cavern.bottom; y++) {
-      const forTile = cavern.tiles.get(x, y)?.maxSlope ?? 20;
+      const tile = cavern.tiles.get(x, y);
+      const forTile = tile ? tile.maxSlope ?? NORMAL_SLOPE : VOID_SLOPE;
       const forErosion = cavern.erosion.get(x, y) ? 0 : Infinity;
-      result.set(x, y, Math.min(forTile, forErosion));
+      const forArchitect = (cavern.intersectsPearlInner.get(x, y) ?? []).reduce(
+        (r, _, i) => Math.min(r, cavern.plans[i].architect.maxSlope ?? Infinity),
+        Infinity
+      );
+      result.set(x, y, Math.min(forTile, forErosion, forArchitect));
     }
   }
   return result
+}
+
+function getBorders(cavern: StrataformedCavern): Point[] {
+  const result: Point[] = [];
+  for (let x = cavern.left; x <= cavern.right; x++) {
+    result.push([x, cavern.top]);
+  }
+  for (let y = cavern.top + 1; y < cavern.bottom; y++) {
+    result.push([cavern.left, y], [cavern.right, y]);
+  }
+  for (let x = cavern.left; x <= cavern.right; x++) {
+    result.push([x, cavern.bottom]);
+  }
+  return result;
 }
 
 function getRandomHeight(info: PointInfo, rng: PseudorandomStream): number {
@@ -83,8 +104,23 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
 
   const tileSlopes = getTileSlopes(cavern);
   const infos = new MutableGrid<PointInfo>();
-  for (let x = cavern.left; x <= cavern.right; x++) {
-    for (let y = cavern.top; y <= cavern.bottom; y++) {
+  const collapseQueue: PointInfo[] = getBorders(cavern).map(([x, y]) => {
+    const info = {
+      target: 0,
+      x,
+      y,
+      localMin: false,
+      neighbors: [],
+      collapseQueued: true,
+      min: 0,
+      max: 0,
+      range: 0,
+    };
+    infos.set(x, y, info);
+    return info;
+  })
+  for (let x = cavern.left + 1; x < cavern.right; x++) {
+    for (let y = cavern.top + 1; y < cavern.bottom; y++) {
       infos.set(x, y, {
         target: cavern.height.get(x, y),
         x,
@@ -124,11 +160,6 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
     }
   }
 
-  const collapseQueue: PointInfo[] = [
-    infos.get(...cavern.plans.find(plan => plan.hops === 0)!.innerPearl[0][0])!
-  ];
-  collapseQueue[0].collapseQueued = true;
-
   const height = new MutableGrid<number>();
   const rng = cavern.dice.height;
   const collapse = () => {
@@ -165,7 +196,6 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
     }
     collapseQueue.sort(sortFn);
   }
-  debugger;
 
   return {...cavern, height};
 }

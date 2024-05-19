@@ -257,6 +257,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   crystals: ({ plan }) =>
     plan.crystalRichness * plan.perimeter + plan.metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
+  maxSlope: 15,
   isHq: true,
 };
 

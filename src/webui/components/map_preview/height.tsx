@@ -1,12 +1,14 @@
 import React from "react";
 import { Grid } from "../../../core/common/grid";
 import styles from "./style.module.scss";
+import { HEIGHT_MAX, HEIGHT_MIN } from "../../../core/transformers/03_plastic/06_strataflux";
 
 const SCALE = 6;
 
 function toColor(h: number) {
-  const lum = h;
-  const hue = 50 + 200 * (1 - lum / 100);
+  const v = (h - HEIGHT_MIN) / (HEIGHT_MAX - HEIGHT_MIN)
+  const lum = v * 100;
+  const hue = 50 + 200 * (1 - v);
   return `hsl(${hue.toFixed()} 50% ${lum.toFixed()}%)`
 }
 

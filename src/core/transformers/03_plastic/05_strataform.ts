@@ -1,9 +1,9 @@
 import { Grid, MutableGrid } from "../../common/grid";
 import { FencedCavern } from "./04_fence";
 
-const HEIGHT_MIN = 20;
-const HEIGHT_MAX = 80;
-const FLUID_OFFSET = -20;
+const HEIGHT_MIN = -500;
+const HEIGHT_MAX = 500;
+const FLUID_OFFSET = -100;
 
 const FENCES = [
   [-1, -1],

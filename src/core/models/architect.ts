@@ -115,6 +115,8 @@ export type BaseArchitect<T extends Readonly<T>> = {
     cavern: DiscoveredCavern;
   }): (Partial<Objectives> & { sufficient: boolean }) | undefined;
 
+  readonly maxSlope: number | undefined;
+
   scriptGlobals(args: { cavern: FencedCavern }): string | undefined;
   script(args: {
     cavern: FencedCavern;
