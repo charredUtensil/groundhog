@@ -27,9 +27,9 @@ import { Erosion, Landslide } from "../models/hazards";
 import { MinerFactory } from "../models/miner";
 import { atCenterOfTile, position } from "../models/position";
 import { Tile } from "../models/tiles";
-import discover from "../transformers/03_plastic/00_discover";
-import fence from "../transformers/03_plastic/04_fence";
-import serialize from "../transformers/03_plastic/08_serialize";
+import discover from "../transformers/03_plastic/01_discover";
+import fence from "../transformers/03_plastic/00_fence";
+import serialize from "../transformers/04_ephemera/03_serialize";
 import goldenTest from "./golden";
 
 function fill<T>(

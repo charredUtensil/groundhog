@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid } from "../../../core/common/grid";
 import styles from "./style.module.scss";
-import { HEIGHT_MAX, HEIGHT_MIN } from "../../../core/transformers/03_plastic/06_strataflux";
+import { HEIGHT_MAX, HEIGHT_MIN } from "../../../core/transformers/03_plastic/03_strataflux";
 
 const SCALE = 6;
 
@@ -21,14 +21,6 @@ export default function HeightPreview({
     <g className={styles.height}>
       {height.map((h, x, y) => {
         return (
-          // <rect
-          //   className={styles.point}
-          //   fill={toColor(h)}
-          //   x={(x - 0.5) * SCALE}
-          //   y={(y - 0.5) * SCALE}
-          //   width={SCALE}
-          //   height={SCALE}
-          // />
           <circle
             fill={toColor(h)}
             cx={x * SCALE}

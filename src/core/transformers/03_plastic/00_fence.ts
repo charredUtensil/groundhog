@@ -1,13 +1,13 @@
-import { EnscribedCavern } from "./03_enscribe";
+import { FinePlasticCavern } from "../02_masonry/04_fine";
 
-export type FencedCavern = EnscribedCavern & {
+export type FencedCavern = FinePlasticCavern & {
   left: number;
   top: number;
   right: number;
   bottom: number;
 };
 
-export default function fence(cavern: EnscribedCavern): FencedCavern {
+export default function fence(cavern: FinePlasticCavern): FencedCavern {
   let { left, top, right, bottom } = cavern.tiles.bounds;
   const width = right - left;
   const height = bottom - top;

@@ -1,6 +1,6 @@
 import { PartialPlannedCavern } from "../transformers/01_planning/00_negotiate";
-import { FoundationPlasticCavern } from "../transformers/02_tiles/00_foundation";
-import { RoughPlasticCavern } from "../transformers/02_tiles/01_rough";
+import { FoundationPlasticCavern } from "../transformers/02_masonry/00_foundation";
+import { RoughPlasticCavern } from "../transformers/02_masonry/01_rough";
 import { Plan } from "./plan";
 import { EstablishedPlan } from "../transformers/01_planning/03_establish";
 import { ArchitectedPlan } from "../transformers/01_planning/03_establish";
@@ -11,11 +11,13 @@ import { Building } from "./building";
 import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
-import { FencedCavern } from "../transformers/03_plastic/04_fence";
+import { FencedCavern } from "../transformers/03_plastic/00_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
-import { DiscoveredCavern } from "../transformers/03_plastic/00_discover";
+import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
+import { EnscribedCavern } from "../transformers/04_ephemera/01_enscribe";
+import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -91,17 +93,17 @@ export type BaseArchitect<T extends Readonly<T>> = {
   }): void;
 
   placeLandslides(args: {
-    readonly cavern: DiscoveredCavern;
+    readonly cavern: StrataformedCavern;
     readonly plan: PlanWithMetadata<T>;
     readonly landslides: MutableGrid<Landslide>;
   }): void;
   placeErosion(args: {
-    readonly cavern: DiscoveredCavern;
+    readonly cavern: StrataformedCavern;
     readonly plan: PlanWithMetadata<T>;
     readonly erosion: MutableGrid<Erosion>;
   }): void;
   placeEntities(args: {
-    readonly cavern: DiscoveredCavern;
+    readonly cavern: StrataformedCavern;
     readonly plan: PlanWithMetadata<T>;
     readonly creatureFactory: CreatureFactory;
     readonly creatures: Creature[];
@@ -117,13 +119,13 @@ export type BaseArchitect<T extends Readonly<T>> = {
 
   readonly maxSlope: number | undefined;
 
-  scriptGlobals(args: { cavern: FencedCavern }): string | undefined;
+  scriptGlobals(args: { cavern: EnscribedCavern }): string | undefined;
   script(args: {
-    cavern: FencedCavern;
+    cavern: EnscribedCavern;
     plan: PlanWithMetadata<T>;
   }): string | undefined;
   monsterSpawnScript(args: {
-    cavern: FencedCavern;
+    cavern: EnscribedCavern;
     plan: PlanWithMetadata<T>;
   }): string | undefined;
 };

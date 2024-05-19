@@ -1,7 +1,7 @@
 import { PseudorandomStream } from "../../common";
 import { NSEW, Point } from "../../common/geometry";
 import { Grid, MutableGrid } from "../../common/grid";
-import { StrataformedCavern } from "./05_strataform";
+import { StrataformedCavern } from "./02_strataform";
 
 export const HEIGHT_MIN = -600;
 export const HEIGHT_MAX = 600;
@@ -48,12 +48,11 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
     for (let y = cavern.top; y < cavern.bottom; y++) {
       const tile = cavern.tiles.get(x, y);
       const forTile = tile ? tile.maxSlope ?? NORMAL_SLOPE : VOID_SLOPE;
-      const forErosion = cavern.erosion.get(x, y) ? 0 : Infinity;
       const forArchitect = (cavern.intersectsPearlInner.get(x, y) ?? []).reduce(
         (r, _, i) => Math.min(r, cavern.plans[i].architect.maxSlope ?? Infinity),
         Infinity
       );
-      result.set(x, y, Math.min(forTile, forErosion, forArchitect));
+      result.set(x, y, Math.min(forTile, forArchitect));
     }
   }
   return result
@@ -127,7 +126,7 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
         y,
         localMin: !!FENCES.some(([ox, oy]) => (
           cavern.tiles.get(x + ox, y + oy)?.isFluid
-          || cavern.erosion.get(x + ox, y + oy)
+          || cavern.intersectsPearlInner.get(x + ox, y + oy)?.some((_, i) => cavern.plans[i].hasErosion)
         )),
         neighbors: [],
         collapseQueued: false,

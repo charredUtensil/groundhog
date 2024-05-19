@@ -6,7 +6,7 @@ import grout from "./03_grout";
 import fine from "./04_fine";
 import annex from "./05_annex";
 
-export const TILES_TF = tf(foundation)
+export const MASONRY_TF = tf(foundation)
   .then(rough)
   .then(brace)
   .then(grout)

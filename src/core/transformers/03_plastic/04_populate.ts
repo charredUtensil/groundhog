@@ -5,9 +5,9 @@ import { Miner, MinerFactory } from "../../models/miner";
 import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { Vehicle, VehicleFactory } from "../../models/vehicle";
-import { DiscoveredCavern } from "./00_discover";
+import { StrataformedCavern } from "./02_strataform";
 
-export type PopulatedCavern = DiscoveredCavern & {
+export type PopulatedCavern = StrataformedCavern & {
   readonly landslides: Grid<Landslide>;
   readonly erosion: Grid<Erosion>;
   readonly creatures: readonly Creature[];
@@ -15,7 +15,7 @@ export type PopulatedCavern = DiscoveredCavern & {
   readonly vehicles: readonly Vehicle[];
 };
 
-export default function populate(cavern: DiscoveredCavern): PopulatedCavern {
+export default function populate(cavern: StrataformedCavern): PopulatedCavern {
   const diorama = {
     cavern,
     landslides: new MutableGrid<Landslide>(),
