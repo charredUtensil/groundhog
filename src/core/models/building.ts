@@ -11,6 +11,7 @@ import {
   rotateLeft,
   rotateRight,
 } from "../common/geometry";
+import { Grid } from "../common/grid";
 import { EntityPosition, atCenterOfTile, serializePosition } from "./position";
 
 type Footprint = readonly [readonly [0, 0], ...Point[]];
@@ -182,8 +183,9 @@ export type Building = EntityPosition & {
   readonly teleportAtStart: boolean;
 };
 
-export function serializeBuilding(building: Building, offset: Point) {
-  let r = `${building.template.id},${serializePosition(building, offset, Math.PI / 2)}`;
+export function serializeBuilding(building: Building, offset: Point, heightMap: Grid<number>) {
+  const pos = serializePosition(building, offset, heightMap, Math.PI / 2, 'building');
+  let r = `${building.template.id},${pos}`;
   if (building.level > 1) {
     r += `,Level=${building.level.toFixed()}`;
   }

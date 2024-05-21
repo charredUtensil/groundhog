@@ -1,5 +1,6 @@
 import { Biome } from "../common";
 import { Point } from "../common/geometry";
+import { Grid } from "../common/grid";
 import { EntityPosition, serializePosition } from "./position";
 
 class CreatureTemplate {
@@ -44,8 +45,8 @@ export class CreatureFactory {
   }
 }
 
-export function serializeCreature(creature: Creature, offset: Point) {
+export function serializeCreature(creature: Creature, offset: Point, heightMap: Grid<number>) {
   return `${creature.template.id}
-${serializePosition(creature, offset)}
+${serializePosition(creature, offset, heightMap, 0, 'entity')}
 ID=${creature.id.toFixed()}${creature.sleep ? ",Sleep=true" : ""}`;
 }

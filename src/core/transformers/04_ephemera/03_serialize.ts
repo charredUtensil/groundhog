@@ -76,7 +76,7 @@ ${indent(comments(cavern), "  ")}
 info{
 rowcount:${(cavern.right - cavern.left).toFixed()}
 colcount:${(cavern.bottom - cavern.top).toFixed()}
-camerapos:${serializePosition(cavern.cameraPosition, offset)}
+camerapos:${serializePosition(cavern.cameraPosition, offset, cavern.height, 0, 'entity')}
 biome:${cavern.context.biome}
 creator:groundHog
 levelname:${cavern.levelName}
@@ -114,7 +114,7 @@ objectives{
 ${serializeObjectives(cavern.objectives)}
 }
 buildings{
-${cavern.buildings.map((b) => serializeBuilding(b, offset)).join("\n")}
+${cavern.buildings.map((b) => serializeBuilding(b, offset, cavern.height)).join("\n")}
 }
 landslidefrequency{
 ${serializeHazards(cavern.landslides, offset)}
@@ -123,10 +123,10 @@ lavaspread{
 ${serializeHazards(cavern.erosion, offset)}
 }
 creatures{
-${cavern.creatures.map((c) => serializeCreature(c, offset)).join("\n")}
+${cavern.creatures.map((c) => serializeCreature(c, offset, cavern.height)).join("\n")}
 }
 miners{
-${cavern.miners.map((m) => serializeMiner(m, offset)).join("\n")}
+${cavern.miners.map((m) => serializeMiner(m, offset, cavern.height)).join("\n")}
 }
 briefing{
 ${cavern.briefing.intro}

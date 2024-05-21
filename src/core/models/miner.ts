@@ -1,4 +1,5 @@
 import { Point } from "../common/geometry";
+import { Grid } from "../common/grid";
 import { EntityPosition, serializePosition } from "./position";
 
 export type Unique =
@@ -41,10 +42,10 @@ export class MinerFactory {
   }
 }
 
-export function serializeMiner(miner: Miner, offset: Point) {
+export function serializeMiner(miner: Miner, offset: Point, heightMap: Grid<number>) {
   return `ID=${miner.id.toFixed()}\
 ${miner.unique ? `/${miner.unique}` : ""},\
-${serializePosition(miner, offset)},\
+${serializePosition(miner, offset, heightMap, 0, 'entity')},\
 ${miner.loadout.map((l) => `${l}/`).join("")}\
 ${"Level/".repeat(miner.level - 1)}\
 ${miner.essential ? ",Essential=true" : ""}`;

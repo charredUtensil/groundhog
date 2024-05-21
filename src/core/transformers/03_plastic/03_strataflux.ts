@@ -5,8 +5,6 @@ import { StrataformedCavern } from "./02_strataform";
 
 export const HEIGHT_MIN = -600;
 export const HEIGHT_MAX = 600;
-const NORMAL_SLOPE = 75;
-const VOID_SLOPE = 120;
 
 const FENCES = [
   [-1, -1],
@@ -46,13 +44,21 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
   for (let x = cavern.left; x < cavern.right; x++) {
     for (let y = cavern.top; y < cavern.bottom; y++) {
-      const tile = cavern.tiles.get(x, y);
-      const forTile = tile ? tile.maxSlope ?? NORMAL_SLOPE : VOID_SLOPE;
-      const forArchitect = (cavern.intersectsPearlInner.get(x, y) ?? []).reduce(
-        (r, _, i) => Math.min(r, cavern.plans[i].architect.maxSlope ?? Infinity),
+      const forTile = cavern.tiles.get(x, y)?.maxSlope ?? Infinity
+      const forPlan = cavern.intersectsPearlInner.get(x, y)?.reduce(
+        (r, _, i) => {
+          const plan = cavern.plans[i];
+          return plan.hasErosion ? 0 : Math.min(
+            r,
+            plan.architect.maxSlope ?? Infinity,
+            plan.kind === 'cave'
+              ? cavern.context.caveMaxSlope
+              : cavern.context.hallMaxSlope,
+          );
+        },
         Infinity
-      );
-      result.set(x, y, Math.min(forTile, forArchitect));
+      ) ?? cavern.context.voidMaxSlope;
+      result.set(x, y, Math.min(forTile, forPlan));
     }
   }
   return result

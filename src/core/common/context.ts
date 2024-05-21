@@ -118,6 +118,9 @@ export type CavernContext = {
    * Include a heightmap? If false, a flat map will be generated.
    */
   hasHeightMap: boolean;
+  caveMaxSlope: number;
+  hallMaxSlope: number;
+  voidMaxSlope: number;
 };
 
 enum Die {
@@ -206,6 +209,9 @@ export function inferContextDefaults(
     hallLandslideCooldownRange: { min: 30, max: 150 },
     crystalGoalRatio: 0.2,
     hasHeightMap: true,
+    caveMaxSlope: 75,
+    hallMaxSlope: 90,
+    voidMaxSlope: 120,
     ...getDefaultFlooding(dice, r.biome),
     ...r,
     hasOverrides: Object.keys(args).length > 1,
