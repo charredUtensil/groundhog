@@ -31,6 +31,7 @@ import discover from "../transformers/03_plastic/01_discover";
 import fence from "../transformers/03_plastic/00_fence";
 import serialize from "../transformers/04_ephemera/03_serialize";
 import goldenTest from "./golden";
+import strataflux from "../transformers/03_plastic/03_strataflux";
 
 function fill<T>(
   grid: MutableGrid<T>,
@@ -57,6 +58,7 @@ const DUMMY_CAVERN = {
   cameraPosition: position({ x: 0, y: 0, yaw: 0, pitch: Math.PI / 4 }),
   context: {
     biome: "ice",
+    heightTargetRange: 0,
   },
   creatures: [],
   crystals: new MutableGrid<number>(),
@@ -76,11 +78,13 @@ const DUMMY_CAVERN = {
 
 function ds(args: Partial<Cavern>) {
   return serialize(
-    fence(
-      discover({
-        ...DUMMY_CAVERN,
-        ...args,
-      } as any) as any,
+    strataflux(
+      fence(
+        discover({
+          ...DUMMY_CAVERN,
+          ...args,
+        } as any) as any,
+      ) as any,
     ) as any,
   ).serialized.replace(/groundHog v\S+/, "groundHog [VERSION]");
 }
