@@ -1,7 +1,7 @@
 import { getTotalCrystals } from "../../architects/utils/resources";
 import { Architect } from "../../models/architect";
 import { Objectives } from "../../models/objectives";
-import { PopulatedCavern } from "./05_populate";
+import { PopulatedCavern } from "../03_plastic/04_populate";
 
 export type AdjuredCavern = PopulatedCavern & {
   objectives: Objectives;

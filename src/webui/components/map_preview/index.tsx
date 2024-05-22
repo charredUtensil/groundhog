@@ -13,6 +13,7 @@ import {
 } from "../../../core/architects/utils/resources";
 import OpenCaveFlagPreview from "./open_cave_flag";
 import styles from "./style.module.scss";
+import HeightPreview from "./height";
 
 export type MapOverlay =
   | "about"
@@ -20,6 +21,7 @@ export type MapOverlay =
   | "discovery"
   | "entities"
   | "erosion"
+  | 'height'
   | "landslides"
   | "lore"
   | "ore"
@@ -63,6 +65,9 @@ export default function CavernPreview({
         xmlns="http://www.w3.org/2000/svg"
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
+        {mapOverlay === 'height' && cavern.height && (
+          <HeightPreview height={cavern.height} />
+        )}
         {showOutlines &&
           cavern.baseplates?.map((bp) => (
             <BaseplatePreview key={bp.id} baseplate={bp} />

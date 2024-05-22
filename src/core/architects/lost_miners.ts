@@ -5,7 +5,7 @@ import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
 import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
-import { DiscoveredCavern } from "../transformers/03_plastic/04_discover";
+import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { escapeString, mkVars, transformPoint } from "./utils/script";

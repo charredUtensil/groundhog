@@ -31,6 +31,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = ([
   landslideCooldownRange,
   baroqueness,
 }) => ({
+  baroqueness: ({ cavern }) => cavern.context[baroqueness],
   crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
   ore: ({ plan }) => plan.oreRichness * plan.perimeter,
   prime: () => undefined,
@@ -60,8 +61,8 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = ([
   placeErosion: (args) => placeErosion(30, 10, args),
   placeEntities: () => {},
   objectives: () => undefined,
+  maxSlope: undefined,
   scriptGlobals: () => undefined,
   script: () => undefined,
   monsterSpawnScript: () => undefined,
-  baroqueness: ({ cavern }) => cavern.context[baroqueness],
 } as PartialArchitect<unknown>));

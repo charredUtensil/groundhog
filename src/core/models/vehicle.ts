@@ -1,4 +1,5 @@
 import { Point } from "../common/geometry";
+import { Grid } from "../common/grid";
 import { EntityPosition, serializePosition } from "./position";
 
 // prettier-ignore
@@ -32,6 +33,7 @@ export class VehicleFactory {
   }
 }
 
-export function serializeVehicle(vehicle: Vehicle, offset: Point) {
-  return `${vehicle.template.id},${serializePosition(vehicle, offset)},ID=${vehicle.id.toFixed()}`;
+export function serializeVehicle(vehicle: Vehicle, offset: Point, heightMap: Grid<number>) {
+  const pos = serializePosition(vehicle, offset, heightMap, 0, 'entity');
+  return `${vehicle.template.id},${pos},ID=${vehicle.id.toFixed()}`;
 }

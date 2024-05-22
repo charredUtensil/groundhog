@@ -1,11 +1,11 @@
 import { Architect } from "../../models/architect";
-import { FencedCavern } from "./08_fence";
+import { EnscribedCavern } from "./01_enscribe";
 
-export type ProgrammedCavern = FencedCavern & {
+export type ProgrammedCavern = EnscribedCavern & {
   readonly script: string;
 };
 
-export default function program(cavern: FencedCavern): ProgrammedCavern {
+export default function program(cavern: EnscribedCavern): ProgrammedCavern {
   const script: string[] = [];
   const push = (lines?: string) => {
     if (lines !== undefined) {

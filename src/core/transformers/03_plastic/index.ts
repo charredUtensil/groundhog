@@ -1,16 +1,12 @@
 import { tf } from "../../common/transform";
-import discover from "./04_discover";
-import populate from "./05_populate";
-import adjure from "./06_adjure";
-import enscribe from "./07_enscribe";
-import fence from "./08_fence";
-import program from "./09_program";
-import serialize from "./10_serialize";
+import discover from "./01_discover";
+import populate from "./04_populate";
+import fence from "./00_fence";
+import strataform from "./02_strataform";
+import strataflux from "./03_strataflux";
 
-export const PLASTIC_TF = tf(discover)
-  .then(populate)
-  .then(adjure)
-  .then(enscribe)
-  .then(fence)
-  .then(program)
-  .then(serialize);
+export const PLASTIC_TF = tf(fence)
+  .then(discover)
+  .then(strataform)
+  .then(strataflux)
+  .then(populate);

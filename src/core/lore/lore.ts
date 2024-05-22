@@ -2,7 +2,7 @@ import { EstablishedHqArchitect } from "../architects/established_hq";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { FluidType, Tile } from "../models/tiles";
-import { AdjuredCavern } from "../transformers/03_plastic/06_adjure";
+import { AdjuredCavern } from "../transformers/04_ephemera/00_adjure";
 import { GenerateResult } from "./builder";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {

@@ -177,10 +177,10 @@ class BaseOyster<T> {
     }[]
   ) {
     this._layers = layers.map((ly) => ({
-      of: ly.of,
-      width: ly.width ?? 1,
-      shrink: ly.shrink ?? 0,
-      grow: ly.grow ?? 0,
+      width:  1,
+      shrink: 0,
+      grow: 0,
+      ...ly,
     }));
   }
 

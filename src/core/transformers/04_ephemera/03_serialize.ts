@@ -7,7 +7,7 @@ import { serializeMiner } from "../../models/miner";
 import { serializeObjectives } from "../../models/objectives";
 import { serializePosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
-import { ProgrammedCavern } from "./09_program";
+import { ProgrammedCavern } from "./02_program";
 
 export type SerializedCavern = ProgrammedCavern & {
   serialized: string;
@@ -35,12 +35,13 @@ function pointSet(points: Point[], [ox, oy]: Point): string {
 
 function grid(
   cavern: ProgrammedCavern,
+  fencepost: 0 | 1,
   fn: (x: number, y: number) => string,
 ): string {
   const result: string[] = [];
-  for (let y = cavern.top; y < cavern.bottom; y++) {
+  for (let y = cavern.top; y < cavern.bottom + fencepost; y++) {
     const row: string[] = [];
-    for (let x = cavern.left; x < cavern.right; x++) {
+    for (let x = cavern.left; x < cavern.right + fencepost; x++) {
       row.push(`${fn(x, y)},`);
     }
     result.push(row.join(""));
@@ -75,7 +76,7 @@ ${indent(comments(cavern), "  ")}
 info{
 rowcount:${(cavern.right - cavern.left).toFixed()}
 colcount:${(cavern.bottom - cavern.top).toFixed()}
-camerapos:${serializePosition(cavern.cameraPosition, offset)}
+camerapos:${serializePosition(cavern.cameraPosition, offset, cavern.height, 0, 'entity')}
 biome:${cavern.context.biome}
 creator:groundHog
 levelname:${cavern.levelName}
@@ -93,7 +94,7 @@ ${
 }
 }
 tiles{
-${grid(cavern, (x, y) => {
+${grid(cavern, 0, (x, y) => {
   const tile = cavern.tiles.get(x, y) ?? Tile.SOLID_ROCK;
   const offset =
     !tile.isWall && !cavern.discoveryZones.get(x, y)?.openOnSpawn ? 100 : 0;
@@ -101,23 +102,19 @@ ${grid(cavern, (x, y) => {
 })}
 }
 height{
-${
-  // The height map is a fencepost of the tile grid
-  `${"0,".repeat(1 + cavern.right - cavern.left)}\n`.repeat(
-    1 + cavern.bottom - cavern.top,
-  )
-}}
+${grid(cavern, 1, (x, y) => (cavern.height.get(x, y)!).toFixed())}
+}
 resources{
 crystals:
-${grid(cavern, (x, y) => (cavern.crystals.get(x, y) ?? 0).toFixed())}
+${grid(cavern, 0, (x, y) => (cavern.crystals.get(x, y) ?? 0).toFixed())}
 ore:
-${grid(cavern, (x, y) => (cavern.ore.get(x, y) ?? 0).toFixed())}
+${grid(cavern, 0, (x, y) => (cavern.ore.get(x, y) ?? 0).toFixed())}
 }
 objectives{
 ${serializeObjectives(cavern.objectives)}
 }
 buildings{
-${cavern.buildings.map((b) => serializeBuilding(b, offset)).join("\n")}
+${cavern.buildings.map((b) => serializeBuilding(b, offset, cavern.height)).join("\n")}
 }
 landslidefrequency{
 ${serializeHazards(cavern.landslides, offset)}
@@ -126,10 +123,10 @@ lavaspread{
 ${serializeHazards(cavern.erosion, offset)}
 }
 creatures{
-${cavern.creatures.map((c) => serializeCreature(c, offset)).join("\n")}
+${cavern.creatures.map((c) => serializeCreature(c, offset, cavern.height)).join("\n")}
 }
 miners{
-${cavern.miners.map((m) => serializeMiner(m, offset)).join("\n")}
+${cavern.miners.map((m) => serializeMiner(m, offset, cavern.height)).join("\n")}
 }
 briefing{
 ${cavern.briefing.intro}

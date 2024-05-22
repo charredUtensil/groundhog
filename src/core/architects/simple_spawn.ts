@@ -33,6 +33,7 @@ const BASE: typeof DefaultCaveArchitect = {
       }),
     );
   },
+  maxSlope: 15,
 };
 
 const OPEN = new RoughOyster(

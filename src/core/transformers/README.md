@@ -1,0 +1,34 @@
+This directory contains all of the individual steps to "transform" a cavern from a context object to a completed, serialized cavern. These steps are organized as follows:
+
+- *Outline*: Determine the rough position of the playable area of the cavern.
+  - *Partition*: Starting with a square, slice it into smaller baseplates.
+  - *Discriminate*: Choose the largest baseplates to become caves.
+  - *Triangulate*: Draw lines between the centers of the caves to create a mesh of triangles. These are ambiguous paths.
+  - *Span*: Find the minimum spanning tree and mark these paths as spanning.
+  - *Clip*: Remove some ambiguous paths that would not be fun to include.
+  - *Bore*: Detour paths to baseplates they cross, in order to make them more interesting.
+  - *Weave*: Choose some of the ambiguous paths to become halls.
+- *Planning*: Create plans for the baseplates and paths that will determine how the space will be used.
+  - *Negotiate*: Assign baseplates and paths to new plans.
+  - *Measure*: Determine size information for the plans.
+  - *Flood*: Choose which plans will have water, lava, and erosion.
+  - *Establish*: Choose which plan will be the spawn, walk through adjacent plans, assign architects, and determine other information based on distance from spawn.
+  - *Pearl*: Create pearls that effectively assign tiles to plans.
+- *Masonry*: Choose which tiles to place.
+  - *Foundation*: Determine which tiles are assigned to which plans.
+  - *Rough*: A "rough draft" of the tile placement that only places floor, water, lava, dirt, loose, hard, and solid rock.
+  - *Brace*: Find walls that would collapse immediately and add dirt so they don't.
+  - *Grout*: Eliminate single-tile features that would otherwise look bad.
+  - *Fine*: Add resources, buildings, and other tile types like seams, paths, and rubble.
+  - *Annex*: Find any solid rock that can be collapsed by drilling adjacent walls. Mark this explicitly.
+- *Plastic*: Place other things in the cavern that rely on the tile placement being finalized.
+  - *Fence*: Determine the final bounds of the level.
+  - *Discover*: Determine which tiles are open at start.
+  - *Strataform*: Determine the rough height of some of the cavern tiles.
+  - *Strataflux*: Determine the final height of all of the cavern tiles.
+  - *Populate*: Add miners, vehicles, landslides, erosion, and creatures (but not monster spawns).
+- *Ephemera*: Add everything else that doesn't necessarily have a position in the map.
+  - *Adjure*: Determine the level objectives.
+  - *Enscribe*: Write the level briefing and other text copy used throughout the level.
+  - *Program*: Add any scripting to make the level work. This includes monster spawns.
+  - *Serialize*: Convert the cavern to a text string that is the contents of the level file. 

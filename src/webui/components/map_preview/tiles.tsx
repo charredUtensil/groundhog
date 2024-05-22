@@ -36,7 +36,6 @@ const MAX_COOLDOWN = {
 } as const;
 
 function getBoundsFill(
-  cavern: Cavern,
   mapOverlay: MapOverlay,
 ): string | null {
   switch (mapOverlay) {
@@ -83,6 +82,17 @@ function getFill(
         return UNIQUE_COLORS[dz.id % UNIQUE_COLORS.length];
       }
       break;
+    case "height":
+      if (t === Tile.WATER) {
+        return "#28327A"
+      }
+      if (t === Tile.LAVA) {
+        return "#7A4228"
+      }
+      if (cavern.erosion?.get(x, y)) {
+        return "#7A7329"
+      }
+      return t ? "#525252" : null;
     case "erosion":
       if (t === Tile.WATER || t === Tile.LAVA) {
         return t.inspectColor;
@@ -139,6 +149,7 @@ function getLabel(
     case "discovery":
     case "entities":
     case "lore":
+    case "height":
     case "tiles":
     case null:
       return null;
@@ -155,7 +166,7 @@ export default function TilesPreview({
   if (!cavern.tiles || !mapOverlay) {
     return <></>;
   }
-  const boundsFill = getBoundsFill(cavern, mapOverlay);
+  const boundsFill = getBoundsFill(mapOverlay);
   return (
     <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}>
       {

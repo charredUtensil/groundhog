@@ -1,12 +1,12 @@
 import { Grid } from "../../common/grid";
 import { DiscoveryZone, getDiscoveryZones } from "../../models/discovery_zone";
-import { FinePlasticCavern } from "../02_tiles/04_fine";
+import { FencedCavern } from "./00_fence";
 
-export type DiscoveredCavern = FinePlasticCavern & {
+export type DiscoveredCavern = FencedCavern & {
   readonly discoveryZones: Grid<DiscoveryZone>;
 };
 
-export default function discover(cavern: FinePlasticCavern): DiscoveredCavern {
+export default function discover(cavern: FencedCavern): DiscoveredCavern {
   const discoveryZones = getDiscoveryZones(cavern.tiles);
   cavern.openCaveFlags.forEach(
     (_, x, y) => (discoveryZones.get(x, y)!.openOnSpawn = true),

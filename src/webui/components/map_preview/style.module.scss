@@ -154,6 +154,10 @@
       }
     }
 
+    .height {
+      shape-rendering: crispEdges;
+    }
+
     .entity {
       --color-fg: yellow;
       &.enemy {
@@ -183,12 +187,13 @@
     left: 0;
     bottom: 0;
     color: var(--palette-brand);
+    background: var(--palette-bg);
     font-family: var(--font-tiny);
     font-size: 8px;
     max-width: 400px;
     border: 1px solid var(--palette-lines);
-    padding: 4px 4px 4px 14px;
-    margin: 8px;
+    padding: 4px 14px;
+    margin: 16px;
   }
 
   .error {

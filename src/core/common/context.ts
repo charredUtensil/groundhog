@@ -114,6 +114,10 @@ export type CavernContext = {
    * Most levels in Lego Rock Raiders tend to use about 20%.
    */
   crystalGoalRatio: number;
+  heightTargetRange: number;
+  caveMaxSlope: number;
+  hallMaxSlope: number;
+  voidMaxSlope: number;
 };
 
 enum Die {
@@ -121,7 +125,58 @@ enum Die {
   targetSize,
   hasMonsters,
   flood,
+  heightTargetRange,
 }
+
+const STANDARD_DEFAULTS = {
+  baseplateMaxOblongness: 3,
+  baseplateMaxRatioOfSize: 0.33,
+  caveCount: 20,
+  auxiliaryPathCount: 4,
+  auxiliaryPathMinAngle: Math.PI / 4,
+  caveBaroqueness: 0.14,
+  hallBaroqueness: 0.05,
+  caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
+  hallCrystalRichness: { base: 0.07, hops: 0, order: 0 },
+  caveOreRichness: { base: 1.19, hops: -0.16, order: -0.08 },
+  hallOreRichness: { base: 0.12, hops: 0, order: 0 },
+  monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
+  monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
+  architects: {},
+  caveCrystalSeamBias: 0.05,
+  hallCrystalSeamBias: 0.05,
+  caveOreSeamBias: 0.05,
+  hallOreSeamBias: 0.05,
+  caveHasLandslidesChance: 0.4,
+  hallHasLandslidesChance: 0.8,
+  caveLandslideCooldownRange: { min: 15, max: 120 },
+  hallLandslideCooldownRange: { min: 30, max: 150 },
+  crystalGoalRatio: 0.2,
+} as const satisfies Partial<CavernContext>;
+
+const DEFAULTS_FOR_BIOME = {
+  rock: {
+    caveHasRechargeSeamChance: 0.07,
+    hallHasRechargeSeamChance: 0.02,
+    caveMaxSlope: 75,
+    hallMaxSlope: 90,
+    voidMaxSlope: 120,
+  },
+  ice: {
+    caveHasRechargeSeamChance: 0.07,
+    hallHasRechargeSeamChance: 0.07,
+    caveMaxSlope: 30,
+    hallMaxSlope: 30,
+    voidMaxSlope: 40,
+  },
+  lava: {
+    caveHasRechargeSeamChance: 0.1,
+    hallHasRechargeSeamChance: 0.04,
+    caveMaxSlope: 75,
+    hallMaxSlope: 90,
+    voidMaxSlope: 120,
+  },
+} as const satisfies {[K in Biome]: Partial<CavernContext>}
 
 function getDefaultFlooding(dice: DiceBox, biome: Biome) {
   const rng = dice.init(Die.flood);
@@ -171,37 +226,22 @@ export function inferContextDefaults(
     biome: dice
       .init(Die.biome)
       .uniformChoice(["rock", "ice", "lava"] as Biome[]),
+    hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 78 }),
-    caveCount: 20,
-    auxiliaryPathCount: 4,
     ...args,
   };
+  const heightTargetRange = dice.init(Die.heightTargetRange).betaInt(
+    {
+      rock: {a: 3, b: 1, min: 100, max: 500},
+      ice: {a: 1, b: 3, min: 100, max: 500},
+      lava: {a: 2, b: 1.5, min: 100, max: 500},
+    }[r.biome]
+  )
   return {
-    baseplateMaxOblongness: 3,
-    baseplateMaxRatioOfSize: 0.33,
-    auxiliaryPathMinAngle: Math.PI / 4,
-    hasMonsters: dice.init(Die.hasMonsters).chance(0.75),
-    caveBaroqueness: 0.14,
-    hallBaroqueness: 0.05,
-    caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
-    hallCrystalRichness: { base: 0.07, hops: 0, order: 0 },
-    caveOreRichness: { base: 1.19, hops: -0.16, order: -0.08 },
-    hallOreRichness: { base: 0.12, hops: 0, order: 0 },
-    monsterSpawnRate: { base: 0.3, hops: 0.56, order: 0.6 },
-    monsterWaveSize: { base: 1.75, hops: 2.0, order: 3.0 },
-    architects: {},
-    caveHasRechargeSeamChance: { rock: 0.07, ice: 0.07, lava: 0.1 }[r.biome],
-    hallHasRechargeSeamChance: { rock: 0.02, ice: 0.07, lava: 0.04 }[r.biome],
-    caveCrystalSeamBias: 0.05,
-    hallCrystalSeamBias: 0.05,
-    caveOreSeamBias: 0.05,
-    hallOreSeamBias: 0.05,
-    caveHasLandslidesChance: 0.4,
-    hallHasLandslidesChance: 0.8,
-    caveLandslideCooldownRange: { min: 15, max: 120 },
-    hallLandslideCooldownRange: { min: 30, max: 150 },
-    crystalGoalRatio: 0.2,
+    ...STANDARD_DEFAULTS,
+    ...DEFAULTS_FOR_BIOME[r.biome],
     ...getDefaultFlooding(dice, r.biome),
+    heightTargetRange,
     ...r,
     hasOverrides: Object.keys(args).length > 1,
   };
