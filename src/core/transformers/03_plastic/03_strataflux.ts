@@ -42,9 +42,16 @@ const sortFn = (
 
 function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
+  const tileOobSlope = Math.max(
+    cavern.context.caveMaxSlope,
+    cavern.context.hallMaxSlope,
+  );
   for (let x = cavern.left; x < cavern.right; x++) {
     for (let y = cavern.top; y < cavern.bottom; y++) {
-      const forTile = cavern.tiles.get(x, y)?.maxSlope ?? Infinity
+      const tile = cavern.tiles.get(x, y);
+      const forTile = tile
+        ? tile.maxSlope ?? tileOobSlope
+        : cavern.context.voidMaxSlope
       const forPlan = cavern.intersectsPearlInner.get(x, y)?.reduce(
         (r, _, i) => {
           const plan = cavern.plans[i];
@@ -57,7 +64,7 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
           );
         },
         Infinity
-      ) ?? cavern.context.voidMaxSlope;
+      ) ?? Infinity;
       result.set(x, y, Math.min(forTile, forPlan));
     }
   }
@@ -103,7 +110,7 @@ function getRandomHeight(info: PointInfo, rng: PseudorandomStream): number {
 }
 
 export default function strataflux(cavern: StrataformedCavern): StrataformedCavern {
-  if (!cavern.context.hasHeightMap) {
+  if (cavern.context.heightTargetRange <= 0) {
     return {...cavern, height: superflat(cavern)};
   }
 

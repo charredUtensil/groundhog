@@ -12,19 +12,45 @@
     &:first-child {
       margin-top: 48px;
     }
+
+    &:last-child {
+      margin-bottom: 200px;
+    }
   }
 
   h2 {
     position: sticky;
     top: 0;
     margin: 0;
-    padding: 0.5em 0;
+    margin-bottom: -8px;
+    height: 36px;
+    line-height: 28px;
+    z-index: 2;
     background: linear-gradient(
       0deg,
       transparent,
-      var(--palette-settings-bg) 33%,
+      var(--palette-settings-bg) 8px,
       var(--palette-settings-bg)
     );
+  }
+
+  h3 {
+    position: sticky;
+    top: 28px;
+    margin: 0;
+    height: 24px;
+    padding-bottom: 8px;
+    z-index: 1;
+    background: linear-gradient(
+      0deg,
+      transparent,
+      var(--palette-settings-bg) 8px,
+      var(--palette-settings-bg)
+    );
+    &::before {
+      font-family: "Material Symbols Outlined";
+      content: "subdirectory_arrow_right"
+    }
   }
 
   p {

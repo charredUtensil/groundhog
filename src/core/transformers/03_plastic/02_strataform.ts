@@ -1,10 +1,6 @@
 import { Grid, MutableGrid } from "../../common/grid";
 import { DiscoveredCavern } from "./01_discover";
 
-const HEIGHT_MIN = -500;
-const HEIGHT_MAX = 500;
-const FLUID_OFFSET = -100;
-
 const FENCES = [
   [-1, -1],
   [-1, 0],
@@ -17,9 +13,15 @@ export type StrataformedCavern = DiscoveredCavern & {
 }
 
 export default function strataform(cavern: DiscoveredCavern): StrataformedCavern {
-  if (!cavern.context.hasHeightMap) {
+  if (cavern.context.heightTargetRange <= 0) {
     return {...cavern, height: new MutableGrid()}
   }
+
+  const heightTargetRange = {
+    min: -cavern.context.heightTargetRange,
+    max: cavern.context.heightTargetRange
+  };
+  const fluidOffset = cavern.context.heightTargetRange / -5;
 
   const queued: true[] = [];
   const planHeights: (number | null)[] = [];
@@ -30,9 +32,7 @@ export default function strataform(cavern: DiscoveredCavern): StrataformedCavern
   while (queue.length) {
     const plan = queue.shift()!;
     const h = planHeights[plan.id] ?? (
-      plan.kind === 'cave'
-      ? rng.uniformInt({min: HEIGHT_MIN, max: HEIGHT_MAX})
-      : null
+      plan.kind === 'cave' ? rng.uniformInt(heightTargetRange) : null
     );
     planHeights[plan.id] = h;
     plan.intersects.forEach((v, i) => {
@@ -68,7 +68,7 @@ export default function strataform(cavern: DiscoveredCavern): StrataformedCavern
         isFluid ||= cavern.tiles.get(x + ox, y + oy)?.isFluid || hasErosion;
       });
       if (count) {
-        height.set(x, y, Math.round(sum / count) + (isFluid ? FLUID_OFFSET : 0));
+        height.set(x, y, Math.round(sum / count) + (isFluid ? fluidOffset : 0));
       }
     }
   }
