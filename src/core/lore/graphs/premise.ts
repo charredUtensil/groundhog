@@ -54,23 +54,25 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   // Blame Canada... or bureaucracy.
   greeting
     .then(state("findHq"))
+    .then(skip, state("spawnHasErosion"))
     .then(
-      "We established our Rock Raider HQ here,",
-      "We've had our eyes on this region and were all set to mine here,",
-    )
-    .then(
-      "but pulled back when we found a more suitable cavern.",
-      "but due to a minor bureaucratic mishap with Form 27B-6, we forgot to mine it!",
-    )
-    .then(
-      "We aren't entirely sure where the buildings are.",
-      "That base should still be somewhere near here.",
+      "A forward team has established Rock Raider HQ in the viscinity, but " +
+      "we haven't had the means to use it yet.",
+      "There should be a base near here primed and ready for our mining " +
+      "operations, but our teleporters are unable to get a lock on it for " +
+      "some reason.",
+      "We've had our eyes on this region and were all set to mine here. " +
+      "Unfortunately, the signed copy of Form 27b-6 went missing below a " +
+      "desk and we aren't exactly sure where that base is.",
       state("hasMonsters").then(
-        "We hope the ${enemies} have left it alone.",
-        "Unfortunately, it seems we've attracted some unwanted attention.",
+        "We were all set to mine this cavern, but the team was scared off " +
+        "by readings of ${enemies} in the area. They left in such a hurry " +
+        "that they forgot to record where exactly the Rock Raider HQ is.",
+        "There should be a base near here, but it's not showing up on our " +
+        "scanners. We hope it hasn't been destroyed by ${enemies}, but to " +
+        "be safe, we're sending you to a nearby cavern instead."
       ),
     )
-    .then(skip, state("spawnHasErosion"))
     .then(end);
 
   // Maybe treasure, maybe spawn is HQ.
