@@ -245,7 +245,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
           ),
           state("spawnIsHq").then(
             ", but this is all that's left.",
-            "and the geology seems to be stable again.",
+            "and now we need to pick up the pieces and try again.",
           ),
         )
         .then(additionalHardship, end),
