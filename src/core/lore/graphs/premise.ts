@@ -55,6 +55,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   greeting
     .then(state("findHq"))
     .then(skip, state("spawnHasErosion"))
+    .then(skip, state('treasureCaveOne', 'treasureCaveMany'))
     .then(
       "A forward team has established Rock Raider HQ in the viscinity, but " +
       "we haven't had the means to use it yet.",
@@ -165,27 +166,35 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       skip,
       state("spawnIsHq", "findHq").then(
         "We have established our Rock Raider HQ, but",
-        "We constructed our base and were ready to begin mining. Unfortunately,",
+        "We constructed our base and were ready to begin mining. " +
+        "Unfortunately,",
       ),
     )
     .then(
       state("lostMinersOne").then(
-        "a teleporter malfunction sent one of our Rock Raiders to a cavern near here.",
-        "the teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.",
+        "a teleporter malfunction sent one of our Rock Raiders to a cavern " +
+        "near here.",
+        "the teleporter on the L.M.S. Explorer has been acting up again and " +
+        "one of our Rock Raiders is trapped in an uncharted cavern.",
         "one of our Rock Raiders was accidentally sent to the wrong cavern!",
       ),
       state("lostMinersTogether").then(
-        "a teleporter malfunction sent a group of our Rock Raiders to a cavern near here.",
-        "the teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern.",
+        "a teleporter malfunction sent a group of our Rock Raiders to a " +
+        "cavern near here.",
+        "the teleporter on the L.M.S. Explorer has been acting up again and " +
+        "a group of our Rock Raiders ended up in an uncharted cavern.",
       ),
       state("lostMinersApart").then(
-        "a teleporter malfunction scattered ${lostMinersCount} of our Rock Raiders throughout this cavern.",
-        "the teleporters have failed again and ${lostMinerCavesCount} groups of Rock Raiders are lost somewhere in this cavern.",
+        "a teleporter malfunction scattered ${lostMinersCount} of our Rock " +
+        "Raiders throughout this cavern.",
+        "the teleporters have failed again and ${lostMinerCavesCount} " +
+        "groups of Rock Raiders are lost somewhere in this cavern.",
       ),
     )
     .then(
       pg(
-        "Our engineers have assured us the teleporters have been repaired, but",
+        "Our engineers have assured us the teleporters have been repaired, " +
+        "but",
         "While the teleporters are back in working order,",
       ).then(additionalHardship),
       alsoAdditionalHardship,
@@ -198,7 +207,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(state("treasureCaveOne", "treasureCaveMany"), skip)
     .then(
       "Recent seismic activity has damaged our Rock Raider HQ",
-      "An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ",
+      "An earthquake in this area has caused several cave-ins and destroyed " +
+      "part of our Rock Raider HQ",
       state("hasMonsters").then(
         "A horde of ${enemies} attacked our Rock Raider HQ",
         "Our Rock Raiders were caught unaware by a horde of ${enemies}",
