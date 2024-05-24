@@ -111,6 +111,7 @@ export type BaseArchitect<T extends Readonly<T>> = {
     readonly miners: Miner[];
     readonly vehicleFactory: VehicleFactory;
     readonly vehicles: Vehicle[];
+    readonly setCameraPosition: (position: EntityPosition) => void;
   }): void;
 
   objectives(args: {

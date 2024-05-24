@@ -6,6 +6,7 @@ import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { Vehicle, VehicleFactory } from "../../models/vehicle";
 import { StrataformedCavern } from "./02_strataform";
+import { EntityPosition } from "../../models/position";
 
 export type PopulatedCavern = StrataformedCavern & {
   readonly landslides: Grid<Landslide>;
@@ -13,9 +14,12 @@ export type PopulatedCavern = StrataformedCavern & {
   readonly creatures: readonly Creature[];
   readonly miners: readonly Miner[];
   readonly vehicles: readonly Vehicle[];
+  readonly cameraPosition: EntityPosition;
 };
 
 export default function populate(cavern: StrataformedCavern): PopulatedCavern {
+  let cameraPosition: EntityPosition | undefined = cavern.cameraPosition;
+  const setCameraPosition = (pos: EntityPosition) => (cameraPosition = pos);
   const diorama = {
     cavern,
     landslides: new MutableGrid<Landslide>(),
@@ -29,11 +33,17 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
-      const args = { ...diorama, plan };
+      const args = { ...diorama, setCameraPosition, plan };
       plan.architect.placeLandslides(args);
       plan.architect.placeErosion(args);
       plan.architect.placeEntities(args);
     },
   );
-  return { ...cavern, ...diorama };
+  if (!cameraPosition) {
+    throw new Error(
+      "No architect set a camera position! The spawn cave was expected to " +
+      "do this during either the populate or fine step."
+    );
+  }
+  return { ...cavern, ...diorama, cameraPosition };
 }

@@ -12,11 +12,12 @@ export type FinePlasticCavern = Omit<RoughPlasticCavern, "tiles"> & {
   readonly ore: Grid<number>;
   readonly buildings: readonly Building[];
   readonly openCaveFlags: Grid<true>;
-  readonly cameraPosition: EntityPosition;
+  readonly cameraPosition: EntityPosition | undefined;
 };
 
 export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
-  let cameraPosition: EntityPosition | null = null;
+  let cameraPosition: EntityPosition | undefined = undefined;
+  const setCameraPosition = (pos: EntityPosition) => (cameraPosition = pos);
   const diorama = {
     cavern,
     tiles: cavern.tiles.copy(),
@@ -24,19 +25,15 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     ore: new MutableGrid<number>(),
     buildings: [] as Building[],
     openCaveFlags: new MutableGrid<true>(),
-    setCameraPosition: (pos: EntityPosition) => (cameraPosition = pos),
   };
   cavern.plans.forEach(
     <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
-      const args = { ...diorama, plan };
+      const args = { ...diorama, setCameraPosition, plan };
       plan.architect.placeRechargeSeam(args);
       plan.architect.placeBuildings(args);
       plan.architect.placeCrystals(args);
       plan.architect.placeOre(args);
     },
   );
-  if (!cameraPosition) {
-    throw new Error("No architect set a camera position! Spawn was expected to do this.");
-  }
   return { ...cavern, ...diorama, cameraPosition };
 }
