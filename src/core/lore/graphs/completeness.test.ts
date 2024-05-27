@@ -20,22 +20,46 @@ function expectCompletion(actual: PhraseGraph<any>, expected: PhraseGraph<any>) 
     }
   );
 
-  expect(actual.phrases[0].reachableStates).toEqual(expect.objectContaining(es));
+  const as: {[key: string]: true} = {};
+  Object.keys(actual.phrases[0].reachableStates).forEach(
+    reachable => {
+      if (es[reachable]) {
+        as[reachable] = true;
+      }
+    }
+  );
+
+  expect(as).toEqual(es);
 }
 
-const EXPECTED = phraseGraph<State>(({state, start, end, skip}) => {
+const EXPECTED = phraseGraph<State>(({pg, state, start, end, cut, skip}) => {
+  const hasHq = pg(pg(), state('hqIsRuin'));
+
   start
     .then(skip, state('floodedWithLava', 'floodedWithWater'))
-    .then(
-      state('resourceObjective'),
-      state('lostMinersOne', 'lostMinersTogether', 'lostMinersApart').then(skip, state('resourceObjective')),
-    )
     .then(skip, state('hasMonsters'))
     .then(skip, state('spawnHasErosion'))
-    .then(skip, state('spawnIsHq', 'findHq').then(skip, state('hqIsRuin')))
     .then(skip, state('treasureCaveOne', 'treasureCaveMany'))
-    .then(end)
-})
+    .then(
+      skip,
+      state('spawnIsNomadOne', 'spawnIsNomadsTogether'),
+      state('spawnIsHq').then(hasHq).then(cut),
+    ).then(
+      skip,
+      state('findHq').then(hasHq).then(cut),
+    ).then(
+      skip,
+      cut.then(hasHq),
+    )
+    .then(
+      state('resourceObjective'),
+      state('lostMinersOne', 'lostMinersTogether', 'lostMinersApart').then(
+        skip,
+        state('resourceObjective'),
+      )
+    )
+    .then(end);
+});
 
 test(`Premise is complete`, () => {
   expectCompletion(PREMISE, EXPECTED);

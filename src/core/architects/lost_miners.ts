@@ -1,6 +1,8 @@
 import { PseudorandomStream } from "../common";
+import { Grid } from "../common/grid";
 import { Architect } from "../models/architect";
 import { PlannedCavern } from "../models/cavern";
+import { DiscoveryZone } from "../models/discovery_zone";
 import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
@@ -8,10 +10,11 @@ import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
+import { pickPoint } from "./utils/placement";
 import { escapeString, mkVars, transformPoint } from "./utils/script";
 
 type Metadata = {
-  readonly lostMinersCount: number;
+  readonly minersCount: number;
 };
 
 const g = mkVars("gFoundMiners", [
@@ -25,10 +28,10 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
-    const metadata = plan.metadata as Partial<Metadata> | undefined;
-    if (metadata?.lostMinersCount) {
+    if ((plan as any).isLostMiners) {
+      const metadata = plan.metadata as Metadata;
       lostMinerCaves++;
-      lostMiners += metadata.lostMinersCount;
+      lostMiners += metadata.minersCount;
     }
   });
   return { lostMiners, lostMinerCaves };
@@ -89,12 +92,25 @@ function placeBreadcrumb(
   }) || placeBreadcrumb(cavern, p2, vehicles, vehicleFactory, rng);
 }
 
-const BASE: PartialArchitect<Metadata> = {
+const pickMinerPoint = (
+  plan: Plan,
+  {tiles, discoveryZones}: {
+    tiles: Grid<Tile>,
+    discoveryZones: Grid<DiscoveryZone>
+  }
+) => pickPoint(
+  plan, (x, y) => {
+    const t = tiles.get(x, y);
+    return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
+  }
+);
+
+const BASE: PartialArchitect<Metadata> & {isLostMiners: true} = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
-    const lostMinersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
-    return { lostMinersCount };
+    const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
+    return { minersCount };
   },
   placeEntities: ({
     cavern,
@@ -106,12 +122,12 @@ const BASE: PartialArchitect<Metadata> = {
   }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     // First, place the lost miners
-    (() => {
-      const [x, y] = plan.innerPearl[0][0];
-      for (let i = 0; i < plan.metadata.lostMinersCount; i++) {
-        miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
-      }
-    })();
+    const [x, y] = pickMinerPoint(plan, cavern) ?? (
+      () => {throw new Error("Nowhere to place lost miners!")}
+    )();
+    for (let i = 0; i < plan.metadata.minersCount; i++) {
+      miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
+    }
     // Next, place a breadcrumb
     placeBreadcrumb(cavern, plan, vehicles, vehicleFactory, rng);
   },
@@ -141,11 +157,11 @@ ${g.done}=1;
 `;
   },
   script({ cavern, plan }) {
-    const lostMinersPoint = transformPoint(cavern, plan.innerPearl[0][0]);
+    const lostMinersPoint = transformPoint(cavern, pickMinerPoint(plan, cavern)!);
     const rng = cavern.dice.script(plan.id);
     const message = cavern.lore.generateFoundLostMiners(
       rng,
-      plan.metadata.lostMinersCount,
+      plan.metadata.minersCount,
     ).text;
     const v = mkVars(`p${plan.id}FoundMiners`, [
       "messageDiscover",
@@ -157,13 +173,14 @@ string ${v.messageDiscover}="${escapeString(message)}"
 if(change:${lostMinersPoint})[${v.onDiscover}]
 ${v.onDiscover}::;
 pan:${lostMinersPoint};
-${g.lostMinersCount}=${g.lostMinersCount}-${plan.metadata.lostMinersCount};
+${g.lostMinersCount}=${g.lostMinersCount}-${plan.metadata.minersCount};
 ((${g.lostMinersCount}>0))[${v.onIncomplete}][${g.onFoundAll}];
 
 ${v.onIncomplete}::;
 msg:${v.messageDiscover};
 `;
   },
+  isLostMiners: true,
 };
 
 // The L.M.S. Explorer's teleporters just seem to be real lousy in ice

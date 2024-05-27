@@ -1,13 +1,13 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
-import { DefaultCaveArchitect } from "./default";
+import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { mkVars, transformPoint } from "./utils/script";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 
-const BASE: typeof DefaultCaveArchitect & { isTreasure: true } = {
+const BASE: PartialArchitect<unknown> & { isTreasure: true } = {
   ...DefaultCaveArchitect,
   isTreasure: true,
   objectives: ({ cavern }) => {
