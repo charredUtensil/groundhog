@@ -75,7 +75,7 @@ export default function establish(
   // annotating each with the index and the number of "hops" it is away from
   // the spawn.
   function sortPlans(): SortedPlan[] {
-    const isQueued: boolean[] = [];
+    const isQueued: true[] = [];
     isQueued[spawn.id] = true;
     const queue: { plan: FloodedPlan; hops: number }[] = [
       { plan: spawn, hops: 0 },

@@ -43,7 +43,7 @@ function isMergeable(a: Baseplate, b: Baseplate): boolean {
 export default function negotiate(
   cavern: TriangulatedCavern,
 ): PartialPlannedCavern<NegotiatedPlan> {
-  const bpIsInBigCave: boolean[] = [];
+  const bpIsInBigCave: true[] = [];
   const queue: Pick<Plan, "kind" | "path">[][] = [[], [], []];
 
   const paths: Path[] = [

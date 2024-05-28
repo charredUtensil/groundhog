@@ -96,7 +96,7 @@ export default function flood(
         });
     }
   }
-  const erosion: (true | undefined)[] = [];
+  const erosion: true[] = [];
   const erodeQueue: MeasuredPlan[] = [
     ...lakes.flatMap((lake) => (lake.fluid === Tile.LAVA ? lake.stack : [])),
     ...fluids.flatMap((f, i) => (f === Tile.LAVA ? [cavern.plans[i]] : [])),
@@ -125,7 +125,7 @@ export default function flood(
   const plans = cavern.plans.map((plan) => ({
     ...plan,
     fluid: fluids[plan.id] ?? null,
-    hasErosion: erosion[plan.id] === true,
+    hasErosion: !!erosion[plan.id],
   }));
   return { ...cavern, plans };
 }

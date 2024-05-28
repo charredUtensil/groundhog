@@ -6,7 +6,7 @@ export type MeasuredPlan = NegotiatedPlan & {
    * If intersects[id] is true, this plan intersects the plan with the given id.
    * Plans do not intersect themselves.
    */
-  readonly intersects: readonly boolean[];
+  readonly intersects: readonly true[];
   /** How many layers of different tiles can be added to this Plan? */
   readonly pearlRadius: number;
   readonly perimeter: number;
@@ -22,7 +22,7 @@ export default function measure(
     );
   });
   const plans = cavern.plans.map((plan) => {
-    const intersects: boolean[] = [];
+    const intersects: true[] = [];
     plan.path.baseplates
       .flatMap((bp) => planIdsByBp[bp.id])
       .filter((plid) => plid !== plan.id)
