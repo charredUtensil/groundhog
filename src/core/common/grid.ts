@@ -24,6 +24,10 @@ export class MutableGrid<T> {
     this.data.set(`${x},${y}`, value);
   }
 
+  get size(): number {
+    return this.data.size;
+  }
+
   get bounds(): Bounds {
     const r: Partial<Bounds> = {};
     this.forEach((_, x, y) => {
@@ -57,6 +61,15 @@ export class MutableGrid<T> {
   flatMap<V>(fn: (value: T, x: number, y: number) => V[]) {
     const result: V[] = [];
     this.forEach((...args) => result.push(...fn(...args)));
+    return result;
+  }
+
+  reduce<V>(
+    fn: (previousValue: V, currentValue: T, x: number, y: number) => V,
+    initialValue: V
+  ) {
+    let result: V = initialValue;
+    this.forEach((...args) => result = fn(result, ...args));
     return result;
   }
 }

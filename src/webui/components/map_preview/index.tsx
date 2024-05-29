@@ -7,13 +7,10 @@ import PearlPreview from "./pearl";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
-import {
-  getTotalCrystals,
-  getTotalOre,
-} from "../../../core/architects/utils/resources";
 import OpenCaveFlagPreview from "./open_cave_flag";
 import styles from "./style.module.scss";
 import HeightPreview from "./height";
+import Stats from "./stats";
 
 export type MapOverlay =
   | "about"
@@ -117,15 +114,7 @@ export default function CavernPreview({
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
           ))}
       </svg>
-      <div className={styles.stats}>
-        {mapOverlay === "crystals" && cavern.crystals && (
-          <>{getTotalCrystals(cavern)} total Energy Crystals</>
-        )}
-        {mapOverlay === "ore" && cavern.ore && (
-          <>{getTotalOre(cavern)} total Ore</>
-        )}
-        {cavern.briefing?.intro && <>Briefing: {cavern.briefing.intro}</>}
-      </div>
+      <Stats cavern={cavern} mapOverlay={mapOverlay} />
       {error && <div className={styles.error}>{error.message}</div>}
     </div>
   );
