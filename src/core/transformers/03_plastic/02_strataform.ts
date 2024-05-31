@@ -57,7 +57,7 @@ export default function strataform(cavern: DiscoveredCavern): StrataformedCavern
       let isFluid = false;
       FENCES.forEach(([ox, oy]) => {
         let hasErosion = false;
-        cavern.intersectsPearlInner.get(x + ox, y + oy)?.forEach((_, i) => {
+        cavern.pearlInnerDex.get(x + ox, y + oy)?.forEach((_, i) => {
           const h = planHeights[i];
           if (h != null) {
             sum += h;

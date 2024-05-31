@@ -5,6 +5,7 @@ import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { sprinkleCrystals } from "./utils/resources";
+import { placeSleepingMonsters } from "./utils/creatures";
 
 const monsterSpawner = getMonsterSpawner({
   retriggerMode: "automatic",
@@ -35,6 +36,29 @@ const FLOODED: readonly Architect<unknown>[] = [
     ),
     caveBid: ({ plan }) =>
       plan.fluid === Tile.WATER && plan.pearlRadius < 10 && 1,
+  },
+  {
+    name: "Lake With Sleeping Monsters",
+    ...BASE,
+    ...new RoughOyster(
+      { of: Rough.WATER, grow: 2 },
+      { of: Rough.FLOOR, grow: 1 },
+      { of: Rough.LOOSE_ROCK },
+      { of: Rough.LOOSE_OR_HARD_ROCK },
+    ),
+    caveBid: ({ cavern, plan }) =>
+      cavern.context.hasMonsters &&
+      cavern.context.biome === 'ice' &&
+      plan.fluid === Tile.WATER &&
+      plan.path.baseplates.length > 1 &&
+      plan.pearlRadius > 3 &&
+      plan.pearlRadius < 10 &&
+      1,
+    placeEntities(args) {
+      const rng = args.cavern.dice.placeEntities(args.plan.id);
+      const count = Math.ceil(args.plan.monsterWaveSize * 1.2);
+      placeSleepingMonsters(args, rng, count);
+    },
   },
   {
     name: "Island",

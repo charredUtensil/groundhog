@@ -23,21 +23,35 @@ export default function Stats({
                 </ul>
               )
             case "entities":
-              return (
-                <ul>
-                  <li>
-                    Miners: {cavern.miners?.length ?? 0}
-                  </li>
-                  <li>
-                    Buildings: ({cavern.buildings?.length ?? 0}){" "}
-                    {cavern.buildings?.map(b => b.template.inspectAbbrev).join(" ")}
-                  </li>
-                  <li>
-                    Creatures: ({cavern.creatures?.length ?? 0}){" "}
-                    {cavern.creatures?.map(c => c.template.inspectAbbrev).join(" ")}
-                  </li>
-                </ul>
-              )
+              {
+                const buildings: {[K: string]: number} = {};
+                cavern.buildings?.forEach(b => {
+                  const s = b.template.inspectAbbrev;
+                  buildings[s] = (buildings[s] ?? 0) + 1;
+                })
+                const creatures: {[K: string]: number} = {};
+                cavern.creatures?.forEach(c => {
+                  const s = c.template.inspectAbbrev;
+                  creatures[s] = (creatures[s] ?? 0) + 1;
+                })
+                return (
+                  <ul>
+                    <li>
+                      Miners: {cavern.miners?.length ?? 0}
+                    </li>
+                    <li>
+                      Buildings:{" "}
+                      {!Object.entries(buildings).length && "0"}
+                      {Object.entries(buildings).map(([k, v]) => `${k}${v > 1 ? `x${v}` : ''}`).join(" ")}
+                    </li>
+                    <li>
+                      Creatures:{" "}
+                      {!Object.entries(creatures).length && "0"}
+                      {Object.entries(creatures).map(([k, v]) => `${k}${v > 1 ? `x${v}` : ''}`).join(" ")}
+                    </li>
+                  </ul>
+                )
+              }
             case "crystals":
               return (
                 <ul>

@@ -52,7 +52,7 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
       const forTile = tile
         ? tile.maxSlope ?? tileOobSlope
         : cavern.context.voidMaxSlope
-      const forPlan = cavern.intersectsPearlInner.get(x, y)?.reduce(
+      const forPlan = cavern.pearlInnerDex.get(x, y)?.reduce(
         (r, _, i) => {
           const plan = cavern.plans[i];
           return plan.hasErosion ? 0 : Math.min(
@@ -139,7 +139,7 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
         y,
         localMin: !!FENCES.some(([ox, oy]) => (
           cavern.tiles.get(x + ox, y + oy)?.isFluid
-          || cavern.intersectsPearlInner.get(x + ox, y + oy)?.some((_, i) => cavern.plans[i].hasErosion)
+          || cavern.pearlInnerDex.get(x + ox, y + oy)?.some((_, i) => cavern.plans[i].hasErosion)
         )),
         neighbors: [],
         collapseQueued: false,

@@ -6,6 +6,7 @@ import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { mkVars, transformPoint } from "./utils/script";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
+import { placeSleepingMonsters } from "./utils/creatures";
 
 const BASE: PartialArchitect<unknown> & { isTreasure: true } = {
   ...DefaultCaveArchitect,
@@ -44,6 +45,13 @@ const HOARD: typeof BASE = {
       args,
       () => rng.weightedChoice(bids),
     );
+  },
+  placeEntities(args) {
+    if (args.plan.pearlRadius > 3) {
+      const rng = args.cavern.dice.placeEntities(args.plan.id)
+      const count = Math.ceil(args.plan.monsterWaveSize / 2);
+      placeSleepingMonsters(args, rng, count);
+    }
   },
   monsterSpawnScript: getMonsterSpawner({
     retriggerMode: "hoard",
@@ -164,6 +172,13 @@ const TREASURE: readonly (Architect<unknown> & { isTreasure: true })[] = [
       plan.path.baseplates.length >= 1 &&
       isDeadEnd(plan) &&
       0.5,
+    placeEntities(args) {
+      const rng = args.cavern.dice.placeEntities(args.plan.id);
+      if (args.cavern.context.biome === 'ice' && rng.chance(0.5)) {
+        const count = Math.ceil(args.plan.monsterWaveSize / 2);
+        placeSleepingMonsters(args, rng, count, 'inner');
+      }
+    }
   },
   {
     name: "Peninsula Hoard",

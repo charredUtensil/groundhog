@@ -125,11 +125,11 @@ export function bidsForOuterPearl(args: {
       .filter(({ bid }) => bid > 0)
       .map(({ item, bid }) => {
         const innerPlansAtTile =
-          args.cavern.intersectsPearlInner
+          args.cavern.pearlInnerDex
             .get(...item)
             ?.reduce((n) => n + 1, 0) ?? 0;
         const outerPlansAtTile =
-          args.cavern.intersectsPearlOuter
+          args.cavern.pearlOuterDex
             .get(...item)
             ?.reduce((n) => n + 1, 0) ?? 0;
         return { item, bid: bid / (innerPlansAtTile + outerPlansAtTile) };
