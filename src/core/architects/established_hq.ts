@@ -43,11 +43,6 @@ type Metadata = {
   crystalsInBuildings: number;
 };
 
-export type EstablishedHqArchitect = Architect<Metadata> & {
-  isHq: true;
-  isRuin: boolean;
-};
-
 function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
@@ -245,7 +240,7 @@ ${g.foundHq}=1;
 };
 
 const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
-  Pick<Architect<Metadata>, "rough" | "roughExtent"> & { isHq: true } = {
+  Pick<Architect<Metadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
     { of: Rough.ALWAYS_FLOOR, grow: 2 },
@@ -261,7 +256,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
+export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
   {
     name: "Established HQ Spawn",
     ...BASE,
@@ -293,7 +288,7 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops <= 4 &&
-      !plans.some((p) => "architect" in p && "isHq" in p.architect) &&
+      !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: false,
     ...WITH_FIND_OBJECTIVE,
@@ -308,7 +303,7 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops <= 4 &&
-      !plans.some((p) => "architect" in p && "isHq" in p.architect) &&
+      !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: true,
     ...WITH_FIND_OBJECTIVE,

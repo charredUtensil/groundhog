@@ -2,7 +2,7 @@ import { PseudorandomStream } from "../common";
 import { Point } from "../common/geometry";
 import { Grid } from "../common/grid";
 import { Architect } from "../models/architect";
-import { Cavern, PlannedCavern } from "../models/cavern";
+import { PlannedCavern } from "../models/cavern";
 import { DiscoveryZone } from "../models/discovery_zone";
 import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
@@ -31,7 +31,7 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
-    if ((plan.architect as any).isLostMiners) {
+    if (plan.architect.isLostMiners) {
       const metadata = plan.metadata as Metadata;
       lostMinerCaves++;
       lostMiners += metadata.minersCount;
@@ -137,7 +137,7 @@ const pickMinerPoint = (
   }
 );
 
-const BASE: PartialArchitect<Metadata> & {isLostMiners: true} = {
+const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
@@ -244,7 +244,7 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       hops > 3 &&
       hops <= 8 &&
       isDeadEnd(plan) &&
-      plans.reduce((r, p) => (p as any).architect?.isLostMiners ? r + 1 : r, 0) < 4 &&
+      plans.reduce((r, p) => p.architect?.isLostMiners ? r + 1 : r, 0) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
 ];

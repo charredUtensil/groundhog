@@ -1,5 +1,6 @@
 import { ARCHITECTS } from "../../architects";
 import { Curve } from "../../common";
+import { CollapseUnion } from "../../common/utils";
 import { Architect } from "../../models/architect";
 import { PartialPlannedCavern } from "./00_negotiate";
 import { FloodedPlan } from "./02_flood";
@@ -101,7 +102,7 @@ export default function establish(
   }
   const inOrder = sortPlans();
 
-  const plans: (FloodedPlan | EstablishedPlan)[] = cavern.plans.slice();
+  const plans: CollapseUnion<FloodedPlan | EstablishedPlan>[] = cavern.plans.slice();
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];

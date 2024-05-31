@@ -1,4 +1,3 @@
-import { EstablishedHqArchitect } from "../architects/established_hq";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { FluidType, Tile } from "../models/tiles";
@@ -172,10 +171,10 @@ export class Lore {
 
     const spawn = cavern.plans.find((p) => p.hops === 0)!;
 
-    const hq = cavern.plans.find((p) => (p.architect as any).isHq);
+    const hq = cavern.plans.find((p) => p.architect.isHq);
     const spawnIsHq = spawn === hq;
     const findHq = !!hq && !spawnIsHq;
-    const hqIsRuin = !!hq && (hq.architect as EstablishedHqArchitect).isRuin;
+    const hqIsRuin = !!hq && hq.architect.isRuin;
 
     const nomads = (spawn.architect as any).isNomads
       ? (spawn.metadata as any).minersCount as number : 0;

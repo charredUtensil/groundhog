@@ -65,4 +65,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = ([
   scriptGlobals: () => undefined,
   script: () => undefined,
   monsterSpawnScript: () => undefined,
+  isHq: false,
+  isLostMiners: false,
+  isRuin: false,
 } as PartialArchitect<unknown>));
