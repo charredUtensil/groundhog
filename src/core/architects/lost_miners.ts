@@ -11,6 +11,7 @@ import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
+import { isDeadEnd } from "./utils/intersects";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { pickPoint } from "./utils/placement";
 import { escapeString, mkVars, transformPoint } from "./utils/script";
@@ -232,16 +233,18 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
     name: "Lost Miners",
     ...BASE,
     ...new RoughOyster(
-      { of: Rough.ALWAYS_FLOOR, width: 2, shrink: 1, grow: 2 },
+      { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
     ),
     caveBid: ({ cavern, hops, plans, plan }) =>
       !plan.fluid &&
-      plan.pearlRadius >= 2 &&
+      plan.pearlRadius > 2 &&
       plan.pearlRadius < 10 &&
+      hops > 3 &&
       hops <= 8 &&
-      plans.reduce((r, p) => r + ("architect" in p ? 0 : 1), 0) <= 3 &&
+      isDeadEnd(plan) &&
+      plans.reduce((r, p) => (p as any).architect?.isLostMiners ? r + 1 : r, 0) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
 ];
