@@ -86,7 +86,7 @@ function dWrapping(
     `A ${a.radius},${a.radius} 0 1 1 ${aPrime1.join(',')}`,
     `L ${bPrime1.join(',')}`,
     `A ${b.radius},${b.radius} 0 0 1 ${bPrime2.join(',')} Z`, 
-  ].join();
+  ].join('');
 }
 
 function caveWithTwoBaseplates(plan: Partial<Plan>) {

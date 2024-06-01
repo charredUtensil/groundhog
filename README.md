@@ -22,14 +22,15 @@ running `UPDATE_GOLDENS=1 npx yarn test`.
 
 # Deploying
 
-Deploy the current revision to GitHub Pages with
-`npx yarn deploy -m 'deploy message'`. I eventually plan to migrate this
-to a GitHub Action. 
+groundHog should deploy automatically when the main branch is updated via a
+[GitHub action](https://github.com/charredUtensil/groundhog/actions/workflows/release.yml)
+as long as all tests are passing.
 
 # Contributing
 
-I am on the Manic Miners discord. Ping me if you're interested in contributing
-and I can offer advice and/or suggestions.
+I am on the Manic Miners Discord. Ping me if you're interested in contributing
+and I can offer advice and/or suggestions. PRs are welcomed, but please run
+`prettier` and ensure tests pass before submitting them.
 
 # FAQ
 
@@ -55,24 +56,29 @@ All of the caverns are procedurally generated using an approach that
 would have been feasible back in 1999. Procedural generation means there are a
 series of specific rules that determine where everything in the level gets
 placed, and while there is some randomness within those rules, the rules
-themselves are hand-crafted.
+themselves are hand-crafted. GroundHog makes no calls at runtime to ChatGPT
+_et al_.
 
 A modern "AI" would be somewhat unhelpful in this situation. There aren't
 nearly enough Manic Miners levels in existence to train the AI on what makes a
 level *winnable*, and the system requirements would far exceed Manic Miners
-itself, even on max graphics settings.
+itself, even on max graphics settings - or cost money per level generated.
 
-I have been using Gemini to do some limited code generation for tests and for
-translating modules from [Hognose](https://github.com/charredUtensil/hognose).
+I have been using Gemini to do some limited code generation (mostly for tests)
+and for translating Python code from
+[Hognose](https://github.com/charredUtensil/hognose).
 
 ## Can I use this as a template to build my custom Manic Miners level on?
 
-Sure! I'd appreciate it if you included a link to this GitHub page.
+Sure! I'd appreciate it if you included a link to this GitHub page, at least
+within the level comments.
 
 ## Can groundHog make a level that...
 
 Add an issue and maybe! Generally speaking, the kind of things that would be
-easier to add would be caves with specific things in them - like
+easier to add would be caves with specific things in them. Whole-cavern
+overhauls are also possible, but will require significant amounts of testing
+before they are released.
 
 ## Can I tweak the level generation?
 
@@ -80,6 +86,14 @@ Yes! Just click "Advanced" and you have a few dozen parameters to change.
 Some should be fairly self-explanatory while others... aren't. Please note
 that changing these settings, especially at the extreme edges, is likely to
 cause errors at this time.
+
+The sliders provided are in roughly the order that they are used. Generally
+speaking, I would recommend tweaking them in order from top to bottom as
+changes near the start of the process are likely to affect the end of it in
+major and unpredictable ways.
+
+See [code comments](https://github.com/charredUtensil/groundhog/blob/main/src/core/common/context.ts)
+for explanations of what these values do.
 
 ## Can you give me some cool seeds to play?
 

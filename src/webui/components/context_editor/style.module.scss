@@ -126,6 +126,11 @@
 
     button {
       cursor: pointer;
+
+      &:active {
+        background: var(--palette-fg);
+        color: black;
+      }
     }
 
     input[type="range"] {

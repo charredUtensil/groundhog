@@ -22,6 +22,7 @@ export default function HeightPreview({
       {height.map((h, x, y) => {
         return (
           <circle
+            key={`${x},${y}`}
             fill={toColor(h)}
             cx={x * SCALE}
             cy={y * SCALE}
