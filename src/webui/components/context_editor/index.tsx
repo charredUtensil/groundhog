@@ -7,6 +7,18 @@ import { ArchitectsInput } from "./architects";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
+function parseSeed(v: string) {
+  if (v[0] === '#') {
+    v = v.slice(1);
+  }
+  const seed = parseInt(v, 16);
+  return (seed >= 0 && seed < MAX_PLUS_ONE) ? seed : undefined;
+}
+
+function unparseSeed(v: number) {
+  return v.toString(16).padStart(8, "0").toUpperCase()
+}
+
 const expectedCavePlans = (contextWithDefaults: CavernContext | undefined) =>
   contextWithDefaults ? contextWithDefaults.caveCount : 20;
 
@@ -25,7 +37,6 @@ export function CavernContextInput({
   dispatchState: (args: { context: CavernContext }) => void;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-
   const [context, update] = useReducer(
     (
       was: PartialContext,
@@ -46,8 +57,26 @@ export function CavernContextInput({
       }
       return r;
     },
-    { seed: INITIAL_SEED },
+    { seed: parseSeed(window.location.hash) ?? INITIAL_SEED },
   );
+  
+
+  useEffect(() => {
+    const fn = () => {
+      const seed = parseSeed(window.location.hash);
+      if (seed !== undefined) {
+        update({ seed: seed });
+      }
+    }
+    window.addEventListener('hashchange', fn);
+    return () => {
+      window.removeEventListener('hashchange', fn);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.location.hash = unparseSeed(context.seed);
+  }, [context.seed])
 
   useEffect(
     () => dispatchState({ context: inferContextDefaults(context) }),
@@ -61,13 +90,10 @@ export function CavernContextInput({
         <input
           type="text"
           className={styles.seed}
-          value={(context?.seed ?? INITIAL_SEED)
-            .toString(16)
-            .padStart(8, "0")
-            .toUpperCase()}
+          value={unparseSeed(context?.seed)}
           onChange={(ev) => {
-            const seed = parseInt(ev.target.value, 16);
-            if (seed >= 0 && seed < MAX_PLUS_ONE) {
+            const seed = parseSeed(ev.target.value);
+            if (seed !== undefined) {
               update({ seed: seed });
             }
           }}
