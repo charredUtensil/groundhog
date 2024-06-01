@@ -4,6 +4,7 @@ import { Architect } from "../models/architect";
 import {
   Building,
   CANTEEN,
+  DOCKS,
   GEOLOGICAL_CENTER,
   MINING_LASER,
   POWER_STATION,
@@ -29,6 +30,7 @@ const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
 const T2_BUILDINGS = [
   UPGRADE_STATION,
   GEOLOGICAL_CENTER,
+  DOCKS,
 ] as const;
 const T3_BUILDINGS = [
   CANTEEN,
@@ -82,6 +84,11 @@ function getPlaceBuildings({
         }
         if (bt === TOOL_STORE) {
           return asSpawn;
+        }
+        if (bt === DOCKS && !args.plan.intersects.some(
+          (_, i) => args.cavern.plans[i].fluid === Tile.WATER)
+        ) {
+          return false;
         }
         if (asRuin && i === OMIT_T1) {
           return false;
@@ -243,8 +250,8 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   Pick<Architect<Metadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
-    { of: Rough.ALWAYS_FLOOR, grow: 2 },
-    { of: Rough.FLOOR, grow: 2 },
+    { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
+    { of: Rough.FLOOR, width: 0, grow: 2 },
     { of: Rough.DIRT, width: 0, grow: 0.5 },
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
     { of: Rough.HARD_ROCK, grow: 0.25 },

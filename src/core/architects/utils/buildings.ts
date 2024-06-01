@@ -1,7 +1,7 @@
 import { Cardinal4, NSEW } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { Architect } from "../../models/architect";
-import { Building } from "../../models/building";
+import { Building, DOCKS } from "../../models/building";
 import { Tile } from "../../models/tiles";
 
 export type MakeBuildingFn = (a: {
@@ -53,27 +53,32 @@ export function getBuildings(
         // For each possible orientation
         for (const facing of NSEW) {
           const [ox, oy] = facing;
-          // If this is an acceptable porch location
+          // Continue if this is an unacceptable porch location
           if (porches.get(x + ox, y + oy) !== ly) {
             continue;
           }
           // Make the building
           const b = fn({ x, y, facing });
-          // And if the foundation does not overlap any used or non floor tile
+          // Continue if the foundation overlaps any used or non floor tile
           if (
-            !b.foundation.some(
+            b.foundation.some(
               ([x, y]) => placed.get(x, y) || tiles.get(x, y) !== Tile.FLOOR,
             )
           ) {
-            // Keep this building
-            result.push(b);
-            b.foundation.forEach(([x, y]) => placed.set(x, y, true));
-            queue.splice(i, 1);
-            if (queue.length === 0) {
-              break done;
-            }
-            break point;
+            continue;
           }
+          // Continue if this is a docks not on water
+          if (b.template === DOCKS && tiles.get(x - ox, y - oy) !== Tile.WATER) {
+            continue;
+          }
+          // Keep this building
+          result.push(b);
+          b.foundation.forEach(([x, y]) => placed.set(x, y, true));
+          queue.splice(i, 1);
+          if (queue.length === 0) {
+            break done;
+          }
+          break point;
         }
       }
     }
