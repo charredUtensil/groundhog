@@ -4,6 +4,25 @@ import { Cavern } from "../../../core/models/cavern"
 import React from "react"
 import styles from "./style.module.scss";
 import { Tile } from "../../../core/models/tiles";
+import { Building } from "../../../core/models/building";
+import { Vehicle } from "../../../core/models/vehicle";
+import { Creature } from "../../../core/models/creature";
+
+function EntitySummary({entities}: {entities: readonly (Building | Vehicle | Creature)[] | undefined}) {
+  const counts: {[K: string]: number} = {};
+  entities?.forEach(e => {
+    const s = e.template.inspectAbbrev;
+    counts[s] = (counts[s] ?? 0) + 1;
+  })
+
+  return (
+    <>
+      {!Object.entries(counts).length && "n/a"}
+      {Object.entries(counts).map(
+        ([k, v]) => `${k}${v > 1 ? `x${v}` : ''}`).join(" ")}
+    </>
+  )
+}
 
 export default function Stats({
   cavern, mapOverlay
@@ -24,30 +43,19 @@ export default function Stats({
               )
             case "entities":
               {
-                const buildings: {[K: string]: number} = {};
-                cavern.buildings?.forEach(b => {
-                  const s = b.template.inspectAbbrev;
-                  buildings[s] = (buildings[s] ?? 0) + 1;
-                })
-                const creatures: {[K: string]: number} = {};
-                cavern.creatures?.forEach(c => {
-                  const s = c.template.inspectAbbrev;
-                  creatures[s] = (creatures[s] ?? 0) + 1;
-                })
                 return (
                   <ul>
                     <li>
                       Miners: {cavern.miners?.length ?? 0}
                     </li>
                     <li>
-                      Buildings:{" "}
-                      {!Object.entries(buildings).length && "0"}
-                      {Object.entries(buildings).map(([k, v]) => `${k}${v > 1 ? `x${v}` : ''}`).join(" ")}
+                      Buildings: <EntitySummary entities={cavern.buildings} />
                     </li>
                     <li>
-                      Creatures:{" "}
-                      {!Object.entries(creatures).length && "0"}
-                      {Object.entries(creatures).map(([k, v]) => `${k}${v > 1 ? `x${v}` : ''}`).join(" ")}
+                      Vehicles: <EntitySummary entities={cavern.vehicles} />
+                    </li>
+                    <li>
+                      Creatures: <EntitySummary entities={cavern.creatures} />
                     </li>
                   </ul>
                 )

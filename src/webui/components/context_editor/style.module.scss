@@ -18,6 +18,19 @@
     }
   }
 
+  .section {
+    .subsection {
+      &::after {
+        content: " ";
+        display: block;
+        width: 100%;
+        height: 1px;
+        margin-bottom: 8px;
+        background: var(--palette-fg);
+      }
+    }
+  }
+
   h2 {
     position: sticky;
     top: 0;

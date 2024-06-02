@@ -121,35 +121,39 @@ export function CavernContextInput({
       </div>
       {showAdvanced && (
         <>
-          <div className={styles.inputRow}>
-            {contextWithDefaults.hasOverrides ? (
-              <button
-                className={styles.override}
-                onClick={() => update("reset")}
-              >
-                Clear All Overrides
-              </button>
-            ) : (
-              <div className={styles.invisible} />
-            )}
+          <div className={styles.section}>
+            <div className={styles.subsection}>
+              <div className={styles.inputRow}>
+                {contextWithDefaults.hasOverrides ? (
+                  <button
+                    className={styles.override}
+                    onClick={() => update("reset")}
+                  >
+                    Clear All Overrides
+                  </button>
+                ) : (
+                  <div className={styles.invisible} />
+                )}
+              </div>
+              <Choice
+                of="biome"
+                choices={["rock", "ice", "lava"]}
+                update={update}
+                context={context}
+                contextWithDefaults={contextWithDefaults}
+              />
+              <Choice
+                of="hasMonsters"
+                choices={[true, false]}
+                update={update}
+                context={context}
+                contextWithDefaults={contextWithDefaults}
+              />
+            </div>
           </div>
-          <Choice
-            of="biome"
-            choices={["rock", "ice", "lava"]}
-            update={update}
-            context={context}
-            contextWithDefaults={contextWithDefaults}
-          />
-          <Choice
-            of="hasMonsters"
-            choices={[true, false]}
-            update={update}
-            context={context}
-            contextWithDefaults={contextWithDefaults}
-          />
-          <div>
+          <div className={styles.section}>
             <h2>Outlines</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Partition</h3>
               <Slider
                 of="targetSize"
@@ -177,7 +181,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Discriminate</h3>
               <Slider
                 of="caveCount"
@@ -188,7 +192,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Weave</h3>
               <Slider
                 of="auxiliaryPathCount"
@@ -209,9 +213,9 @@ export function CavernContextInput({
               />
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Planning</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Flood</h3>
               <Slider
                 of="waterPlans"
@@ -254,7 +258,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Establish</h3>
               {(
                 [
@@ -291,7 +295,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Pearl</h3>
               <Slider
                 of="caveBaroqueness"
@@ -313,9 +317,9 @@ export function CavernContextInput({
               />
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Masonry</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Fine</h3>
               {(
                 [
@@ -340,9 +344,9 @@ export function CavernContextInput({
               ))}
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Plastic</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Strataform</h3>
               <Slider
                 of="heightTargetRange"
@@ -354,7 +358,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Strataflux</h3>
               {(
                 [
@@ -374,7 +378,7 @@ export function CavernContextInput({
                 />
               ))}
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Populate</h3>
               {(
                 [
@@ -395,9 +399,9 @@ export function CavernContextInput({
               ))}
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Ephemera</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Adjure</h3>
               <Slider
                 of="crystalGoalRatio"
