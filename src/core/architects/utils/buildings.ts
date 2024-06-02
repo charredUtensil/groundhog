@@ -36,7 +36,7 @@ export function getBuildings(
     to?: number;
     queue: MakeBuildingFn[];
   },
-  { cavern, plan, tiles }: Parameters<Architect<any>['placeBuildings']>[0],
+  { cavern, plan, tiles }: Parameters<Architect<any>["placeBuildings"]>[0],
 ) {
   const placed = new MutableGrid<true>();
   const porches = new MutableGrid<number>();
@@ -68,7 +68,10 @@ export function getBuildings(
             continue;
           }
           // Continue if this is a docks not on water
-          if (b.template === DOCKS && tiles.get(x - ox, y - oy) !== Tile.WATER) {
+          if (
+            b.template === DOCKS &&
+            tiles.get(x - ox, y - oy) !== Tile.WATER
+          ) {
             continue;
           }
           // Keep this building

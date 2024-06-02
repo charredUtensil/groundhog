@@ -183,8 +183,18 @@ export type Building = EntityPosition & {
   readonly teleportAtStart: boolean;
 };
 
-export function serializeBuilding(building: Building, offset: Point, heightMap: Grid<number>) {
-  const pos = serializePosition(building, offset, heightMap, Math.PI / 2, 'building');
+export function serializeBuilding(
+  building: Building,
+  offset: Point,
+  heightMap: Grid<number>,
+) {
+  const pos = serializePosition(
+    building,
+    offset,
+    heightMap,
+    Math.PI / 2,
+    "building",
+  );
   let r = `${building.template.id},${pos}`;
   if (building.level > 1) {
     r += `,Level=${building.level.toFixed()}`;

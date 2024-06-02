@@ -66,10 +66,10 @@ export class MutableGrid<T> {
 
   reduce<V>(
     fn: (previousValue: V, currentValue: T, x: number, y: number) => V,
-    initialValue: V
+    initialValue: V,
   ) {
     let result: V = initialValue;
-    this.forEach((...args) => result = fn(result, ...args));
+    this.forEach((...args) => (result = fn(result, ...args)));
     return result;
   }
 }

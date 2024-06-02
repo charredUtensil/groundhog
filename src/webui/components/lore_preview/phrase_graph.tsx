@@ -1,8 +1,4 @@
-import React, {
-  CSSProperties,
-  useEffect,
-  useState,
-} from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import {
   GenerateResult,
   Phrase,

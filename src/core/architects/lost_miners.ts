@@ -47,25 +47,20 @@ function getBreadcrumbPoint(
   plan: Plan,
 ): Point {
   // Choose the neighboring plan which is closest to spawn (fewest hops).
-  const neighborPlan = plan.intersects.reduce(
-    (r, _, i) => {
-      const p = cavern.plans[i];
-      return p.hops < r.hops ? p : r;
-    },
-    plan,
-  );
+  const neighborPlan = plan.intersects.reduce((r, _, i) => {
+    const p = cavern.plans[i];
+    return p.hops < r.hops ? p : r;
+  }, plan);
 
   // Prevent infinite loops - shouldn't happen under normal operation since
   // eventually we should reach the spawn, we already asserted that the
   // miner spawn point is not discovered at spawn, and the spawn should be
   // discovered at spawn. Still...
   if (plan.hops < neighborPlan.hops) {
-    throw new Error('Infinite loop detected')
+    throw new Error("Infinite loop detected");
   }
 
-
-  const result = neighborPlan
-    .innerPearl
+  const result = neighborPlan.innerPearl
     .flatMap((layer) => layer)
     // Find all the points in the inner pearl that are not walls and are in a
     // different discovery zone from the miners.
@@ -75,12 +70,18 @@ function getBreadcrumbPoint(
     })
     // Compute a^2 + b^2 for these points to get their relative distance and
     // choose the closest point to the miners.
-    .map(([x, y]) => [
-      x, y, (x - minersX) ** 2 + (y - minersY) ** 2
-    ] as [number, number, number])
-    .reduce((r: [number, number, number] | null, p) => (
-      r && r[2] < p[2] ? r : p
-    ), null);
+    .map(
+      ([x, y]) =>
+        [x, y, (x - minersX) ** 2 + (y - minersY) ** 2] as [
+          number,
+          number,
+          number,
+        ],
+    )
+    .reduce(
+      (r: [number, number, number] | null, p) => (r && r[2] < p[2] ? r : p),
+      null,
+    );
 
   // If such a point exists, return it.
   if (result) {
@@ -126,16 +127,18 @@ function placeBreadcrumbVehicle(
 
 const pickMinerPoint = (
   plan: Plan,
-  {tiles, discoveryZones}: {
-    tiles: Grid<Tile>,
-    discoveryZones: Grid<DiscoveryZone>
-  }
-) => pickPoint(
-  plan, (x, y) => {
+  {
+    tiles,
+    discoveryZones,
+  }: {
+    tiles: Grid<Tile>;
+    discoveryZones: Grid<DiscoveryZone>;
+  },
+) =>
+  pickPoint(plan, (x, y) => {
     const t = tiles.get(x, y);
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
-  }
-);
+  });
 
 const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
@@ -154,12 +157,14 @@ const BASE: PartialArchitect<Metadata> = {
   }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     // Place the lost miners
-    const [x, y] = pickMinerPoint(plan, cavern) ?? (
-      () => {throw new Error("Nowhere to place lost miners")}
-    )();
+    const [x, y] =
+      pickMinerPoint(plan, cavern) ??
+      (() => {
+        throw new Error("Nowhere to place lost miners");
+      })();
     const dz = cavern.discoveryZones.get(x, y);
     if (!dz) {
-      throw new Error("Lost Miners point is not discoverable")
+      throw new Error("Lost Miners point is not discoverable");
     }
     if (dz.openOnSpawn) {
       throw new Error("Lost Miners point is discovered on spawn");
@@ -170,7 +175,13 @@ const BASE: PartialArchitect<Metadata> = {
     // Place a breadcrumb vehicle
     const breadcrumbPoint = getBreadcrumbPoint(cavern, [x, y], dz, plan);
     placeBreadcrumbVehicle(
-      cavern, plan, breadcrumbPoint, vehicles, vehicleFactory, rng);
+      cavern,
+      plan,
+      breadcrumbPoint,
+      vehicles,
+      vehicleFactory,
+      rng,
+    );
   },
   objectives: ({ cavern }) => {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
@@ -198,7 +209,10 @@ ${g.done}=1;
 `;
   },
   script({ cavern, plan }) {
-    const lostMinersPoint = transformPoint(cavern, pickMinerPoint(plan, cavern)!);
+    const lostMinersPoint = transformPoint(
+      cavern,
+      pickMinerPoint(plan, cavern)!,
+    );
     const rng = cavern.dice.script(plan.id);
     const message = cavern.lore.generateFoundLostMiners(
       rng,
@@ -244,7 +258,7 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       hops > 3 &&
       hops <= 8 &&
       isDeadEnd(plan) &&
-      plans.reduce((r, p) => p.architect?.isLostMiners ? r + 1 : r, 0) < 4 &&
+      plans.reduce((r, p) => (p.architect?.isLostMiners ? r + 1 : r), 0) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
 ];

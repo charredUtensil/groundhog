@@ -40,7 +40,7 @@ export type CavernContext = {
    */
   targetSize: number;
   /**
-   * The maximum aspect ratio baseplates can have. 
+   * The maximum aspect ratio baseplates can have.
    */
   baseplateMaxOblongness: number;
   /**
@@ -128,7 +128,7 @@ export type CavernContext = {
    * How many monsters to spawn per minute in a cave, if monsters are enabled.
    */
   monsterSpawnRate: Curve;
-  /** 
+  /**
    * How many monsters to spawn at a time in a cave, if monsters are enabled.
    */
   monsterWaveSize: Curve;
@@ -272,7 +272,7 @@ const DEFAULTS_FOR_BIOME = {
     hallMaxSlope: 90,
     voidMaxSlope: 120,
   },
-} as const satisfies {[K in Biome]: Partial<CavernContext>}
+} as const satisfies { [K in Biome]: Partial<CavernContext> };
 
 function getDefaultFlooding(dice: DiceBox, biome: Biome) {
   const rng = dice.init(Die.flood);
@@ -328,11 +328,11 @@ export function inferContextDefaults(
   };
   const heightTargetRange = dice.init(Die.heightTargetRange).betaInt(
     {
-      rock: {a: 3, b: 1, min: 100, max: 500},
-      ice: {a: 1, b: 3, min: 100, max: 500},
-      lava: {a: 2, b: 1.5, min: 100, max: 500},
-    }[r.biome]
-  )
+      rock: { a: 3, b: 1, min: 100, max: 500 },
+      ice: { a: 1, b: 3, min: 100, max: 500 },
+      lava: { a: 2, b: 1.5, min: 100, max: 500 },
+    }[r.biome],
+  );
   return {
     ...STANDARD_DEFAULTS,
     ...DEFAULTS_FOR_BIOME[r.biome],

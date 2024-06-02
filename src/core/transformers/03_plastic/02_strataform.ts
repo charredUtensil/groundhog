@@ -10,16 +10,18 @@ const FENCES = [
 
 export type StrataformedCavern = DiscoveredCavern & {
   readonly height: Grid<number>;
-}
+};
 
-export default function strataform(cavern: DiscoveredCavern): StrataformedCavern {
+export default function strataform(
+  cavern: DiscoveredCavern,
+): StrataformedCavern {
   if (cavern.context.heightTargetRange <= 0) {
-    return {...cavern, height: new MutableGrid()}
+    return { ...cavern, height: new MutableGrid() };
   }
 
   const heightTargetRange = {
     min: -cavern.context.heightTargetRange,
-    max: cavern.context.heightTargetRange
+    max: cavern.context.heightTargetRange,
   };
   const fluidOffset = cavern.context.heightTargetRange / -5;
 
@@ -27,18 +29,18 @@ export default function strataform(cavern: DiscoveredCavern): StrataformedCavern
   const planHeights: (number | null)[] = [];
   const rng = cavern.dice.height;
 
-  const queue = cavern.plans.filter(plan => plan.hops === 0);
-  queue.forEach(plan => queued[plan.id] = true);
+  const queue = cavern.plans.filter((plan) => plan.hops === 0);
+  queue.forEach((plan) => (queued[plan.id] = true));
   while (queue.length) {
     const plan = queue.shift()!;
-    const h = planHeights[plan.id] ?? (
-      plan.kind === 'cave' ? rng.uniformInt(heightTargetRange) : null
-    );
+    const h =
+      planHeights[plan.id] ??
+      (plan.kind === "cave" ? rng.uniformInt(heightTargetRange) : null);
     planHeights[plan.id] = h;
     plan.intersects.forEach((v, i) => {
       const p = cavern.plans[i];
       if (queued[i] || p.kind === plan.kind) {
-        return
+        return;
       }
       if (plan.fluid || p.fluid) {
         planHeights[i] = h;
@@ -73,5 +75,5 @@ export default function strataform(cavern: DiscoveredCavern): StrataformedCavern
     }
   }
 
-  return {...cavern, height}
+  return { ...cavern, height };
 }

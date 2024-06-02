@@ -102,7 +102,8 @@ export default function establish(
   }
   const inOrder = sortPlans();
 
-  const plans: CollapseUnion<FloodedPlan | EstablishedPlan>[] = cavern.plans.slice();
+  const plans: CollapseUnion<FloodedPlan | EstablishedPlan>[] =
+    cavern.plans.slice();
   let totalCrystals = 0;
 
   const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];

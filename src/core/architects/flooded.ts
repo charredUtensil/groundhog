@@ -48,7 +48,7 @@ const FLOODED: readonly Architect<unknown>[] = [
     ),
     caveBid: ({ cavern, plan }) =>
       cavern.context.hasMonsters &&
-      cavern.context.biome === 'ice' &&
+      cavern.context.biome === "ice" &&
       plan.fluid === Tile.WATER &&
       plan.path.baseplates.length > 1 &&
       plan.pearlRadius > 3 &&
@@ -148,28 +148,34 @@ const FLOODED: readonly Architect<unknown>[] = [
     ...BASE,
     crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
     ...new RoughOyster(
-      { of: weightedSprinkle(
-        {item: Rough.ALWAYS_DIRT, bid: 0.01},
-        {item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.1},
-        {item: Rough.LAVA, bid: 1},
-        ), width: 4, grow: 1 },
-      { of: weightedSprinkle(
-        {item: Rough.AT_MOST_DIRT, bid: 0.25},
-        {item: Rough.AT_MOST_LOOSE_ROCK, bid: 1},
-        )},
+      {
+        of: weightedSprinkle(
+          { item: Rough.ALWAYS_DIRT, bid: 0.01 },
+          { item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.1 },
+          { item: Rough.LAVA, bid: 1 },
+        ),
+        width: 4,
+        grow: 1,
+      },
+      {
+        of: weightedSprinkle(
+          { item: Rough.AT_MOST_DIRT, bid: 0.25 },
+          { item: Rough.AT_MOST_LOOSE_ROCK, bid: 1 },
+        ),
+      },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
     placeCrystals(args) {
       sprinkleCrystals(
         Math.max(args.cavern.context.caveCrystalSeamBias, 0.6),
         args,
-      )
+      );
     },
-    caveBid: ({ plan }) => 
+    caveBid: ({ plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.hasErosion &&
       plan.pearlRadius > 5 &&
-      0.4
+      0.4,
   },
 ];
 

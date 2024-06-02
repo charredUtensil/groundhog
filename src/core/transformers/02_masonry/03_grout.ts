@@ -1,4 +1,14 @@
-import { EAST, NORTH, NORTH_EAST, NORTH_WEST, NSEW, SOUTH, SOUTH_EAST, SOUTH_WEST, WEST } from "../../common/geometry";
+import {
+  EAST,
+  NORTH,
+  NORTH_EAST,
+  NORTH_WEST,
+  NSEW,
+  SOUTH,
+  SOUTH_EAST,
+  SOUTH_WEST,
+  WEST,
+} from "../../common/geometry";
 import { Grid } from "../../common/grid";
 import { Tile } from "../../models/tiles";
 import { RoughPlasticCavern } from "./01_rough";
@@ -12,7 +22,7 @@ const HOLE_MAP = [
   [...SOUTH_WEST, 1],
   [...WEST, 2],
   [...NORTH_WEST, 1],
-] as const
+] as const;
 
 function isHole(tiles: Grid<Tile>, x: number, y: number) {
   let r = 0;
@@ -32,15 +42,18 @@ export default function grout(cavern: RoughPlasticCavern): RoughPlasticCavern {
   const tiles = cavern.tiles.copy();
   cavern.tiles.forEach((t, x, y) => {
     if (t.isWall) {
-      return
+      return;
     }
     if (isHole(tiles, x, y)) {
       tiles.set(x, y, Tile.DIRT);
-      return
+      return;
     }
-    if (t.isFluid && !NSEW.some(([ox, oy]) => tiles.get(x + ox, y + oy)?.isFluid)) {
+    if (
+      t.isFluid &&
+      !NSEW.some(([ox, oy]) => tiles.get(x + ox, y + oy)?.isFluid)
+    ) {
       tiles.set(x, y, Tile.FLOOR);
     }
-  })
-  return {...cavern, tiles}
+  });
+  return { ...cavern, tiles };
 }

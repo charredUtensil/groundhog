@@ -103,13 +103,13 @@ class Partitioner {
         a: 5,
         b: 2.5,
         min: 3,
-        max: Math.min(this.baseplateMaxSize, bp.width)
+        max: Math.min(this.baseplateMaxSize, bp.width),
       });
       let h = this.rng.betaInt({
         a: 5,
         b: 2.5,
         min: 3,
-        max: Math.min(this.baseplateMaxSize, bp.height)
+        max: Math.min(this.baseplateMaxSize, bp.height),
       });
       // Limit to max oblongness
       w = Math.min(w, h + this.context.baseplateMaxOblongness);

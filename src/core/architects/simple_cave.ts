@@ -17,11 +17,14 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
     ...BASE,
     ...new RoughOyster(
       { of: Rough.DIRT, width: 0, grow: 0.25 },
-      { of: weightedSprinkle(
-        {item: Rough.DIRT, bid: 0.25},
-        {item: Rough.LOOSE_ROCK, bid: 0.25},
-        {item: Rough.DIRT_OR_LOOSE_ROCK, bid: 0.5},
-        ), grow: 1 },
+      {
+        of: weightedSprinkle(
+          { item: Rough.DIRT, bid: 0.25 },
+          { item: Rough.LOOSE_ROCK, bid: 0.25 },
+          { item: Rough.DIRT_OR_LOOSE_ROCK, bid: 0.5 },
+        ),
+        grow: 1,
+      },
       { of: Rough.LOOSE_OR_HARD_ROCK },
     ),
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius < 4 && 0.04,
@@ -32,10 +35,13 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
     ...new RoughOyster(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.AT_MOST_DIRT, width: 0, grow: 0.5 },
-      { of: weightedSprinkle(
-        {item: Rough.AT_MOST_DIRT, bid: 0.25},
-        {item: Rough.AT_MOST_LOOSE_ROCK, bid: 1},
-        ), grow: 1 },
+      {
+        of: weightedSprinkle(
+          { item: Rough.AT_MOST_DIRT, bid: 0.25 },
+          { item: Rough.AT_MOST_LOOSE_ROCK, bid: 1 },
+        ),
+        grow: 1,
+      },
       { of: Rough.AT_MOST_HARD_ROCK, grow: 0.25 },
       { of: Rough.VOID, width: 0, grow: 0.5 },
     ),
@@ -51,10 +57,13 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
     ...new RoughOyster(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.DIRT, width: 0, grow: 0.1 },
-      { of: weightedSprinkle(
-        {item: Rough.DIRT, bid: 0.25},
-        {item: Rough.LOOSE_ROCK, bid: 1},
-        ), grow: 1 },
+      {
+        of: weightedSprinkle(
+          { item: Rough.DIRT, bid: 0.25 },
+          { item: Rough.LOOSE_ROCK, bid: 1 },
+        ),
+        grow: 1,
+      },
       { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.5 },
       { of: Rough.VOID, width: 0, grow: 0.5 },
     ),
@@ -96,18 +105,25 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
     name: "Stalagmite Cave",
     ...BASE,
     ...new RoughOyster(
-      { of: weightedSprinkle(
-        {item: Rough.ALWAYS_DIRT, bid: 0.01},
-        {item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.04},
-        {item: Rough.FLOOR, bid: 1},
-        ), width: 4, grow: 3 },
-      { of: weightedSprinkle(
-        {item: Rough.DIRT, bid: 0.25},
-        {item: Rough.LOOSE_ROCK, bid: 1},
-        ), grow: 1 },
+      {
+        of: weightedSprinkle(
+          { item: Rough.ALWAYS_DIRT, bid: 0.01 },
+          { item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.04 },
+          { item: Rough.FLOOR, bid: 1 },
+        ),
+        width: 4,
+        grow: 3,
+      },
+      {
+        of: weightedSprinkle(
+          { item: Rough.DIRT, bid: 0.25 },
+          { item: Rough.LOOSE_ROCK, bid: 1 },
+        ),
+        grow: 1,
+      },
       { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.25 },
     ),
-    caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.2
+    caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.2,
   },
 ];
 export default SIMPLE_CAVE;

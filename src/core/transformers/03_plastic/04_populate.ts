@@ -42,7 +42,7 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
   if (!cameraPosition) {
     throw new Error(
       "No architect set a camera position! The spawn cave was expected to " +
-      "do this during either the populate or fine step."
+        "do this during either the populate or fine step.",
     );
   }
   return { ...cavern, ...diorama, cameraPosition };

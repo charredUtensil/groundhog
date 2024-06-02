@@ -31,24 +31,21 @@ const HOARD: typeof BASE = {
     const wallBids = bidsForOrdinaryWalls(
       args.plan.innerPearl.flatMap((layer) => layer),
       args.tiles,
-    )
-    const centerPoints = args.plan.innerPearl[0].length > 1
-      ? args.plan.innerPearl[0]
-      : [...args.plan.innerPearl[0], ...args.plan.innerPearl[1]];
+    );
+    const centerPoints =
+      args.plan.innerPearl[0].length > 1
+        ? args.plan.innerPearl[0]
+        : [...args.plan.innerPearl[0], ...args.plan.innerPearl[1]];
     const bids = [
       ...wallBids.map((item) => ({ bid: 1 / wallBids.length, item })),
       ...centerPoints.map((item) => ({ bid: 3 / centerPoints.length, item })),
     ];
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
-    sprinkleCrystals(
-      0,
-      args,
-      () => rng.weightedChoice(bids),
-    );
+    sprinkleCrystals(0, args, () => rng.weightedChoice(bids));
   },
   placeEntities(args) {
     if (args.plan.pearlRadius > 3) {
-      const rng = args.cavern.dice.placeEntities(args.plan.id)
+      const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
       placeSleepingMonsters(args, rng, count);
     }
@@ -174,11 +171,11 @@ const TREASURE: readonly (Architect<unknown> & { isTreasure: true })[] = [
       0.5,
     placeEntities(args) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
-      if (args.cavern.context.biome === 'ice' && rng.chance(0.5)) {
+      if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
         const count = Math.ceil(args.plan.monsterWaveSize / 2);
-        placeSleepingMonsters(args, rng, count, 'inner');
+        placeSleepingMonsters(args, rng, count, "inner");
       }
-    }
+    },
   },
   {
     name: "Peninsula Hoard",

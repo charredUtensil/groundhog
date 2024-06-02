@@ -14,16 +14,16 @@ const About = () => (
           rel="noreferrer"
         >
           documentation
-        </a>
-        {" "}and{" "}
+        </a>{" "}
+        and{" "}
         <a
           href="https://github.com/charredUtensil/groundhog/issues"
           target="_blank"
           rel="noreferrer"
         >
           report issues
-        </a>
-        {" "}on GitHub.
+        </a>{" "}
+        on GitHub.
       </p>
       <p>
         LEGO® is a trademark of the LEGO Group of companies which does not

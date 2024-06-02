@@ -18,7 +18,7 @@ export type MapOverlay =
   | "discovery"
   | "entities"
   | "erosion"
-  | 'height'
+  | "height"
   | "landslides"
   | "lore"
   | "ore"
@@ -62,7 +62,7 @@ export default function CavernPreview({
         xmlns="http://www.w3.org/2000/svg"
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
-        {mapOverlay === 'height' && cavern.height && (
+        {mapOverlay === "height" && cavern.height && (
           <HeightPreview height={cavern.height} />
         )}
         {showOutlines &&
@@ -75,7 +75,7 @@ export default function CavernPreview({
           cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
         {showPearls &&
           cavern.plans
-            ?.filter((pl) => 'outerPearl' in pl)
+            ?.filter((pl) => "outerPearl" in pl)
             .map((pl) => (
               <PearlPreview
                 key={pl.id}
@@ -85,7 +85,7 @@ export default function CavernPreview({
             ))}
         {showPearls &&
           cavern.plans
-            ?.filter((pl) => 'innerPearl' in pl)
+            ?.filter((pl) => "innerPearl" in pl)
             .map((pl) => (
               <PearlPreview
                 key={pl.id}

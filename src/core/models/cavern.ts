@@ -11,4 +11,4 @@ export type BaseCavern = {
 };
 export type PlannedCavern = BaseCavern & { plans: readonly Plan[] };
 
-export type Cavern = CollapseUnion<AnyTfResultOf<typeof CAVERN_TF>>
+export type Cavern = CollapseUnion<AnyTfResultOf<typeof CAVERN_TF>>;

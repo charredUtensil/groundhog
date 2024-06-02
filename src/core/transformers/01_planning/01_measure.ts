@@ -37,7 +37,7 @@ export default function measure(
      * end plus twice the length of the path:
      * (2*pi*a.pr) / 2 + (2*pi*b.pr) / 2 + pd * 2
      * pi * (a.pr + b.pr) + 2 * pd
-     * 
+     *
      * For halls, it's just double the length of the hall that isn't part of
      * some cave.
      *
@@ -51,8 +51,8 @@ export default function measure(
         ? Math.PI *
             (Math.min(pearlRadius, plan.path.origin.pearlRadius) +
               Math.min(pearlRadius, plan.path.destination.pearlRadius)) +
-          plan.path.snakeDistance * 2
-        : 2 * plan.path.exclusiveSnakeDistance
+            plan.path.snakeDistance * 2
+        : 2 * plan.path.exclusiveSnakeDistance,
     );
     return { ...plan, intersects, pearlRadius, perimeter };
   });

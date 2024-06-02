@@ -177,10 +177,13 @@ export class Lore {
     const hqIsRuin = !!hq && hq.architect.isRuin;
 
     const nomads = (spawn.architect as any).isNomads
-      ? (spawn.metadata as any).minersCount as number : 0;
+      ? ((spawn.metadata as any).minersCount as number)
+      : 0;
 
-    const treasures = cavern.plans.reduce((r, plan) =>
-      (plan.architect as any).isTreasure ? r + 1 : r, 0);
+    const treasures = cavern.plans.reduce(
+      (r, plan) => ((plan.architect as any).isTreasure ? r + 1 : r),
+      0,
+    );
 
     this.state = {
       floodedWithWater: fluidType === Tile.WATER,
@@ -188,11 +191,10 @@ export class Lore {
       lostMinersOne: lostMiners === 1,
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
-      resourceObjective: (
+      resourceObjective:
         cavern.objectives.crystals > 0 ||
         cavern.objectives.ore > 0 ||
-        cavern.objectives.studs > 0
-      ),
+        cavern.objectives.studs > 0,
       hasMonsters: cavern.context.hasMonsters,
       spawnHasErosion: spawn.hasErosion,
       spawnIsHq,

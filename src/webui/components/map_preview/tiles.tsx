@@ -35,9 +35,7 @@ const MAX_COOLDOWN = {
   erosion: 100,
 } as const;
 
-function getBoundsFill(
-  mapOverlay: MapOverlay,
-): string | null {
+function getBoundsFill(mapOverlay: MapOverlay): string | null {
   switch (mapOverlay) {
     case "entities":
     case "tiles":
@@ -84,20 +82,20 @@ function getFill(
       break;
     case "height":
       if (t === Tile.WATER) {
-        return "#28327A"
+        return "#28327A";
       }
       if (t === Tile.LAVA) {
-        return "#7A4228"
+        return "#7A4228";
       }
       if (cavern.erosion?.get(x, y)) {
-        return "#7A7329"
+        return "#7A7329";
       }
       return t ? "#525252" : null;
     case "erosion":
       if (t === Tile.WATER || t === Tile.LAVA) {
         return t.inspectColor;
       }
-      // Fall through
+    // Fall through
     case "landslides":
       const cooldown = cavern[mapOverlay]?.get(x, y)?.cooldown;
       if (cooldown) {
@@ -169,18 +167,16 @@ export default function TilesPreview({
   const boundsFill = getBoundsFill(mapOverlay);
   return (
     <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}>
-      {
-        boundsFill && cavern.top && (
-          <rect
-            className={styles.bounds}
-            fill={boundsFill}
-            x={cavern.left! * SCALE}
-            y={cavern.top! * SCALE}
-            width={(cavern.right! - cavern.left!) * SCALE}
-            height={(cavern.bottom! - cavern.top!) * SCALE}
-          />
-        )
-      }
+      {boundsFill && cavern.top && (
+        <rect
+          className={styles.bounds}
+          fill={boundsFill}
+          x={cavern.left! * SCALE}
+          y={cavern.top! * SCALE}
+          width={(cavern.right! - cavern.left!) * SCALE}
+          height={(cavern.bottom! - cavern.top!) * SCALE}
+        />
+      )}
       {cavern.tiles.map((t, x, y) => {
         const fill = getFill(cavern, mapOverlay, t, x, y);
         const label = getLabel(cavern, mapOverlay, t, x, y);

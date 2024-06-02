@@ -27,11 +27,7 @@ const DESTROY_PATH_CHANCE = 0.62;
 
 const T0_BUILDINGS = [TOOL_STORE] as const;
 const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
-const T2_BUILDINGS = [
-  UPGRADE_STATION,
-  GEOLOGICAL_CENTER,
-  DOCKS,
-] as const;
+const T2_BUILDINGS = [UPGRADE_STATION, GEOLOGICAL_CENTER, DOCKS] as const;
 const T3_BUILDINGS = [
   CANTEEN,
   MINING_LASER,
@@ -69,7 +65,7 @@ function getPlaceBuildings({
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
     const tq = [
       ...T0_BUILDINGS,
-      ...((asSpawn && !asRuin) ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
+      ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
       ...rng.shuffle(T2_BUILDINGS),
       ...rng.shuffle(T3_BUILDINGS),
     ];
@@ -85,8 +81,11 @@ function getPlaceBuildings({
         if (bt === TOOL_STORE) {
           return asSpawn;
         }
-        if (bt === DOCKS && !args.plan.intersects.some(
-          (_, i) => args.cavern.plans[i].fluid === Tile.WATER)
+        if (
+          bt === DOCKS &&
+          !args.plan.intersects.some(
+            (_, i) => args.cavern.plans[i].fluid === Tile.WATER,
+          )
         ) {
           return false;
         }
@@ -116,7 +115,7 @@ function getPlaceBuildings({
 
     // Place the buildings.
     buildings.forEach((b) => {
-      if ('destroyed_now' in b) {
+      if ("destroyed_now" in b) {
         b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.RUBBLE_4));
       } else {
         b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));

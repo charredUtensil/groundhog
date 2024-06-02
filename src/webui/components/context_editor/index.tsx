@@ -8,15 +8,15 @@ import { ArchitectsInput } from "./architects";
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
 function parseSeed(v: string) {
-  if (v[0] === '#') {
+  if (v[0] === "#") {
     v = v.slice(1);
   }
   const seed = parseInt(v, 16);
-  return (seed >= 0 && seed < MAX_PLUS_ONE) ? seed : undefined;
+  return seed >= 0 && seed < MAX_PLUS_ONE ? seed : undefined;
 }
 
 function unparseSeed(v: number) {
-  return v.toString(16).padStart(8, "0").toUpperCase()
+  return v.toString(16).padStart(8, "0").toUpperCase();
 }
 
 const expectedCavePlans = (contextWithDefaults: CavernContext | undefined) =>
@@ -59,7 +59,6 @@ export function CavernContextInput({
     },
     { seed: parseSeed(window.location.hash) ?? INITIAL_SEED },
   );
-  
 
   useEffect(() => {
     const fn = () => {
@@ -67,16 +66,16 @@ export function CavernContextInput({
       if (seed !== undefined) {
         update({ seed: seed });
       }
-    }
-    window.addEventListener('hashchange', fn);
+    };
+    window.addEventListener("hashchange", fn);
     return () => {
-      window.removeEventListener('hashchange', fn);
+      window.removeEventListener("hashchange", fn);
     };
   }, []);
 
   useEffect(() => {
     window.location.hash = unparseSeed(context.seed);
-  }, [context.seed])
+  }, [context.seed]);
 
   useEffect(
     () => dispatchState({ context: inferContextDefaults(context) }),
@@ -360,31 +359,24 @@ export function CavernContextInput({
             </div>
             <div className={styles.subsection}>
               <h3>Strataflux</h3>
-              {(
-                [
-                  "caveMaxSlope",
-                  "hallMaxSlope",
-                  "voidMaxSlope",
-                ] as const
-              ).map((of) => (
-                <Slider
-                  key={of}
-                  of={of}
-                  min={0}
-                  max={200}
-                  update={update}
-                  context={context}
-                  contextWithDefaults={contextWithDefaults}
-                />
-              ))}
+              {(["caveMaxSlope", "hallMaxSlope", "voidMaxSlope"] as const).map(
+                (of) => (
+                  <Slider
+                    key={of}
+                    of={of}
+                    min={0}
+                    max={200}
+                    update={update}
+                    context={context}
+                    contextWithDefaults={contextWithDefaults}
+                  />
+                ),
+              )}
             </div>
             <div className={styles.subsection}>
               <h3>Populate</h3>
               {(
-                [
-                  "caveHasLandslidesChance",
-                  "hallHasLandslidesChance",
-                ] as const
+                ["caveHasLandslidesChance", "hallHasLandslidesChance"] as const
               ).map((of) => (
                 <Slider
                   key={of}
