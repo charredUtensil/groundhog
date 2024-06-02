@@ -1,9 +1,23 @@
 import { DiceBox } from "./prng";
 
 export type Biome = "rock" | "ice" | "lava";
+
+/**
+ * Some values are "curved" so they change based on distance from spawn.
+ * These values can be negative to decrease a value away from spawn.
+ */
 export type Curve = {
+  /** The base value at spawn. */
   readonly base: number;
+  /**
+   * This value is multiplied by a number from 0 to 1 depending on the ratio
+   * of the maximum possible distance away from spawn.
+   */
   readonly hops: number;
+  /**
+   * This value is multiplied by a number from 0 to 1 depending on the order
+   * the caves / halls are visited in.
+   */
   readonly order: number;
 };
 
@@ -11,18 +25,23 @@ export type CavernContext = {
   /** The root seed for the dice box. */
   seed: number;
 
+  /** Indicates this Context is not purely derived from the given seed. */
   hasOverrides: boolean;
   /**
-   * Which biome this map is in.
+   * Which biome this map is in. Biome affects the default setting for some
+   * other context values, such as how much water or lava a map has.
    */
   biome: Biome;
 
   /**
    * The "target" final size for the cavern.
-   * The final size may be larger or smaller due to randomness -
-   * larger caverns will not be cropped to fit.
+   * The final size may be larger or smaller due to random fluctuations -
+   * larger caverns will not be explicitly cropped to fit this value.
    */
   targetSize: number;
+  /**
+   * The maximum aspect ratio baseplates can have.
+   */
   baseplateMaxOblongness: number;
   /**
    * Baseplates may be at most this ratio of the target size.
@@ -34,12 +53,12 @@ export type CavernContext = {
    */
   caveCount: number;
   /**
-   * Add this many extra redundant paths.
+   * Add at most this many extra redundant paths.
    */
   auxiliaryPathCount: number;
   /**
    * Auxiliary paths will not be chosen if they make an angle less than this
-   * with another path.
+   * against another path.
    */
   auxiliaryPathMinAngle: number;
   /**
@@ -51,15 +70,16 @@ export type CavernContext = {
    */
   lavaPlans: number;
   /**
-   * How many contiguous "lakes" to generate
+   * How many contiguous water "lakes" to generate.
    */
   waterLakes: number;
   /**
-   * How many contiguous lava "lakes" to generate
+   * How many contiguous lava "lakes" to generate.
    */
   lavaLakes: number;
   /**
-   * How many plans will have erosion?
+   * How many plans will have erosion? Note that lava-flooded plans do not
+   * necessarily have erosion, so this number has some overlap with that.
    */
   erosionPlans: number;
   /**
@@ -68,26 +88,59 @@ export type CavernContext = {
   hasMonsters: boolean;
   /**
    * How blobby and jagged caves should be.
-   * 0 results in perfect squashed octagons.
-   * Larger values can result in oversized spaces or extremely jagged caves.
+   * 0 results in perfectly squashed octagons.
+   * Larger values can result in oversized spaces or extremely jagged caves, up
+   * to about 70% where caves start to get simpler and smaller.
    */
   caveBaroqueness: number;
   /**
    * How blobby and jagged halls should be.
    * 0 results in perfect squashed octagons.
-   * Larger values can result in oversized spaces or extremely jagged caves.
+   * Larger values can result in oversized spaces or extremely jagged halls, up
+   * to about 70% where caves start to get simpler and smaller.
    */
   hallBaroqueness: number;
 
+  /**
+   * Curve for determining how many crystals each cave will have.
+   * This is roughly measured by crystals per unit of perimeter of the cave.
+   */
   caveCrystalRichness: Curve;
+  /**
+   * Curve for determining how many crystals each hall will have.
+   * This is roughly measured by crystals per unit of perimeter of the hall.
+   */
   hallCrystalRichness: Curve;
+  /**
+   * Curve for determining how much additional ore each cave will have.
+   * This is roughly measured by ore per unit of perimeter of the cave, and
+   * does not include the 4 ore yielded by clearing rubble.
+   */
   caveOreRichness: Curve;
+  /**
+   * Curve for determining how much additional ore each hall will have.
+   * This is roughly measured by ore per unit of perimeter of the hall, and
+   * does not include the 4 ore yielded by clearing rubble.
+   */
   hallOreRichness: Curve;
 
-  /** How many monsters to spawn per minute in a cave, if monsters are enabled. */
+  /**
+   * How many monsters to spawn per minute in a cave, if monsters are enabled.
+   */
   monsterSpawnRate: Curve;
-  /** How many monsters to spawn at a time in a cave, if monsters are enabled. */
+  /**
+   * How many monsters to spawn at a time in a cave, if monsters are enabled.
+   */
   monsterWaveSize: Curve;
+  /**
+   * Adjusts the likelihood of architects appearing.
+   * Architects that are "encouraged" have their chance multiplied by a high
+   * number to make them appear wherever they are applicable.
+   * Architects that are "discouraged" have a 0 chance of appearing, which may
+   * cause a crash if that was the only architect possible for a cave or hall.
+   * Note that adjusting this may cause other seemingly unrelated caves to use
+   * different architects as the probabilities shift.
+   */
   architects: { [key: string]: "encourage" | "disable" };
   /**
    * The chance each cave will have a recharge seam. Some caves (such as spawn)
@@ -96,9 +149,33 @@ export type CavernContext = {
   caveHasRechargeSeamChance: number;
   /** The chance each hall will have a recharge seam. */
   hallHasRechargeSeamChance: number;
+  /**
+   * The chance each crystal placed will immediately place a seam instead,
+   * assuming it is possible to do so. When this is set to 0, seams may still
+   * appear since any wall with 4 or more crystals will be automatically
+   * upgraded to a seam.
+   */
   caveCrystalSeamBias: number;
+  /**
+   * The chance each crystal placed will immediately place a seam instead,
+   * assuming it is possible to do so. When this is set to 0, seams may still
+   * appear since any wall with 4 or more crystals will be automatically
+   * upgraded to a seam.
+   */
   hallCrystalSeamBias: number;
+  /**
+   * The chance each ore placed will immediately place a seam instead,
+   * assuming it is possible to do so. When this is set to 0, seams may still
+   * appear since any wall with 4 or more ore will be automatically
+   * upgraded to a seam.
+   */
   caveOreSeamBias: number;
+  /**
+   * The chance each ore placed will immediately place a seam instead,
+   * assuming it is possible to do so. When this is set to 0, seams may still
+   * appear since any wall with 4 or more ore will be automatically
+   * upgraded to a seam.
+   */
   hallOreSeamBias: number;
   /** The chance each cave will have landslides at all. */
   caveHasLandslidesChance: number;
@@ -109,14 +186,33 @@ export type CavernContext = {
   /** The range of cooldowns to use in halls that have landslides. */
   hallLandslideCooldownRange: { min: number; max: number };
   /**
-   * Approximately what portion of all the Energy Crystals available in the level
-   * should be used as the goal, if there is a crystal goal?
-   * Most levels in Lego Rock Raiders tend to use about 20%.
+   * Approximately what portion of all the Energy Crystals available in the
+   * level should be used as the goal, if there is a crystal goal.
+   * For most Rock Raiders levels, this tends to be about 20%.
    */
   crystalGoalRatio: number;
+  /**
+   * The heightmap will try to generate caves at a height that is +/- this
+   * number. If this is set to 0, height generation will be skipped and the
+   * entire map will be flat.
+   */
   heightTargetRange: number;
+  /**
+   * The maximum height difference between two points on the side of any tile
+   * that is part of an arbitrary cave. Some tiles (like water) and caves (like
+   * those intended to be built in) will be further restricted.
+   */
   caveMaxSlope: number;
+  /**
+   * The maximum height difference between two points on the side of any tile
+   * that is part of an arbitrary hall. Some tiles (like water) will be further
+   * restricted.
+   */
   hallMaxSlope: number;
+  /**
+   * The maximum height difference between two points on the side of any tile
+   * that is outside the playable area - that is, undrillable solid rock.
+   */
   voidMaxSlope: number;
 };
 
@@ -176,7 +272,7 @@ const DEFAULTS_FOR_BIOME = {
     hallMaxSlope: 90,
     voidMaxSlope: 120,
   },
-} as const satisfies {[K in Biome]: Partial<CavernContext>}
+} as const satisfies { [K in Biome]: Partial<CavernContext> };
 
 function getDefaultFlooding(dice: DiceBox, biome: Biome) {
   const rng = dice.init(Die.flood);
@@ -232,11 +328,11 @@ export function inferContextDefaults(
   };
   const heightTargetRange = dice.init(Die.heightTargetRange).betaInt(
     {
-      rock: {a: 3, b: 1, min: 100, max: 500},
-      ice: {a: 1, b: 3, min: 100, max: 500},
-      lava: {a: 2, b: 1.5, min: 100, max: 500},
-    }[r.biome]
-  )
+      rock: { a: 3, b: 1, min: 100, max: 500 },
+      ice: { a: 1, b: 3, min: 100, max: 500 },
+      lava: { a: 2, b: 1.5, min: 100, max: 500 },
+    }[r.biome],
+  );
   return {
     ...STANDARD_DEFAULTS,
     ...DEFAULTS_FOR_BIOME[r.biome],

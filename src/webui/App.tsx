@@ -1,4 +1,10 @@
-import React, { CSSProperties, useCallback, useEffect, useReducer, useState } from "react";
+import React, {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 
 import { CavernContext, DiceBox } from "../core/common";
 import { CavernContextInput } from "./components/context_editor";
@@ -19,7 +25,7 @@ const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
   { of: "landslides", label: "Landslides" },
   { of: "erosion", label: "Erosion" },
   { of: "discovery", label: "Discovery" },
-  { of: 'height', label: 'Height'},
+  { of: "height", label: "Height" },
   { of: "lore", label: "Lore" },
   { of: "about", label: "About" },
 ];
@@ -49,7 +55,7 @@ function App() {
           cavern: r.result,
           name: r.name,
           next: r.next || undefined,
-        } as State
+        } as State;
       } else if ("error" in action) {
         return { cavern: was.cavern, ...action };
       }
@@ -88,14 +94,14 @@ function App() {
         dispatchState({ error });
       }
     }
-  }, [state])
+  }, [state]);
 
   const reset = useCallback(() => {
     setAutoGenerate(false);
     if (state.cavern) {
-      dispatchState({context: state.cavern.context})
+      dispatchState({ context: state.cavern.context });
     }
-  }, [state])
+  }, [state]);
 
   useEffect(() => {
     if (state.next && autoGenerate) {
@@ -105,7 +111,7 @@ function App() {
 
   useEffect(() => {
     (window as any).cavern = state.cavern;
-  }, [state])
+  }, [state]);
 
   return (
     <div
@@ -118,8 +124,12 @@ function App() {
       <div className={styles.mainPanel}>
         {autoGenerate && state.progress !== undefined && (
           <div
-            className={`${styles.progressBar} ${state.progress < 1 ? '' : styles.complete}`}
-            style={{'--progress': `${(state.progress * 100).toFixed()}%`} as CSSProperties}
+            className={`${styles.progressBar} ${state.progress < 1 ? "" : styles.complete}`}
+            style={
+              {
+                "--progress": `${(state.progress * 100).toFixed()}%`,
+              } as CSSProperties
+            }
           />
         )}
         {state.cavern && (
@@ -132,9 +142,7 @@ function App() {
           />
         )}
         {!autoGenerate && state.name && (
-          <div className={styles.stepName}>
-            {state.name}
-          </div>
+          <div className={styles.stepName}>{state.name}</div>
         )}
         <div className={styles.controls}>
           {state.next ? (
@@ -145,9 +153,7 @@ function App() {
               </button>
             </>
           ) : (
-            <button onClick={reset}>
-              restart_alt
-            </button>
+            <button onClick={reset}>restart_alt</button>
           )}
           {state.cavern?.serialized ? (
             <a

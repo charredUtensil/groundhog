@@ -4,6 +4,7 @@ import { Architect } from "../models/architect";
 import {
   Building,
   CANTEEN,
+  DOCKS,
   GEOLOGICAL_CENTER,
   MINING_LASER,
   POWER_STATION,
@@ -26,10 +27,7 @@ const DESTROY_PATH_CHANCE = 0.62;
 
 const T0_BUILDINGS = [TOOL_STORE] as const;
 const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
-const T2_BUILDINGS = [
-  UPGRADE_STATION,
-  GEOLOGICAL_CENTER,
-] as const;
+const T2_BUILDINGS = [UPGRADE_STATION, GEOLOGICAL_CENTER, DOCKS] as const;
 const T3_BUILDINGS = [
   CANTEEN,
   MINING_LASER,
@@ -41,11 +39,6 @@ const OMIT_T1 = T0_BUILDINGS.length;
 
 type Metadata = {
   crystalsInBuildings: number;
-};
-
-export type EstablishedHqArchitect = Architect<Metadata> & {
-  isHq: true;
-  isRuin: boolean;
 };
 
 function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
@@ -72,7 +65,7 @@ function getPlaceBuildings({
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
     const tq = [
       ...T0_BUILDINGS,
-      ...((asSpawn && !asRuin) ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
+      ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
       ...rng.shuffle(T2_BUILDINGS),
       ...rng.shuffle(T3_BUILDINGS),
     ];
@@ -87,6 +80,14 @@ function getPlaceBuildings({
         }
         if (bt === TOOL_STORE) {
           return asSpawn;
+        }
+        if (
+          bt === DOCKS &&
+          !args.plan.intersects.some(
+            (_, i) => args.cavern.plans[i].fluid === Tile.WATER,
+          )
+        ) {
+          return false;
         }
         if (asRuin && i === OMIT_T1) {
           return false;
@@ -114,7 +115,7 @@ function getPlaceBuildings({
 
     // Place the buildings.
     buildings.forEach((b) => {
-      if ('destroyed_now' in b) {
+      if ("destroyed_now" in b) {
         b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.RUBBLE_4));
       } else {
         b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));
@@ -245,11 +246,11 @@ ${g.foundHq}=1;
 };
 
 const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
-  Pick<Architect<Metadata>, "rough" | "roughExtent"> & { isHq: true } = {
+  Pick<Architect<Metadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
-    { of: Rough.ALWAYS_FLOOR, grow: 2 },
-    { of: Rough.FLOOR, grow: 2 },
+    { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
+    { of: Rough.FLOOR, width: 0, grow: 2 },
     { of: Rough.DIRT, width: 0, grow: 0.5 },
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
     { of: Rough.HARD_ROCK, grow: 0.25 },
@@ -261,7 +262,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
+export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
   {
     name: "Established HQ Spawn",
     ...BASE,
@@ -293,7 +294,7 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops <= 4 &&
-      !plans.some((p) => "architect" in p && "isHq" in p.architect) &&
+      !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: false,
     ...WITH_FIND_OBJECTIVE,
@@ -308,7 +309,7 @@ export const ESTABLISHED_HQ: readonly EstablishedHqArchitect[] = [
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops <= 4 &&
-      !plans.some((p) => "architect" in p && "isHq" in p.architect) &&
+      !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: true,
     ...WITH_FIND_OBJECTIVE,

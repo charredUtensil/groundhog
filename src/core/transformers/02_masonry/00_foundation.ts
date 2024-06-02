@@ -2,30 +2,30 @@ import { MutableGrid, Grid } from "../../common/grid";
 import { PlannedCavern } from "../../models/cavern";
 
 export type FoundationPlasticCavern = PlannedCavern & {
-  readonly intersectsPearlInner: Grid<readonly true[]>;
-  readonly intersectsPearlOuter: Grid<readonly true[]>;
+  readonly pearlInnerDex: Grid<readonly number[]>;
+  readonly pearlOuterDex: Grid<readonly number[]>;
 };
 
 export default function foundation(
   cavern: PlannedCavern,
 ): FoundationPlasticCavern {
-  const intersectsPearlInner = new MutableGrid<true[]>();
-  const intersectsPearlOuter = new MutableGrid<true[]>();
+  const pearlInnerDex = new MutableGrid<number[]>();
+  const pearlOuterDex = new MutableGrid<number[]>();
   cavern.plans.forEach((plan) => {
-    plan.innerPearl.forEach((layer) =>
+    plan.innerPearl.forEach((layer, i) =>
       layer.forEach(([x, y]) => {
-        const v = intersectsPearlInner.get(x, y) || [];
-        v[plan.id] = true;
-        intersectsPearlInner.set(x, y, v);
+        const v = pearlInnerDex.get(x, y) || [];
+        v[plan.id] = i;
+        pearlInnerDex.set(x, y, v);
       }),
     );
-    plan.outerPearl.forEach((layer) =>
+    plan.outerPearl.forEach((layer, i) =>
       layer.forEach(([x, y]) => {
-        const v = intersectsPearlOuter.get(x, y) || [];
-        v[plan.id] = true;
-        intersectsPearlOuter.set(x, y, v);
+        const v = pearlOuterDex.get(x, y) || [];
+        v[plan.id] = i;
+        pearlOuterDex.set(x, y, v);
       }),
     );
   });
-  return { ...cavern, intersectsPearlInner, intersectsPearlOuter };
+  return { ...cavern, pearlInnerDex, pearlOuterDex };
 }

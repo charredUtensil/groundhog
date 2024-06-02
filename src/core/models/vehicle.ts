@@ -33,7 +33,11 @@ export class VehicleFactory {
   }
 }
 
-export function serializeVehicle(vehicle: Vehicle, offset: Point, heightMap: Grid<number>) {
-  const pos = serializePosition(vehicle, offset, heightMap, 0, 'entity');
+export function serializeVehicle(
+  vehicle: Vehicle,
+  offset: Point,
+  heightMap: Grid<number>,
+) {
+  const pos = serializePosition(vehicle, offset, heightMap, 0, "entity");
   return `${vehicle.template.id},${pos},ID=${vehicle.id.toFixed()}`;
 }

@@ -42,10 +42,14 @@ export class MinerFactory {
   }
 }
 
-export function serializeMiner(miner: Miner, offset: Point, heightMap: Grid<number>) {
+export function serializeMiner(
+  miner: Miner,
+  offset: Point,
+  heightMap: Grid<number>,
+) {
   return `ID=${miner.id.toFixed()}\
 ${miner.unique ? `/${miner.unique}` : ""},\
-${serializePosition(miner, offset, heightMap, 0, 'entity')},\
+${serializePosition(miner, offset, heightMap, 0, "entity")},\
 ${miner.loadout.map((l) => `${l}/`).join("")}\
 ${"Level/".repeat(miner.level - 1)}\
 ${miner.essential ? ",Essential=true" : ""}`;

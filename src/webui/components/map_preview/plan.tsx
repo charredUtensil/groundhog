@@ -73,8 +73,14 @@ function dWrapping(
   const angleBAC = Math.acos(lengthAC / lengthAB);
 
   // This is enough to determine the locations of all the points.
-  const prime1 = {x: Math.cos(angleAB - angleBAC), y: Math.sin(angleAB - angleBAC)};
-  const prime2 = {x: Math.cos(angleAB + angleBAC), y: Math.sin(angleAB + angleBAC)};
+  const prime1 = {
+    x: Math.cos(angleAB - angleBAC),
+    y: Math.sin(angleAB - angleBAC),
+  };
+  const prime2 = {
+    x: Math.cos(angleAB + angleBAC),
+    y: Math.sin(angleAB + angleBAC),
+  };
   const aPrime1 = [a.x + a.radius * prime1.x, a.y + a.radius * prime1.y];
   const aPrime2 = [a.x + a.radius * prime2.x, a.y + a.radius * prime2.y];
   const bPrime1 = [b.x + b.radius * prime1.x, b.y + b.radius * prime1.y];
@@ -82,11 +88,11 @@ function dWrapping(
 
   // Create SVG path segments
   return [
-    `M ${aPrime2.join(',')}`,
-    `A ${a.radius},${a.radius} 0 1 1 ${aPrime1.join(',')}`,
-    `L ${bPrime1.join(',')}`,
-    `A ${b.radius},${b.radius} 0 0 1 ${bPrime2.join(',')} Z`, 
-  ].join();
+    `M ${aPrime2.join(",")}`,
+    `A ${a.radius},${a.radius} 0 1 1 ${aPrime1.join(",")}`,
+    `L ${bPrime1.join(",")}`,
+    `A ${b.radius},${b.radius} 0 0 1 ${bPrime2.join(",")} Z`,
+  ].join("");
 }
 
 function caveWithTwoBaseplates(plan: Partial<Plan>) {

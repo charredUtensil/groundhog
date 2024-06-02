@@ -5,6 +5,7 @@ import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { sprinkleCrystals } from "./utils/resources";
+import { placeSleepingMonsters } from "./utils/creatures";
 
 const monsterSpawner = getMonsterSpawner({
   retriggerMode: "automatic",
@@ -35,6 +36,29 @@ const FLOODED: readonly Architect<unknown>[] = [
     ),
     caveBid: ({ plan }) =>
       plan.fluid === Tile.WATER && plan.pearlRadius < 10 && 1,
+  },
+  {
+    name: "Lake With Sleeping Monsters",
+    ...BASE,
+    ...new RoughOyster(
+      { of: Rough.WATER, grow: 2 },
+      { of: Rough.FLOOR, grow: 1 },
+      { of: Rough.LOOSE_ROCK },
+      { of: Rough.LOOSE_OR_HARD_ROCK },
+    ),
+    caveBid: ({ cavern, plan }) =>
+      cavern.context.hasMonsters &&
+      cavern.context.biome === "ice" &&
+      plan.fluid === Tile.WATER &&
+      plan.path.baseplates.length > 1 &&
+      plan.pearlRadius > 3 &&
+      plan.pearlRadius < 10 &&
+      1,
+    placeEntities(args) {
+      const rng = args.cavern.dice.placeEntities(args.plan.id);
+      const count = Math.ceil(args.plan.monsterWaveSize * 1.2);
+      placeSleepingMonsters(args, rng, count);
+    },
   },
   {
     name: "Island",
@@ -124,28 +148,34 @@ const FLOODED: readonly Architect<unknown>[] = [
     ...BASE,
     crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
     ...new RoughOyster(
-      { of: weightedSprinkle(
-        {item: Rough.ALWAYS_DIRT, bid: 0.01},
-        {item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.1},
-        {item: Rough.LAVA, bid: 1},
-        ), width: 4, grow: 1 },
-      { of: weightedSprinkle(
-        {item: Rough.AT_MOST_DIRT, bid: 0.25},
-        {item: Rough.AT_MOST_LOOSE_ROCK, bid: 1},
-        )},
+      {
+        of: weightedSprinkle(
+          { item: Rough.ALWAYS_DIRT, bid: 0.01 },
+          { item: Rough.ALWAYS_LOOSE_ROCK, bid: 0.1 },
+          { item: Rough.LAVA, bid: 1 },
+        ),
+        width: 4,
+        grow: 1,
+      },
+      {
+        of: weightedSprinkle(
+          { item: Rough.AT_MOST_DIRT, bid: 0.25 },
+          { item: Rough.AT_MOST_LOOSE_ROCK, bid: 1 },
+        ),
+      },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
     placeCrystals(args) {
       sprinkleCrystals(
         Math.max(args.cavern.context.caveCrystalSeamBias, 0.6),
         args,
-      )
+      );
     },
-    caveBid: ({ plan }) => 
+    caveBid: ({ plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.hasErosion &&
       plan.pearlRadius > 5 &&
-      0.4
+      0.4,
   },
 ];
 

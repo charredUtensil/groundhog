@@ -21,9 +21,9 @@ class TfBuilder<T, In extends T, Out extends T> {
   ): TfResult<T, Current> {
     const name = [
       `${i}/${this.fns.length}`,
-      this.fns[i - 1]?.name ?? 'init',
+      this.fns[i - 1]?.name ?? "init",
       i < this.fns.length ? `(next: ${this.fns[i].name})` : undefined,
-    ].join(' ');
+    ].join(" ");
     const progress = i / this.fns.length;
     const next =
       i < this.fns.length

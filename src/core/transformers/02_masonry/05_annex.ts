@@ -11,23 +11,23 @@ function isInPlay(voidNeighbors: Point[]) {
 }
 
 export default function annex(cavern: FinePlasticCavern): FinePlasticCavern {
-  const tiles = cavern.tiles.copy()
+  const tiles = cavern.tiles.copy();
   const queue = cavern.tiles.flatMap((_, x, y) =>
-    NSEW.map(([ox, oy]) => ([x + ox, y + oy] as Point)),
-  )
+    NSEW.map(([ox, oy]) => [x + ox, y + oy] as Point),
+  );
   while (queue.length) {
-    const [x, y] = queue.shift()!
+    const [x, y] = queue.shift()!;
     if (tiles.get(x, y)) {
       continue;
     }
-    const voidNeighbors = NSEW
-      .map(([ox, oy]) => [x + ox, y + oy] as Point)
-      .filter(pos => !tiles.get(...pos));
+    const voidNeighbors = NSEW.map(
+      ([ox, oy]) => [x + ox, y + oy] as Point,
+    ).filter((pos) => !tiles.get(...pos));
     if (isInPlay(voidNeighbors)) {
       // This tile is potentially destroyable.
       tiles.set(x, y, Tile.SOLID_ROCK);
       queue.push(...voidNeighbors);
     }
   }
-  return {...cavern, tiles}
+  return { ...cavern, tiles };
 }

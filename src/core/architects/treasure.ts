@@ -1,13 +1,14 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
-import { DefaultCaveArchitect } from "./default";
+import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { mkVars, transformPoint } from "./utils/script";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
+import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: typeof DefaultCaveArchitect & { isTreasure: true } = {
+const BASE: PartialArchitect<unknown> & { isTreasure: true } = {
   ...DefaultCaveArchitect,
   isTreasure: true,
   objectives: ({ cavern }) => {
@@ -30,20 +31,24 @@ const HOARD: typeof BASE = {
     const wallBids = bidsForOrdinaryWalls(
       args.plan.innerPearl.flatMap((layer) => layer),
       args.tiles,
-    )
-    const centerPoints = args.plan.innerPearl[0].length > 1
-      ? args.plan.innerPearl[0]
-      : [...args.plan.innerPearl[0], ...args.plan.innerPearl[1]];
+    );
+    const centerPoints =
+      args.plan.innerPearl[0].length > 1
+        ? args.plan.innerPearl[0]
+        : [...args.plan.innerPearl[0], ...args.plan.innerPearl[1]];
     const bids = [
       ...wallBids.map((item) => ({ bid: 1 / wallBids.length, item })),
       ...centerPoints.map((item) => ({ bid: 3 / centerPoints.length, item })),
     ];
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
-    sprinkleCrystals(
-      0,
-      args,
-      () => rng.weightedChoice(bids),
-    );
+    sprinkleCrystals(0, args, () => rng.weightedChoice(bids));
+  },
+  placeEntities(args) {
+    if (args.plan.pearlRadius > 3) {
+      const rng = args.cavern.dice.placeEntities(args.plan.id);
+      const count = Math.ceil(args.plan.monsterWaveSize / 2);
+      placeSleepingMonsters(args, rng, count);
+    }
   },
   monsterSpawnScript: getMonsterSpawner({
     retriggerMode: "hoard",
@@ -164,6 +169,13 @@ const TREASURE: readonly (Architect<unknown> & { isTreasure: true })[] = [
       plan.path.baseplates.length >= 1 &&
       isDeadEnd(plan) &&
       0.5,
+    placeEntities(args) {
+      const rng = args.cavern.dice.placeEntities(args.plan.id);
+      if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
+        const count = Math.ceil(args.plan.monsterWaveSize / 2);
+        placeSleepingMonsters(args, rng, count, "inner");
+      }
+    },
   },
   {
     name: "Peninsula Hoard",

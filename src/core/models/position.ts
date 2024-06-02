@@ -71,7 +71,7 @@ function zOffsetForBuilding(
   sw: number,
   se: number,
 ): number {
-  return (Math.max(nw, ne, sw, se) + Math.min(nw, ne, sw, se)) / 2
+  return (Math.max(nw, ne, sw, se) + Math.min(nw, ne, sw, se)) / 2;
 }
 
 function zOffsetForEntity(
@@ -100,18 +100,18 @@ function zOffset(
   x: number,
   y: number,
   heightMap: Grid<number>,
-  method: 'entity' | 'building',
+  method: "entity" | "building",
 ): number {
   const tileX = Math.floor(x);
   const tileY = Math.floor(y);
-  const fn = {entity: zOffsetForEntity, building: zOffsetForBuilding}[method];
+  const fn = { entity: zOffsetForEntity, building: zOffsetForBuilding }[method];
   return fn(
     x - tileX,
     y - tileY,
     heightMap.get(tileX, tileY)!,
     heightMap.get(tileX + 1, tileY)!,
     heightMap.get(tileX, tileY + 1)!,
-    heightMap.get(tileX + 1, tileY + 1)!
+    heightMap.get(tileX + 1, tileY + 1)!,
   );
 }
 
@@ -120,11 +120,12 @@ export function serializePosition(
   [ox, oy]: Point,
   heightMap: Grid<number>,
   yawOffset: number,
-  zOffsetMethod: 'entity' | 'building',
+  zOffsetMethod: "entity" | "building",
 ): string {
   const x = (position.x + ox) * ENTITY_SCALE;
   const y = (position.y + oy) * ENTITY_SCALE;
-  const z = position.z + zOffset(position.x, position.y, heightMap, zOffsetMethod);
+  const z =
+    position.z + zOffset(position.x, position.y, heightMap, zOffsetMethod);
   const pitch = radsToDegrees(position.pitch);
   const yaw = radsToDegrees(position.yaw + yawOffset);
   const roll = radsToDegrees(position.roll);

@@ -29,13 +29,9 @@ function sprinkle(
     const [x, y] = getRandomTile();
     const t = tiles.get(x, y) ?? Tile.SOLID_ROCK;
     if (
-      remaining >= 4 && (
-        t === Tile.SOLID_ROCK || (
-          t.id in SEAMABLE &&
-          seamBias > 0 &&
-          rng.chance(seamBias)
-        )
-      )
+      remaining >= 4 &&
+      (t === Tile.SOLID_ROCK ||
+        (t.id in SEAMABLE && seamBias > 0 && rng.chance(seamBias)))
     ) {
       tiles.set(x, y, seam);
       remaining -= 3;
@@ -56,7 +52,7 @@ function sprinkle(
 
 export function sprinkleCrystals(
   seamBias: number,
-  args: Parameters<Architect<unknown>['placeCrystals']>[0],
+  args: Parameters<Architect<unknown>["placeCrystals"]>[0],
   getRandomTile?: () => Point,
 ) {
   const rng = args.cavern.dice.placeCrystals(args.plan.id);
@@ -73,7 +69,7 @@ export function sprinkleCrystals(
 
 export function sprinkleOre(
   seamBias: number,
-  args: Parameters<Architect<unknown>['placeOre']>[0],
+  args: Parameters<Architect<unknown>["placeOre"]>[0],
   getRandomTile?: () => Point,
 ) {
   const rng = args.cavern.dice.placeOre(args.plan.id);
@@ -125,13 +121,9 @@ export function bidsForOuterPearl(args: {
       .filter(({ bid }) => bid > 0)
       .map(({ item, bid }) => {
         const innerPlansAtTile =
-          args.cavern.intersectsPearlInner
-            .get(...item)
-            ?.reduce((n) => n + 1, 0) ?? 0;
+          args.cavern.pearlInnerDex.get(...item)?.reduce((n) => n + 1, 0) ?? 0;
         const outerPlansAtTile =
-          args.cavern.intersectsPearlOuter
-            .get(...item)
-            ?.reduce((n) => n + 1, 0) ?? 0;
+          args.cavern.pearlOuterDex.get(...item)?.reduce((n) => n + 1, 0) ?? 0;
         return { item, bid: bid / (innerPlansAtTile + outerPlansAtTile) };
       }),
   );
@@ -211,7 +203,7 @@ export function getTotalCrystals({
   let r = 0;
   tiles?.forEach((t) => (r += t.crystalYield));
   crystals?.forEach((ct) => (r += ct));
-  buildings?.forEach(b => r += b.template.crystals);
+  buildings?.forEach((b) => (r += b.template.crystals));
   vehicles?.forEach((v) => (r += v.template.crystals));
   return r;
 }

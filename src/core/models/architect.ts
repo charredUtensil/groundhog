@@ -11,13 +11,13 @@ import { Building } from "./building";
 import { Erosion, Landslide } from "./hazards";
 import { Creature, CreatureFactory } from "./creature";
 import { Miner, MinerFactory } from "./miner";
-import { FencedCavern } from "../transformers/03_plastic/00_fence";
 import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
 import { EnscribedCavern } from "../transformers/04_ephemera/01_enscribe";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
+import { CollapseUnion } from "../common/utils";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -25,7 +25,7 @@ type SpawnBidArgs = {
 };
 
 type BidArgs = SpawnBidArgs & {
-  readonly plans: readonly (FloodedPlan | EstablishedPlan)[];
+  readonly plans: readonly CollapseUnion<FloodedPlan | EstablishedPlan>[];
   readonly hops: number;
   readonly totalCrystals: number;
 };
@@ -111,6 +111,7 @@ export type BaseArchitect<T extends Readonly<T>> = {
     readonly miners: Miner[];
     readonly vehicleFactory: VehicleFactory;
     readonly vehicles: Vehicle[];
+    readonly setCameraPosition: (position: EntityPosition) => void;
   }): void;
 
   objectives(args: {
@@ -128,6 +129,10 @@ export type BaseArchitect<T extends Readonly<T>> = {
     cavern: EnscribedCavern;
     plan: PlanWithMetadata<T>;
   }): string | undefined;
+
+  isHq: boolean;
+  isLostMiners: boolean;
+  isRuin: boolean;
 };
 
 export type Architect<T> = BaseArchitect<T> &

@@ -9,7 +9,7 @@ const TILES = {
   DIRT:               {id: 26, isWall:  true, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 4, inspectColor: "#AD59EF"},
   LOOSE_ROCK:         {id: 30, isWall:  true, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 4, inspectColor: "#943CC3"},
   HARD_ROCK:          {id: 34, isWall:  true, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 4, inspectColor: "#731CAD"},
-  SOLID_ROCK:         {id: 38, isWall:  true, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 0, inspectColor: "#800080"},
+  SOLID_ROCK:         {id: 38, isWall:  true, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 4, inspectColor: "#800080"},
   RUBBLE_1:           {id:  2, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 1, inspectColor: "#180032"},
   RUBBLE_2:           {id:  3, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 2, inspectColor: "#180032"},
   RUBBLE_3:           {id:  4, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 3, inspectColor: "#180032"},

@@ -1,4 +1,3 @@
-import { EstablishedHqArchitect } from "../architects/established_hq";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { FluidType, Tile } from "../models/tiles";
@@ -24,6 +23,8 @@ export type State = {
   readonly hasMonsters: boolean;
   readonly spawnHasErosion: boolean;
   readonly spawnIsHq: boolean;
+  readonly spawnIsNomadOne: boolean;
+  readonly spawnIsNomadsTogether: boolean;
   readonly findHq: boolean;
   readonly hqIsRuin: boolean;
   readonly treasureCaveOne: boolean;
@@ -165,30 +166,44 @@ export class Lore {
   private _results: Results = {};
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
+
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
+
     const spawn = cavern.plans.find((p) => p.hops === 0)!;
-    const hq = cavern.plans.find((p) => (p.architect as any).isHq);
+
+    const hq = cavern.plans.find((p) => p.architect.isHq);
     const spawnIsHq = spawn === hq;
     const findHq = !!hq && !spawnIsHq;
-    const hqIsRuin = !!hq && (hq.architect as EstablishedHqArchitect).isRuin;
+    const hqIsRuin = !!hq && hq.architect.isRuin;
+
+    const nomads = (spawn.architect as any).isNomads
+      ? ((spawn.metadata as any).minersCount as number)
+      : 0;
+
+    const treasures = cavern.plans.reduce(
+      (r, plan) => ((plan.architect as any).isTreasure ? r + 1 : r),
+      0,
+    );
+
     this.state = {
       floodedWithWater: fluidType === Tile.WATER,
       floodedWithLava: fluidType === Tile.LAVA,
       lostMinersOne: lostMiners === 1,
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
-      resourceObjective: !!(
-        cavern.objectives.crystals ||
-        cavern.objectives.ore ||
-        cavern.objectives.studs
-      ),
+      resourceObjective:
+        cavern.objectives.crystals > 0 ||
+        cavern.objectives.ore > 0 ||
+        cavern.objectives.studs > 0,
       hasMonsters: cavern.context.hasMonsters,
       spawnHasErosion: spawn.hasErosion,
       spawnIsHq,
       findHq,
       hqIsRuin,
-      treasureCaveOne: false,
-      treasureCaveMany: false,
+      spawnIsNomadOne: nomads === 1,
+      spawnIsNomadsTogether: nomads > 1,
+      treasureCaveOne: treasures === 1,
+      treasureCaveMany: treasures > 1,
     };
     this.vars = {
       lostMinersCount: spellNumber(lostMiners),

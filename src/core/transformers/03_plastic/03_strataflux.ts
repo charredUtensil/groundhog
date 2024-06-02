@@ -18,7 +18,7 @@ type PointInfo = {
   readonly x: number;
   readonly y: number;
   readonly localMin: boolean;
-  readonly neighbors: {info: PointInfo, ascent: number, descent: number}[]
+  readonly neighbors: { info: PointInfo; ascent: number; descent: number }[];
   collapseQueued: boolean;
   min: number;
   max: number;
@@ -35,10 +35,7 @@ function superflat(cavern: StrataformedCavern): Grid<number> {
   return result;
 }
 
-const sortFn = (
-  {range: a}: PointInfo,
-  {range: b}: PointInfo,
-) => b - a;
+const sortFn = ({ range: a }: PointInfo, { range: b }: PointInfo) => b - a;
 
 function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
@@ -51,24 +48,24 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
       const tile = cavern.tiles.get(x, y);
       const forTile = tile
         ? tile.maxSlope ?? tileOobSlope
-        : cavern.context.voidMaxSlope
-      const forPlan = cavern.intersectsPearlInner.get(x, y)?.reduce(
-        (r, _, i) => {
+        : cavern.context.voidMaxSlope;
+      const forPlan =
+        cavern.pearlInnerDex.get(x, y)?.reduce((r, _, i) => {
           const plan = cavern.plans[i];
-          return plan.hasErosion ? 0 : Math.min(
-            r,
-            plan.architect.maxSlope ?? Infinity,
-            plan.kind === 'cave'
-              ? cavern.context.caveMaxSlope
-              : cavern.context.hallMaxSlope,
-          );
-        },
-        Infinity
-      ) ?? Infinity;
+          return plan.hasErosion
+            ? 0
+            : Math.min(
+                r,
+                plan.architect.maxSlope ?? Infinity,
+                plan.kind === "cave"
+                  ? cavern.context.caveMaxSlope
+                  : cavern.context.hallMaxSlope,
+              );
+        }, Infinity) ?? Infinity;
       result.set(x, y, Math.min(forTile, forPlan));
     }
   }
-  return result
+  return result;
 }
 
 function getBorders(cavern: StrataformedCavern): Point[] {
@@ -109,9 +106,11 @@ function getRandomHeight(info: PointInfo, rng: PseudorandomStream): number {
   });
 }
 
-export default function strataflux(cavern: StrataformedCavern): StrataformedCavern {
+export default function strataflux(
+  cavern: StrataformedCavern,
+): StrataformedCavern {
   if (cavern.context.heightTargetRange <= 0) {
-    return {...cavern, height: superflat(cavern)};
+    return { ...cavern, height: superflat(cavern) };
   }
 
   const tileSlopes = getTileSlopes(cavern);
@@ -130,17 +129,20 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
     };
     infos.set(x, y, info);
     return info;
-  })
+  });
   for (let x = cavern.left + 1; x < cavern.right; x++) {
     for (let y = cavern.top + 1; y < cavern.bottom; y++) {
       infos.set(x, y, {
         target: cavern.height.get(x, y),
         x,
         y,
-        localMin: !!FENCES.some(([ox, oy]) => (
-          cavern.tiles.get(x + ox, y + oy)?.isFluid
-          || cavern.intersectsPearlInner.get(x + ox, y + oy)?.some((_, i) => cavern.plans[i].hasErosion)
-        )),
+        localMin: !!FENCES.some(
+          ([ox, oy]) =>
+            cavern.tiles.get(x + ox, y + oy)?.isFluid ||
+            cavern.pearlInnerDex
+              .get(x + ox, y + oy)
+              ?.some((_, i) => cavern.plans[i].hasErosion),
+        ),
         neighbors: [],
         collapseQueued: false,
         min: HEIGHT_MIN,
@@ -153,22 +155,28 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
   for (let x = cavern.left; x <= cavern.right; x++) {
     for (let y = cavern.top; y <= cavern.bottom; y++) {
       const info = infos.get(x, y)!;
-      const [ni, si, ei, wi] = NSEW.map(([ox, oy]) => infos.get(x + ox, y + oy));
-      const [nw, ne, sw, se] = FENCES.map(([ox, oy]) => tileSlopes.get(x + ox, y + oy) ?? Infinity);
-      ([
-        [ni, Math.min(nw, ne)],
-        [si, Math.min(sw, se)],
-        [ei, Math.min(ne, se)],
-        [wi, Math.min(nw, sw)],
-      ] as [PointInfo | undefined, number][]).forEach(([ai, slope]) =>  {
+      const [ni, si, ei, wi] = NSEW.map(([ox, oy]) =>
+        infos.get(x + ox, y + oy),
+      );
+      const [nw, ne, sw, se] = FENCES.map(
+        ([ox, oy]) => tileSlopes.get(x + ox, y + oy) ?? Infinity,
+      );
+      (
+        [
+          [ni, Math.min(nw, ne)],
+          [si, Math.min(sw, se)],
+          [ei, Math.min(ne, se)],
+          [wi, Math.min(nw, sw)],
+        ] as [PointInfo | undefined, number][]
+      ).forEach(([ai, slope]) => {
         if (ai) {
           info.neighbors.push({
             info: ai,
             ascent: ai.localMin ? 0 : slope,
             descent: info.localMin ? 0 : slope,
-          })
+          });
         }
-      })
+      });
     }
   }
 
@@ -193,8 +201,14 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
         if (!neighbor.info.range) {
           continue;
         }
-        neighbor.info.min = Math.max(neighbor.info.min, info.min - neighbor.descent);
-        neighbor.info.max = Math.min(neighbor.info.max, info.max + neighbor.ascent);
+        neighbor.info.min = Math.max(
+          neighbor.info.min,
+          info.min - neighbor.descent,
+        );
+        neighbor.info.max = Math.min(
+          neighbor.info.max,
+          info.max + neighbor.ascent,
+        );
         const range = neighbor.info.max - neighbor.info.min;
         if (range < neighbor.info.range) {
           neighbor.info.range = range;
@@ -209,5 +223,5 @@ export default function strataflux(cavern: StrataformedCavern): StrataformedCave
     collapseQueue.sort(sortFn);
   }
 
-  return {...cavern, height};
+  return { ...cavern, height };
 }

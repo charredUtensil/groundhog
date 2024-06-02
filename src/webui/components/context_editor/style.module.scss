@@ -18,6 +18,19 @@
     }
   }
 
+  .section {
+    .subsection {
+      &::after {
+        content: " ";
+        display: block;
+        width: 100%;
+        height: 1px;
+        margin-bottom: 8px;
+        background: var(--palette-fg);
+      }
+    }
+  }
+
   h2 {
     position: sticky;
     top: 0;
@@ -49,7 +62,7 @@
     );
     &::before {
       font-family: "Material Symbols Outlined";
-      content: "subdirectory_arrow_right"
+      content: "subdirectory_arrow_right";
     }
   }
 
@@ -126,6 +139,11 @@
 
     button {
       cursor: pointer;
+
+      &:active {
+        background: var(--palette-fg);
+        color: black;
+      }
     }
 
     input[type="range"] {

@@ -170,7 +170,7 @@ function align<T extends State>(phrases: readonly Phrase<T>[]) {
   const stack: Mutable<Phrase<T>>[] = phrases.filter(
     (node) => node.before.length === 0,
   );
-  const occupiedLanes: (true | undefined)[][] = [];
+  const occupiedLanes: true[][] = [];
   for (let i = 0; i < phrases.length; i++) {
     occupiedLanes[i] = [];
   }

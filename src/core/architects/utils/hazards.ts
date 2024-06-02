@@ -4,8 +4,8 @@ import { Plan } from "../../models/plan";
 import { Tile } from "../../models/tiles";
 import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
 
-const LANDSLIDABLE_TILES: readonly (true | undefined)[] = (() => {
-  const r: (true | undefined)[] = [];
+const LANDSLIDABLE_TILES: readonly true[] = (() => {
+  const r: true[] = [];
   r[Tile.DIRT.id] = true;
   r[Tile.LOOSE_ROCK.id] = true;
   r[Tile.HARD_ROCK.id] = true;

@@ -45,8 +45,12 @@ export class CreatureFactory {
   }
 }
 
-export function serializeCreature(creature: Creature, offset: Point, heightMap: Grid<number>) {
+export function serializeCreature(
+  creature: Creature,
+  offset: Point,
+  heightMap: Grid<number>,
+) {
   return `${creature.template.id}
-${serializePosition(creature, offset, heightMap, 0, 'entity')}
+${serializePosition(creature, offset, heightMap, 0, "entity")}
 ID=${creature.id.toFixed()}${creature.sleep ? ",Sleep=true" : ""}`;
 }

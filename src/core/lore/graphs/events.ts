@@ -67,7 +67,7 @@ export const FOUND_HQ = phraseGraph<State>(
           ". Once the base is safe,",
           pg(
             "before the monsters find it too!",
-            "and keep it safe from those %(monster_type)s monsters!",
+            "and keep it safe from those ${enemies}!",
             "and hope those monsters don't cause any more damage!",
           )
             .then(

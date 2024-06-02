@@ -6,7 +6,7 @@ export type MeasuredPlan = NegotiatedPlan & {
    * If intersects[id] is true, this plan intersects the plan with the given id.
    * Plans do not intersect themselves.
    */
-  readonly intersects: readonly boolean[];
+  readonly intersects: readonly true[];
   /** How many layers of different tiles can be added to this Plan? */
   readonly pearlRadius: number;
   readonly perimeter: number;
@@ -22,7 +22,7 @@ export default function measure(
     );
   });
   const plans = cavern.plans.map((plan) => {
-    const intersects: boolean[] = [];
+    const intersects: true[] = [];
     plan.path.baseplates
       .flatMap((bp) => planIdsByBp[bp.id])
       .filter((plid) => plid !== plan.id)
@@ -37,7 +37,7 @@ export default function measure(
      * end plus twice the length of the path:
      * (2*pi*a.pr) / 2 + (2*pi*b.pr) / 2 + pd * 2
      * pi * (a.pr + b.pr) + 2 * pd
-     * 
+     *
      * For halls, it's just double the length of the hall that isn't part of
      * some cave.
      *
@@ -51,8 +51,8 @@ export default function measure(
         ? Math.PI *
             (Math.min(pearlRadius, plan.path.origin.pearlRadius) +
               Math.min(pearlRadius, plan.path.destination.pearlRadius)) +
-          plan.path.snakeDistance * 2
-        : 2 * plan.path.exclusiveSnakeDistance
+            plan.path.snakeDistance * 2
+        : 2 * plan.path.exclusiveSnakeDistance,
     );
     return { ...plan, intersects, pearlRadius, perimeter };
   });

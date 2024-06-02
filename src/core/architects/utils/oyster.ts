@@ -130,17 +130,15 @@ export const Rough = {
   }),
 } as const;
 
-export const uniformSprinkle = <T extends Tile>(
-  ...args: ReplaceFn<T>[]
-) => (
-  has: T, rng: PseudorandomStream
-) => rng.uniformChoice(args)(has, rng)
+export const uniformSprinkle =
+  <T extends Tile>(...args: ReplaceFn<T>[]) =>
+  (has: T, rng: PseudorandomStream) =>
+    rng.uniformChoice(args)(has, rng);
 
-export const weightedSprinkle = <T extends Tile>(
-  ...args: {bid: number, item: ReplaceFn<T>}[]
-) => (
-  has: T, rng: PseudorandomStream
-) => rng.weightedChoice(args)(has, rng)
+export const weightedSprinkle =
+  <T extends Tile>(...args: { bid: number; item: ReplaceFn<T> }[]) =>
+  (has: T, rng: PseudorandomStream) =>
+    rng.weightedChoice(args)(has, rng);
 
 type Layer<T> = {
   of: T;
@@ -177,7 +175,7 @@ class BaseOyster<T> {
     }[]
   ) {
     this._layers = layers.map((ly) => ({
-      width:  1,
+      width: 1,
       shrink: 0,
       grow: 0,
       ...ly,

@@ -36,7 +36,7 @@ export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
         if (wallNeighbors.length === 2) {
           const [a, b] = wallNeighbors;
           return (
-            (a.x === b.x || a.y === b.y) && 
+            (a.x === b.x || a.y === b.y) &&
             discoveryZones.get(a.x, a.y) === discoveryZones.get(b.x, b.y)
           );
         }

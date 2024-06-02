@@ -76,7 +76,7 @@ ${indent(comments(cavern), "  ")}
 info{
 rowcount:${(cavern.right - cavern.left).toFixed()}
 colcount:${(cavern.bottom - cavern.top).toFixed()}
-camerapos:${serializePosition(cavern.cameraPosition, offset, cavern.height, 0, 'entity')}
+camerapos:${serializePosition(cavern.cameraPosition, offset, cavern.height, 0, "entity")}
 biome:${cavern.context.biome}
 creator:groundHog
 levelname:${cavern.levelName}
@@ -102,7 +102,7 @@ ${grid(cavern, 0, (x, y) => {
 })}
 }
 height{
-${grid(cavern, 1, (x, y) => (cavern.height.get(x, y)!).toFixed())}
+${grid(cavern, 1, (x, y) => cavern.height.get(x, y)!.toFixed())}
 }
 resources{
 crystals:

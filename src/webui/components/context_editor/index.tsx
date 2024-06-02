@@ -7,6 +7,18 @@ import { ArchitectsInput } from "./architects";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
+function parseSeed(v: string) {
+  if (v[0] === "#") {
+    v = v.slice(1);
+  }
+  const seed = parseInt(v, 16);
+  return seed >= 0 && seed < MAX_PLUS_ONE ? seed : undefined;
+}
+
+function unparseSeed(v: number) {
+  return v.toString(16).padStart(8, "0").toUpperCase();
+}
+
 const expectedCavePlans = (contextWithDefaults: CavernContext | undefined) =>
   contextWithDefaults ? contextWithDefaults.caveCount : 20;
 
@@ -25,7 +37,6 @@ export function CavernContextInput({
   dispatchState: (args: { context: CavernContext }) => void;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-
   const [context, update] = useReducer(
     (
       was: PartialContext,
@@ -46,8 +57,25 @@ export function CavernContextInput({
       }
       return r;
     },
-    { seed: INITIAL_SEED },
+    { seed: parseSeed(window.location.hash) ?? INITIAL_SEED },
   );
+
+  useEffect(() => {
+    const fn = () => {
+      const seed = parseSeed(window.location.hash);
+      if (seed !== undefined) {
+        update({ seed: seed });
+      }
+    };
+    window.addEventListener("hashchange", fn);
+    return () => {
+      window.removeEventListener("hashchange", fn);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.location.hash = unparseSeed(context.seed);
+  }, [context.seed]);
 
   useEffect(
     () => dispatchState({ context: inferContextDefaults(context) }),
@@ -61,13 +89,10 @@ export function CavernContextInput({
         <input
           type="text"
           className={styles.seed}
-          value={(context?.seed ?? INITIAL_SEED)
-            .toString(16)
-            .padStart(8, "0")
-            .toUpperCase()}
+          value={unparseSeed(context?.seed)}
           onChange={(ev) => {
-            const seed = parseInt(ev.target.value, 16);
-            if (seed >= 0 && seed < MAX_PLUS_ONE) {
+            const seed = parseSeed(ev.target.value);
+            if (seed !== undefined) {
               update({ seed: seed });
             }
           }}
@@ -95,35 +120,39 @@ export function CavernContextInput({
       </div>
       {showAdvanced && (
         <>
-          <div className={styles.inputRow}>
-            {contextWithDefaults.hasOverrides ? (
-              <button
-                className={styles.override}
-                onClick={() => update("reset")}
-              >
-                Clear All Overrides
-              </button>
-            ) : (
-              <div className={styles.invisible} />
-            )}
+          <div className={styles.section}>
+            <div className={styles.subsection}>
+              <div className={styles.inputRow}>
+                {contextWithDefaults.hasOverrides ? (
+                  <button
+                    className={styles.override}
+                    onClick={() => update("reset")}
+                  >
+                    Clear All Overrides
+                  </button>
+                ) : (
+                  <div className={styles.invisible} />
+                )}
+              </div>
+              <Choice
+                of="biome"
+                choices={["rock", "ice", "lava"]}
+                update={update}
+                context={context}
+                contextWithDefaults={contextWithDefaults}
+              />
+              <Choice
+                of="hasMonsters"
+                choices={[true, false]}
+                update={update}
+                context={context}
+                contextWithDefaults={contextWithDefaults}
+              />
+            </div>
           </div>
-          <Choice
-            of="biome"
-            choices={["rock", "ice", "lava"]}
-            update={update}
-            context={context}
-            contextWithDefaults={contextWithDefaults}
-          />
-          <Choice
-            of="hasMonsters"
-            choices={[true, false]}
-            update={update}
-            context={context}
-            contextWithDefaults={contextWithDefaults}
-          />
-          <div>
+          <div className={styles.section}>
             <h2>Outlines</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Partition</h3>
               <Slider
                 of="targetSize"
@@ -151,7 +180,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Discriminate</h3>
               <Slider
                 of="caveCount"
@@ -162,7 +191,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Weave</h3>
               <Slider
                 of="auxiliaryPathCount"
@@ -183,9 +212,9 @@ export function CavernContextInput({
               />
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Planning</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Flood</h3>
               <Slider
                 of="waterPlans"
@@ -228,7 +257,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Establish</h3>
               {(
                 [
@@ -265,7 +294,7 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Pearl</h3>
               <Slider
                 of="caveBaroqueness"
@@ -287,9 +316,9 @@ export function CavernContextInput({
               />
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Masonry</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Fine</h3>
               {(
                 [
@@ -314,9 +343,9 @@ export function CavernContextInput({
               ))}
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Plastic</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Strataform</h3>
               <Slider
                 of="heightTargetRange"
@@ -328,33 +357,26 @@ export function CavernContextInput({
                 contextWithDefaults={contextWithDefaults}
               />
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Strataflux</h3>
-              {(
-                [
-                  "caveMaxSlope",
-                  "hallMaxSlope",
-                  "voidMaxSlope",
-                ] as const
-              ).map((of) => (
-                <Slider
-                  key={of}
-                  of={of}
-                  min={0}
-                  max={200}
-                  update={update}
-                  context={context}
-                  contextWithDefaults={contextWithDefaults}
-                />
-              ))}
+              {(["caveMaxSlope", "hallMaxSlope", "voidMaxSlope"] as const).map(
+                (of) => (
+                  <Slider
+                    key={of}
+                    of={of}
+                    min={0}
+                    max={200}
+                    update={update}
+                    context={context}
+                    contextWithDefaults={contextWithDefaults}
+                  />
+                ),
+              )}
             </div>
-            <div>
+            <div className={styles.subsection}>
               <h3>Populate</h3>
               {(
-                [
-                  "caveHasLandslidesChance",
-                  "hallHasLandslidesChance",
-                ] as const
+                ["caveHasLandslidesChance", "hallHasLandslidesChance"] as const
               ).map((of) => (
                 <Slider
                   key={of}
@@ -369,9 +391,9 @@ export function CavernContextInput({
               ))}
             </div>
           </div>
-          <div>
+          <div className={styles.section}>
             <h2>Ephemera</h2>
-            <div>
+            <div className={styles.subsection}>
               <h3>Adjure</h3>
               <Slider
                 of="crystalGoalRatio"

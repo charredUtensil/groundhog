@@ -7,13 +7,10 @@ import PearlPreview from "./pearl";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
-import {
-  getTotalCrystals,
-  getTotalOre,
-} from "../../../core/architects/utils/resources";
 import OpenCaveFlagPreview from "./open_cave_flag";
 import styles from "./style.module.scss";
 import HeightPreview from "./height";
+import Stats from "./stats";
 
 export type MapOverlay =
   | "about"
@@ -21,7 +18,7 @@ export type MapOverlay =
   | "discovery"
   | "entities"
   | "erosion"
-  | 'height'
+  | "height"
   | "landslides"
   | "lore"
   | "ore"
@@ -65,7 +62,7 @@ export default function CavernPreview({
         xmlns="http://www.w3.org/2000/svg"
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
-        {mapOverlay === 'height' && cavern.height && (
+        {mapOverlay === "height" && cavern.height && (
           <HeightPreview height={cavern.height} />
         )}
         {showOutlines &&
@@ -78,7 +75,7 @@ export default function CavernPreview({
           cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
         {showPearls &&
           cavern.plans
-            ?.filter((pl) => 'outerPearl' in pl)
+            ?.filter((pl) => "outerPearl" in pl)
             .map((pl) => (
               <PearlPreview
                 key={pl.id}
@@ -88,7 +85,7 @@ export default function CavernPreview({
             ))}
         {showPearls &&
           cavern.plans
-            ?.filter((pl) => 'innerPearl' in pl)
+            ?.filter((pl) => "innerPearl" in pl)
             .map((pl) => (
               <PearlPreview
                 key={pl.id}
@@ -117,15 +114,7 @@ export default function CavernPreview({
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
           ))}
       </svg>
-      <div className={styles.stats}>
-        {mapOverlay === "crystals" && cavern.crystals && (
-          <>{getTotalCrystals(cavern)} total Energy Crystals</>
-        )}
-        {mapOverlay === "ore" && cavern.ore && (
-          <>{getTotalOre(cavern)} total Ore</>
-        )}
-        {cavern.briefing?.intro && <>Briefing: {cavern.briefing.intro}</>}
-      </div>
+      <Stats cavern={cavern} mapOverlay={mapOverlay} />
       {error && <div className={styles.error}>{error.message}</div>}
     </div>
   );
