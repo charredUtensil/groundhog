@@ -61,7 +61,7 @@ const HOARD: typeof BASE = {
     }
     return `# Hoard Globals
 bool ${g.wasTriggered}=false
-string ${g.message}="${cavern.lore.generateFoundHoard(cavern.dice)}"
+string ${g.message}="${cavern.lore.generateFoundHoard(cavern.dice).text}"
 int ${g.crystalsAvailable}=0
 `;
   },
@@ -75,7 +75,6 @@ int ${g.crystalsAvailable}=0
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
     const v = mkVars(`p${plan.id}Hoard`, [
       "onDiscovered",
-      "crystalsAvailable",
       "go",
       "noGo",
     ]);
@@ -86,8 +85,8 @@ ${v.onDiscovered}::;
 ((${g.wasTriggered}))return;
 ${g.wasTriggered}=true;
 wait:1;
-${v.crystalsAvailable}=crystals+Crystal_C;
-((${v.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];
+${g.crystalsAvailable}=crystals+Crystal_C;
+((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];
 
 ${v.go}::;
 msg:${g.message};
