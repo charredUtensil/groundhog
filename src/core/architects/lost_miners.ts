@@ -7,7 +7,7 @@ import { DiscoveryZone } from "../models/discovery_zone";
 import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
-import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
+import { Vehicle, VehicleFactory, AnyVehicleTemplate, VehicleTemplate } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
@@ -102,7 +102,7 @@ function placeBreadcrumbVehicle(
 ) {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const template = rng.weightedChoice<VehicleTemplate | null>([
+  const template = rng.weightedChoice<AnyVehicleTemplate | null>([
     { item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2 },
     { item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
     { item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },

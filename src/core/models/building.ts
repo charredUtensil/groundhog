@@ -188,22 +188,17 @@ export function serializeBuilding(
   offset: Point,
   heightMap: Grid<number>,
 ) {
-  const pos = serializePosition(
-    building,
-    offset,
-    heightMap,
-    Math.PI / 2,
-    "building",
-  );
-  let r = `${building.template.id},${pos}`;
-  if (building.level > 1) {
-    r += `,Level=${building.level.toFixed()}`;
-  }
-  if (building.isEssential) {
-    r += ",Essential=True";
-  }
-  if (building.teleportAtStart) {
-    r += ",Teleport=True";
-  }
-  return r;
+  return [
+    building.template.id,
+    serializePosition(
+      building,
+      offset,
+      heightMap,
+      Math.PI / 2,
+      "building",
+    ),
+    building.level > 1 && `Level=${building.level.toFixed()}`,
+    building.isEssential && "Essential=True",
+    building.teleportAtStart && "Teleport=True",
+  ].filter(n => n).join(",");
 }

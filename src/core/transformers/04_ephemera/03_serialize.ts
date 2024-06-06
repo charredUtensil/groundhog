@@ -7,6 +7,7 @@ import { serializeMiner } from "../../models/miner";
 import { serializeObjectives } from "../../models/objectives";
 import { serializePosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
+import { serializeVehicle } from "../../models/vehicle";
 import { ProgrammedCavern } from "./02_program";
 
 export type SerializedCavern = ProgrammedCavern & {
@@ -128,6 +129,9 @@ ${cavern.creatures.map((c) => serializeCreature(c, offset, cavern.height)).join(
 miners{
 ${cavern.miners.map((m) => serializeMiner(m, offset, cavern.height)).join("\n")}
 }
+vehicles{
+${cavern.vehicles.map((v) => serializeVehicle(v, offset, cavern.height)).join("\n")}
+}
 briefing{
 ${cavern.briefing.intro}
 }
@@ -136,8 +140,6 @@ ${cavern.briefing.success}
 }
 briefingfailure{
 ${cavern.briefing.failure}
-}
-vehicles{
 }
 blocks{
 }

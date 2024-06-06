@@ -2,34 +2,53 @@ import { Point } from "../common/geometry";
 import { Grid } from "../common/grid";
 import { EntityPosition, serializePosition } from "./position";
 
+type Upgrade =
+  | "UpEngine"
+  | "UpDrill"
+  | "UpAddDrill"
+  | "UpCargoHold"
+  | "UpScanner"
+  | "UpLaser"
+  | "UpAddNav";
+
 // prettier-ignore
 const TEMPLATES = {
-  HOVER_SCOUT:           {id: "VehicleHoverScout_C",          inspectAbbrev: "HoSc", frame: 'small', crystals:  1},
-  SMALL_DIGGER:          {id: "VehicleSmallDigger_C",         inspectAbbrev: "SmDi", frame: 'small', crystals:  1},
-  SMALL_TRANSPORT_TRUCK: {id: "VehicleSmallTransportTruck_C", inspectAbbrev: "SmTT", frame: 'small', crystals:  2},
-  RAPID_RIDER:           {id: "VehicleRapidRider_C",          inspectAbbrev: "RaRr", frame: 'small', crystals:  2},
-  SMLC:                  {id: "VehicleSMLC_C",                inspectAbbrev: "SMLC", frame: 'small', crystals:  3},
-  TUNNEL_SCOUT:          {id: "VehicleTunnelScout_C",         inspectAbbrev: "TuSc", frame: 'small', crystals:  3},
-  LOADER_DOZER:          {id: "VehicleLoaderDozer_C",         inspectAbbrev: "LoDz", frame: 'large', crystals:  5},
-  GRANITE_GRINDER:       {id: "VehicleGraniteGrinder_C",      inspectAbbrev: "GrGr", frame: 'large', crystals:  5},
-  CARGO_CARRIER:         {id: "VehicleCargoCarrier_C",        inspectAbbrev: "CaCa", frame: 'large', crystals:  5},
-  LMLC:                  {id: "VehicleLMLC_C",                inspectAbbrev: "LMLC", frame: 'large', crystals:  8},
-  CHROME_CRUSHER:        {id: "VehicleChromeCrusher_C",       inspectAbbrev: "CrCr", frame: 'large', crystals:  8},
-  TUNNEL_TRANSPORT:      {id: "VehicleTunnelTransport_C",     inspectAbbrev: "TuTr", frame: 'large', crystals: 10},
-} as const
+  HOVER_SCOUT:           {id: "VehicleHoverScout_C",          inspectAbbrev: "HoSc", frame: 'small', crystals:  1, upgrades: ["UpEngine"]},
+  SMALL_DIGGER:          {id: "VehicleSmallDigger_C",         inspectAbbrev: "SmDi", frame: 'small', crystals:  1, upgrades: ["UpEngine", "UpDrill"]},
+  SMALL_TRANSPORT_TRUCK: {id: "VehicleSmallTransportTruck_C", inspectAbbrev: "SmTT", frame: 'small', crystals:  2, upgrades: ["UpEngine", "UpCargoHold"]},
+  RAPID_RIDER:           {id: "VehicleRapidRider_C",          inspectAbbrev: "RaRr", frame: 'small', crystals:  2, upgrades: ["UpAddDrill", "UpCargoHold"]},
+  SMLC:                  {id: "VehicleSMLC_C",                inspectAbbrev: "SMLC", frame: 'small', crystals:  3, upgrades: ["UpEngine", "UpLaser"]},
+  TUNNEL_SCOUT:          {id: "VehicleTunnelScout_C",         inspectAbbrev: "TuSc", frame: 'small', crystals:  3, upgrades: ["UpAddDrill"]},
+  LOADER_DOZER:          {id: "VehicleLoaderDozer_C",         inspectAbbrev: "LoDz", frame: 'large', crystals:  5, upgrades: ["UpEngine"]},
+  GRANITE_GRINDER:       {id: "VehicleGraniteGrinder_C",      inspectAbbrev: "GrGr", frame: 'large', crystals:  5, upgrades: ["UpEngine", "UpDrill"]},
+  CARGO_CARRIER:         {id: "VehicleCargoCarrier_C",        inspectAbbrev: "CaCa", frame: 'large', crystals:  5, upgrades: ["UpAddNav"]},
+  LMLC:                  {id: "VehicleLMLC_C",                inspectAbbrev: "LMLC", frame: 'large', crystals:  8, upgrades: ["UpEngine", "UpLaser", "UpAddNav"]},
+  CHROME_CRUSHER:        {id: "VehicleChromeCrusher_C",       inspectAbbrev: "CrCr", frame: 'large', crystals:  8, upgrades: ["UpEngine", "UpDrill", "UpLaser", "UpScanner"]},
+  TUNNEL_TRANSPORT:      {id: "VehicleTunnelTransport_C",     inspectAbbrev: "TuTr", frame: 'large', crystals: 10, upgrades: []},
+} as const satisfies {[K: string]: {
+  id: string;
+  inspectAbbrev: string;
+  frame: 'small' | 'large';
+  crystals: number;
+  upgrades: Upgrade[];
+}};
+
 
 export const VehicleTemplate = TEMPLATES;
-export type VehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES]; // eslint-disable-line @typescript-eslint/no-redeclare
+export type AnyVehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES];
 
 export type Vehicle = EntityPosition & {
   readonly id: number;
-  readonly template: VehicleTemplate;
+  readonly template: AnyVehicleTemplate;
+  readonly essential: boolean;
+  readonly driverId: number | null;
+  readonly upgrades: Upgrade[];
 };
 
 export class VehicleFactory {
   private id: number = 0;
-  create(args: EntityPosition & { template: VehicleTemplate }): Vehicle {
-    return { ...args, id: this.id++ };
+  create<T extends AnyVehicleTemplate>(args: EntityPosition & {template: T, upgrades?: (T['upgrades'][number])[]} & Partial<Pick<Vehicle, "essential" | "driverId">>): Vehicle {
+    return { essential: false, driverId: null, upgrades: [], ...args, id: this.id++ };
   }
 }
 
@@ -38,6 +57,12 @@ export function serializeVehicle(
   offset: Point,
   heightMap: Grid<number>,
 ) {
-  const pos = serializePosition(vehicle, offset, heightMap, 0, "entity");
-  return `${vehicle.template.id},${pos},ID=${vehicle.id.toFixed()}`;
+  return [
+    vehicle.template.id,
+    serializePosition(vehicle, offset, heightMap, 0, "entity"),
+    vehicle.upgrades.map(u => `${u}/`).join(''),
+    vehicle.driverId !== null && `driver=${vehicle.driverId.toFixed()}`,
+    vehicle.essential && 'Essential=true',
+    `ID=${vehicle.id.toFixed()}`,
+  ].filter(n => n).join(',');
 }
