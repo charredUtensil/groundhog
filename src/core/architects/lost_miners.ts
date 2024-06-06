@@ -7,7 +7,12 @@ import { DiscoveryZone } from "../models/discovery_zone";
 import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
-import { Vehicle, VehicleFactory, AnyVehicleTemplate, VehicleTemplate } from "../models/vehicle";
+import {
+  Vehicle,
+  VehicleFactory,
+  AnyVehicleTemplate,
+  VehicleTemplate,
+} from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";

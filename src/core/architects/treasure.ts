@@ -73,11 +73,7 @@ int ${g.crystalsAvailable}=0
     // of the crystals would win the level.
     // TODO(charredutensil): Need to figure out clashes with lost miners
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
-    const v = mkVars(`p${plan.id}Hoard`, [
-      "onDiscovered",
-      "go",
-      "noGo",
-    ]);
+    const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go", "noGo"]);
 
     return `# Found Hoard ${plan.id}
 if(change:${centerPoint})[${v.onDiscovered}]

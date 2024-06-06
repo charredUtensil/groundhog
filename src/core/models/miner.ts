@@ -30,7 +30,10 @@ export type Miner = EntityPosition & {
 
 export class MinerFactory {
   private id: number = 0;
-  create(args: EntityPosition & Partial<Pick<Miner, "essential" | "level" | "loadout" | "unique">>): Miner {
+  create(
+    args: EntityPosition &
+      Partial<Pick<Miner, "essential" | "level" | "loadout" | "unique">>,
+  ): Miner {
     return {
       essential: false,
       level: 1,
@@ -53,5 +56,7 @@ export function serializeMiner(
     miner.loadout.map((l) => `${l}/`).join(""),
     "Level/".repeat(miner.level - 1),
     miner.essential && "Essential=true",
-  ].filter(n => n).join(",")
+  ]
+    .filter((n) => n)
+    .join(",");
 }

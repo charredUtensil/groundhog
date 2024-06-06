@@ -309,51 +309,51 @@ goldenTest("entity_zoo", () => {
   const vehicles = [
     vf.create({
       template: VehicleTemplate.HOVER_SCOUT,
-      ...atCenterOfTile({x: 0, y: 9, facing: EAST})
+      ...atCenterOfTile({ x: 0, y: 9, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.TUNNEL_SCOUT,
-      ...atCenterOfTile({x: 1, y: 9, facing: EAST})
+      ...atCenterOfTile({ x: 1, y: 9, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.SMALL_DIGGER,
-      ...atCenterOfTile({x: 0, y: 10, facing: EAST})
+      ...atCenterOfTile({ x: 0, y: 10, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.SMALL_TRANSPORT_TRUCK,
-      ...atCenterOfTile({x: 1, y: 10, facing: EAST})
+      ...atCenterOfTile({ x: 1, y: 10, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.SMLC,
-      ...atCenterOfTile({x: 2, y: 10, facing: EAST})
+      ...atCenterOfTile({ x: 2, y: 10, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.LOADER_DOZER,
-      ...atCenterOfTile({x: 0, y: 11, facing: EAST})
+      ...atCenterOfTile({ x: 0, y: 11, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.GRANITE_GRINDER,
-      ...atCenterOfTile({x: 2, y: 11, facing: EAST})
+      ...atCenterOfTile({ x: 2, y: 11, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.LMLC,
-      ...atCenterOfTile({x: 4, y: 11, facing: EAST})
+      ...atCenterOfTile({ x: 4, y: 11, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.CHROME_CRUSHER,
-      ...atCenterOfTile({x: 6, y: 11, facing: EAST})
+      ...atCenterOfTile({ x: 6, y: 11, facing: EAST }),
     }),
     vf.create({
       template: VehicleTemplate.RAPID_RIDER,
-      ...atCenterOfTile({x: 11, y: 9, facing: WEST})
+      ...atCenterOfTile({ x: 11, y: 9, facing: WEST }),
     }),
     vf.create({
       template: VehicleTemplate.CARGO_CARRIER,
-      ...atCenterOfTile({x: 11, y: 11, facing: WEST})
+      ...atCenterOfTile({ x: 11, y: 11, facing: WEST }),
     }),
     vf.create({
       template: VehicleTemplate.TUNNEL_TRANSPORT,
-      ...atCenterOfTile({x: 6, y: 9, facing: WEST})
+      ...atCenterOfTile({ x: 6, y: 9, facing: WEST }),
     }),
   ];
 

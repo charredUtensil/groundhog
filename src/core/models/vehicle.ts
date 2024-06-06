@@ -33,7 +33,6 @@ const TEMPLATES = {
   upgrades: Upgrade[];
 }};
 
-
 export const VehicleTemplate = TEMPLATES;
 export type AnyVehicleTemplate = (typeof TEMPLATES)[keyof typeof TEMPLATES];
 
@@ -47,8 +46,19 @@ export type Vehicle = EntityPosition & {
 
 export class VehicleFactory {
   private id: number = 0;
-  create<T extends AnyVehicleTemplate>(args: EntityPosition & {template: T, upgrades?: (T['upgrades'][number])[]} & Partial<Pick<Vehicle, "essential" | "driverId">>): Vehicle {
-    return { essential: false, driverId: null, upgrades: [], ...args, id: this.id++ };
+  create<T extends AnyVehicleTemplate>(
+    args: EntityPosition & {
+      template: T;
+      upgrades?: T["upgrades"][number][];
+    } & Partial<Pick<Vehicle, "essential" | "driverId">>,
+  ): Vehicle {
+    return {
+      essential: false,
+      driverId: null,
+      upgrades: [],
+      ...args,
+      id: this.id++,
+    };
   }
 }
 
@@ -60,9 +70,11 @@ export function serializeVehicle(
   return [
     vehicle.template.id,
     serializePosition(vehicle, offset, heightMap, 0, "entity"),
-    vehicle.upgrades.map(u => `${u}/`).join(''),
+    vehicle.upgrades.map((u) => `${u}/`).join(""),
     vehicle.driverId !== null && `driver=${vehicle.driverId.toFixed()}`,
-    vehicle.essential && 'Essential=true',
+    vehicle.essential && "Essential=true",
     `ID=${vehicle.id.toFixed()}`,
-  ].filter(n => n).join(',');
+  ]
+    .filter((n) => n)
+    .join(",");
 }

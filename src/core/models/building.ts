@@ -190,15 +190,11 @@ export function serializeBuilding(
 ) {
   return [
     building.template.id,
-    serializePosition(
-      building,
-      offset,
-      heightMap,
-      Math.PI / 2,
-      "building",
-    ),
+    serializePosition(building, offset, heightMap, Math.PI / 2, "building"),
     building.level > 1 && `Level=${building.level.toFixed()}`,
     building.isEssential && "Essential=True",
     building.teleportAtStart && "Teleport=True",
-  ].filter(n => n).join(",");
+  ]
+    .filter((n) => n)
+    .join(",");
 }
