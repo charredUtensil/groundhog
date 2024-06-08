@@ -7,11 +7,11 @@ import { FloodedPlan } from "./02_flood";
 
 type SortedPlan = {
   plan: FloodedPlan & { architect?: Architect<unknown> };
-  hops: number;
+  hops: readonly number[];
   index: number;
 };
 export type ArchitectedPlan<T> = FloodedPlan & {
-  readonly hops: number;
+  readonly hops: readonly number[];
   /** The architect to use to build out the plan. */
   readonly architect: Architect<T>;
   readonly metadata: T;
@@ -73,13 +73,12 @@ export default function establish(
   );
 
   // Sort the plans in a breadth-first search order, starting from spawn and
-  // annotating each with the index and the number of "hops" it is away from
-  // the spawn.
+  // annotating each with the index and the hops it takes to get here from spawn.
   function sortPlans(): SortedPlan[] {
     const isQueued: true[] = [];
     isQueued[spawn.id] = true;
-    const queue: { plan: FloodedPlan; hops: number }[] = [
-      { plan: spawn, hops: 0 },
+    const queue: { plan: FloodedPlan; hops: readonly number[] }[] = [
+      { plan: spawn, hops: [] },
     ];
     const result: SortedPlan[] = [];
 
@@ -94,7 +93,10 @@ export default function establish(
         );
       neighbors.forEach((id) => (isQueued[id] = true));
       queue.push(
-        ...neighbors.map((id) => ({ plan: cavern.plans[id], hops: hops + 1 })),
+        ...neighbors.map((id) => ({
+          plan: cavern.plans[id],
+          hops: [...hops, plan.id],
+        })),
       );
       result.push({ plan, hops, index });
     }
@@ -106,13 +108,14 @@ export default function establish(
     cavern.plans.slice();
   let totalCrystals = 0;
 
-  const { hops: maxHops, index: maxIndex } = inOrder[inOrder.length - 1];
+  const maxIndex = inOrder.length - 1;
+  const maxHops = inOrder[inOrder.length - 1].hops.length;
   function doArchitect({
     plan,
     hops,
     index,
   }: SortedPlan): ArchitectedPlan<any> {
-    const props = { hops: hops / maxHops, order: index / maxIndex };
+    const props = { hops: hops.length / maxHops, order: index / maxIndex };
     const architect =
       plan.architect ||
       cavern.dice.pickArchitect(plan.id).weightedChoice(

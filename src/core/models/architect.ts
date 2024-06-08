@@ -26,7 +26,7 @@ type SpawnBidArgs = {
 
 type BidArgs = SpawnBidArgs & {
   readonly plans: readonly CollapseUnion<FloodedPlan | EstablishedPlan>[];
-  readonly hops: number;
+  readonly hops: readonly number[];
   readonly totalCrystals: number;
 };
 

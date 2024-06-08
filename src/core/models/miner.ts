@@ -30,7 +30,10 @@ export type Miner = EntityPosition & {
 
 export class MinerFactory {
   private id: number = 0;
-  create(args: EntityPosition & Partial<Omit<Miner, "id">>): Miner {
+  create(
+    args: EntityPosition &
+      Partial<Pick<Miner, "essential" | "level" | "loadout" | "unique">>,
+  ): Miner {
     return {
       essential: false,
       level: 1,
@@ -47,10 +50,14 @@ export function serializeMiner(
   offset: Point,
   heightMap: Grid<number>,
 ) {
-  return `ID=${miner.id.toFixed()}\
-${miner.unique ? `/${miner.unique}` : ""},\
-${serializePosition(miner, offset, heightMap, 0, "entity")},\
-${miner.loadout.map((l) => `${l}/`).join("")}\
-${"Level/".repeat(miner.level - 1)}\
-${miner.essential ? ",Essential=true" : ""}`;
+  return [
+    `ID=${miner.id.toFixed()}${miner.unique ? `/${miner.unique}` : ""}`,
+    serializePosition(miner, offset, heightMap, 0, "entity"),
+    [...miner.loadout, ...new Array(miner.level - 1).fill("Level")]
+      .map((l) => `${l}/`)
+      .join(""),
+    miner.essential && "Essential=true",
+  ]
+    .filter((n) => n)
+    .join(",");
 }

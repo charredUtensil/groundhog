@@ -30,9 +30,9 @@ tiles{
 38,1,1,1,1,1,1,1,1,1,1,1,1,38,
 38,1,1,1,1,1,1,1,1,1,1,1,1,38,
 38,1,1,1,1,1,1,1,1,1,1,1,1,38,
-38,1,1,1,1,1,1,1,1,1,1,1,1,38,
-38,1,1,1,1,1,1,1,1,1,1,1,1,38,
-38,1,1,1,1,1,1,1,1,1,1,1,1,38,
+38,1,1,1,1,1,1,1,1,1,11,11,11,38,
+38,1,1,1,1,1,1,1,1,1,11,11,11,38,
+38,1,1,1,1,1,1,1,1,1,11,11,11,38,
 38,38,38,38,38,38,38,38,38,38,38,38,38,38,
 }
 height{
@@ -143,6 +143,20 @@ ID=10/Docs,Translation: X=1050.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-13
 ID=11/Jet,Translation: X=1350.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-153.434949 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobPilot/
 ID=12/Sparks,Translation: X=1650.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-161.565051 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobEngineer/
 }
+vehicles{
+VehicleHoverScout_C,Translation: X=450.000 Y=3150.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=0
+VehicleTunnelScout_C,Translation: X=750.000 Y=3150.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=1
+VehicleSmallDigger_C,Translation: X=450.000 Y=3450.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=2
+VehicleSmallTransportTruck_C,Translation: X=750.000 Y=3450.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=3
+VehicleSMLC_C,Translation: X=1050.000 Y=3450.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=4
+VehicleLoaderDozer_C,Translation: X=450.000 Y=3750.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=5
+VehicleGraniteGrinder_C,Translation: X=1050.000 Y=3750.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=6
+VehicleLMLC_C,Translation: X=1650.000 Y=3750.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=7
+VehicleChromeCrusher_C,Translation: X=2250.000 Y=3750.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=8
+VehicleRapidRider_C,Translation: X=3750.000 Y=3150.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=9
+VehicleCargoCarrier_C,Translation: X=3750.000 Y=3750.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=10
+VehicleTunnelTransport_C,Translation: X=2250.000 Y=3150.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,ID=11
+}
 briefing{
 [INTRO]
 }
@@ -151,8 +165,6 @@ briefingsuccess{
 }
 briefingfailure{
 [FAILURE]
-}
-vehicles{
 }
 blocks{
 }

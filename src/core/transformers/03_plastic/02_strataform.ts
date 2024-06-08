@@ -29,7 +29,7 @@ export default function strataform(
   const planHeights: (number | null)[] = [];
   const rng = cavern.dice.height;
 
-  const queue = cavern.plans.filter((plan) => plan.hops === 0);
+  const queue = cavern.plans.filter((plan) => !plan.hops.length);
   queue.forEach((plan) => (queued[plan.id] = true));
   while (queue.length) {
     const plan = queue.shift()!;

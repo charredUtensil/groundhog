@@ -32,6 +32,7 @@ import fence from "../transformers/03_plastic/00_fence";
 import serialize from "../transformers/04_ephemera/03_serialize";
 import goldenTest from "./golden";
 import strataflux from "../transformers/03_plastic/03_strataflux";
+import { VehicleFactory, VehicleTemplate } from "../models/vehicle";
 
 function fill<T>(
   grid: MutableGrid<T>,
@@ -73,6 +74,7 @@ const DUMMY_CAVERN = {
     variables: [],
   },
   openCaveFlags: new MutableGrid<true>(),
+  vehicles: [],
   script: "[SCRIPT]",
 };
 
@@ -187,8 +189,8 @@ goldenTest("entity_zoo", () => {
   const openCaveFlags = new MutableGrid<true>();
 
   openCaveFlags.set(0, 0, true);
-  const size = 12;
-  fill(tiles, 0, 0, size, size, Tile.FLOOR);
+  fill(tiles, 0, 0, 12, 12, Tile.FLOOR);
+  fill(tiles, 9, 9, 3, 3, Tile.WATER);
 
   const minersAimedAt: Point = [1.5, 1.5];
   const mf = new MinerFactory();
@@ -303,10 +305,63 @@ goldenTest("entity_zoo", () => {
     }),
   ];
 
+  const vf = new VehicleFactory();
+  const vehicles = [
+    vf.create({
+      template: VehicleTemplate.HOVER_SCOUT,
+      ...atCenterOfTile({ x: 0, y: 9, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.TUNNEL_SCOUT,
+      ...atCenterOfTile({ x: 1, y: 9, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.SMALL_DIGGER,
+      ...atCenterOfTile({ x: 0, y: 10, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.SMALL_TRANSPORT_TRUCK,
+      ...atCenterOfTile({ x: 1, y: 10, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.SMLC,
+      ...atCenterOfTile({ x: 2, y: 10, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.LOADER_DOZER,
+      ...atCenterOfTile({ x: 0, y: 11, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.GRANITE_GRINDER,
+      ...atCenterOfTile({ x: 2, y: 11, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.LMLC,
+      ...atCenterOfTile({ x: 4, y: 11, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.CHROME_CRUSHER,
+      ...atCenterOfTile({ x: 6, y: 11, facing: EAST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.RAPID_RIDER,
+      ...atCenterOfTile({ x: 11, y: 9, facing: WEST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.CARGO_CARRIER,
+      ...atCenterOfTile({ x: 11, y: 11, facing: WEST }),
+    }),
+    vf.create({
+      template: VehicleTemplate.TUNNEL_TRANSPORT,
+      ...atCenterOfTile({ x: 6, y: 9, facing: WEST }),
+    }),
+  ];
+
   return ds({
     tiles,
     miners,
     creatures,
+    vehicles,
     openCaveFlags,
   });
 });

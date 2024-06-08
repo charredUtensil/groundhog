@@ -70,6 +70,9 @@ creatures{
 miners{
 
 }
+vehicles{
+
+}
 briefing{
 [INTRO]
 }
@@ -78,8 +81,6 @@ briefingsuccess{
 }
 briefingfailure{
 [FAILURE]
-}
-vehicles{
 }
 blocks{
 }
