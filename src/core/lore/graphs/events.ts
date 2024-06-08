@@ -126,7 +126,7 @@ export const FOUND_ALL_LOST_MINERS = phraseGraph<State>(
           "The ${lostMinersCount} Rock Raiders are right here, safe and sound!",
           "You found all ${lostMinersCount} Rock Raiders!",
           "That's all of the missing Rock Raiders found!",
-        )
+        ),
       )
       .then(
         skip,

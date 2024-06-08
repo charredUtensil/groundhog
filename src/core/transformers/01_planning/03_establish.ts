@@ -32,11 +32,7 @@ export type EstablishedPlan = ArchitectedPlan<unknown> & {
 type CurveProps = { hops: number; order: number };
 
 function curved(curve: Curve, props: CurveProps): number {
-  return (
-    curve.base +
-    curve.hops * props.hops +
-    curve.order * props.order
-  );
+  return curve.base + curve.hops * props.hops + curve.order * props.order;
 }
 
 function encourageDisable(

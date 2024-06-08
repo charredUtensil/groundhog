@@ -53,8 +53,9 @@ export function serializeMiner(
   return [
     `ID=${miner.id.toFixed()}${miner.unique ? `/${miner.unique}` : ""}`,
     serializePosition(miner, offset, heightMap, 0, "entity"),
-    miner.loadout.map((l) => `${l}/`).join(""),
-    "Level/".repeat(miner.level - 1),
+    [...miner.loadout, ...new Array(miner.level - 1).fill("Level")]
+      .map((l) => `${l}/`)
+      .join(""),
     miner.essential && "Essential=true",
   ]
     .filter((n) => n)
