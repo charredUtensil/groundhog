@@ -22,7 +22,7 @@ export function serializeObjectives({
   }
   result.push(
     ...variables.map(
-      ({ condition, description }) => `${condition}/${description}`,
+      ({ condition, description }) => `variable:${condition}/${description}`,
     ),
   );
   return result.join("\n");

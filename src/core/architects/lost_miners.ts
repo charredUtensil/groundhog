@@ -7,7 +7,12 @@ import { DiscoveryZone } from "../models/discovery_zone";
 import { Plan } from "../models/plan";
 import { randomlyInTile } from "../models/position";
 import { Tile } from "../models/tiles";
-import { Vehicle, VehicleFactory, VehicleTemplate } from "../models/vehicle";
+import {
+  Vehicle,
+  VehicleFactory,
+  AnyVehicleTemplate,
+  VehicleTemplate,
+} from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
@@ -46,19 +51,12 @@ function getBreadcrumbPoint(
   minersDz: DiscoveryZone,
   plan: Plan,
 ): Point {
-  // Choose the neighboring plan which is closest to spawn (fewest hops).
-  const neighborPlan = plan.intersects.reduce((r, _, i) => {
-    const p = cavern.plans[i];
-    return p.hops < r.hops ? p : r;
-  }, plan);
-
-  // Prevent infinite loops - shouldn't happen under normal operation since
-  // eventually we should reach the spawn, we already asserted that the
-  // miner spawn point is not discovered at spawn, and the spawn should be
-  // discovered at spawn. Still...
-  if (plan.hops < neighborPlan.hops) {
-    throw new Error("Infinite loop detected");
+  if (!plan.hops.length) {
+    throw new Error("Reached spawn without a breadcrumb");
   }
+
+  // Choose the neighboring plan which is closest to spawn (fewest hops).
+  const neighborPlan = cavern.plans[plan.hops[plan.hops.length - 1]];
 
   const result = neighborPlan.innerPearl
     .flatMap((layer) => layer)
@@ -102,7 +100,7 @@ function placeBreadcrumbVehicle(
 ) {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const template = rng.weightedChoice<VehicleTemplate | null>([
+  const template = rng.weightedChoice<AnyVehicleTemplate | null>([
     { item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2 },
     { item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
     { item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
@@ -255,8 +253,8 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       !plan.fluid &&
       plan.pearlRadius > 2 &&
       plan.pearlRadius < 10 &&
-      hops > 3 &&
-      hops <= 8 &&
+      hops.length > 3 &&
+      hops.length <= 8 &&
       isDeadEnd(plan) &&
       plans.reduce((r, p) => (p.architect?.isLostMiners ? r + 1 : r), 0) < 4 &&
       MULTIPLIERS[cavern.context.biome],
