@@ -169,7 +169,7 @@ export class Lore {
 
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
-    const spawn = cavern.plans.find((p) => p.hops === 0)!;
+    const spawn = cavern.plans.find((p) => !p.hops.length)!;
 
     const hq = cavern.plans.find((p) => p.architect.isHq);
     const spawnIsHq = spawn === hq;

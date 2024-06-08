@@ -293,7 +293,7 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
-      hops <= 4 &&
+      hops.length <= 4 &&
       !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: false,
@@ -308,7 +308,7 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
-      hops <= 4 &&
+      hops.length <= 4 &&
       !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: true,
