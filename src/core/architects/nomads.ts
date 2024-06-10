@@ -3,17 +3,24 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
-import { atCenterOfTile, randomlyInTile } from "../models/position";
+import { atCenterOfTile, position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
 import { escapeString, eventChain, mkVars, scriptFragment } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
 import { Tile } from "../models/tiles";
-import { VehicleTemplate } from "../models/vehicle";
+import { AnyVehicleTemplate, Vehicle, VehicleTemplate } from "../models/vehicle";
+import { Loadout } from "../models/miner";
 
 type Metadata = {
   readonly minersCount: number,
-  readonly vehicles: VehicleTemplate[],
+  readonly vehicles: AnyVehicleTemplate[],
 }
+
+const VEHICLE_JOBS = {
+  'land': "JobDriver",
+  'air': "JobPilot",
+  'sea': "JobSailor",
+} as const;
 
 const g = mkVars("gNomads", [
   "messageBuiltBase",
@@ -26,7 +33,7 @@ const BASE: PartialArchitect<Metadata> & {isNomads: true} = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({a: 1, b: 3, min: 1, max: 4})
-    const vehicles: VehicleTemplate[] = [];
+    const vehicles: AnyVehicleTemplate[] = [];
     return {minersCount, vehicles};
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
@@ -46,22 +53,22 @@ const BASE: PartialArchitect<Metadata> & {isNomads: true} = {
     setCameraPosition,
   }) => {
     const rng = cavern.dice.placeEntities(plan.id);
-    const [x, y] = pickPoint(plan, (x, y) => {
-      const t = cavern.tiles.get(x, y);
-      return !!t && !t.isWall && !t.isFluid;
-    })!;
+    const [x, y] = pickPoint(plan, (x, y) => !!(
+      cavern.discoveryZones.get(x, y)?.openOnSpawn &&
+      !cavern.tiles.get(x, y)!.isFluid
+    ))!;
     const aimedAt = plan.path.baseplates[0].center;
     setCameraPosition({
       ...atCenterOfTile({x, y, aimedAt}),
       pitch: Math.PI / 4,
     });
-    for (let i = 0; i < plan.metadata.minersCount; i++) {
-      miners.push(minerFactory.create(randomlyInTile({x, y, rng})));
-    }
-    vehicles.push(...plan.metadata.vehicles.map(
+    const placedVehicles = plan.metadata.vehicles.map(
       template => {
         if (template.kind === 'sea') {
-          const p = pickPoint(plan, (x, y) => cavern.tiles.get(x, y) === Tile.WATER);
+          const p = pickPoint(plan, (x, y) => !!(
+            cavern.discoveryZones.get(x, y)?.openOnSpawn &&
+            cavern.tiles.get(x, y) === Tile.WATER
+          ));
           if (!p) {
             throw new Error(`Failed to place sea vehicle in plan ${plan.id}`);
           }
@@ -73,10 +80,25 @@ const BASE: PartialArchitect<Metadata> & {isNomads: true} = {
           ...randomlyInTile({ x, y, rng }), template
         });
       }
-    ));
+    )
+    for (let i = 0; i < plan.metadata.minersCount; i++) {
+      const driving = placedVehicles[i] as Vehicle | undefined;
+      const pos = driving ? position(driving) : randomlyInTile({x, y, rng});
+      const loadout = [
+        "Drill" as const,
+        driving && VEHICLE_JOBS[driving.template.kind],
+      ].filter(n => n) as Loadout[];
+      const miner = minerFactory.create({
+        ...pos,
+        loadout,
+      });
+      placedVehicles[i] = {...placedVehicles[i], driverId: miner.id};
+      miners.push(miner);
+    }
+    vehicles.push(...placedVehicles);
   },
   scriptGlobals({ cavern }) {
-    if (cavern.plans.some(plan => (plan.architect as any).isHq)) {
+    if (cavern.plans.some(plan => plan.architect.isHq)) {
       return undefined;
     }
 

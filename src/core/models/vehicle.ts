@@ -29,6 +29,7 @@ const TEMPLATES = {
   id: string;
   inspectAbbrev: string;
   frame: 'small' | 'large';
+  kind: 'land' | 'sea' | 'air';
   crystals: number;
   upgrades: Upgrade[];
 }};
