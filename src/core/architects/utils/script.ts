@@ -10,21 +10,23 @@ export function mkVars<T extends string>(
   keys: readonly T[],
 ): VarType<T> {
   const r: Partial<VarType<T>> = {};
-  keys.forEach((k) => (r[k] = `${prefix}_${String(k)}`));
+  keys.forEach((k) => (r[k] = `${prefix}_${k}`));
   return r as VarType<T>;
 }
 
-export function transformPoint(cavern: FencedCavern, [x, y]: Point): string {
+export function transformPoint(cavern: FencedCavern, [x, y]: Point): `${number},${number}` {
   return `${y - cavern.top},${x - cavern.left}`;
 }
 
-export function scriptFragment(...rest: (string | false | null | undefined)[]) {
+type Falsy = false | null | undefined;
+
+export function scriptFragment(...rest: (string | Falsy)[]) {
   return rest.filter((s) => s).join("\n");
 }
 
 export function eventChain(
   name: string,
-  ...rest: (string | false | null | undefined)[]
+  ...rest: (`${string};` | Falsy)[]
 ) {
   return `${name}::;\n${scriptFragment(...rest)}\n`;
 }
