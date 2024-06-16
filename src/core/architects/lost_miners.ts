@@ -10,8 +10,12 @@ import { Tile } from "../models/tiles";
 import {
   Vehicle,
   VehicleFactory,
-  AnyVehicleTemplate,
   VehicleTemplate,
+  HOVER_SCOUT,
+  RAPID_RIDER,
+  SMALL_DIGGER,
+  SMALL_TRANSPORT_TRUCK,
+  TUNNEL_SCOUT,
 } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
@@ -100,12 +104,12 @@ function placeBreadcrumbVehicle(
 ) {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const template = rng.weightedChoice<AnyVehicleTemplate | null>([
-    { item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2 },
-    { item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
-    { item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
-    { item: VehicleTemplate.RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
-    { item: VehicleTemplate.TUNNEL_SCOUT, bid: 0.25 },
+  const template = rng.weightedChoice<VehicleTemplate | null>([
+    { item: HOVER_SCOUT, bid: fluid ? 0 : 2 },
+    { item: SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
+    { item: SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
+    { item: RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
+    { item: TUNNEL_SCOUT, bid: 0.25 },
     { item: null, bid: 0.0025 },
   ]);
   if (template) {

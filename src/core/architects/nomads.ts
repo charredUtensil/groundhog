@@ -8,19 +8,23 @@ import { pickPoint } from "./utils/placement";
 import { escapeString, eventChain, mkVars, scriptFragment } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
 import { Tile } from "../models/tiles";
-import { AnyVehicleTemplate, Vehicle, VehicleTemplate } from "../models/vehicle";
+import { VehicleTemplate, HOVER_SCOUT, RAPID_RIDER, SMALL_DIGGER, SMALL_TRANSPORT_TRUCK, SMLC, TUNNEL_SCOUT, Vehicle } from "../models/vehicle";
 import { Loadout } from "../models/miner";
+import { filterTruthy } from "../common/utils";
 
 type Metadata = {
   readonly minersCount: number,
-  readonly vehicles: AnyVehicleTemplate[],
+  readonly vehicles: VehicleTemplate[],
 }
 
-const VEHICLE_JOBS = {
-  'land': "JobDriver",
-  'air': "JobPilot",
-  'sea': "JobSailor",
-} as const;
+const VEHICLE_BIDS = [
+  { item: HOVER_SCOUT, bid: 1 },
+  { item: SMALL_DIGGER, bid: 4 },
+  { item: SMALL_TRANSPORT_TRUCK, bid: 1 },
+  { item: SMLC, bid: 2 },
+  { item: TUNNEL_SCOUT, bid: 1 },
+  { item: null, bid: 1 },
+] as const;
 
 const g = mkVars("gNomads", [
   "messageBuiltBase",
@@ -33,7 +37,7 @@ const BASE: PartialArchitect<Metadata> & {isNomads: true} = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({a: 1, b: 3, min: 1, max: 4})
-    const vehicles: AnyVehicleTemplate[] = [];
+    const vehicles: VehicleTemplate[] = filterTruthy([rng.weightedChoice(VEHICLE_BIDS)]);
     return {minersCount, vehicles};
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
@@ -84,15 +88,18 @@ const BASE: PartialArchitect<Metadata> & {isNomads: true} = {
     for (let i = 0; i < plan.metadata.minersCount; i++) {
       const driving = placedVehicles[i] as Vehicle | undefined;
       const pos = driving ? position(driving) : randomlyInTile({x, y, rng});
-      const loadout = [
-        "Drill" as const,
-        driving && VEHICLE_JOBS[driving.template.kind],
-      ].filter(n => n) as Loadout[];
+      const loadout: Loadout[] = filterTruthy([
+        "Drill",
+        (i === 0 || rng.chance(0.25)) && "JobGeologist",
+        driving?.template.job,
+      ]);
       const miner = minerFactory.create({
         ...pos,
         loadout,
       });
-      placedVehicles[i] = {...placedVehicles[i], driverId: miner.id};
+      if (placedVehicles[i]) {
+        placedVehicles[i] = {...placedVehicles[i], driverId: miner.id};
+      }
       miners.push(miner);
     }
     vehicles.push(...placedVehicles);
@@ -148,7 +155,7 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({minersCount: 1, vehicles: [VehicleTemplate.RAPID_RIDER]}),
+    prime: () => ({minersCount: 1, vehicles: [RAPID_RIDER]}),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 4 &&
@@ -165,7 +172,7 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({minersCount: 1, vehicles: [VehicleTemplate.TUNNEL_SCOUT]}),
+    prime: () => ({minersCount: 1, vehicles: [TUNNEL_SCOUT]}),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 4 &&

@@ -9,14 +9,12 @@ import { Path } from "../../models/path";
 export default function clip(cavern: TriangulatedCavern): TriangulatedCavern {
   const radius = cavern.context.targetSize / 2;
   const rSquared = radius * radius;
-  const paths: Path[] = cavern.paths.filter((path) => {
-    return (
-      path.kind === "spanning" ||
-      !path.baseplates.some((bp) => {
-        const [x, y] = bp.center;
-        return x * x + y * y > rSquared;
-      })
-    );
-  });
+  const paths: Path[] = cavern.paths.filter((path) => (
+    path.kind === "spanning" ||
+    !path.baseplates.some((bp) => {
+      const [x, y] = bp.center;
+      return x * x + y * y > rSquared;
+    })
+  ));
   return { ...cavern, paths };
 }

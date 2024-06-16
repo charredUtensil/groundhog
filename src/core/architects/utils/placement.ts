@@ -1,5 +1,6 @@
 import { PseudorandomStream } from "../../common";
 import { Cardinal4, NSEW } from "../../common/geometry";
+import { filterTruthy } from "../../common/utils";
 import { Plan } from "../../models/plan";
 import { EntityPosition, position } from "../../models/position";
 import { Tile } from "../../models/tiles";
@@ -67,7 +68,7 @@ function positionsHelper(
   ly: number,
   aly: number,
 ): EntityPosition[] {
-  const placements = plan.innerPearl[ly]
+  const placements = filterTruthy(plan.innerPearl[ly]
     .map(([x, y]) => {
       const t = cavern.tiles.get(x, y);
       if (
@@ -87,9 +88,8 @@ function positionsHelper(
       if (!anchor) {
         return null;
       }
-      return [x, y, anchor];
-    })
-    .filter((n) => n) as [number, number, Cardinal4][];
+      return [x, y, anchor] as const;
+    }));
   return rng
     .shuffle(placements)
     .filter((_, i) => i < count)
