@@ -68,8 +68,8 @@ function positionsHelper(
   ly: number,
   aly: number,
 ): EntityPosition[] {
-  const placements = filterTruthy(plan.innerPearl[ly]
-    .map(([x, y]) => {
+  const placements = filterTruthy(
+    plan.innerPearl[ly].map(([x, y]) => {
       const t = cavern.tiles.get(x, y);
       if (
         t?.isWall !== false ||
@@ -89,7 +89,8 @@ function positionsHelper(
         return null;
       }
       return [x, y, anchor] as const;
-    }));
+    }),
+  );
   return rng
     .shuffle(placements)
     .filter((_, i) => i < count)

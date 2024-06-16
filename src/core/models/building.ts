@@ -54,7 +54,7 @@ class BuildingTemplate {
   readonly maxLevel: number;
   readonly crystals: number;
   readonly footprint: Footprint;
-constructor(
+  constructor(
     id: string,
     inspectAbbrev: string,
     maxLevel: Level,

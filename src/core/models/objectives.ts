@@ -15,7 +15,7 @@ export function serializeObjectives({
   variables,
 }: Objectives): string {
   const result = variables.map(
-    ({ condition, description }) => `variable:${condition}/${description}`
+    ({ condition, description }) => `variable:${condition}/${description}`,
   );
   if (crystals || ore || studs) {
     result.push(

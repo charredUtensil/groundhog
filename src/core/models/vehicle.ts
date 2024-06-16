@@ -12,23 +12,23 @@ type Upgrade =
   | "UpAddNav";
 
 const JOBS = {
-  'land': "JobDriver",
-  'air': "JobPilot",
-  'sea': "JobSailor",
+  land: "JobDriver",
+  air: "JobPilot",
+  sea: "JobSailor",
 } as const;
 
 export class VehicleTemplate {
   readonly id: string;
   readonly inspectAbbrev: string;
-  readonly frame: 'small' | 'large';
-  readonly kind: 'land' | 'sea' | 'air';
+  readonly frame: "small" | "large";
+  readonly kind: "land" | "sea" | "air";
   readonly crystals: number;
   readonly upgrades: readonly Upgrade[];
-  constructor (
+  constructor(
     id: string,
     inspectAbbrev: string,
-    frame: 'small' | 'large',
-    kind: 'land' | 'sea' | 'air',
+    frame: "small" | "large",
+    kind: "land" | "sea" | "air",
     crystals: number,
     upgrades: readonly Upgrade[],
   ) {
@@ -41,70 +41,106 @@ export class VehicleTemplate {
   }
 
   get job() {
-    return JOBS[this.kind]
+    return JOBS[this.kind];
   }
 }
 
 export const HOVER_SCOUT = new VehicleTemplate(
   "VehicleHoverScout_C",
   "HoSc",
-  'small',
-  'land',  1, ["UpEngine"]);
+  "small",
+  "land",
+  1,
+  ["UpEngine"],
+);
 export const SMALL_DIGGER = new VehicleTemplate(
   "VehicleSmallDigger_C",
   "SmDi",
-  'small',
-  'land',  1, ["UpEngine", "UpDrill"]);
+  "small",
+  "land",
+  1,
+  ["UpEngine", "UpDrill"],
+);
 export const SMALL_TRANSPORT_TRUCK = new VehicleTemplate(
   "VehicleSmallTransportTruck_C",
   "SmTT",
-  'small',
-  'land',  2, ["UpEngine", "UpCargoHold"]);
+  "small",
+  "land",
+  2,
+  ["UpEngine", "UpCargoHold"],
+);
 export const RAPID_RIDER = new VehicleTemplate(
   "VehicleRapidRider_C",
   "RaRr",
-  'small',
-  'sea',   2, ["UpAddDrill", "UpCargoHold"]);
+  "small",
+  "sea",
+  2,
+  ["UpAddDrill", "UpCargoHold"],
+);
 export const SMLC = new VehicleTemplate(
   "VehicleSMLC_C",
   "SMLC",
-  'small',
-  'land',  3, ["UpEngine", "UpLaser"]);
+  "small",
+  "land",
+  3,
+  ["UpEngine", "UpLaser"],
+);
 export const TUNNEL_SCOUT = new VehicleTemplate(
   "VehicleTunnelScout_C",
   "TuSc",
-  'small',
-  'air',   3, ["UpAddDrill"]);
+  "small",
+  "air",
+  3,
+  ["UpAddDrill"],
+);
 export const LOADER_DOZER = new VehicleTemplate(
   "VehicleLoaderDozer_C",
   "LoDz",
-  'large',
-  'land',  5, ["UpEngine"]);
+  "large",
+  "land",
+  5,
+  ["UpEngine"],
+);
 export const GRANITE_GRINDER = new VehicleTemplate(
   "VehicleGraniteGrinder_C",
   "GrGr",
-  'large',
-  'land',  5, ["UpEngine", "UpDrill"]);
+  "large",
+  "land",
+  5,
+  ["UpEngine", "UpDrill"],
+);
 export const CARGO_CARRIER = new VehicleTemplate(
   "VehicleCargoCarrier_C",
   "CaCa",
-  'large',
-  'sea',   5, ["UpAddNav"]);
+  "large",
+  "sea",
+  5,
+  ["UpAddNav"],
+);
 export const LMLC = new VehicleTemplate(
   "VehicleLMLC_C",
   "LMLC",
-  'large',
-  'land',  8, ["UpEngine", "UpLaser", "UpAddNav"]);
+  "large",
+  "land",
+  8,
+  ["UpEngine", "UpLaser", "UpAddNav"],
+);
 export const CHROME_CRUSHER = new VehicleTemplate(
   "VehicleChromeCrusher_C",
   "CrCr",
-  'large',
-  'land',  8, ["UpEngine", "UpDrill", "UpLaser", "UpScanner"]);
+  "large",
+  "land",
+  8,
+  ["UpEngine", "UpDrill", "UpLaser", "UpScanner"],
+);
 export const TUNNEL_TRANSPORT = new VehicleTemplate(
   "VehicleTunnelTransport_C",
   "TuTr",
-  'large',
-  'air',  10, []);
+  "large",
+  "air",
+  10,
+  [],
+);
 
 export type Vehicle = EntityPosition & {
   readonly id: number;

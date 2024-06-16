@@ -32,7 +32,21 @@ import fence from "../transformers/03_plastic/00_fence";
 import serialize from "../transformers/04_ephemera/03_serialize";
 import goldenTest from "./golden";
 import strataflux from "../transformers/03_plastic/03_strataflux";
-import { CARGO_CARRIER, CHROME_CRUSHER, GRANITE_GRINDER, HOVER_SCOUT, LMLC, LOADER_DOZER, RAPID_RIDER, SMALL_DIGGER, SMALL_TRANSPORT_TRUCK, SMLC, TUNNEL_SCOUT, TUNNEL_TRANSPORT, VehicleFactory } from "../models/vehicle";
+import {
+  CARGO_CARRIER,
+  CHROME_CRUSHER,
+  GRANITE_GRINDER,
+  HOVER_SCOUT,
+  LMLC,
+  LOADER_DOZER,
+  RAPID_RIDER,
+  SMALL_DIGGER,
+  SMALL_TRANSPORT_TRUCK,
+  SMLC,
+  TUNNEL_SCOUT,
+  TUNNEL_TRANSPORT,
+  VehicleFactory,
+} from "../models/vehicle";
 
 function fill<T>(
   grid: MutableGrid<T>,

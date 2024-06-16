@@ -36,5 +36,5 @@ export function pairMap<U, V>(
 }
 
 export function filterTruthy<T>(it: (T | null | false | undefined)[]): T[] {
-  return it.filter(n => n) as T[];
+  return it.filter((n) => n) as T[];
 }
