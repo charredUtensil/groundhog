@@ -61,7 +61,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "River",
     ...BASE,
-    crystals: ({ plan }) => 3 * plan.crystalRichness * plan.perimeter,
+    crystalsToPlace: ({ plan }) => 3 * plan.crystalRichness * plan.perimeter,
     ...new RoughOyster(
       { of: Rough.WATER, width: 2, grow: 1 },
       {

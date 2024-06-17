@@ -18,7 +18,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
-import { getPlaceRechargeSeams } from "./utils/resources";
+import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
 import { escapeString, mkVars, transformPoint } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
@@ -255,8 +255,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
     { of: Rough.HARD_ROCK, grow: 0.25 },
   ),
-  crystals: ({ plan }) =>
-    plan.crystalRichness * plan.perimeter + plan.metadata.crystalsInBuildings,
+  crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
   maxSlope: 15,
   isHq: true,

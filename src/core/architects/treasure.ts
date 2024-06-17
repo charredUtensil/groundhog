@@ -26,7 +26,7 @@ const g = mkVars("gHoard", ["wasTriggered", "message", "crystalsAvailable"]);
 
 const HOARD: typeof BASE = {
   ...BASE,
-  crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 3,
+  crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 3,
   placeCrystals: (args) => {
     const wallBids = bidsForOrdinaryWalls(
       args.plan.innerPearl.flatMap((layer) => layer),

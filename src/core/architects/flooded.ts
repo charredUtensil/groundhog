@@ -146,7 +146,7 @@ const FLOODED: readonly Architect<unknown>[] = [
   {
     name: "Lava Stalagmite Cave",
     ...BASE,
-    crystals: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
+    crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
     ...new RoughOyster(
       {
         of: weightedSprinkle(

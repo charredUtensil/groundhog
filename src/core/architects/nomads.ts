@@ -2,7 +2,11 @@ import { Architect } from "../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
-import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
+import {
+  getPlaceRechargeSeams,
+  sprinkleCrystals,
+  sprinkleOre,
+} from "./utils/resources";
 import { atCenterOfTile, position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
 import {
@@ -44,7 +48,9 @@ const g = mkVars("gNomads", ["messageBuiltBase", "onBuiltBase"]);
 
 const BASE: PartialArchitect<Metadata> & { isNomads: true } = {
   ...DefaultCaveArchitect,
-  crystals: () => 5,
+  crystalsToPlace: () => 5,
+  crystalsFromMetadata: (metadata) =>
+    metadata.vehicles.reduce((r, v) => r + v.crystals, 0),
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 3, min: 1, max: 4 });
@@ -156,7 +162,8 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    crystals: ({ plan }) => Math.max(plan.crystalRichness * plan.perimeter, 5),
+    crystalsToPlace: ({ plan }) =>
+      Math.max(plan.crystalRichness * plan.perimeter, 5),
     ore: ({ plan }) => Math.max(plan.oreRichness * plan.perimeter, 10),
     placeOre: (args) => {
       return sprinkleOre(1, args);

@@ -38,7 +38,8 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
   }) =>
     ({
       baroqueness: ({ cavern }) => cavern.context[baroqueness],
-      crystals: ({ plan }) => plan.crystalRichness * plan.perimeter,
+      crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter,
+      crystalsFromMetadata: () => 0,
       ore: ({ plan }) => plan.oreRichness * plan.perimeter,
       prime: () => undefined,
       placeRechargeSeam: getPlaceRechargeSeams(),
