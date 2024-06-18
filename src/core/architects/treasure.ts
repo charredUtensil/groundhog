@@ -3,7 +3,7 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
-import { mkVars, transformPoint } from "./utils/script";
+import { eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
 import { getMonsterSpawner } from "./utils/monster_spawner";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
@@ -78,22 +78,27 @@ int ${g.crystalsAvailable}=0
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go", "noGo"]);
 
-    return `# Found Hoard ${plan.id}
-if(change:${centerPoint})[${v.onDiscovered}]
-${v.onDiscovered}::;
-((${g.wasTriggered}))return;
-${g.wasTriggered}=true;
-wait:1;
-${g.crystalsAvailable}=crystals+Crystal_C;
-((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];
-
-${v.go}::;
-msg:${g.message};
-pan:${centerPoint};
-
-${v.noGo}::;
-${g.wasTriggered}=false
-`;
+    return scriptFragment(
+      `# Found Hoard ${plan.id}`,
+      `if(change:${centerPoint})[${v.onDiscovered}]`,
+      eventChain(
+        v.onDiscovered,
+        `((${g.wasTriggered}))return;`,
+        `${g.wasTriggered}=true;`,
+        `wait:1;`,
+        `${g.crystalsAvailable}=crystals+Crystal_C;`,
+        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];`,
+      ),
+      eventChain(
+        v.go,
+        `msg:${g.message};`,
+        `pan:${centerPoint};`,
+      ),
+      eventChain(
+        v.noGo,
+        `${g.wasTriggered}=false;`
+      ),
+    )
   },
 };
 
