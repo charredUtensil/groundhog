@@ -29,6 +29,7 @@ import {
 import { Loadout } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
+import { gFoundHq } from "./established_hq";
 
 type Metadata = {
   readonly minersCount: number;
@@ -44,7 +45,12 @@ const VEHICLE_BIDS = [
   { item: null, bid: 1 },
 ] as const;
 
-const g = mkVars("gNomads", ["messageBuiltBase", "onBuiltBase"]);
+export const gNomads = mkVars("gNomads", [
+  "messageBuiltBase",
+  "onBuiltBase",
+  "onInit",
+  "onFoundHq",
+]);
 
 const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
@@ -147,7 +153,24 @@ const BASE: PartialArchitect<Metadata> = {
   },
   scriptGlobals({ cavern }) {
     if (cavern.plans.some((plan) => plan.architect.isHq)) {
-      return undefined;
+      // Has HQ: Disable everything until it's found.
+      return scriptFragment(
+        "Nomads Globals (With HQ)",
+        eventChain(
+          gNomads.onInit,
+          "disable:miners;",
+          "disable:buildings;",
+          "disable:vehicles;",
+        ),
+        `if(time:0)[${gNomads.onInit}]`,
+        eventChain(
+          gNomads.onFoundHq,
+          "enable:miners;",
+          "enable:buildings;",
+          "enable:vehicles;",
+        ),
+        `if(${gFoundHq.foundHq}>0)[${gNomads.onFoundHq}]`,
+      );
     }
 
     // Acknowledge the construction of a Support Station.
@@ -156,10 +179,10 @@ const BASE: PartialArchitect<Metadata> = {
     );
 
     return scriptFragment(
-      "# Nomads Globals",
-      `string ${g.messageBuiltBase}="${msg}"`,
-      eventChain(g.onBuiltBase, `msg:${g.messageBuiltBase};`),
-      `if(${SUPPORT_STATION.id}.new)[${g.onBuiltBase}]`,
+      "# Nomads Globals (No HQ)",
+      `string ${gNomads.messageBuiltBase}="${msg}"`,
+      eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
+      `if(${SUPPORT_STATION.id}.new)[${gNomads.onBuiltBase}]`,
     );
   },
   isNomads: true,

@@ -205,7 +205,7 @@ function getPlaceBuildings({
   };
 }
 
-const g = mkVars("gFoundHq", ["foundHq"]);
+export const gFoundHq = mkVars("gFoundHq", ["foundHq"]);
 
 const WITH_FIND_OBJECTIVE: Pick<
   Architect<Metadata>,
@@ -214,14 +214,14 @@ const WITH_FIND_OBJECTIVE: Pick<
   objectives: () => ({
     variables: [
       {
-        condition: `${g.foundHq}>0`,
+        condition: `${gFoundHq.foundHq}>0`,
         description: "Find the lost Rock Raider HQ",
       },
     ],
     sufficient: false,
   }),
   scriptGlobals: () => `# Objective: Find HQ
-int ${g.foundHq}=0`,
+int ${gFoundHq.foundHq}=0`,
   script: ({ cavern, plan }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
@@ -244,7 +244,7 @@ int ${g.foundHq}=0`,
         `msg:${v.messageDiscover};`,
         `pan:${transformPoint(cavern, camPoint)};`,
         `wait:1;`,
-        `${g.foundHq}=1;`,
+        `${gFoundHq.foundHq}=1;`,
       ),
     );
   },

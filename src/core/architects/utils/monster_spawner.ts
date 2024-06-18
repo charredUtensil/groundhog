@@ -112,7 +112,7 @@ export function getMonsterSpawner(
         ).flatMap((emerge) => [
           `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
           `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${monster.id},${emerge.radius};`,
-        ]),
+        ]) as `${string};`[],
         // Wait for the cooldown and retrigger if retriggering is enabled.
         args.retriggerMode !== "never" &&
           `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
