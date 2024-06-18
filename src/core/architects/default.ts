@@ -14,15 +14,11 @@ export type PartialArchitect<T> = Omit<
 export const [DefaultCaveArchitect, DefaultHallArchitect] = (
   [
     {
-      crystalSeamBias: "caveCrystalSeamBias",
-      oreSeamBias: "caveOreSeamBias",
       hasLandslidesChance: "caveHasLandslidesChance",
       landslideCooldownRange: "caveLandslideCooldownRange",
       baroqueness: "caveBaroqueness",
     },
     {
-      crystalSeamBias: "hallCrystalSeamBias",
-      oreSeamBias: "hallOreSeamBias",
       hasLandslidesChance: "hallHasLandslidesChance",
       landslideCooldownRange: "hallLandslideCooldownRange",
       baroqueness: "hallBaroqueness",
@@ -30,8 +26,6 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
   ] as const
 ).map(
   ({
-    crystalSeamBias,
-    oreSeamBias,
     hasLandslidesChance,
     landslideCooldownRange,
     baroqueness,
@@ -45,10 +39,10 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       placeRechargeSeam: getPlaceRechargeSeams(),
       placeBuildings: () => {},
       placeCrystals: (args) => {
-        return sprinkleCrystals(args.cavern.context[crystalSeamBias], args);
+        return sprinkleCrystals(args);
       },
       placeOre: (args) => {
-        return sprinkleOre(args.cavern.context[oreSeamBias], args);
+        return sprinkleOre(args);
       },
       placeLandslides: (args) => {
         if (
@@ -68,6 +62,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       monsterSpawnScript: () => undefined,
       isHq: false,
       isLostMiners: false,
+      isNomads: false,
       isRuin: false,
     }) as PartialArchitect<unknown>,
 );

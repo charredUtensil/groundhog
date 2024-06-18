@@ -36,6 +36,7 @@ const T3_BUILDINGS = [
 ] as const;
 
 const OMIT_T1 = T0_BUILDINGS.length;
+const MAX_HOPS = 3;
 
 type Metadata = {
   crystalsInBuildings: number;
@@ -75,11 +76,11 @@ function getPlaceBuildings({
     const bq: MakeBuildingFn[] = [];
     tq.some((bt, i) => {
       const include = (() => {
+        if (bt === TOOL_STORE) {
+          return true;
+        }
         if (crystalBudget < bt.crystals) {
           return false;
-        }
-        if (bt === TOOL_STORE) {
-          return asSpawn;
         }
         if (
           bt === DOCKS &&
@@ -199,7 +200,7 @@ function getPlaceBuildings({
 
     // Some crystals remain that were not used.
     if (crystalBudget > 0) {
-      // TODO: ?????
+      sprinkleCrystals(args, {count: crystalBudget, seamBias: 0});
     }
   };
 }
@@ -292,7 +293,8 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
-      hops.length <= 4 &&
+      hops.length <= MAX_HOPS &&
+      !hops.some(id => plans[id].fluid) &&
       !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: false,
@@ -307,9 +309,9 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
-      hops.length <= 4 &&
+      hops.length <= MAX_HOPS &&
       !plans.some((p) => p.architect?.isHq) &&
-      0.5,
+      (plans[hops[0]].architect!.isNomads ? 5 : 0.5),
     isRuin: true,
     ...WITH_FIND_OBJECTIVE,
   },

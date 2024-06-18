@@ -167,8 +167,8 @@ const FLOODED: readonly Architect<unknown>[] = [
     ),
     placeCrystals(args) {
       sprinkleCrystals(
-        Math.max(args.cavern.context.caveCrystalSeamBias, 0.6),
         args,
+        {seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.6)},
       );
     },
     caveBid: ({ plan }) =>

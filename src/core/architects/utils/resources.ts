@@ -51,36 +51,45 @@ function sprinkle(
 }
 
 export function sprinkleCrystals(
-  seamBias: number,
   args: Parameters<Architect<unknown>["placeCrystals"]>[0],
-  getRandomTile?: () => Point,
+  xargs?: {
+    count?: number,
+    getRandomTile?: () => Point,
+    seamBias?: number,
+  }
 ) {
   const rng = args.cavern.dice.placeCrystals(args.plan.id);
   return sprinkle(
-    getRandomTile ?? defaultGetRandomTile(rng, args),
-    seamBias,
+    xargs?.getRandomTile ?? defaultGetRandomTile(rng, args),
+    xargs?.seamBias ?? args.cavern.context[`${args.plan.kind}CrystalSeamBias`],
     rng,
     args.tiles,
     args.crystals,
     Tile.CRYSTAL_SEAM,
-    args.plan.crystals,
+    xargs?.count ?? (
+      args.plan.crystals -
+      args.plan.architect.crystalsFromMetadata(args.plan.metadata)
+    ),
   );
 }
 
 export function sprinkleOre(
-  seamBias: number,
   args: Parameters<Architect<unknown>["placeOre"]>[0],
-  getRandomTile?: () => Point,
+  xargs?: {
+    count?: number,
+    getRandomTile?: () => Point,
+    seamBias?: number,
+  }
 ) {
   const rng = args.cavern.dice.placeOre(args.plan.id);
   return sprinkle(
-    getRandomTile ?? defaultGetRandomTile(rng, args),
-    seamBias,
+    xargs?.getRandomTile ?? defaultGetRandomTile(rng, args),
+    xargs?.seamBias ?? args.cavern.context[`${args.plan.kind}OreSeamBias`],
     rng,
     args.tiles,
     args.ore,
     Tile.ORE_SEAM,
-    args.plan.ore,
+    xargs?.count ?? args.plan.ore,
   );
 }
 

@@ -4,10 +4,9 @@ import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
   getPlaceRechargeSeams,
-  sprinkleCrystals,
   sprinkleOre,
 } from "./utils/resources";
-import { atCenterOfTile, position, randomlyInTile } from "../models/position";
+import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
 import {
   escapeString,
@@ -28,7 +27,8 @@ import {
   Vehicle,
 } from "../models/vehicle";
 import { Loadout } from "../models/miner";
-import { filterTruthy } from "../common/utils";
+import { filterTruthy, pairEach } from "../common/utils";
+import { plotLine } from "../common/geometry";
 
 type Metadata = {
   readonly minersCount: number;
@@ -46,7 +46,7 @@ const VEHICLE_BIDS = [
 
 const g = mkVars("gNomads", ["messageBuiltBase", "onBuiltBase"]);
 
-const BASE: PartialArchitect<Metadata> & { isNomads: true } = {
+const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
   crystalsToPlace: () => 5,
   crystalsFromMetadata: (metadata) =>
@@ -54,13 +54,13 @@ const BASE: PartialArchitect<Metadata> & { isNomads: true } = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 3, min: 1, max: 4 });
-    const vehicles: VehicleTemplate[] = filterTruthy([
+    const vehicles = filterTruthy([
       rng.weightedChoice(VEHICLE_BIDS),
     ]);
     return { minersCount, vehicles };
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
-  placeBuildings: ({ plan, tiles, openCaveFlags }) => {
+  placeBuildings: ({ cavern, plan, tiles, openCaveFlags }) => {
     openCaveFlags.set(
       ...pickPoint(plan, (x, y) => {
         const t = tiles.get(x, y);
@@ -68,6 +68,16 @@ const BASE: PartialArchitect<Metadata> & { isNomads: true } = {
       })!,
       true,
     );
+    // If there is an HQ, ensure it is accessible to the nomads.
+    cavern.plans.find(p => p.architect.isHq)?.hops.forEach(hopId => {
+      pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
+        for (const pos of plotLine(a.center, b.center)) {
+          if (tiles.get(...pos) === Tile.HARD_ROCK) {
+            tiles.set(...pos, Tile.LOOSE_ROCK);
+          }
+        }
+      })
+    });
   },
   placeEntities: ({
     cavern,
@@ -87,11 +97,6 @@ const BASE: PartialArchitect<Metadata> & { isNomads: true } = {
           !cavern.tiles.get(x, y)!.isFluid
         ),
     )!;
-    const aimedAt = plan.path.baseplates[0].center;
-    setCameraPosition({
-      ...atCenterOfTile({ x, y, aimedAt }),
-      pitch: Math.PI / 4,
-    });
     const placedVehicles = plan.metadata.vehicles.map((template) => {
       if (template.kind === "sea") {
         const p = pickPoint(
@@ -133,12 +138,19 @@ const BASE: PartialArchitect<Metadata> & { isNomads: true } = {
       miners.push(miner);
     }
     vehicles.push(...placedVehicles);
+    setCameraPosition(position({
+      x: miners[0].x,
+      y: miners[0].y,
+      aimedAt: plan.path.baseplates[0].center,
+      pitch: Math.PI / 4,
+    }));
   },
   scriptGlobals({ cavern }) {
     if (cavern.plans.some((plan) => plan.architect.isHq)) {
       return undefined;
     }
 
+    // Acknowledge the construction of a Support Station.
     const msg = escapeString(
       cavern.lore.generateNomadsSettled(cavern.dice).text,
     );
@@ -166,7 +178,7 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
       Math.max(plan.crystalRichness * plan.perimeter, 5),
     ore: ({ plan }) => Math.max(plan.oreRichness * plan.perimeter, 10),
     placeOre: (args) => {
-      return sprinkleOre(1, args);
+      return sprinkleOre(args, {seamBias: 1});
     },
     spawnBid: ({ cavern, plan }) =>
       !plan.fluid &&

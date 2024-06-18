@@ -41,7 +41,10 @@ const HOARD: typeof BASE = {
       ...centerPoints.map((item) => ({ bid: 3 / centerPoints.length, item })),
     ];
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
-    sprinkleCrystals(0, args, () => rng.weightedChoice(bids));
+    sprinkleCrystals(args, {
+      getRandomTile: () => rng.weightedChoice(bids),
+      seamBias: 0,
+    });
   },
   placeEntities(args) {
     if (args.plan.pearlRadius > 3) {

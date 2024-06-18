@@ -133,6 +133,7 @@ export type BaseArchitect<T extends Readonly<T>> = {
 
   isHq: boolean;
   isLostMiners: boolean;
+  isNomads: boolean;
   isRuin: boolean;
 };
 
