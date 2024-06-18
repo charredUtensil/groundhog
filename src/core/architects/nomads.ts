@@ -156,20 +156,20 @@ const BASE: PartialArchitect<Metadata> = {
       // Has HQ: Disable everything until it's found.
       return scriptFragment(
         "Nomads Globals (With HQ)",
+        `if(time:0)[${gNomads.onInit}]`,
         eventChain(
           gNomads.onInit,
           "disable:miners;",
           "disable:buildings;",
           "disable:vehicles;",
         ),
-        `if(time:0)[${gNomads.onInit}]`,
+        `if(${gFoundHq.foundHq}>0)[${gNomads.onFoundHq}]`,
         eventChain(
           gNomads.onFoundHq,
           "enable:miners;",
           "enable:buildings;",
           "enable:vehicles;",
         ),
-        `if(${gFoundHq.foundHq}>0)[${gNomads.onFoundHq}]`,
       );
     }
 
@@ -181,8 +181,8 @@ const BASE: PartialArchitect<Metadata> = {
     return scriptFragment(
       "# Nomads Globals (No HQ)",
       `string ${gNomads.messageBuiltBase}="${msg}"`,
-      eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
       `if(${SUPPORT_STATION.id}.new)[${gNomads.onBuiltBase}]`,
+      eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
     );
   },
   isNomads: true,
