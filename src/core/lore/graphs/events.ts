@@ -135,3 +135,46 @@ export const FOUND_ALL_LOST_MINERS = phraseGraph<State>(
       .then(end);
   },
 );
+
+export const NOMADS_SETTLED = phraseGraph<State>(
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then("This seems like as good a place as any.", "Well done, Cadet.")
+      .then(
+        state("lostMinersOne")
+          .then(skip, state("resourceObjective"))
+          .then("Now, go find that lost Rock Raider!"),
+        state("lostMinersTogether", "lostMinersApart")
+          .then(skip, state("resourceObjective"))
+          .then("Now, go find those lost Rock Raiders!"),
+        state("resourceObjective").then(
+          "Now, collect ${resourceGoal}.",
+          "Those ${resourceGoalNamesOnly} are as good as ours!",
+        ),
+      )
+      .then(skip, state("hasMonsters"))
+      .then(end);
+
+    start
+      .then("With your base constructed, you should now have no problem")
+      .then(
+        state("lostMinersOne")
+          .then(skip, state("resourceObjective"))
+          .then("finding that lost Rock Raider!"),
+        state("lostMinersTogether", "lostMinersApart")
+          .then(skip, state("resourceObjective"))
+          .then("finding those lost Rock Raiders!"),
+        state("resourceObjective").then("collecting ${resourceGoal}!"),
+      )
+      .then(
+        skip,
+        state("hasMonsters").then(
+          skip,
+          "Don't forget to build plenty of Electric Fences in case those " +
+            "${enemies} come.",
+          "Just keep an eye out for those ${enemies}.",
+        ),
+      )
+      .then(end);
+  },
+);

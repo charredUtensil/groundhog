@@ -32,7 +32,21 @@ import fence from "../transformers/03_plastic/00_fence";
 import serialize from "../transformers/04_ephemera/03_serialize";
 import goldenTest from "./golden";
 import strataflux from "../transformers/03_plastic/03_strataflux";
-import { VehicleFactory, VehicleTemplate } from "../models/vehicle";
+import {
+  CARGO_CARRIER,
+  CHROME_CRUSHER,
+  GRANITE_GRINDER,
+  HOVER_SCOUT,
+  LMLC,
+  LOADER_DOZER,
+  RAPID_RIDER,
+  SMALL_DIGGER,
+  SMALL_TRANSPORT_TRUCK,
+  SMLC,
+  TUNNEL_SCOUT,
+  TUNNEL_TRANSPORT,
+  VehicleFactory,
+} from "../models/vehicle";
 
 function fill<T>(
   grid: MutableGrid<T>,
@@ -308,51 +322,51 @@ goldenTest("entity_zoo", () => {
   const vf = new VehicleFactory();
   const vehicles = [
     vf.create({
-      template: VehicleTemplate.HOVER_SCOUT,
+      template: HOVER_SCOUT,
       ...atCenterOfTile({ x: 0, y: 9, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.TUNNEL_SCOUT,
+      template: TUNNEL_SCOUT,
       ...atCenterOfTile({ x: 1, y: 9, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.SMALL_DIGGER,
+      template: SMALL_DIGGER,
       ...atCenterOfTile({ x: 0, y: 10, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.SMALL_TRANSPORT_TRUCK,
+      template: SMALL_TRANSPORT_TRUCK,
       ...atCenterOfTile({ x: 1, y: 10, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.SMLC,
+      template: SMLC,
       ...atCenterOfTile({ x: 2, y: 10, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.LOADER_DOZER,
+      template: LOADER_DOZER,
       ...atCenterOfTile({ x: 0, y: 11, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.GRANITE_GRINDER,
+      template: GRANITE_GRINDER,
       ...atCenterOfTile({ x: 2, y: 11, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.LMLC,
+      template: LMLC,
       ...atCenterOfTile({ x: 4, y: 11, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.CHROME_CRUSHER,
+      template: CHROME_CRUSHER,
       ...atCenterOfTile({ x: 6, y: 11, facing: EAST }),
     }),
     vf.create({
-      template: VehicleTemplate.RAPID_RIDER,
+      template: RAPID_RIDER,
       ...atCenterOfTile({ x: 11, y: 9, facing: WEST }),
     }),
     vf.create({
-      template: VehicleTemplate.CARGO_CARRIER,
+      template: CARGO_CARRIER,
       ...atCenterOfTile({ x: 11, y: 11, facing: WEST }),
     }),
     vf.create({
-      template: VehicleTemplate.TUNNEL_TRANSPORT,
+      template: TUNNEL_TRANSPORT,
       ...atCenterOfTile({ x: 6, y: 9, facing: WEST }),
     }),
   ];

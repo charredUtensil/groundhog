@@ -9,6 +9,7 @@ import {
   FOUND_HOARD,
   FOUND_HQ,
   FOUND_LOST_MINERS,
+  NOMADS_SETTLED,
 } from "./graphs/events";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
@@ -52,6 +53,7 @@ enum Die {
   foundHoard,
   foundHq,
   foundAllLostMiners,
+  nomadsSettled,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -158,6 +160,7 @@ type Results = {
   readonly foundHq?: GenerateResult<State>;
   readonly foundLostMiners?: GenerateResult<FoundLostMinersState>;
   readonly foundAllLostMiners?: GenerateResult<State>;
+  readonly nomadsSettled?: GenerateResult<State>;
 };
 
 export class Lore {
@@ -277,6 +280,16 @@ export class Lore {
     );
     this._results = { ...this._results, foundAllLostMiners };
     return foundAllLostMiners;
+  }
+
+  generateNomadsSettled(dice: DiceBox) {
+    const nomadsSettled = NOMADS_SETTLED.generate(
+      dice.lore(Die.nomadsSettled),
+      this.state,
+      this.vars,
+    );
+    this._results = { ...this._results, nomadsSettled };
+    return nomadsSettled;
   }
 
   get results() {

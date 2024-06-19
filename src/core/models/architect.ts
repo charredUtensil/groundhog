@@ -53,7 +53,8 @@ export type BaseArchitect<T extends Readonly<T>> = {
   prime(args: PrimeArgs): T;
 
   baroqueness(args: EstablishArgs<T>): number;
-  crystals(args: EstablishArgs<T>): number;
+  crystalsToPlace(args: EstablishArgs<T>): number;
+  crystalsFromMetadata(metadata: T): number;
   ore(args: EstablishArgs<T>): number;
 
   roughExtent(plan: EstablishedPlan): number;
@@ -132,6 +133,7 @@ export type BaseArchitect<T extends Readonly<T>> = {
 
   isHq: boolean;
   isLostMiners: boolean;
+  isNomads: boolean;
   isRuin: boolean;
 };
 

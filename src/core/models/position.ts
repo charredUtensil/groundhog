@@ -37,6 +37,7 @@ export type EntityPosition = {
 const POSITION_DEFAULTS = {
   z: 0,
   pitch: 0,
+  yaw: 0,
   roll: 0,
   scaleX: 1,
   scaleY: 1,
@@ -46,8 +47,17 @@ const POSITION_DEFAULTS = {
 export function position(
   args: EntityPositionArgs & Partial<EntityPosition>,
 ): EntityPosition {
-  const yaw = getYaw(args) ?? 0;
-  return { ...POSITION_DEFAULTS, ...args, yaw };
+  return {
+    x: args.x,
+    y: args.y,
+    z: args.z ?? POSITION_DEFAULTS.z,
+    pitch: args.pitch ?? POSITION_DEFAULTS.pitch,
+    yaw: getYaw(args) ?? POSITION_DEFAULTS.yaw,
+    roll: args.roll ?? POSITION_DEFAULTS.roll,
+    scaleX: args.scaleX ?? POSITION_DEFAULTS.scaleX,
+    scaleY: args.scaleY ?? POSITION_DEFAULTS.scaleY,
+    scaleZ: args.scaleZ ?? POSITION_DEFAULTS.scaleZ,
+  };
 }
 
 export const atCenterOfTile: (args: EntityPositionArgs) => EntityPosition = (

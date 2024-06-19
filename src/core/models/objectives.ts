@@ -14,16 +14,13 @@ export function serializeObjectives({
   studs,
   variables,
 }: Objectives): string {
-  const result = [];
+  const result = variables.map(
+    ({ condition, description }) => `variable:${condition}/${description}`,
+  );
   if (crystals || ore || studs) {
     result.push(
       `resources: ${crystals.toFixed()},${ore.toFixed()},${studs.toFixed()}`,
     );
   }
-  result.push(
-    ...variables.map(
-      ({ condition, description }) => `variable:${condition}/${description}`,
-    ),
-  );
   return result.join("\n");
 }

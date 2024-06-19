@@ -18,9 +18,9 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
-import { getPlaceRechargeSeams } from "./utils/resources";
+import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
-import { escapeString, mkVars, transformPoint } from "./utils/script";
+import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
 
 const DESTROY_PATH_CHANCE = 0.62;
@@ -36,6 +36,7 @@ const T3_BUILDINGS = [
 ] as const;
 
 const OMIT_T1 = T0_BUILDINGS.length;
+const MAX_HOPS = 3;
 
 type Metadata = {
   crystalsInBuildings: number;
@@ -75,11 +76,11 @@ function getPlaceBuildings({
     const bq: MakeBuildingFn[] = [];
     tq.some((bt, i) => {
       const include = (() => {
+        if (bt === TOOL_STORE) {
+          return true;
+        }
         if (crystalBudget < bt.crystals) {
           return false;
-        }
-        if (bt === TOOL_STORE) {
-          return asSpawn;
         }
         if (
           bt === DOCKS &&
@@ -199,12 +200,12 @@ function getPlaceBuildings({
 
     // Some crystals remain that were not used.
     if (crystalBudget > 0) {
-      // TODO: ?????
+      sprinkleCrystals(args, {count: crystalBudget, seamBias: 0});
     }
   };
 }
 
-const g = mkVars("gFoundHq", ["foundHq"]);
+export const gFoundHq = mkVars("gFoundHq", ["foundHq"]);
 
 const WITH_FIND_OBJECTIVE: Pick<
   Architect<Metadata>,
@@ -213,14 +214,14 @@ const WITH_FIND_OBJECTIVE: Pick<
   objectives: () => ({
     variables: [
       {
-        condition: `${g.foundHq}>0`,
+        condition: `${gFoundHq.foundHq}>0`,
         description: "Find the lost Rock Raider HQ",
       },
     ],
     sufficient: false,
   }),
   scriptGlobals: () => `# Objective: Find HQ
-int ${g.foundHq}=0`,
+int ${gFoundHq.foundHq}=0`,
   script: ({ cavern, plan }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
@@ -232,16 +233,20 @@ int ${g.foundHq}=0`,
     }).center;
 
     const v = mkVars(`p${plan.id}FoundHq`, ["messageDiscover", "onDiscover"]);
+    const message = cavern.lore.generateFoundHq(cavern.dice).text;
 
-    return `# Objective: Find the lost Rock Raider HQ
-string ${v.messageDiscover}="${escapeString(cavern.lore.generateFoundHq(cavern.dice).text)}"
-if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]
-${v.onDiscover}::;
-msg:${v.messageDiscover};
-pan:${transformPoint(cavern, camPoint)};
-wait:1;
-${g.foundHq}=1;
-`;
+    return scriptFragment(
+      `# Objective: Find the lost Rock Raider HQ`,
+      `string ${v.messageDiscover}="${escapeString(message)}"`,
+      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
+      eventChain(
+        v.onDiscover,
+        `msg:${v.messageDiscover};`,
+        `pan:${transformPoint(cavern, camPoint)};`,
+        `wait:1;`,
+        `${gFoundHq.foundHq}=1;`,
+      ),
+    );
   },
 };
 
@@ -255,8 +260,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
     { of: Rough.HARD_ROCK, grow: 0.25 },
   ),
-  crystals: ({ plan }) =>
-    plan.crystalRichness * plan.perimeter + plan.metadata.crystalsInBuildings,
+  crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
   maxSlope: 15,
   isHq: true,
@@ -293,7 +297,8 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
-      hops.length <= 4 &&
+      hops.length <= MAX_HOPS &&
+      !hops.some(id => plans[id].fluid) &&
       !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: false,
@@ -308,9 +313,9 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
-      hops.length <= 4 &&
+      hops.length <= MAX_HOPS &&
       !plans.some((p) => p.architect?.isHq) &&
-      0.5,
+      (plans[hops[0]].architect!.isNomads ? 5 : 0.5),
     isRuin: true,
     ...WITH_FIND_OBJECTIVE,
   },

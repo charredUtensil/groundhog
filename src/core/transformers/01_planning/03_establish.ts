@@ -157,7 +157,10 @@ export default function establish(
   function doEstablish<T>(plan: ArchitectedPlan<T>) {
     const args = { cavern, plan, totalCrystals };
     const baroqueness = plan.architect.baroqueness(args);
-    const crystals = Math.round(plan.architect.crystals(args));
+    const crystals = Math.round(
+      plan.architect.crystalsToPlace(args) +
+        plan.architect.crystalsFromMetadata(plan.metadata),
+    );
     totalCrystals += crystals;
     const ore = Math.round(plan.architect.ore(args));
     const established: EstablishedPlan = {

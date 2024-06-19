@@ -10,7 +10,7 @@ import { position } from "../models/position";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect,
-  crystals: () => 5,
+  crystalsToPlace: () => 5,
   placeRechargeSeam: getPlaceRechargeSeams(1),
   placeBuildings: (args) => {
     const [toolStore] = getBuildings(
@@ -73,7 +73,7 @@ const SIMPLE_SPAWN: readonly Architect<unknown>[] = [
     name: "Open Spawn with Bonus Crystals",
     ...BASE,
     ...OPEN,
-    crystals: () => 9,
+    crystalsToPlace: () => 9,
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius >= 2 && 0.01,
   },
 ];

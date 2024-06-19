@@ -10,8 +10,12 @@ import { Tile } from "../models/tiles";
 import {
   Vehicle,
   VehicleFactory,
-  AnyVehicleTemplate,
   VehicleTemplate,
+  HOVER_SCOUT,
+  RAPID_RIDER,
+  SMALL_DIGGER,
+  SMALL_TRANSPORT_TRUCK,
+  TUNNEL_SCOUT,
 } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
@@ -19,7 +23,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { pickPoint } from "./utils/placement";
-import { escapeString, mkVars, transformPoint } from "./utils/script";
+import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
 
 type Metadata = {
   readonly minersCount: number;
@@ -100,12 +104,12 @@ function placeBreadcrumbVehicle(
 ) {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const template = rng.weightedChoice<AnyVehicleTemplate | null>([
-    { item: VehicleTemplate.HOVER_SCOUT, bid: fluid ? 0 : 2 },
-    { item: VehicleTemplate.SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
-    { item: VehicleTemplate.SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
-    { item: VehicleTemplate.RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
-    { item: VehicleTemplate.TUNNEL_SCOUT, bid: 0.25 },
+  const template = rng.weightedChoice<VehicleTemplate | null>([
+    { item: HOVER_SCOUT, bid: fluid ? 0 : 2 },
+    { item: SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
+    { item: SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
+    { item: RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
+    { item: TUNNEL_SCOUT, bid: 0.25 },
     { item: null, bid: 0.0025 },
   ]);
   if (template) {
@@ -196,15 +200,19 @@ const BASE: PartialArchitect<Metadata> = {
   },
   scriptGlobals({ cavern }) {
     const lostMiners = countLostMiners(cavern);
-    return `# Lost Miners Globals
-int ${g.lostMinersCount}=${lostMiners}
-int ${g.done}=0
-string ${g.messageFoundAll}="${escapeString(cavern.lore.generateFoundAllLostMiners(cavern.dice).text)}"
-${g.onFoundAll}::;
-msg:${g.messageFoundAll};
-wait:3;
-${g.done}=1;
-`;
+    const message = cavern.lore.generateFoundAllLostMiners(cavern.dice).text;
+    return scriptFragment(
+      `# Lost Miners Globals`,
+      `int ${g.lostMinersCount}=${lostMiners}`,
+      `int ${g.done}=0`,
+      `string ${g.messageFoundAll}="${escapeString(message)}"`,
+      eventChain(
+        g.onFoundAll,
+        `msg:${g.messageFoundAll};`,
+        `wait:3;`,
+        `${g.done}=1;`,
+      ),
+    )
   },
   script({ cavern, plan }) {
     const lostMinersPoint = transformPoint(
@@ -221,17 +229,21 @@ ${g.done}=1;
       "onDiscover",
       "onIncomplete",
     ]);
-    return `# Found Lost Miners ${plan.id}
-string ${v.messageDiscover}="${escapeString(message)}"
-if(change:${lostMinersPoint})[${v.onDiscover}]
-${v.onDiscover}::;
-pan:${lostMinersPoint};
-${g.lostMinersCount}=${g.lostMinersCount}-${plan.metadata.minersCount};
-((${g.lostMinersCount}>0))[${v.onIncomplete}][${g.onFoundAll}];
-
-${v.onIncomplete}::;
-msg:${v.messageDiscover};
-`;
+    return scriptFragment(
+      `# Found Lost Miners ${plan.id}`,
+      `string ${v.messageDiscover}="${escapeString(message)}"`,
+      `if(change:${lostMinersPoint})[${v.onDiscover}]`,
+      eventChain(
+        v.onDiscover,
+        `pan:${lostMinersPoint};`,
+        `${g.lostMinersCount}-=${plan.metadata.minersCount};`,
+        `((${g.lostMinersCount}>0))[${v.onIncomplete}][${g.onFoundAll}];`,
+      ),
+      eventChain(
+        v.onIncomplete,
+        `msg:${v.messageDiscover};`,
+      ),
+    )
   },
   isLostMiners: true,
 };
