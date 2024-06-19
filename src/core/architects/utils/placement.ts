@@ -1,5 +1,5 @@
 import { PseudorandomStream } from "../../common";
-import { Cardinal4, NSEW } from "../../common/geometry";
+import { NSEW } from "../../common/geometry";
 import { filterTruthy } from "../../common/utils";
 import { Plan } from "../../models/plan";
 import { EntityPosition, position } from "../../models/position";
