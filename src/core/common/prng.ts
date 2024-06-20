@@ -106,6 +106,7 @@ enum Die {
   monsterSpawnScript,
   brace,
   height,
+  placeSlugHoles,
 }
 
 /**
@@ -181,6 +182,7 @@ export class DiceBox {
   placeBuildings = (id: number) => this.prng(Die.placeBuildings, id);
   placeCrystals = (id: number) => this.prng(Die.placeCrystals, id);
   placeOre = (id: number) => this.prng(Die.placeOre, id);
+  placeSlugHoles = (id: number) => this.prng(Die.placeSlugHoles, id);
 
   placeLandslides = (id: number) => this.prng(Die.placeLandslides, id);
   placeErosion = (id: number) => this.prng(Die.placeErosion, id);

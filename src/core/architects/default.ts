@@ -1,4 +1,5 @@
 import { Architect } from "../models/architect";
+import { sprinkleSlugHoles } from "./utils/creatures";
 import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
   getPlaceRechargeSeams,
@@ -43,6 +44,9 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       },
       placeOre: (args) => {
         return sprinkleOre(args);
+      },
+      placeSlugHoles(args) {
+        return sprinkleSlugHoles(args);
       },
       placeLandslides: (args) => {
         if (

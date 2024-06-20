@@ -230,7 +230,7 @@ const BASE: PartialArchitect<Metadata> = {
       "onIncomplete",
     ]);
     return scriptFragment(
-      `# Found Lost Miners ${plan.id}`,
+      `# Lost Miners ${plan.id}`,
       `string ${v.messageDiscover}="${escapeString(message)}"`,
       `if(change:${lostMinersPoint})[${v.onDiscover}]`,
       eventChain(

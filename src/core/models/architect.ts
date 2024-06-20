@@ -92,6 +92,11 @@ export type BaseArchitect<T extends Readonly<T>> = {
     readonly tiles: MutableGrid<Tile>;
     readonly ore: MutableGrid<number>;
   }): void;
+  placeSlugHoles(args: {
+    readonly cavern: RoughPlasticCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly tiles: MutableGrid<Tile>;
+  }): void;
 
   placeLandslides(args: {
     readonly cavern: StrataformedCavern;

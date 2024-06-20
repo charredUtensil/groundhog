@@ -39,3 +39,28 @@ export function placeSleepingMonsters(
   );
   args.creatures.push(...r);
 }
+
+export function sprinkleSlugHoles(
+  args: Parameters<Architect<unknown>["placeSlugHoles"]>[0],
+  count?: number,
+) {
+  const rng = args.cavern.dice.placeSlugHoles(args.plan.id);
+  const c = count ?? (rng.chance(args.cavern.context[`${args.plan.kind}HasSlugHoleChance`]) ? 1 : 0);
+  var placements = args.plan.innerPearl.flatMap(
+    layer => layer.filter(pos => args.tiles.get(...pos) === Tile.FLOOR)
+  );
+  for (var i = 1; i <= c && !!placements.length; i++) {
+    const [x, y] = rng.uniformChoice(placements);
+    args.tiles.set(x, y, Tile.SLUG_HOLE);
+    if (i === c) {
+      return;
+    }
+    // Don't place another slug hole on or adjacent to this one.
+    placements = placements.filter(([x1, y1]) =>
+      x1 < x - 1 ||
+      x1 > x + 1 ||
+      y1 < y - 1 ||
+      y1 > y + 1
+    );
+  }
+}

@@ -7,6 +7,7 @@ import { getBuildings } from "./utils/buildings";
 import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { position } from "../models/position";
+import { sprinkleSlugHoles } from "./utils/creatures";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect,
@@ -32,6 +33,10 @@ const BASE: typeof DefaultCaveArchitect = {
         pitch: Math.PI / 4,
       }),
     );
+  },
+  placeSlugHoles: (args) => {
+    const count = args.cavern.context.hasSlugs ? args.cavern.dice.placeSlugHoles(args.plan.id).betaInt({a: 1.5, b: 2, min: 1, max: 4}) : undefined;
+    sprinkleSlugHoles(args, count);
   },
   maxSlope: 15,
 };

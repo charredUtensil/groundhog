@@ -13,7 +13,8 @@ const monsterSpawner = getMonsterSpawner({
 
 const BASE: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect,
-  monsterSpawnScript: ({ cavern, plan }) => {
+  placeSlugHoles() {},
+  monsterSpawnScript({ cavern, plan }) {
     if (cavern.context.biome === "ice" && plan.fluid === Tile.LAVA) {
       return undefined;
     }

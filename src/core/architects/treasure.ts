@@ -27,7 +27,7 @@ const g = mkVars("gHoard", ["wasTriggered", "message", "crystalsAvailable"]);
 const HOARD: typeof BASE = {
   ...BASE,
   crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 3,
-  placeCrystals: (args) => {
+  placeCrystals(args) {
     const wallBids = bidsForOrdinaryWalls(
       args.plan.innerPearl.flatMap((layer) => layer),
       args.tiles,
@@ -46,6 +46,7 @@ const HOARD: typeof BASE = {
       seamBias: 0,
     });
   },
+  placeSlugHoles() {},
   placeEntities(args) {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
@@ -79,7 +80,7 @@ int ${g.crystalsAvailable}=0
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go", "noGo"]);
 
     return scriptFragment(
-      `# Found Hoard ${plan.id}`,
+      `# Hoard ${plan.id}`,
       `if(change:${centerPoint})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,

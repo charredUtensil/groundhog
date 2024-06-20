@@ -220,9 +220,11 @@ const WITH_FIND_OBJECTIVE: Pick<
     ],
     sufficient: false,
   }),
-  scriptGlobals: () => `# Objective: Find HQ
-int ${gFoundHq.foundHq}=0`,
-  script: ({ cavern, plan }) => {
+  scriptGlobals: () => scriptFragment(
+    '# Lost HQ Globals',
+    `int ${gFoundHq.foundHq}=0`,
+  ),
+  script({ cavern, plan }) {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
       throw new Error("Cave has Find HQ objective but no undiscovered points.");
@@ -236,7 +238,7 @@ int ${gFoundHq.foundHq}=0`,
     const message = cavern.lore.generateFoundHq(cavern.dice).text;
 
     return scriptFragment(
-      `# Objective: Find the lost Rock Raider HQ`,
+      `# Lost HQ ${plan.id}`,
       `string ${v.messageDiscover}="${escapeString(message)}"`,
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
       eventChain(
