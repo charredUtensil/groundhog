@@ -8,13 +8,15 @@ export type AdjuredCavern = PopulatedCavern & {
 };
 
 export default function adjure(cavern: PopulatedCavern): AdjuredCavern {
-  const objectives = Array.from(
-    cavern.plans.reduce(
-      (r, plan) => r.add(plan.architect),
-      new Set<Architect<unknown>>(),
-    ),
-  )
-    .map((architect) => architect.objectives({ cavern }))
+  const objectives = cavern.plans
+    .reduce((r: Architect<unknown>['objectives'][], plan) => {
+      const fn = plan.architect.objectives;
+      if (!r.some(f => Object.is(fn, f))) {
+        r.push(fn);
+      }
+      return r;
+    }, [])
+    .map((fn) => fn({ cavern }))
     .reduce(
       (r: Objectives & { sufficient: boolean }, obj) => ({
         crystals: Math.max(r.crystals ?? 0, obj?.crystals ?? 0),

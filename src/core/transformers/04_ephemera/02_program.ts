@@ -7,21 +7,6 @@ export type ProgrammedCavern = EnscribedCavern & {
   readonly script: string;
 };
 
-const gSlugs = mkVars('gSlugs', ['initSlugs'])
-
-function slugScript(cavern: EnscribedCavern) {
-  if (!cavern.context.hasSlugs) {
-    return undefined;
-  }
-  return scriptFragment(
-    '# Spawn Slugs',
-    `if(time:120)[${gSlugs.initSlugs}]`,
-    eventChain(gSlugs.initSlugs,
-      'startrandomspawn:SlimySlug;'
-    ),
-  );
-}
-
 export default function program(cavern: EnscribedCavern): ProgrammedCavern {
   // All unique globals function objects
   const globalsFns = Array.from(cavern.plans
@@ -34,11 +19,15 @@ export default function program(cavern: EnscribedCavern): ProgrammedCavern {
     }, []));
   const script = filterTruthy([
     ...globalsFns.map((fn) => fn({ cavern })),
-    slugScript(cavern),
     ...cavern.plans.map((plan) => plan.architect.script({ cavern, plan })),
     ...(
       cavern.context.hasMonsters
       ? cavern.plans.map((plan) => plan.architect.monsterSpawnScript({ cavern, plan }))
+      : []
+    ),
+    ...(
+      cavern.context.hasSlugs
+      ? cavern.plans.map((plan) => plan.architect.slugSpawnScript({ cavern, plan }))
       : []
     ),
   ]).join("\n");

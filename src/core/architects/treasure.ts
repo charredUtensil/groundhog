@@ -4,16 +4,16 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
-import { getMonsterSpawner } from "./utils/monster_spawner";
+import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: PartialArchitect<unknown> & { isTreasure: true } = {
+const BASE: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect,
   isTreasure: true,
   objectives: ({ cavern }) => {
     const crystals = cavern.plans
-      .filter((plan) => "isTreasure" in plan.architect)
+      .filter((plan) => plan.architect.isTreasure)
       .reduce((r, plan) => Math.max(r, plan.crystals), 0);
     if (crystals < 15) {
       return undefined;
@@ -54,10 +54,10 @@ const HOARD: typeof BASE = {
       placeSleepingMonsters(args, rng, count);
     }
   },
-  monsterSpawnScript: getMonsterSpawner({
-    retriggerMode: "hoard",
-    spawnRateMultiplier: 3.5,
-    waveSizeMultiplier: 1.5,
+  monsterSpawnScript: (args) => monsterSpawnScript(args, {
+    meanWaveSize: args.plan.monsterWaveSize * 1.5,
+    rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
+    spawnRate: args.plan.monsterSpawnRate * 3.5,
   }),
   scriptGlobals({ cavern }) {
     if (!cavern.objectives.crystals) {
@@ -77,7 +77,7 @@ int ${g.crystalsAvailable}=0
     // of the crystals would win the level.
     // TODO(charredutensil): Need to figure out clashes with lost miners
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
-    const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go", "noGo"]);
+    const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
       `# Hoard ${plan.id}`,
@@ -87,17 +87,15 @@ int ${g.crystalsAvailable}=0
         `((${g.wasTriggered}))return;`,
         `${g.wasTriggered}=true;`,
         `wait:1;`,
+        // Count all the crystals in storage and on the floor.
         `${g.crystalsAvailable}=crystals+Crystal_C;`,
-        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];`,
+        // If this is enough to win the level, alert the player.
+        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${g.wasTriggered}=false];`,
       ),
       eventChain(
         v.go,
         `msg:${g.message};`,
         `pan:${centerPoint};`,
-      ),
-      eventChain(
-        v.noGo,
-        `${g.wasTriggered}=false;`
       ),
     )
   },
@@ -105,14 +103,14 @@ int ${g.crystalsAvailable}=0
 
 const RICH: typeof BASE = {
   ...BASE,
-  monsterSpawnScript: getMonsterSpawner({
+  monsterSpawnScript: (args) => monsterSpawnScript(args, {
+    meanWaveSize: args.plan.monsterWaveSize * 1.5,
     retriggerMode: "hoard",
-    spawnRateMultiplier: 2,
-    waveSizeMultiplier: 1.5,
+    spawnRate: args.plan.monsterSpawnRate * 2,
   }),
 };
 
-const TREASURE: readonly (Architect<unknown> & { isTreasure: true })[] = [
+const TREASURE: readonly (Architect<unknown>)[] = [
   {
     name: "Open Hoard",
     ...HOARD,

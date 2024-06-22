@@ -32,5 +32,5 @@ export function eventChain(
 }
 
 export function escapeString(s: string) {
-  return s.replace('"', '\\"');
+  return s.replace(/"/g, '\\"');
 }

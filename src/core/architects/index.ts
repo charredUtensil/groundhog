@@ -6,6 +6,7 @@ import NOMAD_SPAWN from "./nomads";
 import SIMPLE_CAVE from "./simple_cave";
 import SIMPLE_HALL from "./simple_hall";
 import SIMPLE_SPAWN from "./simple_spawn";
+import SLUG_NEST from "./slug_nest";
 import THIN_HALL from "./thin_hall";
 import TREASURE from "./treasure";
 
@@ -17,6 +18,7 @@ export const ARCHITECTS: readonly Architect<unknown>[] = [
   ...SIMPLE_CAVE,
   ...SIMPLE_HALL,
   ...SIMPLE_SPAWN,
+  ...SLUG_NEST,
   ...THIN_HALL,
   ...TREASURE,
 ];

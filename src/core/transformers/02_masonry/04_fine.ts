@@ -33,6 +33,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
       plan.architect.placeBuildings(args);
       plan.architect.placeCrystals(args);
       plan.architect.placeOre(args);
+      plan.architect.placeSlugHoles(args);
     },
   );
   return { ...cavern, ...diorama, cameraPosition };

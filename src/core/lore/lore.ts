@@ -1,5 +1,6 @@
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
+import { filterTruthy } from "../common/utils";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/00_adjure";
 import { GenerateResult } from "./builder";
@@ -22,6 +23,7 @@ export type State = {
   readonly lostMinersApart: boolean;
   readonly resourceObjective: boolean;
   readonly hasMonsters: boolean;
+  readonly hasSlugs: boolean;
   readonly spawnHasErosion: boolean;
   readonly spawnIsHq: boolean;
   readonly spawnIsNomadOne: boolean;
@@ -118,21 +120,24 @@ const TENS = [
 ];
 
 function spellNumber(n: number): string {
-  if (n > 999) {
+  if (n > 999 || n < 0) {
     return n.toString();
   }
+  if (n === 0) {
+    return 'zero';
+  }
   const result: string[] = [];
-  while (n > 0) {
-    if (n >= 100) {
-      result.push(`${spellNumber(Math.floor(n / 100))} hundred`);
-      n %= 100;
-    } else if (n >= 20) {
-      result.push(TENS[Math.floor(n / 10) - 2]);
-      n %= 10;
-    } else {
-      result.push(ONES[n - 1]);
-      n = 0;
-    }
+  if (n >= 100) {
+    result.push(`${spellNumber(Math.floor(n / 100))} hundred`);
+    n %= 100;
+  }
+  if (n >= 20) {
+    result.push(TENS[Math.floor(n / 10) - 2]);
+    n %= 10;
+  }
+  if (n > 0) {
+    result.push(ONES[n - 1]);
+    n = 0;
   }
   return result.join(" ");
 }
@@ -179,12 +184,12 @@ export class Lore {
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq && hq.architect.isRuin;
 
-    const nomads = (spawn.architect as any).isNomads
+    const nomads = spawn.architect.isNomads
       ? ((spawn.metadata as any).minersCount as number)
       : 0;
 
     const treasures = cavern.plans.reduce(
-      (r, plan) => ((plan.architect as any).isTreasure ? r + 1 : r),
+      (r, plan) => (plan.architect.isTreasure ? r + 1 : r),
       0,
     );
 
@@ -199,6 +204,7 @@ export class Lore {
         cavern.objectives.ore > 0 ||
         cavern.objectives.studs > 0,
       hasMonsters: cavern.context.hasMonsters,
+      hasSlugs: cavern.context.hasSlugs,
       spawnHasErosion: spawn.hasErosion,
       spawnIsHq,
       findHq,
@@ -208,14 +214,20 @@ export class Lore {
       treasureCaveOne: treasures === 1,
       treasureCaveMany: treasures > 1,
     };
-    this.vars = {
-      lostMinersCount: spellNumber(lostMiners),
-      lostMinerCavesCount: spellNumber(lostMinerCaves),
-      enemies: {
+
+    const enemies = filterTruthy([
+      cavern.context.hasMonsters && {
         rock: "Rock Monsters",
         ice: "Ice Monsters",
         lava: "Lava Monsters",
       }[cavern.context.biome],
+      cavern.context.hasSlugs && "Slimy Slugs"
+    ]).join(" and ");
+
+    this.vars = {
+      enemies,
+      lostMinersCount: spellNumber(lostMiners),
+      lostMinerCavesCount: spellNumber(lostMinerCaves),
       ...spellResourceGoal(cavern),
     };
   }

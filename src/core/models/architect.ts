@@ -135,11 +135,17 @@ export type BaseArchitect<T extends Readonly<T>> = {
     cavern: EnscribedCavern;
     plan: PlanWithMetadata<T>;
   }): string | undefined;
+  slugSpawnScript(args: {
+    cavern: EnscribedCavern;
+    plan: PlanWithMetadata<T>;
+  }): string | undefined;
 
   isHq: boolean;
   isLostMiners: boolean;
   isNomads: boolean;
   isRuin: boolean;
+  isSlugNest: boolean;
+  isTreasure: boolean;
 };
 
 export type Architect<T> = BaseArchitect<T> &
