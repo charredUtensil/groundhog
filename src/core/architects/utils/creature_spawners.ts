@@ -17,6 +17,7 @@ type CreatureSpawnerArgs = {
   rng: PseudorandomStream;
   spawnRate?: number;
   triggerOnFirstArmed: boolean;
+  triggerPoints?: readonly Point[];
   waveSize?: number;
 };
 
@@ -102,7 +103,7 @@ function creatureSpawnScript(
 
   const discoveryPoint = getDiscoveryPoint(cavern, plan);
   const emerges = getEmerges(plan, opts.rng, waveSize);
-  const triggerPoints = getTriggerPoints(cavern, plan);
+  const triggerPoints = opts.triggerPoints ?? getTriggerPoints(cavern, plan);
 
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Spawner`, [
     "needCrystals",

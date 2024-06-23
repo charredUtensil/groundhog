@@ -26,7 +26,9 @@ export default function HeightPreview({ height }: { height: Grid<number> }) {
             cx={x * SCALE}
             cy={y * SCALE}
             r={3}
-          />
+          >
+            <title>{h}</title>
+          </circle>
         );
       })}
     </g>

@@ -1,4 +1,5 @@
 import { Biome, PseudorandomStream } from "../../common";
+import { Point } from "../../common/geometry";
 import { Architect } from "../../models/architect";
 import { monsterForBiome } from "../../models/creature";
 import { Tile } from "../../models/tiles";
@@ -42,11 +43,14 @@ export function placeSleepingMonsters(
 
 export function sprinkleSlugHoles(
   args: Parameters<Architect<unknown>["placeSlugHoles"]>[0],
-  count?: number,
+  opts?: {
+    count?: number,
+    placements?: readonly Point[],
+  }
 ) {
   const rng = args.cavern.dice.placeSlugHoles(args.plan.id);
-  const c = count ?? (rng.chance(args.cavern.context[`${args.plan.kind}HasSlugHoleChance`]) ? 1 : 0);
-  var placements = args.plan.innerPearl.flatMap(
+  const c = opts?.count ?? (rng.chance(args.cavern.context[`${args.plan.kind}HasSlugHoleChance`]) ? 1 : 0);
+  var placements = opts?.placements ?? args.plan.innerPearl.flatMap(
     layer => layer.filter(pos => args.tiles.get(...pos) === Tile.FLOOR)
   );
   for (var i = 1; i <= c && !!placements.length; i++) {
