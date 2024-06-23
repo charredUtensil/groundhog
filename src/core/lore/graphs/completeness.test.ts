@@ -42,6 +42,7 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   start
     .then(skip, state("floodedWithLava", "floodedWithWater"))
     .then(skip, state("hasMonsters"))
+    .then(skip, state("hasSlugs"))
     .then(skip, state("spawnHasErosion"))
     .then(skip, state("treasureCaveOne", "treasureCaveMany"))
     .then(

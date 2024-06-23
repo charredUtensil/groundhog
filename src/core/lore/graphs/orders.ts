@@ -24,9 +24,16 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   start
     .then(
       state("hasMonsters")
+        .then(skip, state("hasSlugs"))
         .then(
           "defend the Rock Radier HQ",
           "build up your defenses",
+          "arm your Rock Raiders",
+        )
+        .then("and"),
+      state("hasSlugs")
+        .then(
+          "defend the Rock Radier HQ",
           "arm your Rock Raiders",
         )
         .then("and"),

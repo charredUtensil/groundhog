@@ -14,7 +14,7 @@ const TILES = {
   RUBBLE_2:           {id:  3, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 2, inspectColor: "#180032"},
   RUBBLE_3:           {id:  4, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 3, inspectColor: "#180032"},
   RUBBLE_4:           {id:  5, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 4, inspectColor: "#180032"},
-  SLUG_HOLE:          {id: 12, isWall: false, isFluid: false, maxSlope:        15, crystalYield: 0, oreYield: 0, inspectColor: "#BD2020"},
+  SLUG_HOLE:          {id: 12, isWall: false, isFluid: false, maxSlope:        15, crystalYield: 0, oreYield: 0, inspectColor: "#166921"},
   FOUNDATION:         {id: 14, isWall: false, isFluid: false, maxSlope:        15, crystalYield: 0, oreYield: 0, inspectColor: "#BFBFBF"},
   POWER_PATH:         {id: 24, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 0, inspectColor: "#9D9B00"},
   LANDSLIDE_RUBBLE_4: {id: 60, isWall: false, isFluid: false, maxSlope: undefined, crystalYield: 0, oreYield: 0, inspectColor: "#180032"},

@@ -150,7 +150,7 @@ export default function Stats({
           }
         }
       })()}
-      {cavern.briefing?.intro && <p>Briefing: {cavern.briefing.intro}</p>}
+      {cavern.briefing?.intro && <p>Briefing: {cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>}
     </div>
   );
 }
