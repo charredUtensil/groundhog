@@ -27,18 +27,13 @@ function caveWithOneBaseplate(plan: Partial<Plan>) {
         cy={y * SCALE}
         r={drawRadius(plan.pearlRadius!) * SCALE}
       />
-      <text className={styles.fg} x={x * SCALE} y={y * SCALE}>
-        {plan.id}
+      <text
+        className={styles.fg}
+        x={x * SCALE}
+        y={y * SCALE}
+      >
+        {plan.architect?.name} {plan.id}
       </text>
-      {plan.architect && (
-        <text
-          className={`${styles.fg} ${styles.architect}`}
-          x={x * SCALE}
-          y={y * SCALE}
-        >
-          {plan.architect.name}
-        </text>
-      )}
     </>
   );
 }
@@ -110,21 +105,12 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
     <>
       <path className={styles.bg} d={dWrapping(a, b)} />
       <text
-        className={`${styles.fg} ${styles.id}`}
+        className={styles.fg}
         x={x0 * SCALE}
         y={y0 * SCALE}
       >
-        {plan.id}
+        {plan.architect?.name} {plan.id}
       </text>
-      {plan.architect && (
-        <text
-          className={`${styles.fg} ${styles.architect}`}
-          x={x0 * SCALE}
-          y={y0 * SCALE}
-        >
-          {plan.architect.name}
-        </text>
-      )}
     </>
   );
 }
@@ -145,19 +131,14 @@ function hall(plan: Partial<Plan>) {
         d={d}
         fill="none"
         strokeWidth={drawRadius(plan.pearlRadius!) * 2 * SCALE}
-      />
+      >
+        <title>{plan.architect?.name} {plan.id}</title>
+      </path>
       <text className={styles.fg}>
         <textPath href={`#plan${plan.id}`} startOffset="50%">
-          {plan.id}
+          {plan.architect?.name} {plan.id}
         </textPath>
       </text>
-      {plan.architect && (
-        <text className={`${styles.fg} ${styles.architect}`}>
-          <textPath href={`#plan${plan.id}`} startOffset="50%">
-            {plan.architect.name}
-          </textPath>
-        </text>
-      )}
     </>
   );
 }

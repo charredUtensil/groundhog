@@ -75,7 +75,9 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
           "and",
           "and use it to",
           ", and when you are ready,",
-          state("hasMonsters")
+          pg(
+            state("hasMonsters").then(state("hasSlugs"), skip),
+            state("hasSlugs"))
             .then("and keep it safe.", "and make sure it is heavily defended.")
             .then("Then,", we_need.then(cut)),
         ),

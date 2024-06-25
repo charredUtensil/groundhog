@@ -18,6 +18,7 @@ import styles from "./App.module.scss";
 import { TILE_STYLE_VARS } from "../core/models/tiles";
 
 const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
+  { of: "overview", label: "Overview" },
   { of: "tiles", label: "Tiles" },
   { of: "crystals", label: "Crystals" },
   { of: "ore", label: "Ore" },

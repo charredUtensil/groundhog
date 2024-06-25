@@ -40,7 +40,22 @@ function getFill(
   y: number,
 ): string | null {
   switch (mapOverlay) {
+    case "overview":
+      {
+        for (let ox = -1; ox <= 1; ox++) {
+          for (let oy = -1; oy <= 1; oy++) {
+            if (cavern.discoveryZones?.get(x + ox, y + oy)?.openOnSpawn) {
+              return t.inspectColor;
+            }
+          }
+        }
+        return null;
+      }
     case "entities":
+      if (t === Tile.FOUNDATION) {
+        return t.inspectColor;
+      }
+      break;
     case "tiles":
       return t.inspectColor;
     case "crystals":
