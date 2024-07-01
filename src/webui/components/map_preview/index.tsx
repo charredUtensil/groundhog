@@ -1,4 +1,4 @@
-import React, { createRef, useLayoutEffect, useState } from "react";
+import React, { createRef } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -31,7 +31,7 @@ function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
     return undefined;
   }
   const {x, y, yaw, pitch} = cavern.cameraPosition;
-  return `scale(5) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`
+  return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`
 }
 
 export default function CavernPreview({

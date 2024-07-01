@@ -158,6 +158,7 @@ function getTitle(
     case "discovery":
       const dz = cavern.discoveryZones?.get(x, y);
       return dz && `${dz.openOnSpawn ? 'Cavern' : 'Undiscovered cavern'} ${dz.id}`;
+    case "overview":
     case "tiles":
       return t.name;
     case "about":

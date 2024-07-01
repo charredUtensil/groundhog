@@ -1,4 +1,3 @@
-import { eventChain, mkVars, scriptFragment } from "../../architects/utils/script";
 import { filterTruthy } from "../../common/utils";
 import { Architect } from "../../models/architect";
 import { EnscribedCavern } from "./01_enscribe";

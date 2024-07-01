@@ -51,6 +51,7 @@ const SLUG_HALL: PartialArchitect<unknown> = {
   slugSpawnScript: (args) => {
     const holes = getSlugHoles(args);
     return slugSpawnScript(args, {
+      emerges: holes.map(([x, y]) => ({x, y, radius: 1})),
       initialCooldown: { min: 60, max: 120 },
       needCrystals: { base: args.plan.crystals * 2, increment: args.plan.crystals },
       triggerPoints: holes,

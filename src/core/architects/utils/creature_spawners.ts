@@ -9,6 +9,7 @@ import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
 
 type CreatureSpawnerArgs = {
   creature: CreatureTemplate;
+  emerges?: readonly Emerge[];
   initialCooldown?: { min: number; max: number };
   maxTriggerCount?: number;
   meanWaveSize?: number;
@@ -36,12 +37,21 @@ const RETRIGGER_MODES = {
 
 export type RetriggerMode = keyof typeof RETRIGGER_MODES;
 
-function getEmerges(plan: Plan, rng: PseudorandomStream, waveSize: number) {
-  const emerges = plan.path.baseplates.map((bp) => {
+type Emerge = {
+  readonly x: number,
+  readonly y: number,
+  readonly radius: number,
+};
+
+function getEmerges(plan: Plan): Emerge[] {
+  return plan.path.baseplates.map((bp) => {
     const [x, y] = bp.center;
     return { x: Math.floor(x), y: Math.floor(y), radius: bp.pearlRadius };
   });
-  const result: typeof emerges = [];
+}
+
+function cycleEmerges(emerges: readonly Emerge[], rng: PseudorandomStream, waveSize: number) {
+  const result: Emerge[] = [];
   while (result.length < waveSize) {
     result.push(...rng.shuffle(emerges));
   }
@@ -102,7 +112,7 @@ function creatureSpawnScript(
   };
 
   const discoveryPoint = getDiscoveryPoint(cavern, plan);
-  const emerges = getEmerges(plan, opts.rng, waveSize);
+  const emerges = cycleEmerges(opts.emerges ?? getEmerges(plan), opts.rng, waveSize);
   const triggerPoints = opts.triggerPoints ?? getTriggerPoints(cavern, plan);
 
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Spawner`, [

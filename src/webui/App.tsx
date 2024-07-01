@@ -66,7 +66,7 @@ function App() {
   );
 
   const [autoGenerate, setAutoGenerate] = useState(true);
-  const [mapOverlay, setMapOverlay] = useState<MapOverlay>("tiles");
+  const [mapOverlay, setMapOverlay] = useState<MapOverlay>("overview");
   const [showOutlines, setShowOutlines] = useState(false);
   const [showPearls, setShowPearls] = useState(false);
 
@@ -191,7 +191,7 @@ function App() {
           <button
             key={of}
             className={mapOverlay === of ? styles.active : styles.inactive}
-            onClick={() => setMapOverlay((v) => (v === of ? null : of))}
+            onClick={() => setMapOverlay((v) => (v === of ? "overview" : of))}
           >
             {label}
           </button>
