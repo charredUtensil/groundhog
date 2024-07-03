@@ -32,5 +32,5 @@ export function eventChain(name: string, ...rest: (`${string};` | Falsy)[]) {
 }
 
 export function escapeString(s: string) {
-  return s.replace(/"/g, '\\"');
+  return s.replace(/\\/g, "").replace(/"/g, '\\"');
 }
