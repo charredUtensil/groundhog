@@ -182,15 +182,15 @@ export default function TilesPreview({
   }
   const boundsFill = getBoundsFill(mapOverlay);
   return (
-    <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}>
+    <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`} style={{scale: `${SCALE}`}}>
       {boundsFill && cavern.top && (
         <rect
           className={styles.bounds}
           fill={boundsFill}
-          x={cavern.left! * SCALE}
-          y={cavern.top! * SCALE}
-          width={(cavern.right! - cavern.left!) * SCALE}
-          height={(cavern.bottom! - cavern.top!) * SCALE}
+          x={cavern.left!}
+          y={cavern.top!}
+          width={(cavern.right! - cavern.left!)}
+          height={(cavern.bottom! - cavern.top!)}
         />
       )}
       {cavern.tiles.map((t, x, y) => {
@@ -204,10 +204,10 @@ export default function TilesPreview({
             key={`${x},${y}`}
             className={styles.tile}
             fill={fill}
-            x={x * SCALE}
-            y={y * SCALE}
-            width={SCALE}
-            height={SCALE}
+            x={x}
+            y={y}
+            width={1}
+            height={1}
           >
             {title && <title>{title}</title>}
           </rect>

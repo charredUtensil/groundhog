@@ -1,14 +1,88 @@
 import { Mutable } from "../../../common";
 import { Grid, MutableGrid } from "../../../common/grid";
-import { Tile } from "../../../models/tiles";
+import { pairEach } from "../../../common/utils";
 import { StrataformedCavern } from "../02_strataform";
 import { CORNER_OFFSETS } from "./base";
 
-export type Edge = {
-  // The maximum slope when going up toward the positive axis
-  readonly forwardSlope: number,
-  // The maximum slope when going up toward the negative axis
-  readonly backwardSlope: number,
+
+type Edge = {
+  readonly to: readonly [number, number]; 
+  readonly ascent: number;
+  readonly descent: number;
+}
+
+type EdgeData = {
+  readonly x1: number;
+  readonly y1: number;
+  readonly x2: number;
+  readonly y2: number;
+  forward: number;
+  backward: number;
+}
+
+class EdgeMap {
+  private readonly data = new Map<`${number},${number},${number},${number}`, EdgeData>();
+
+  get(x1: number, y1: number, x2: number, y2: number): {ascent: number, descent: number} | undefined {
+    if (x1 < x2 || (x1 === x2 && y1 <= y2)) {
+      const r = this.data.get(`${x1},${y1},${x2},${y2}`);
+      return r && {ascent: r.forward, descent: r.backward};
+    }
+    const r = this.data.get(`${x2},${y2},${x1},${y1}`);
+    return r && {ascent: r.backward, descent: r.forward};
+  }
+  set(x1: number, y1: number, x2: number, y2: number, ascent: number, descent: number) {
+    if (x1 === x2 && y1 === y2) {
+      return;
+    }
+    if (x1 < x2 || (x1 === x2 && y1 < y2)) {
+      const r = this.data.get(`${x1},${y1},${x2},${y2}`);
+      if (r) {
+        r.forward = Math.min(r.forward, ascent);
+        r.backward = Math.min(r.backward, descent);
+      } else {
+        this.data.set(`${x1},${y1},${x2},${y2}`, {
+          x1,
+          y1,
+          x2,
+          y2,
+          forward: ascent,
+          backward: descent,
+        });
+      }
+    } else {
+      const r = this.data.get(`${x2},${y2},${x1},${y1}`);
+      if (r) {
+        r.forward = Math.min(r.forward, descent);
+        r.backward = Math.min(r.backward, ascent);
+      } else {
+        this.data.set(`${x2},${y2},${x1},${y1}`, {
+          x1: x2,
+          y1: y2,
+          x2: x1,
+          y2: y1,
+          forward: descent,
+          backward: ascent,
+        });
+      }
+    }
+  }
+  edges(): Grid<readonly Edge[]> {
+    const result = new MutableGrid<Edge[]>;
+    function get(x: number, y: number) {
+      let r = result.get(x, y);
+      if (!r) {
+        r = [];
+        result.set(x, y, r);
+      }
+      return r;
+    }
+    this.data.forEach(({x1, y1, x2, y2, forward, backward}) => {
+      get(x1, y1).push({to: [x2, y2], ascent: forward, descent: backward});
+      get(x2, y2).push({to: [x1, y1], ascent: backward, descent: forward});
+    });
+    return result;
+  }
 }
 
 // Each tile has a maximum slope its edges are allowed to have.
@@ -46,69 +120,17 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   return result;
 }
 
-// Turns the given point into a "bowl" where this point and all points around
-// it up to the given size must slope downward toward this point.
-function bowlify(
-  x: number,
-  y: number,
-  size: number,
-  edgesH: MutableGrid<Mutable<Edge>>,
-  edgesV: MutableGrid<Mutable<Edge>>,
-) {
-  for (let i = 0; i <= size;  i++) {
-    for (let j = -i; j <= i; j++) {
-      edgesH.get(x + i, y + j)!.backwardSlope = 0;
-      edgesH.get(x - i - 1, y + j)!.forwardSlope = 0;
-      edgesV.get(x + j, y + i)!.backwardSlope = 0;
-      edgesV.get(x + j, y - i - 1)!.forwardSlope = 0;
-    }
-  }
-}
+export default function getEdgeMap(cavern: StrataformedCavern): EdgeMap {
+  const edges = new EdgeMap();
 
-export default function getEdges(cavern: StrataformedCavern): {edgesH: Grid<Edge>, edgesV: Grid<Edge>} {
-  const tileSlopes = getTileSlopes(cavern);
-
-  const edgesH = new MutableGrid<Mutable<Edge>>();
-  for (let x = cavern.left; x < cavern.right; x++) {
-    for (let y = cavern.top + 1; y < cavern.bottom; y++) {
-      const slope = Math.min(
-        tileSlopes.get(x, y - 1)!,
-        tileSlopes.get(x, y)!,
-      );
-      edgesH.set(x, y, {forwardSlope: slope, backwardSlope: slope});
-    }
-  }
-  const edgesV = new MutableGrid<Mutable<Edge>>();
-  for (let x = cavern.left + 1; x < cavern.right; x++) {
-    for (let y = cavern.top; y < cavern.bottom; y++) {
-      const slope = Math.min(
-        tileSlopes.get(x - 1, y)!,
-        tileSlopes.get(x, y)!,
-      );
-      edgesV.set(x, y, {forwardSlope: slope, backwardSlope: slope});
-    }
-  }
-
-  const bowls = new MutableGrid<number>();
-  cavern.tiles.forEach((tile, x, y) => {
-    let size;
-    if (tile === Tile.WATER) {
-      size = 1;
-    } else if (tile === Tile.LAVA) {
-      size = 1;
-    } else if (cavern.pearlInnerDex.get(x, y)?.some(p => cavern.plans[p].hasErosion)) {
-      size = 0;
-    } else {
-      return;
-    }
-    CORNER_OFFSETS.forEach(([ox, oy]) => {
-      bowls.set(x + ox, y + oy, Math.max(
-        size,
-        bowls.get(x + ox, y + oy) ?? 0),
-      );
-    });
+  getTileSlopes(cavern).forEach((slope, x1, y1) => {
+    const x2 = x1 + 1;
+    const y2 = y1 + 1;
+    edges.set(x1, y1, x2, y1, slope, slope);
+    edges.set(x1, y1, x1, y2, slope, slope);
+    edges.set(x2, y1, x2, y2, slope, slope);
+    edges.set(x1, y2, x2, y2, slope, slope);
   });
-  bowls.forEach((size, x, y) => bowlify(x, y, size, edgesH, edgesV));
 
-  return {edgesH, edgesV};
+  return edges;
 }

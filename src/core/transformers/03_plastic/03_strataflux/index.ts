@@ -1,7 +1,7 @@
 import { PseudorandomStream } from "../../../common";
 import { Grid, MutableGrid } from "../../../common/grid";
 import { StrataformedCavern } from "../02_strataform";
-import getCorners, { Corner } from "./corners";
+import getNodes, { HeightNode } from "./nodes";
 
 // The "strataflux" algorithm is particularly complex mostly because it
 // involves many data structures and concepts that are not really used
@@ -34,29 +34,29 @@ function superflat(cavern: StrataformedCavern): Grid<number> {
   return result;
 }
 
-const collapseQueueSort = ({ range: a }: Corner, { range: b }: Corner) => b - a;
+const collapseQueueSort = ({ range: a }: HeightNode, { range: b }: HeightNode) => b - a;
 
-function getRandomHeight(corner: Corner, rng: PseudorandomStream): number {
-  if (corner.min === corner.max) {
-    return corner.min;
+function getRandomHeight(node: HeightNode, rng: PseudorandomStream): number {
+  if (node.min === node.max) {
+    return node.min;
   }
   const targetInRange = (() => {
-    if (corner.target === undefined) {
+    if (node.target === undefined) {
       return 0.5;
     }
-    if (corner.target <= corner.min) {
+    if (node.target <= node.min) {
       return 0;
     }
-    if (corner.target >= corner.max) {
+    if (node.target >= node.max) {
       return 1;
     }
-    return (corner.target - corner.min) / (corner.max - corner.min);
+    return (node.target - node.min) / (node.max - node.min);
   })();
   return rng.betaInt({
     a: 1 + 3 * targetInRange,
     b: 1 + 3 * (1 - targetInRange),
-    min: corner.min,
-    max: corner.max + 1,
+    min: node.min,
+    max: node.max + 1,
   });
 }
 
@@ -68,63 +68,65 @@ export default function strataflux(
     return { ...cavern, height: superflat(cavern) };
   }
 
-  const corners = getCorners(cavern);
+  const nodes = getNodes(cavern);
   const height = new MutableGrid<number>();
   const rng = cavern.dice.height;
 
   // The collapse queue is a priority queue. The algorithm will always take the
-  // corner with the smallest possible range of values.
-  const collapseQueue: Corner[] = corners
+  // node with the smallest possible range of values.
+  const collapseQueue: HeightNode[] = nodes
     .map(c => c).filter(c => c.collapseQueued);
   
-  // Collapsing a corner means picking a specific height in range for that corner.
+  // Collapsing a node means picking a specific height in range for that node.
   const collapse = () => {
-    const corner = collapseQueue.pop()!;
-    const h = getRandomHeight(corner, rng);
-    height.set(corner.x, corner.y, h);
-    corner.min = h;
-    corner.max = h;
-    corner.range = 0;
-    return corner;
+    const node = collapseQueue.pop()!;
+    const h = getRandomHeight(node, rng);
+    for (let i = 0; i < node.corners.length; i++) {
+      height.set(...node.corners[i], h);
+    }
+    node.min = h;
+    node.max = h;
+    node.range = 0;
+    return node;
   };
 
   // I think this algorithm is like O(n^4) where N is the size of the cavern,
   // so try to save some performance where possible.
 
   while (collapseQueue.length) {
-    // Take a corner off the collapse queue and collapse it.
+    // Take a node off the collapse queue and collapse it.
     // Then, put it on the spread queue.
     const spreadQueue = [collapse()];
     while (spreadQueue.length) {
-      // Take a corner off the spread queue.
-      const corner = spreadQueue.shift()!;
-      // Spread to each of this corner's neighbors.
-      for (let i = 0; i < corner.neighbors.length; i++) {
-        const neighbor = corner.neighbors[i];
+      // Take a node off the spread queue.
+      const node = spreadQueue.shift()!;
+      // Spread to each of this node's neighbors.
+      for (let i = 0; i < node.neighbors.length; i++) {
+        const neighbor = node.neighbors[i];
         // If the neighbor is already collapsed, nothing to do.
-        if (!neighbor.corner.range) {
+        if (!neighbor.node.range) {
           continue;
         }
         // Pull the neighbor's minimum up and maximum down to fit within the
         // allowed ascent/descent slope for this edge.
-        neighbor.corner.min = Math.max(
-          neighbor.corner.min,
-          corner.min - neighbor.descent,
+        neighbor.node.min = Math.max(
+          neighbor.node.min,
+          node.min - neighbor.descent,
         );
-        neighbor.corner.max = Math.min(
-          neighbor.corner.max,
-          corner.max + neighbor.ascent,
+        neighbor.node.max = Math.min(
+          neighbor.node.max,
+          node.max + neighbor.ascent,
         );
-        const range = neighbor.corner.max - neighbor.corner.min;
+        const range = neighbor.node.max - neighbor.node.min;
         // If the neighbor's range has shrunk,
-        if (range < neighbor.corner.range) {
-          neighbor.corner.range = range;
+        if (range < neighbor.node.range) {
+          neighbor.node.range = range;
           // put it on the spread queue
-          spreadQueue.push(neighbor.corner);
+          spreadQueue.push(neighbor.node);
           // and put it on the collapse queue if it wasn't already.
-          if (!neighbor.corner.collapseQueued) {
-            neighbor.corner.collapseQueued = true;
-            collapseQueue.push(neighbor.corner);
+          if (!neighbor.node.collapseQueued) {
+            neighbor.node.collapseQueued = true;
+            collapseQueue.push(neighbor.node);
           }
         }
       }

@@ -17,18 +17,16 @@ function toColor(h: number) {
 
 export default function HeightPreview({ height }: { height: Grid<number> }) {
   return (
-    <g className={styles.height}>
+    <g className={styles.height} style={{scale: `${SCALE}`}}>
       {height.map((h, x, y) => {
         return (
-          <circle
+          <path
             key={`${x},${y}`}
             fill={toColor(h)}
-            cx={x * SCALE}
-            cy={y * SCALE}
-            r={3}
+            d={`M${x + 0.5},${y} L${x},${y + 0.5} L${x - 0.5},${y} L${x},${y - 0.5} Z`}
           >
             <title>{h}</title>
-          </circle>
+          </path>
         );
       })}
     </g>
