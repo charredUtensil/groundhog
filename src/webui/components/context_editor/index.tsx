@@ -82,7 +82,7 @@ export function CavernContextInput({
     [context, dispatchState],
   );
   const contextWithDefaults = inferContextDefaults(context);
-  const rest = {update, context, contextWithDefaults};
+  const rest = { update, context, contextWithDefaults };
 
   return (
     <div className={styles.contextInput}>
@@ -135,39 +135,17 @@ export function CavernContextInput({
                   <div className={styles.invisible} />
                 )}
               </div>
-              <Choice
-                of="biome"
-                choices={["rock", "ice", "lava"]}
-                {...rest}
-              />
-              <Choice
-                of="hasMonsters"
-                choices={[true, false]}
-                {...rest}
-              />
-              <Choice
-                of="hasSlugs"
-                choices={[true, false]}
-                {...rest}
-              />
+              <Choice of="biome" choices={["rock", "ice", "lava"]} {...rest} />
+              <Choice of="hasMonsters" choices={[true, false]} {...rest} />
+              <Choice of="hasSlugs" choices={[true, false]} {...rest} />
             </div>
           </div>
           <div className={styles.section}>
             <h2>Outlines</h2>
             <div className={styles.subsection}>
               <h3>Partition</h3>
-              <Slider
-                of="targetSize"
-                min={40}
-                max={100}
-                {...rest}
-              />
-              <Slider
-                of="baseplateMaxOblongness"
-                min={0}
-                max={10}
-                {...rest}
-              />
+              <Slider of="targetSize" min={40} max={100} {...rest} />
+              <Slider of="baseplateMaxOblongness" min={0} max={10} {...rest} />
               <Slider
                 of="baseplateMaxRatioOfSize"
                 min={0}
@@ -178,21 +156,11 @@ export function CavernContextInput({
             </div>
             <div className={styles.subsection}>
               <h3>Discriminate</h3>
-              <Slider
-                of="caveCount"
-                min={2}
-                max={50}
-                {...rest}
-              />
+              <Slider of="caveCount" min={2} max={50} {...rest} />
             </div>
             <div className={styles.subsection}>
               <h3>Weave</h3>
-              <Slider
-                of="auxiliaryPathCount"
-                min={0}
-                max={50}
-                {...rest}
-              />
+              <Slider of="auxiliaryPathCount" min={0} max={50} {...rest} />
               <Slider
                 of="auxiliaryPathMinAngle"
                 min={0}
@@ -268,20 +236,8 @@ export function CavernContextInput({
             </div>
             <div className={styles.subsection}>
               <h3>Pearl</h3>
-              <Slider
-                of="caveBaroqueness"
-                min={0}
-                max={1}
-                percent
-                {...rest}
-              />
-              <Slider
-                of="hallBaroqueness"
-                min={0}
-                max={1}
-                percent
-                {...rest}
-              />
+              <Slider of="caveBaroqueness" min={0} max={1} percent {...rest} />
+              <Slider of="hallBaroqueness" min={0} max={1} percent {...rest} />
             </div>
           </div>
           <div className={styles.section}>
@@ -361,13 +317,7 @@ export function CavernContextInput({
             <h2>Ephemera</h2>
             <div className={styles.subsection}>
               <h3>Adjure</h3>
-              <Slider
-                of="crystalGoalRatio"
-                min={0}
-                max={1}
-                percent
-                {...rest}
-              />
+              <Slider of="crystalGoalRatio" min={0} max={1} percent {...rest} />
             </div>
           </div>
         </>

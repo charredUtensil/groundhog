@@ -17,7 +17,7 @@ function toColor(h: number) {
 
 export default function HeightPreview({ height }: { height: Grid<number> }) {
   return (
-    <g className={styles.height} style={{scale: `${SCALE}`}}>
+    <g className={styles.height} style={{ scale: `${SCALE}` }}>
       {height.map((h, x, y) => {
         return (
           <path

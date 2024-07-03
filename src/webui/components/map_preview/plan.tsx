@@ -27,11 +27,7 @@ function caveWithOneBaseplate(plan: Partial<Plan>) {
         cy={y * SCALE}
         r={drawRadius(plan.pearlRadius!) * SCALE}
       />
-      <text
-        className={styles.fg}
-        x={x * SCALE}
-        y={y * SCALE}
-      >
+      <text className={styles.fg} x={x * SCALE} y={y * SCALE}>
         {plan.architect?.name} {plan.id}
       </text>
     </>
@@ -104,11 +100,7 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
   return (
     <>
       <path className={styles.bg} d={dWrapping(a, b)} />
-      <text
-        className={styles.fg}
-        x={x0 * SCALE}
-        y={y0 * SCALE}
-      >
+      <text className={styles.fg} x={x0 * SCALE} y={y0 * SCALE}>
         {plan.architect?.name} {plan.id}
       </text>
     </>
@@ -132,7 +124,9 @@ function hall(plan: Partial<Plan>) {
         fill="none"
         strokeWidth={drawRadius(plan.pearlRadius!) * 2 * SCALE}
       >
-        <title>{plan.architect?.name} {plan.id}</title>
+        <title>
+          {plan.architect?.name} {plan.id}
+        </title>
       </path>
       <text className={styles.fg}>
         <textPath href={`#plan${plan.id}`} startOffset="50%">

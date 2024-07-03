@@ -30,15 +30,18 @@ function getBowls(cavern: StrataformedCavern) {
       size = 2;
     } else if (tile === Tile.LAVA) {
       size = 2;
-    } else if (cavern.pearlInnerDex.get(x, y)?.some(p => cavern.plans[p].hasErosion)) {
+    } else if (
+      cavern.pearlInnerDex.get(x, y)?.some((p) => cavern.plans[p].hasErosion)
+    ) {
       size = 0;
     } else {
       return;
     }
     CORNER_OFFSETS.forEach(([ox, oy]) => {
-      result.set(x + ox, y + oy, Math.max(
-        size,
-        result.get(x + ox, y + oy) ?? 0),
+      result.set(
+        x + ox,
+        y + oy,
+        Math.max(size, result.get(x + ox, y + oy) ?? 0),
       );
     });
   });
@@ -50,12 +53,11 @@ function mkNode(cavern: StrataformedCavern, x: number, y: number): HeightNode {
   // Corners on the border are adjusted to a height of 0 when loaded in Manic
   // Miners. This means they should be compressed here, but this also gives
   // strataflux a starting point for which corners have known heights.
-  const isBorder = (
+  const isBorder =
     x === cavern.left ||
     x === cavern.right ||
     y === cavern.top ||
-    y === cavern.bottom
-  );
+    y === cavern.bottom;
   return {
     target,
     neighbors: [],
@@ -70,8 +72,9 @@ function mkNode(cavern: StrataformedCavern, x: number, y: number): HeightNode {
 function getNodesForBowls(cavern: StrataformedCavern, bowls: Grid<number>) {
   const result = new MutableGrid<HeightNode>();
   // oh hey look it's the same algorithm from discovery zones
-  const queue: { x: number; y: number; node: HeightNode | null }[] =
-    bowls.map((_, x, y) => ({ x, y, node: null }));
+  const queue: { x: number; y: number; node: HeightNode | null }[] = bowls.map(
+    (_, x, y) => ({ x, y, node: null }),
+  );
   while (queue.length > 0) {
     let { x, y, node } = queue.shift()!;
     if (!result.get(x, y)) {
@@ -83,7 +86,7 @@ function getNodesForBowls(cavern: StrataformedCavern, bowls: Grid<number>) {
         x: x + ox,
         y: y + oy,
         node,
-      })).filter(({x: x2, y: y2}) => bowls.get(x2, y2));
+      })).filter(({ x: x2, y: y2 }) => bowls.get(x2, y2));
       queue.unshift(...neighbors);
     }
   }
@@ -100,7 +103,7 @@ export default function getNodes(cavern: StrataformedCavern): Grid<HeightNode> {
   // Now create the rest of the node objects.
   for (let x = cavern.left; x <= cavern.right; x++) {
     for (let y = cavern.top; y <= cavern.bottom; y++) {
-      const node = nodes.get(x, y)
+      const node = nodes.get(x, y);
       if (node) {
         node.corners.push([x, y]);
       } else {
@@ -111,25 +114,29 @@ export default function getNodes(cavern: StrataformedCavern): Grid<HeightNode> {
 
   // Get the edge map with tile slopes precomputed.
   const edges = getEdgeMap(cavern);
-  
+
   // Add edges for bowls.
   bowls.forEach((size, x, y) => {
     const s = size + 1;
-    for (let ox = -s; ox <= s;  ox++) {
+    for (let ox = -s; ox <= s; ox++) {
       for (let oy = -s; oy <= s; oy++) {
         edges.set(x, y, x + ox, y + oy, Infinity, 0);
       }
     }
-  })
+  });
 
   // Convert edges to neighbors, linking them together.
   edges.edges().forEach((e, x1, y1) => {
     const node = nodes.get(x1, y1);
     if (node) {
-      const neighbors = e.map(
-        ({to, ascent, descent}) => ({node: nodes.get(...to), ascent, descent})
-      ).filter(({node: n}) => n && n !== node) as HeightNode['neighbors'];
-      (node.neighbors as Mutable<HeightNode['neighbors']>).push(...neighbors);
+      const neighbors = e
+        .map(({ to, ascent, descent }) => ({
+          node: nodes.get(...to),
+          ascent,
+          descent,
+        }))
+        .filter(({ node: n }) => n && n !== node) as HeightNode["neighbors"];
+      (node.neighbors as Mutable<HeightNode["neighbors"]>).push(...neighbors);
     }
   });
 

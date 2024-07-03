@@ -163,10 +163,9 @@ const FLOODED: readonly Architect<unknown>[] = [
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
     placeCrystals(args) {
-      sprinkleCrystals(
-        args,
-        {seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.6)},
-      );
+      sprinkleCrystals(args, {
+        seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.6),
+      });
     },
     caveBid: ({ plan }) =>
       plan.fluid === Tile.LAVA &&

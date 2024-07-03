@@ -23,7 +23,13 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { pickPoint } from "./utils/placement";
-import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
+import {
+  escapeString,
+  eventChain,
+  mkVars,
+  scriptFragment,
+  transformPoint,
+} from "./utils/script";
 
 type Metadata = {
   readonly minersCount: number;
@@ -212,7 +218,7 @@ const BASE: PartialArchitect<Metadata> = {
         `wait:3;`,
         `${g.done}=1;`,
       ),
-    )
+    );
   },
   script({ cavern, plan }) {
     const lostMinersPoint = transformPoint(
@@ -239,11 +245,8 @@ const BASE: PartialArchitect<Metadata> = {
         `${g.lostMinersCount}-=${plan.metadata.minersCount};`,
         `((${g.lostMinersCount}>0))[${v.onIncomplete}][${g.onFoundAll}];`,
       ),
-      eventChain(
-        v.onIncomplete,
-        `msg:${v.messageDiscover};`,
-      ),
-    )
+      eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
+    );
   },
   isLostMiners: true,
 };

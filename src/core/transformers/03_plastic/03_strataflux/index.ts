@@ -7,10 +7,10 @@ import getNodes, { HeightNode } from "./nodes";
 // involves many data structures and concepts that are not really used
 // elsewhere. The bulk of the code is simply generating the data structures
 // needed to perform the algorithm, which work as follows:
-// 
+//
 // This algorithm deals with Tiles, Corners, and Edges - Tiles meaning the same
 // thing as in the rest of this project and the others defined thusly:
-// 
+//
 //      EdgeH [x, y] =====v
 //     Corner [x, y] => +--------+ <= Corner [x + 1, y]
 //                      |        |
@@ -34,7 +34,10 @@ function superflat(cavern: StrataformedCavern): Grid<number> {
   return result;
 }
 
-const collapseQueueSort = ({ range: a }: HeightNode, { range: b }: HeightNode) => b - a;
+const collapseQueueSort = (
+  { range: a }: HeightNode,
+  { range: b }: HeightNode,
+) => b - a;
 
 function getRandomHeight(node: HeightNode, rng: PseudorandomStream): number {
   if (node.min === node.max) {
@@ -75,8 +78,9 @@ export default function strataflux(
   // The collapse queue is a priority queue. The algorithm will always take the
   // node with the smallest possible range of values.
   const collapseQueue: HeightNode[] = nodes
-    .map(c => c).filter(c => c.collapseQueued);
-  
+    .map((c) => c)
+    .filter((c) => c.collapseQueued);
+
   // Collapsing a node means picking a specific height in range for that node.
   const collapse = () => {
     const node = collapseQueue.pop()!;
@@ -134,7 +138,7 @@ export default function strataflux(
     collapseQueue.sort(collapseQueueSort);
   }
 
-  debugger
+  debugger;
 
   return { ...cavern, height };
 }

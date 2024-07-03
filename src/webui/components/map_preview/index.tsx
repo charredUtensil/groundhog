@@ -30,8 +30,8 @@ function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
   if (mapOverlay !== "overview" || !cavern.cameraPosition) {
     return undefined;
   }
-  const {x, y, yaw, pitch} = cavern.cameraPosition;
-  return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`
+  const { x, y, yaw, pitch } = cavern.cameraPosition;
+  return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`;
 }
 
 export default function CavernPreview({
@@ -59,7 +59,7 @@ export default function CavernPreview({
           left: `calc(50% - ${size / 2}px)`,
           width: size,
           height: size,
-          transform: getTransform(cavern, mapOverlay)
+          transform: getTransform(cavern, mapOverlay),
         }}
         viewBox={`${size / -2} ${size / -2} ${size} ${size}`}
         xmlns="http://www.w3.org/2000/svg"
@@ -75,16 +75,40 @@ export default function CavernPreview({
         {showOutlines &&
           cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
         {cavern.buildings?.map((b, i) => (
-          <EntityPreview key={i} entity={b} mapOverlay={mapOverlay} cavern={cavern} building />
+          <EntityPreview
+            key={i}
+            entity={b}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            building
+          />
         ))}
         {cavern.creatures?.map((c) => (
-          <EntityPreview key={c.id} entity={c} mapOverlay={mapOverlay} cavern={cavern} creature />
+          <EntityPreview
+            key={c.id}
+            entity={c}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            creature
+          />
         ))}
         {cavern.miners?.map((m) => (
-          <EntityPreview key={m.id} entity={m} mapOverlay={mapOverlay} cavern={cavern} miner />
+          <EntityPreview
+            key={m.id}
+            entity={m}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            miner
+          />
         ))}
         {cavern.vehicles?.map((v) => (
-          <EntityPreview key={v.id} entity={v} mapOverlay={mapOverlay} cavern={cavern} vehicle />
+          <EntityPreview
+            key={v.id}
+            entity={v}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            vehicle
+          />
         ))}
         {mapOverlay === "discovery" &&
           cavern.openCaveFlags?.map((_, x, y) => (

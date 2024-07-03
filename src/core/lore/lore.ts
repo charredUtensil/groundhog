@@ -124,7 +124,7 @@ function spellNumber(n: number): string {
     return n.toString();
   }
   if (n === 0) {
-    return 'zero';
+    return "zero";
   }
   const result: string[] = [];
   if (n >= 100) {
@@ -216,12 +216,13 @@ export class Lore {
     };
 
     const enemies = filterTruthy([
-      cavern.context.hasMonsters && {
-        rock: "Rock Monsters",
-        ice: "Ice Monsters",
-        lava: "Lava Monsters",
-      }[cavern.context.biome],
-      cavern.context.hasSlugs && "Slimy Slugs"
+      cavern.context.hasMonsters &&
+        {
+          rock: "Rock Monsters",
+          ice: "Ice Monsters",
+          lava: "Lava Monsters",
+        }[cavern.context.biome],
+      cavern.context.hasSlugs && "Slimy Slugs",
     ]).join(" and ");
 
     this.vars = {

@@ -73,10 +73,9 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
       { of: Rough.VOID, grow: 1 },
     ),
     placeCrystals(args) {
-      sprinkleCrystals(
-        args,
-        {seamBias: Math.max(args.cavern.context.hallCrystalSeamBias, 0.75)},
-      );
+      sprinkleCrystals(args, {
+        seamBias: Math.max(args.cavern.context.hallCrystalSeamBias, 0.75),
+      });
     },
     hallBid: ({ plan }) => plan.fluid === Tile.WATER && 1,
   },

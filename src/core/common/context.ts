@@ -350,7 +350,7 @@ export function inferContextDefaults(
       rock: 0.25,
       ice: 0.01,
       lava: 0.05,
-    }[r.biome]
+    }[r.biome],
   );
   const heightTargetRange = dice.init(Die.heightTargetRange).betaInt(
     {

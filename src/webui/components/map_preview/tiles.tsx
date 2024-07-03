@@ -40,17 +40,16 @@ function getFill(
   y: number,
 ): string | null {
   switch (mapOverlay) {
-    case "overview":
-      {
-        for (let ox = -1; ox <= 1; ox++) {
-          for (let oy = -1; oy <= 1; oy++) {
-            if (cavern.discoveryZones?.get(x + ox, y + oy)?.openOnSpawn) {
-              return t.inspectColor;
-            }
+    case "overview": {
+      for (let ox = -1; ox <= 1; ox++) {
+        for (let oy = -1; oy <= 1; oy++) {
+          if (cavern.discoveryZones?.get(x + ox, y + oy)?.openOnSpawn) {
+            return t.inspectColor;
           }
         }
-        return null;
       }
+      return null;
+    }
     case "entities":
       if (t === Tile.FOUNDATION) {
         return t.inspectColor;
@@ -133,31 +132,38 @@ function getTitle(
   y: number,
 ): ReactNode {
   switch (mapOverlay) {
-    case "crystals":
-      {
-        const c = (cavern.crystals?.get(x, y) ?? 0)
-        const d = t.crystalYield;
-        return (c + d) > 0 && `${t.isWall ? 'Yields ' : ''}${c}${d > 0 ? ` + ${d} from ${t.name}` : ''}`
-      }
-    case "ore":
-      {
-        const o = (cavern.ore?.get(x, y) ?? 0)
-        const d = t.oreYield;
-        return (o + d) > 0 && `${t.isWall ? 'Yields ' : ''}${o}${d > 0 ? ` + ${d} from ${t.name}` : ''}`
-      }
-    case "landslides":
-      {
-        const ls = cavern.landslides?.get(x, y);
-        return ls && `${ls.cooldown} sec cooldown`;
-      }
-    case "erosion":
-      {
-        const er = cavern.erosion?.get(x, y);
-        return er && `${er.cooldown} sec cooldown + ${er.initialDelay} sec initial delay`;
-      }
+    case "crystals": {
+      const c = cavern.crystals?.get(x, y) ?? 0;
+      const d = t.crystalYield;
+      return (
+        c + d > 0 &&
+        `${t.isWall ? "Yields " : ""}${c}${d > 0 ? ` + ${d} from ${t.name}` : ""}`
+      );
+    }
+    case "ore": {
+      const o = cavern.ore?.get(x, y) ?? 0;
+      const d = t.oreYield;
+      return (
+        o + d > 0 &&
+        `${t.isWall ? "Yields " : ""}${o}${d > 0 ? ` + ${d} from ${t.name}` : ""}`
+      );
+    }
+    case "landslides": {
+      const ls = cavern.landslides?.get(x, y);
+      return ls && `${ls.cooldown} sec cooldown`;
+    }
+    case "erosion": {
+      const er = cavern.erosion?.get(x, y);
+      return (
+        er &&
+        `${er.cooldown} sec cooldown + ${er.initialDelay} sec initial delay`
+      );
+    }
     case "discovery":
       const dz = cavern.discoveryZones?.get(x, y);
-      return dz && `${dz.openOnSpawn ? 'Cavern' : 'Undiscovered cavern'} ${dz.id}`;
+      return (
+        dz && `${dz.openOnSpawn ? "Cavern" : "Undiscovered cavern"} ${dz.id}`
+      );
     case "overview":
     case "tiles":
       return t.name;
@@ -182,15 +188,18 @@ export default function TilesPreview({
   }
   const boundsFill = getBoundsFill(mapOverlay);
   return (
-    <g className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`} style={{scale: `${SCALE}`}}>
+    <g
+      className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}
+      style={{ scale: `${SCALE}` }}
+    >
       {boundsFill && cavern.top && (
         <rect
           className={styles.bounds}
           fill={boundsFill}
           x={cavern.left!}
           y={cavern.top!}
-          width={(cavern.right! - cavern.left!)}
-          height={(cavern.bottom! - cavern.top!)}
+          width={cavern.right! - cavern.left!}
+          height={cavern.bottom! - cavern.top!}
         />
       )}
       {cavern.tiles.map((t, x, y) => {

@@ -83,7 +83,7 @@ export class PseudorandomStream {
 /**
  * DO NOT RE-ORDER THIS ENUM!
  * ALWAYS APPEND NEW ENTRIES TO THE END!
- * 
+ *
  * Otherwise, new versions of groundHog will generate wildly different caverns
  * from the same seeds in a previous version.
  */

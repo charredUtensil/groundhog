@@ -37,16 +37,19 @@ const BASE: typeof DefaultCaveArchitect = {
   },
   placeSlugHoles: (args) => {
     const count = args.cavern.context.hasSlugs
-      ? args.cavern.dice.placeSlugHoles(args.plan.id).betaInt({a: 1.5, b: 2, min: 1, max: 4})
+      ? args.cavern.dice
+          .placeSlugHoles(args.plan.id)
+          .betaInt({ a: 1.5, b: 2, min: 1, max: 4 })
       : undefined;
-    sprinkleSlugHoles(args, {count});
+    sprinkleSlugHoles(args, { count });
   },
-  slugSpawnScript: (args) => slugSpawnScript(args, {
-    initialCooldown: {min: 120, max: 240},
-    needCrystals: {base: 5, increment: 4},
-    spawnRate: 0.2,
-    waveSize: 1,
-  }),
+  slugSpawnScript: (args) =>
+    slugSpawnScript(args, {
+      initialCooldown: { min: 120, max: 240 },
+      needCrystals: { base: 5, increment: 4 },
+      spawnRate: 0.2,
+      waveSize: 1,
+    }),
   maxSlope: 15,
 };
 

@@ -181,14 +181,16 @@ export const NOMADS_SETTLED = phraseGraph<State>(
 
 export const FOUND_SLUG_NEST = phraseGraph<State>(
   ({ pg, state, start, end, cut, skip }) => {
-    start.then(
-      "I don't like the look of this.",
-      "Look at that!",
-      "Oh, dear.",
-      "This could be a problem!",
-    ).then(
-      "It must be a nest of Slimy Slugs!",
-      "We need to keep these Slimy Slugs at bay.",
-    )
-  }
+    start
+      .then(
+        "I don't like the look of this.",
+        "Look at that!",
+        "Oh, dear.",
+        "This could be a problem!",
+      )
+      .then(
+        "It must be a nest of Slimy Slugs!",
+        "We need to keep these Slimy Slugs at bay.",
+      );
+  },
 );

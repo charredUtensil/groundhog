@@ -46,8 +46,11 @@ export default function EntityPreview({
   vehicle,
 }: Params) {
   if (mapOverlay === "overview") {
-    if (!cavern.discoveryZones?.get(Math.floor(entity.x), Math.floor(entity.y))?.openOnSpawn) {
-      return null
+    if (
+      !cavern.discoveryZones?.get(Math.floor(entity.x), Math.floor(entity.y))
+        ?.openOnSpawn
+    ) {
+      return null;
     }
   } else if (mapOverlay !== "entities") {
     return null;

@@ -4,12 +4,11 @@ import { pairEach } from "../../../common/utils";
 import { StrataformedCavern } from "../02_strataform";
 import { CORNER_OFFSETS } from "./base";
 
-
 type Edge = {
-  readonly to: readonly [number, number]; 
+  readonly to: readonly [number, number];
   readonly ascent: number;
   readonly descent: number;
-}
+};
 
 type EdgeData = {
   readonly x1: number;
@@ -18,20 +17,35 @@ type EdgeData = {
   readonly y2: number;
   forward: number;
   backward: number;
-}
+};
 
 class EdgeMap {
-  private readonly data = new Map<`${number},${number},${number},${number}`, EdgeData>();
+  private readonly data = new Map<
+    `${number},${number},${number},${number}`,
+    EdgeData
+  >();
 
-  get(x1: number, y1: number, x2: number, y2: number): {ascent: number, descent: number} | undefined {
+  get(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): { ascent: number; descent: number } | undefined {
     if (x1 < x2 || (x1 === x2 && y1 <= y2)) {
       const r = this.data.get(`${x1},${y1},${x2},${y2}`);
-      return r && {ascent: r.forward, descent: r.backward};
+      return r && { ascent: r.forward, descent: r.backward };
     }
     const r = this.data.get(`${x2},${y2},${x1},${y1}`);
-    return r && {ascent: r.backward, descent: r.forward};
+    return r && { ascent: r.backward, descent: r.forward };
   }
-  set(x1: number, y1: number, x2: number, y2: number, ascent: number, descent: number) {
+  set(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    ascent: number,
+    descent: number,
+  ) {
     if (x1 === x2 && y1 === y2) {
       return;
     }
@@ -68,7 +82,7 @@ class EdgeMap {
     }
   }
   edges(): Grid<readonly Edge[]> {
-    const result = new MutableGrid<Edge[]>;
+    const result = new MutableGrid<Edge[]>();
     function get(x: number, y: number) {
       let r = result.get(x, y);
       if (!r) {
@@ -77,9 +91,9 @@ class EdgeMap {
       }
       return r;
     }
-    this.data.forEach(({x1, y1, x2, y2, forward, backward}) => {
-      get(x1, y1).push({to: [x2, y2], ascent: forward, descent: backward});
-      get(x2, y2).push({to: [x1, y1], ascent: backward, descent: forward});
+    this.data.forEach(({ x1, y1, x2, y2, forward, backward }) => {
+      get(x1, y1).push({ to: [x2, y2], ascent: forward, descent: backward });
+      get(x2, y2).push({ to: [x1, y1], ascent: backward, descent: forward });
     });
     return result;
   }
@@ -96,13 +110,15 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
     cavern.context.caveMaxSlope,
     cavern.context.hallMaxSlope,
   );
-  const maxSlopeForPlan = cavern.plans.map(plan => Math.min(
-    plan.hasErosion ? 0 : Infinity,
-    plan.architect.maxSlope ?? Infinity,
-    plan.kind === "cave"
-      ? cavern.context.caveMaxSlope
-      : cavern.context.hallMaxSlope,
-  ));
+  const maxSlopeForPlan = cavern.plans.map((plan) =>
+    Math.min(
+      plan.hasErosion ? 0 : Infinity,
+      plan.architect.maxSlope ?? Infinity,
+      plan.kind === "cave"
+        ? cavern.context.caveMaxSlope
+        : cavern.context.hallMaxSlope,
+    ),
+  );
   for (let x = cavern.left; x < cavern.right; x++) {
     for (let y = cavern.top; y < cavern.bottom; y++) {
       // Determine the max slope for the specific tile placed here.
@@ -112,8 +128,10 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
         : cavern.context.voidMaxSlope;
       // Determine the max slope for the plans at this tile.
       const forPlan =
-        cavern.pearlInnerDex.get(x, y)?.reduce((r, _, i) =>
-          Math.min(r, maxSlopeForPlan[i]), Infinity) ?? Infinity;
+        cavern.pearlInnerDex
+          .get(x, y)
+          ?.reduce((r, _, i) => Math.min(r, maxSlopeForPlan[i]), Infinity) ??
+        Infinity;
       result.set(x, y, Math.min(forTile, forPlan));
     }
   }

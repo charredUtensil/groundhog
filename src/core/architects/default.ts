@@ -26,11 +26,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
     },
   ] as const
 ).map(
-  ({
-    hasLandslidesChance,
-    landslideCooldownRange,
-    baroqueness,
-  }) =>
+  ({ hasLandslidesChance, landslideCooldownRange, baroqueness }) =>
     ({
       baroqueness: ({ cavern }) => cavern.context[baroqueness],
       crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter,

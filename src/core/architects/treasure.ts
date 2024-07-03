@@ -3,7 +3,12 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
-import { eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
+import {
+  eventChain,
+  mkVars,
+  scriptFragment,
+  transformPoint,
+} from "./utils/script";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
@@ -54,11 +59,12 @@ const HOARD: typeof BASE = {
       placeSleepingMonsters(args, rng, count);
     }
   },
-  monsterSpawnScript: (args) => monsterSpawnScript(args, {
-    meanWaveSize: args.plan.monsterWaveSize * 1.5,
-    rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
-    spawnRate: args.plan.monsterSpawnRate * 3.5,
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      meanWaveSize: args.plan.monsterWaveSize * 1.5,
+      rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
+      spawnRate: args.plan.monsterSpawnRate * 3.5,
+    }),
   scriptGlobals({ cavern }) {
     if (!cavern.objectives.crystals) {
       return undefined;
@@ -92,25 +98,22 @@ int ${g.crystalsAvailable}=0
         // If this is enough to win the level, alert the player.
         `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${g.wasTriggered}=false];`,
       ),
-      eventChain(
-        v.go,
-        `msg:${g.message};`,
-        `pan:${centerPoint};`,
-      ),
-    )
+      eventChain(v.go, `msg:${g.message};`, `pan:${centerPoint};`),
+    );
   },
 };
 
 const RICH: typeof BASE = {
   ...BASE,
-  monsterSpawnScript: (args) => monsterSpawnScript(args, {
-    meanWaveSize: args.plan.monsterWaveSize * 1.5,
-    retriggerMode: "hoard",
-    spawnRate: args.plan.monsterSpawnRate * 2,
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      meanWaveSize: args.plan.monsterWaveSize * 1.5,
+      retriggerMode: "hoard",
+      spawnRate: args.plan.monsterSpawnRate * 2,
+    }),
 };
 
-const TREASURE: readonly (Architect<unknown>)[] = [
+const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Open Hoard",
     ...HOARD,

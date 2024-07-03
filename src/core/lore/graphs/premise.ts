@@ -71,17 +71,19 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "Unfortunately, the signed copy of Form 27b-6 went missing below a " +
         "desk, we forgot about it, and now we aren't exactly sure where that " +
         "base is.",
-      state("hasMonsters").then(skip, state("hasSlugs")).then(
-        "We were all set to mine this cavern, but the team was scared off " +
-          "by readings of ${enemies} in the area. They left in such a hurry " +
-          "that they forgot to record where exactly the Rock Raider HQ is.",
-        "There should be a base near here, but it's not showing up on our " +
-          "scanners. We hope it hasn't been destroyed by ${enemies}, but to " +
-          "be safe, we're sending you to a nearby cavern instead.",
-      ),
+      state("hasMonsters")
+        .then(skip, state("hasSlugs"))
+        .then(
+          "We were all set to mine this cavern, but the team was scared off " +
+            "by readings of ${enemies} in the area. They left in such a hurry " +
+            "that they forgot to record where exactly the Rock Raider HQ is.",
+          "There should be a base near here, but it's not showing up on our " +
+            "scanners. We hope it hasn't been destroyed by ${enemies}, but to " +
+            "be safe, we're sending you to a nearby cavern instead.",
+        ),
       state("hasSlugs").then(
         "We were all set to mine this cavern, but the team was scared off " +
-          "by a Slimy Slug that suddenly appeared in the middle of our HQ. " + 
+          "by a Slimy Slug that suddenly appeared in the middle of our HQ. " +
           "They even left without recording their location properly.",
         "There should be a base near here, but it's not showing up on our " +
           "scanners. Some interference from ${enemies} must have shut off " +

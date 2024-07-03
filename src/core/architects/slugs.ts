@@ -1,25 +1,36 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
-import { PartialArchitect, DefaultCaveArchitect, DefaultHallArchitect } from "./default";
+import {
+  PartialArchitect,
+  DefaultCaveArchitect,
+  DefaultHallArchitect,
+} from "./default";
 import { slugSpawnScript } from "./utils/creature_spawners";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { intersectsOnly } from "./utils/intersects";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 
-const getSlugHoles = (args: Parameters<Architect<unknown>['slugSpawnScript']>[0]) =>
-  args.plan.innerPearl
-    .flatMap(layer => layer.filter(pos => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE));
+const getSlugHoles = (
+  args: Parameters<Architect<unknown>["slugSpawnScript"]>[0],
+) =>
+  args.plan.innerPearl.flatMap((layer) =>
+    layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
+  );
 
 const SLUG_NEST: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect,
   isSlugNest: true,
   placeCrystals(args) {
-    sprinkleCrystals(args, {seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.5)})
+    sprinkleCrystals(args, {
+      seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.5),
+    });
   },
   placeSlugHoles(args) {
-    const count = args.cavern.dice.placeSlugHoles(args.plan.id).betaInt({a: 2, b: 2, min: 4, max: 8})
-    sprinkleSlugHoles(args, {count});
+    const count = args.cavern.dice
+      .placeSlugHoles(args.plan.id)
+      .betaInt({ a: 2, b: 2, min: 4, max: 8 });
+    sprinkleSlugHoles(args, { count });
   },
   slugSpawnScript: (args) => {
     const holeCount = getSlugHoles(args).length;
@@ -35,25 +46,37 @@ const SLUG_NEST: PartialArchitect<unknown> = {
 
 const SLUG_HALL: PartialArchitect<unknown> = {
   ...DefaultHallArchitect,
-  crystalsToPlace: ({ plan }) => Math.max(plan.crystalRichness * plan.perimeter, 5),
+  crystalsToPlace: ({ plan }) =>
+    Math.max(plan.crystalRichness * plan.perimeter, 5),
   placeCrystals(args) {
-    sprinkleCrystals(args, {seamBias: Math.max(args.cavern.context.hallCrystalSeamBias, 0.75)})
+    sprinkleCrystals(args, {
+      seamBias: Math.max(args.cavern.context.hallCrystalSeamBias, 0.75),
+    });
   },
   placeSlugHoles(args) {
-    const count = args.cavern.dice.placeSlugHoles(args.plan.id).betaInt({a: 2, b: 2, min: 1, max: 3})
-    const placements = args.plan.innerPearl.flatMap(
-      layer => layer.filter(pos => (
-        args.tiles.get(...pos) === Tile.FLOOR
-        && !args.cavern.pearlInnerDex.get(...pos)?.some((_, i) => i !== args.plan.id)))
+    const count = args.cavern.dice
+      .placeSlugHoles(args.plan.id)
+      .betaInt({ a: 2, b: 2, min: 1, max: 3 });
+    const placements = args.plan.innerPearl.flatMap((layer) =>
+      layer.filter(
+        (pos) =>
+          args.tiles.get(...pos) === Tile.FLOOR &&
+          !args.cavern.pearlInnerDex
+            .get(...pos)
+            ?.some((_, i) => i !== args.plan.id),
+      ),
     );
-    sprinkleSlugHoles(args, {count, placements});
+    sprinkleSlugHoles(args, { count, placements });
   },
   slugSpawnScript: (args) => {
     const holes = getSlugHoles(args);
     return slugSpawnScript(args, {
-      emerges: holes.map(([x, y]) => ({x, y, radius: 1})),
+      emerges: holes.map(([x, y]) => ({ x, y, radius: 1 })),
       initialCooldown: { min: 60, max: 120 },
-      needCrystals: { base: args.plan.crystals * 2, increment: args.plan.crystals },
+      needCrystals: {
+        base: args.plan.crystals * 2,
+        increment: args.plan.crystals,
+      },
       triggerPoints: holes,
       waveSize: holes.length,
     });
@@ -76,16 +99,15 @@ const SLUGS: readonly Architect<unknown>[] = [
       },
       { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.25 },
     ),
-    caveBid: ({cavern, plans, plan}) => (
+    caveBid: ({ cavern, plans, plan }) =>
       cavern.context.hasSlugs &&
       plan.pearlRadius >= 5 &&
       plan.path.baseplates.length === 1 &&
       !plan.fluid &&
       !plan.hasErosion &&
       intersectsOnly(plans, plan, null) &&
-      !plans.some(p => p.architect?.isSlugNest) &&
-      0.25
-    ),
+      !plans.some((p) => p.architect?.isSlugNest) &&
+      0.25,
   },
   {
     name: "Slug Hall",
@@ -100,13 +122,12 @@ const SLUGS: readonly Architect<unknown>[] = [
       },
       { of: Rough.VOID, grow: 1 },
     ),
-    hallBid: ({cavern, plan}) => (
+    hallBid: ({ cavern, plan }) =>
       cavern.context.hasSlugs &&
       plan.path.exclusiveSnakeDistance > 5 &&
       !plan.fluid &&
       !plan.hasErosion &&
-      1
-    ),
+      1,
   },
 ];
 export default SLUGS;
