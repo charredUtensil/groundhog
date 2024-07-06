@@ -4,7 +4,8 @@ import enscribe from "./01_enscribe";
 import program from "./02_program";
 import serialize from "./03_serialize";
 
-export const EPHEMERA_TF = tf(adjure)
+export const EPHEMERA_TF = tf(aerate)
+  .then(adjure)
   .then(enscribe)
   .then(program)
   .then(serialize);

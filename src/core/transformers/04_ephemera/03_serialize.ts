@@ -86,6 +86,9 @@ opencaves:${pointSet(
     cavern.openCaveFlags.map((_, x, y) => [y, x]),
     [-cavern.top, -cavern.left],
   )}
+${
+  cavern.oxygen ? `oxygen:${cavern.oxygen.join('/')}` : ''
+}
 spiderrate:10
 spidermin:2
 spidermax:4

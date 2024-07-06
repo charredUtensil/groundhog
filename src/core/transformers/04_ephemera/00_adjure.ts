@@ -1,13 +1,13 @@
 import { getTotalCrystals } from "../../architects/utils/resources";
 import { Architect } from "../../models/architect";
 import { Objectives } from "../../models/objectives";
-import { PopulatedCavern } from "../03_plastic/04_populate";
+import { AeratedCavern } from "./00_aerate";
 
-export type AdjuredCavern = PopulatedCavern & {
+export type AdjuredCavern = AeratedCavern & {
   objectives: Objectives;
 };
 
-export default function adjure(cavern: PopulatedCavern): AdjuredCavern {
+export default function adjure(cavern: AeratedCavern): AdjuredCavern {
   const objectives = cavern.plans
     .reduce((r: Architect<unknown>["objectives"][], plan) => {
       const fn = plan.architect.objectives;
