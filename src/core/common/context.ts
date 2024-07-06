@@ -212,6 +212,14 @@ export type CavernContext = {
    */
   heightTargetRange: number;
   /**
+   * The number of passes to spread cave target heights into the void.
+   */
+  stratascosity: number;
+  /**
+   * How closely the strataflux step should adhere to target heights.
+   */
+  strataplanity: number;
+  /**
    * The maximum height difference between two points on the side of any tile
    * that is part of an arbitrary cave. Some tiles (like water) and caves (like
    * those intended to be built in) will be further restricted.
@@ -228,6 +236,11 @@ export type CavernContext = {
    * that is outside the playable area - that is, undrillable solid rock.
    */
   voidMaxSlope: number;
+  /**
+   * The maximum height difference between two points on the side of any tile
+   * that is out of play on the border of the map.
+   */
+  borderMaxSlope: number;
 };
 
 enum Die {
@@ -259,6 +272,8 @@ const STANDARD_DEFAULTS = {
   caveOreSeamBias: 0.05,
   hallOreSeamBias: 0.05,
   hallHasSlugHoleChance: 0,
+  stratascosity: 0,
+  strataplanity: 3,
   caveHasLandslidesChance: 0.4,
   hallHasLandslidesChance: 0.8,
   caveLandslideCooldownRange: { min: 15, max: 120 },
@@ -274,6 +289,7 @@ const DEFAULTS_FOR_BIOME = {
     caveMaxSlope: 75,
     hallMaxSlope: 90,
     voidMaxSlope: 120,
+    borderMaxSlope: 200,
   },
   ice: {
     caveHasRechargeSeamChance: 0.07,
@@ -282,14 +298,16 @@ const DEFAULTS_FOR_BIOME = {
     caveMaxSlope: 30,
     hallMaxSlope: 30,
     voidMaxSlope: 40,
+    borderMaxSlope: 100,
   },
   lava: {
     caveHasRechargeSeamChance: 0.1,
     hallHasRechargeSeamChance: 0.04,
     caveHasSlugHoleChance: 0.01,
-    caveMaxSlope: 75,
+    caveMaxSlope: 60,
     hallMaxSlope: 90,
     voidMaxSlope: 120,
+    borderMaxSlope: 200,
   },
 } as const satisfies { [K in Biome]: Partial<CavernContext> };
 

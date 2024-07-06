@@ -1,8 +1,5 @@
-import { Mutable } from "../../../common";
 import { Grid, MutableGrid } from "../../../common/grid";
-import { pairEach } from "../../../common/utils";
 import { StrataformedCavern } from "../02_strataform";
-import { CORNER_OFFSETS } from "./base";
 
 type Edge = {
   readonly to: readonly [number, number];
@@ -106,7 +103,7 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
   // The max slope allowed for tile types that are within the play area but
   // don't define a specific slope.
-  const tileOobSlope = Math.max(
+  const planlessSlope = Math.max(
     cavern.context.caveMaxSlope,
     cavern.context.hallMaxSlope,
   );
@@ -121,18 +118,33 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   );
   for (let x = cavern.left; x < cavern.right; x++) {
     for (let y = cavern.top; y < cavern.bottom; y++) {
-      // Determine the max slope for the specific tile placed here.
+      let slope = Infinity;
       const tile = cavern.tiles.get(x, y);
-      const forTile = tile
-        ? Math.min(tile.maxSlope ?? Infinity, tileOobSlope)
-        : cavern.context.voidMaxSlope;
+      if (tile) {
+        // Determine the max slope for the specific tile placed here.
+        slope = Math.min(slope, tile.maxSlope ?? Infinity);
+      } else {
+        // Determine the max slope for this tile in the void.
+        if (
+          x < cavern.left ||
+          x >= cavern.right ||
+          y < cavern.top ||
+          y >= cavern.bottom
+        ) {
+          slope = Math.min(slope, cavern.context.borderMaxSlope);
+        } else {
+          slope = Math.min(slope, cavern.context.voidMaxSlope);
+        }
+      }
       // Determine the max slope for the plans at this tile.
-      const forPlan =
+      slope = Math.min(
+        slope,
         cavern.pearlInnerDex
           .get(x, y)
-          ?.reduce((r, _, i) => Math.min(r, maxSlopeForPlan[i]), Infinity) ??
-        Infinity;
-      result.set(x, y, Math.min(forTile, forPlan));
+          ?.reduce((r: number | undefined, _, i) => Math.min(r ?? Infinity, maxSlopeForPlan[i]), undefined) ??
+        planlessSlope
+      );
+      result.set(x, y, slope);
     }
   }
   return result;

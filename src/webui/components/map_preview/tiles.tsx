@@ -87,17 +87,6 @@ function getFill(
         }
       }
       break;
-    case "height":
-      if (t === Tile.WATER) {
-        return "#28327A";
-      }
-      if (t === Tile.LAVA) {
-        return "#7A4228";
-      }
-      if (cavern.erosion?.get(x, y)) {
-        return "#7A7329";
-      }
-      return t ? "#525252" : null;
     case "erosion":
       if (t === Tile.WATER || t === Tile.LAVA) {
         return t.inspectColor;
@@ -114,6 +103,7 @@ function getFill(
       }
       break;
     case "about":
+    case "height":
     case "lore":
     case null:
       return null;

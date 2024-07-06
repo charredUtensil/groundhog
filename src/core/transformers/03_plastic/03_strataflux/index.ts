@@ -20,9 +20,6 @@ import getNodes, { HeightNode } from "./nodes";
 // Corner [x, y + 1] => +--------+ <= Corner [x + 1, y + 1]
 //                             ^===== EdgeH [x, y + 1]
 
-export const HEIGHT_MIN = -600;
-export const HEIGHT_MAX = 600;
-
 // Superflat: Just return a cavern where all the heights are 0
 function superflat(cavern: StrataformedCavern): Grid<number> {
   const result = new MutableGrid<number>();
@@ -34,12 +31,7 @@ function superflat(cavern: StrataformedCavern): Grid<number> {
   return result;
 }
 
-const collapseQueueSort = (
-  { range: a }: HeightNode,
-  { range: b }: HeightNode,
-) => b - a;
-
-function getRandomHeight(node: HeightNode, rng: PseudorandomStream): number {
+function getRandomHeight(node: HeightNode, rng: PseudorandomStream, strataplanity: number): number {
   if (node.min === node.max) {
     return node.min;
   }
@@ -56,8 +48,8 @@ function getRandomHeight(node: HeightNode, rng: PseudorandomStream): number {
     return (node.target - node.min) / (node.max - node.min);
   })();
   return rng.betaInt({
-    a: 1 + 3 * targetInRange,
-    b: 1 + 3 * (1 - targetInRange),
+    a: 1 + strataplanity * targetInRange,
+    b: 1 + strataplanity * (1 - targetInRange),
     min: node.min,
     max: node.max + 1,
   });
@@ -81,10 +73,22 @@ export default function strataflux(
     .map((c) => c)
     .filter((c) => c.collapseQueued);
 
+  const strataplanity = cavern.context.strataplanity;
+
+  const pop = () => {
+    let r = 0;
+    for (let i = 1; i < collapseQueue.length; i++) {
+      if (collapseQueue[i].range <= collapseQueue[r].range) {
+        r = i;
+      }
+    }
+    return collapseQueue.splice(r, 1)[0];
+  }
+
   // Collapsing a node means picking a specific height in range for that node.
   const collapse = () => {
-    const node = collapseQueue.pop()!;
-    const h = getRandomHeight(node, rng);
+    const node = pop();
+    const h = getRandomHeight(node, rng, strataplanity);
     for (let i = 0; i < node.corners.length; i++) {
       height.set(...node.corners[i], h);
     }
@@ -135,10 +139,7 @@ export default function strataflux(
         }
       }
     }
-    collapseQueue.sort(collapseQueueSort);
   }
-
-  debugger;
 
   return { ...cavern, height };
 }

@@ -31,7 +31,7 @@ function getBowls(cavern: StrataformedCavern) {
     } else if (tile === Tile.LAVA) {
       size = 2;
     } else if (
-      cavern.pearlInnerDex.get(x, y)?.some((p) => cavern.plans[p].hasErosion)
+      cavern.pearlInnerDex.get(x, y)?.some((_, i) => cavern.plans[i].hasErosion)
     ) {
       size = 0;
     } else {
