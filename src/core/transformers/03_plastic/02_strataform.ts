@@ -99,7 +99,7 @@ function spread(cavern: DiscoveredCavern, height: Grid<number>) {
   const result = new MutableGrid<number>();
   for (let x = cavern.left + 1; x < cavern.right; x++) {
     for (let y = cavern.top + 1; y < cavern.bottom; y++) {
-      const ht = height.get(x, y)
+      const ht = height.get(x, y);
       if (ht) {
         result.set(x, y, ht);
       } else {
