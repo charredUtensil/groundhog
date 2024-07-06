@@ -1,4 +1,4 @@
-import React, { createRef, useLayoutEffect, useState } from "react";
+import React, { createRef } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -22,8 +22,17 @@ export type MapOverlay =
   | "landslides"
   | "lore"
   | "ore"
+  | "overview"
   | "tiles"
   | null;
+
+function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
+  if (mapOverlay !== "overview" || !cavern.cameraPosition) {
+    return undefined;
+  }
+  const { x, y, yaw, pitch } = cavern.cameraPosition;
+  return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`;
+}
 
 export default function CavernPreview({
   cavern,
@@ -39,26 +48,20 @@ export default function CavernPreview({
   showPearls: boolean;
 }) {
   const holder = createRef<HTMLDivElement>();
-  const [width, setWidth] = useState(600);
-  const [height, setHeight] = useState(600);
-  useLayoutEffect(() => {
-    const onResize = () => {
-      if (holder.current) {
-        setWidth(holder.current.clientWidth);
-        setHeight(holder.current.clientHeight);
-      }
-    };
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [holder]);
+  const size = cavern.context.targetSize * 2 * 6;
 
   return (
     <div ref={holder} className={styles.cavernPreview}>
       <svg
         className={styles.map}
-        style={{ width: width, height: height }}
-        viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
+        style={{
+          top: `calc(50% - ${size / 2}px)`,
+          left: `calc(50% - ${size / 2}px)`,
+          width: size,
+          height: size,
+          transform: getTransform(cavern, mapOverlay),
+        }}
+        viewBox={`${size / -2} ${size / -2} ${size} ${size}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
@@ -71,6 +74,46 @@ export default function CavernPreview({
           ))}
         {showOutlines &&
           cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
+        {cavern.buildings?.map((b, i) => (
+          <EntityPreview
+            key={i}
+            entity={b}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            building
+          />
+        ))}
+        {cavern.creatures?.map((c) => (
+          <EntityPreview
+            key={c.id}
+            entity={c}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            creature
+          />
+        ))}
+        {cavern.miners?.map((m) => (
+          <EntityPreview
+            key={m.id}
+            entity={m}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            miner
+          />
+        ))}
+        {cavern.vehicles?.map((v) => (
+          <EntityPreview
+            key={v.id}
+            entity={v}
+            mapOverlay={mapOverlay}
+            cavern={cavern}
+            vehicle
+          />
+        ))}
+        {mapOverlay === "discovery" &&
+          cavern.openCaveFlags?.map((_, x, y) => (
+            <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
+          ))}
         {showOutlines &&
           cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
         {showPearls &&
@@ -93,26 +136,6 @@ export default function CavernPreview({
                 pearl={"innerPearl"}
               />
             ))}
-        {mapOverlay === "entities" && (
-          <>
-            {cavern.buildings?.map((b, i) => (
-              <EntityPreview key={i} entity={b} building />
-            ))}
-            {cavern.creatures?.map((c) => (
-              <EntityPreview key={c.id} entity={c} creature />
-            ))}
-            {cavern.miners?.map((m) => (
-              <EntityPreview key={m.id} entity={m} miner />
-            ))}
-            {cavern.vehicles?.map((v) => (
-              <EntityPreview key={v.id} entity={v} vehicle />
-            ))}
-          </>
-        )}
-        {mapOverlay === "discovery" &&
-          cavern.openCaveFlags?.map((_, x, y) => (
-            <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
-          ))}
       </svg>
       <Stats cavern={cavern} mapOverlay={mapOverlay} />
       {error && <div className={styles.error}>{error.message}</div>}

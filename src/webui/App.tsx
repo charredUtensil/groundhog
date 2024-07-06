@@ -18,6 +18,7 @@ import styles from "./App.module.scss";
 import { TILE_STYLE_VARS } from "../core/models/tiles";
 
 const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
+  { of: "overview", label: "Overview" },
   { of: "tiles", label: "Tiles" },
   { of: "crystals", label: "Crystals" },
   { of: "ore", label: "Ore" },
@@ -65,7 +66,7 @@ function App() {
   );
 
   const [autoGenerate, setAutoGenerate] = useState(true);
-  const [mapOverlay, setMapOverlay] = useState<MapOverlay>("tiles");
+  const [mapOverlay, setMapOverlay] = useState<MapOverlay>("overview");
   const [showOutlines, setShowOutlines] = useState(false);
   const [showPearls, setShowPearls] = useState(false);
 
@@ -190,7 +191,7 @@ function App() {
           <button
             key={of}
             className={mapOverlay === of ? styles.active : styles.inactive}
-            onClick={() => setMapOverlay((v) => (v === of ? null : of))}
+            onClick={() => setMapOverlay((v) => (v === of ? "overview" : of))}
           >
             {label}
           </button>

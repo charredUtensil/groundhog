@@ -1,3 +1,4 @@
+import { NSEW } from "../../common/geometry";
 import { Grid, MutableGrid } from "../../common/grid";
 import { DiscoveredCavern } from "./01_discover";
 
@@ -12,21 +13,17 @@ export type StrataformedCavern = DiscoveredCavern & {
   readonly height: Grid<number>;
 };
 
-export default function strataform(
-  cavern: DiscoveredCavern,
-): StrataformedCavern {
-  if (cavern.context.heightTargetRange <= 0) {
-    return { ...cavern, height: new MutableGrid() };
-  }
-
+/**
+ * Choose a random target height for each plan.
+ */
+function getPlanHeight(cavern: DiscoveredCavern): readonly (number | null)[] {
   const heightTargetRange = {
     min: -cavern.context.heightTargetRange,
     max: cavern.context.heightTargetRange,
   };
-  const fluidOffset = cavern.context.heightTargetRange / -5;
 
   const queued: true[] = [];
-  const planHeights: (number | null)[] = [];
+  const result: number[] = [];
   const rng = cavern.dice.height;
 
   const queue = cavern.plans.filter((plan) => !plan.hops.length);
@@ -34,45 +31,106 @@ export default function strataform(
   while (queue.length) {
     const plan = queue.shift()!;
     const h =
-      planHeights[plan.id] ??
+      result[plan.id] ??
       (plan.kind === "cave" ? rng.uniformInt(heightTargetRange) : null);
-    planHeights[plan.id] = h;
+    result[plan.id] = h;
     plan.intersects.forEach((v, i) => {
       const p = cavern.plans[i];
       if (queued[i] || p.kind === plan.kind) {
         return;
       }
       if (plan.fluid || p.fluid) {
-        planHeights[i] = h;
+        result[i] = h;
       }
       queued[i] = true;
       queue.push(p);
     });
   }
+  return result;
+}
 
-  const height = new MutableGrid<number>();
+function getTileHeight(cavern: DiscoveredCavern): Grid<number> {
+  const planHeight = getPlanHeight(cavern);
+  const fluidOffset = cavern.context.heightTargetRange / -5;
+  const result = new MutableGrid<number>();
+  for (let x = cavern.left; x < cavern.right; x++) {
+    for (let y = cavern.top; y < cavern.bottom; y++) {
+      let sum = 0;
+      let count = 0;
+      let isFluid = !!cavern.tiles.get(x, y)?.isFluid;
+      cavern.pearlInnerDex.get(x, y)?.forEach((_, i) => {
+        const h = planHeight[i];
+        if (h != null) {
+          sum += h;
+          count++;
+        }
+        isFluid ||= cavern.plans[i].hasErosion;
+      });
+      if (count) {
+        result.set(x, y, Math.round(sum / count) + (isFluid ? fluidOffset : 0));
+      }
+    }
+  }
+  return result;
+}
 
+function getCornerHeight(cavern: DiscoveredCavern, tileHeight: Grid<number>) {
+  const result = new MutableGrid<number>();
   for (let x = cavern.left; x <= cavern.right; x++) {
     for (let y = cavern.top; y <= cavern.bottom; y++) {
       let sum = 0;
       let count = 0;
-      let isFluid = false;
       FENCES.forEach(([ox, oy]) => {
-        let hasErosion = false;
-        cavern.pearlInnerDex.get(x + ox, y + oy)?.forEach((_, i) => {
-          const h = planHeights[i];
-          if (h != null) {
+        const h = tileHeight.get(x + ox, y + oy);
+        if (h !== undefined) {
+          sum += h;
+          count++;
+        }
+      });
+      if (count) {
+        result.set(x, y, sum / count);
+      }
+    }
+  }
+  return result;
+}
+
+function spread(cavern: DiscoveredCavern, height: Grid<number>) {
+  const result = new MutableGrid<number>();
+  for (let x = cavern.left + 1; x < cavern.right; x++) {
+    for (let y = cavern.top + 1; y < cavern.bottom; y++) {
+      const ht = height.get(x, y)
+      if (ht) {
+        result.set(x, y, ht);
+      } else {
+        let sum = 0;
+        let count = 0;
+        NSEW.forEach(([ox, oy]) => {
+          const h = height.get(x + ox, y + oy);
+          if (h !== undefined) {
             sum += h;
             count++;
           }
-          hasErosion ||= cavern.plans[i].hasErosion;
         });
-        isFluid ||= cavern.tiles.get(x + ox, y + oy)?.isFluid || hasErosion;
-      });
-      if (count) {
-        height.set(x, y, Math.round(sum / count) + (isFluid ? fluidOffset : 0));
+        if (count) {
+          result.set(x, y, sum / count);
+        }
       }
     }
+  }
+  return result;
+}
+
+export default function strataform(
+  cavern: DiscoveredCavern,
+): StrataformedCavern {
+  if (cavern.context.heightTargetRange <= 0) {
+    return { ...cavern, height: new MutableGrid() };
+  }
+  let height = getTileHeight(cavern);
+  height = getCornerHeight(cavern, height);
+  for (let i = 0; i < cavern.context.stratascosity; i++) {
+    height = spread(cavern, height);
   }
 
   return { ...cavern, height };

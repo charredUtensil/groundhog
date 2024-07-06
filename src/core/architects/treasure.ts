@@ -3,17 +3,22 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
-import { eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
-import { getMonsterSpawner } from "./utils/monster_spawner";
+import {
+  eventChain,
+  mkVars,
+  scriptFragment,
+  transformPoint,
+} from "./utils/script";
+import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: PartialArchitect<unknown> & { isTreasure: true } = {
+const BASE: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect,
   isTreasure: true,
   objectives: ({ cavern }) => {
     const crystals = cavern.plans
-      .filter((plan) => "isTreasure" in plan.architect)
+      .filter((plan) => plan.architect.isTreasure)
       .reduce((r, plan) => Math.max(r, plan.crystals), 0);
     if (crystals < 15) {
       return undefined;
@@ -27,7 +32,7 @@ const g = mkVars("gHoard", ["wasTriggered", "message", "crystalsAvailable"]);
 const HOARD: typeof BASE = {
   ...BASE,
   crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 3,
-  placeCrystals: (args) => {
+  placeCrystals(args) {
     const wallBids = bidsForOrdinaryWalls(
       args.plan.innerPearl.flatMap((layer) => layer),
       args.tiles,
@@ -46,6 +51,7 @@ const HOARD: typeof BASE = {
       seamBias: 0,
     });
   },
+  placeSlugHoles() {},
   placeEntities(args) {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
@@ -53,11 +59,12 @@ const HOARD: typeof BASE = {
       placeSleepingMonsters(args, rng, count);
     }
   },
-  monsterSpawnScript: getMonsterSpawner({
-    retriggerMode: "hoard",
-    spawnRateMultiplier: 3.5,
-    waveSizeMultiplier: 1.5,
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      meanWaveSize: args.plan.monsterWaveSize * 1.5,
+      rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
+      spawnRate: args.plan.monsterSpawnRate * 3.5,
+    }),
   scriptGlobals({ cavern }) {
     if (!cavern.objectives.crystals) {
       return undefined;
@@ -76,42 +83,37 @@ int ${g.crystalsAvailable}=0
     // of the crystals would win the level.
     // TODO(charredutensil): Need to figure out clashes with lost miners
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
-    const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go", "noGo"]);
+    const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
-      `# Found Hoard ${plan.id}`,
+      `# Hoard ${plan.id}`,
       `if(change:${centerPoint})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
         `((${g.wasTriggered}))return;`,
         `${g.wasTriggered}=true;`,
         `wait:1;`,
+        // Count all the crystals in storage and on the floor.
         `${g.crystalsAvailable}=crystals+Crystal_C;`,
-        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${v.noGo}];`,
+        // If this is enough to win the level, alert the player.
+        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${g.wasTriggered}=false];`,
       ),
-      eventChain(
-        v.go,
-        `msg:${g.message};`,
-        `pan:${centerPoint};`,
-      ),
-      eventChain(
-        v.noGo,
-        `${g.wasTriggered}=false;`
-      ),
-    )
+      eventChain(v.go, `msg:${g.message};`, `pan:${centerPoint};`),
+    );
   },
 };
 
 const RICH: typeof BASE = {
   ...BASE,
-  monsterSpawnScript: getMonsterSpawner({
-    retriggerMode: "hoard",
-    spawnRateMultiplier: 2,
-    waveSizeMultiplier: 1.5,
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      meanWaveSize: args.plan.monsterWaveSize * 1.5,
+      retriggerMode: "hoard",
+      spawnRate: args.plan.monsterSpawnRate * 2,
+    }),
 };
 
-const TREASURE: readonly (Architect<unknown> & { isTreasure: true })[] = [
+const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Open Hoard",
     ...HOARD,

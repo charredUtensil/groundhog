@@ -1,4 +1,5 @@
 import { Architect } from "../models/architect";
+import { sprinkleSlugHoles } from "./utils/creatures";
 import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
   getPlaceRechargeSeams,
@@ -25,11 +26,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
     },
   ] as const
 ).map(
-  ({
-    hasLandslidesChance,
-    landslideCooldownRange,
-    baroqueness,
-  }) =>
+  ({ hasLandslidesChance, landslideCooldownRange, baroqueness }) =>
     ({
       baroqueness: ({ cavern }) => cavern.context[baroqueness],
       crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter,
@@ -43,6 +40,9 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       },
       placeOre: (args) => {
         return sprinkleOre(args);
+      },
+      placeSlugHoles(args) {
+        return sprinkleSlugHoles(args);
       },
       placeLandslides: (args) => {
         if (
@@ -60,9 +60,12 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       scriptGlobals: () => undefined,
       script: () => undefined,
       monsterSpawnScript: () => undefined,
+      slugSpawnScript: () => undefined,
       isHq: false,
       isLostMiners: false,
       isNomads: false,
       isRuin: false,
+      isSlugNest: false,
+      isTreasure: false,
     }) as PartialArchitect<unknown>,
 );

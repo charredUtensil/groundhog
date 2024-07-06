@@ -7,6 +7,8 @@ import { getBuildings } from "./utils/buildings";
 import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { position } from "../models/position";
+import { sprinkleSlugHoles } from "./utils/creatures";
+import { slugSpawnScript } from "./utils/creature_spawners";
 
 const BASE: typeof DefaultCaveArchitect = {
   ...DefaultCaveArchitect,
@@ -33,6 +35,21 @@ const BASE: typeof DefaultCaveArchitect = {
       }),
     );
   },
+  placeSlugHoles: (args) => {
+    const count = args.cavern.context.hasSlugs
+      ? args.cavern.dice
+          .placeSlugHoles(args.plan.id)
+          .betaInt({ a: 1.5, b: 2, min: 1, max: 4 })
+      : undefined;
+    sprinkleSlugHoles(args, { count });
+  },
+  slugSpawnScript: (args) =>
+    slugSpawnScript(args, {
+      initialCooldown: { min: 120, max: 240 },
+      needCrystals: { base: 5, increment: 4 },
+      spawnRate: 0.2,
+      waveSize: 1,
+    }),
   maxSlope: 15,
 };
 
@@ -69,7 +86,8 @@ const SIMPLE_SPAWN: readonly Architect<unknown>[] = [
   },
   {
     // This is mostly a fallback in case there's no other viable spawn cave
-    // that isn't entirely surrounded. 9 crystals should be enough to build
+    // that isn't entirely surrounded by fluid. 9 crystals should be enough to
+    // ensure an escape route.
     name: "Open Spawn with Bonus Crystals",
     ...BASE,
     ...OPEN,

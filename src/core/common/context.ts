@@ -87,6 +87,10 @@ export type CavernContext = {
    */
   hasMonsters: boolean;
   /**
+   * Does this cavern have slugs in it?
+   */
+  hasSlugs: boolean;
+  /**
    * How blobby and jagged caves should be.
    * 0 results in perfectly squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves, up
@@ -177,6 +181,16 @@ export type CavernContext = {
    * upgraded to a seam.
    */
   hallOreSeamBias: number;
+  /**
+   * The chance each normal cave will have a slug hole, regardless of whether
+   * Slimy Slugs are enabled in this level.
+   */
+  caveHasSlugHoleChance: number;
+  /**
+   * The chance each normal hall will have a slug hole, regardless of whether
+   * Slimy Slugs are enabled in this level.
+   */
+  hallHasSlugHoleChance: number;
   /** The chance each cave will have landslides at all. */
   caveHasLandslidesChance: number;
   /** The chance each hall will have landslides at all. */
@@ -198,6 +212,14 @@ export type CavernContext = {
    */
   heightTargetRange: number;
   /**
+   * The number of passes to spread cave target heights into the void.
+   */
+  stratascosity: number;
+  /**
+   * How closely the strataflux step should adhere to target heights.
+   */
+  strataplanity: number;
+  /**
    * The maximum height difference between two points on the side of any tile
    * that is part of an arbitrary cave. Some tiles (like water) and caves (like
    * those intended to be built in) will be further restricted.
@@ -214,6 +236,11 @@ export type CavernContext = {
    * that is outside the playable area - that is, undrillable solid rock.
    */
   voidMaxSlope: number;
+  /**
+   * The maximum height difference between two points on the side of any tile
+   * that is out of play on the border of the map.
+   */
+  borderMaxSlope: number;
 };
 
 enum Die {
@@ -222,6 +249,7 @@ enum Die {
   hasMonsters,
   flood,
   heightTargetRange,
+  hasSlugs,
 }
 
 const STANDARD_DEFAULTS = {
@@ -243,6 +271,9 @@ const STANDARD_DEFAULTS = {
   hallCrystalSeamBias: 0.05,
   caveOreSeamBias: 0.05,
   hallOreSeamBias: 0.05,
+  hallHasSlugHoleChance: 0,
+  stratascosity: 0,
+  strataplanity: 3,
   caveHasLandslidesChance: 0.4,
   hallHasLandslidesChance: 0.8,
   caveLandslideCooldownRange: { min: 15, max: 120 },
@@ -254,23 +285,29 @@ const DEFAULTS_FOR_BIOME = {
   rock: {
     caveHasRechargeSeamChance: 0.07,
     hallHasRechargeSeamChance: 0.02,
+    caveHasSlugHoleChance: 0.05,
     caveMaxSlope: 75,
     hallMaxSlope: 90,
     voidMaxSlope: 120,
+    borderMaxSlope: 200,
   },
   ice: {
     caveHasRechargeSeamChance: 0.07,
     hallHasRechargeSeamChance: 0.07,
+    caveHasSlugHoleChance: 0,
     caveMaxSlope: 30,
     hallMaxSlope: 30,
     voidMaxSlope: 40,
+    borderMaxSlope: 100,
   },
   lava: {
     caveHasRechargeSeamChance: 0.1,
     hallHasRechargeSeamChance: 0.04,
-    caveMaxSlope: 75,
+    caveHasSlugHoleChance: 0.01,
+    caveMaxSlope: 60,
     hallMaxSlope: 90,
     voidMaxSlope: 120,
+    borderMaxSlope: 200,
   },
 } as const satisfies { [K in Biome]: Partial<CavernContext> };
 
@@ -326,6 +363,13 @@ export function inferContextDefaults(
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 78 }),
     ...args,
   };
+  const hasSlugs = dice.init(Die.hasSlugs).chance(
+    {
+      rock: 0.25,
+      ice: 0.01,
+      lava: 0.05,
+    }[r.biome],
+  );
   const heightTargetRange = dice.init(Die.heightTargetRange).betaInt(
     {
       rock: { a: 3, b: 1, min: 100, max: 500 },
@@ -337,6 +381,7 @@ export function inferContextDefaults(
     ...STANDARD_DEFAULTS,
     ...DEFAULTS_FOR_BIOME[r.biome],
     ...getDefaultFlooding(dice, r.biome),
+    hasSlugs,
     heightTargetRange,
     ...r,
     hasOverrides: Object.keys(args).length > 1,

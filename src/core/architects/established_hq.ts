@@ -20,7 +20,13 @@ import { Rough, RoughOyster } from "./utils/oyster";
 import { position } from "../models/position";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
-import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
+import {
+  escapeString,
+  eventChain,
+  mkVars,
+  scriptFragment,
+  transformPoint,
+} from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
 
 const DESTROY_PATH_CHANCE = 0.62;
@@ -200,7 +206,7 @@ function getPlaceBuildings({
 
     // Some crystals remain that were not used.
     if (crystalBudget > 0) {
-      sprinkleCrystals(args, {count: crystalBudget, seamBias: 0});
+      sprinkleCrystals(args, { count: crystalBudget, seamBias: 0 });
     }
   };
 }
@@ -220,9 +226,9 @@ const WITH_FIND_OBJECTIVE: Pick<
     ],
     sufficient: false,
   }),
-  scriptGlobals: () => `# Objective: Find HQ
-int ${gFoundHq.foundHq}=0`,
-  script: ({ cavern, plan }) => {
+  scriptGlobals: () =>
+    scriptFragment("# Lost HQ Globals", `int ${gFoundHq.foundHq}=0`),
+  script({ cavern, plan }) {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
       throw new Error("Cave has Find HQ objective but no undiscovered points.");
@@ -236,7 +242,7 @@ int ${gFoundHq.foundHq}=0`,
     const message = cavern.lore.generateFoundHq(cavern.dice).text;
 
     return scriptFragment(
-      `# Objective: Find the lost Rock Raider HQ`,
+      `# Lost HQ ${plan.id}`,
       `string ${v.messageDiscover}="${escapeString(message)}"`,
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
       eventChain(
@@ -298,7 +304,7 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
-      !hops.some(id => plans[id].fluid) &&
+      !hops.some((id) => plans[id].fluid) &&
       !plans.some((p) => p.architect?.isHq) &&
       0.5,
     isRuin: false,

@@ -3,7 +3,7 @@ import { Point } from "../common/geometry";
 import { Grid } from "../common/grid";
 import { EntityPosition, serializePosition } from "./position";
 
-class CreatureTemplate {
+export class CreatureTemplate {
   readonly id: string;
   readonly inspectAbbrev: string;
   constructor(id: string, inspectAbbrev: string) {

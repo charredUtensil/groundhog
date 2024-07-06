@@ -5,10 +5,14 @@ import { Miner } from "../../../core/models/miner";
 import { radsToDegrees } from "../../../core/common/geometry";
 import styles from "./style.module.scss";
 import { Vehicle } from "../../../core/models/vehicle";
+import { MapOverlay } from ".";
+import { Cavern } from "../../../core/models/cavern";
 
 const SCALE = 6;
 
 type Params = {
+  mapOverlay: MapOverlay;
+  cavern: Cavern;
   building?: true;
   creature?: true;
   miner?: true;
@@ -34,11 +38,23 @@ type Params = {
 
 export default function EntityPreview({
   entity,
+  cavern,
+  mapOverlay,
   building,
   creature,
   miner,
   vehicle,
 }: Params) {
+  if (mapOverlay === "overview") {
+    if (
+      !cavern.discoveryZones?.get(Math.floor(entity.x), Math.floor(entity.y))
+        ?.openOnSpawn
+    ) {
+      return null;
+    }
+  } else if (mapOverlay !== "entities") {
+    return null;
+  }
   if (building) {
   }
   const v = building ? SCALE / 3 : SCALE / 4;

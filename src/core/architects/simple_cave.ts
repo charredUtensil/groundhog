@@ -1,14 +1,12 @@
 import { Architect } from "../models/architect";
-import { DefaultCaveArchitect } from "./default";
+import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly } from "./utils/intersects";
-import { getMonsterSpawner } from "./utils/monster_spawner";
+import { monsterSpawnScript } from "./utils/creature_spawners";
 
-const BASE = {
+const BASE: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect,
-  monsterSpawnScript: getMonsterSpawner({
-    retriggerMode: "automatic",
-  }),
+  monsterSpawnScript: (args) => monsterSpawnScript(args),
 };
 
 const SIMPLE_CAVE: readonly Architect<unknown>[] = [

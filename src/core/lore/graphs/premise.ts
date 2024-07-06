@@ -40,7 +40,10 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       "you will need to keep an eye on the volcanic activity in this cavern to avoid being buried in lava",
     );
 
-    const hasMonstersTexts = state("hasMonsters").then(
+    const hasMonstersTexts = pg(
+      state("hasMonsters").then(skip, state("hasSlugs")),
+      state("hasSlugs"),
+    ).then(
       "the tunnels here are full of large creatures that threaten our operations",
       "we are picking up signs of large creatures in the area",
       "this cavern is inhabited by nests of ${enemies}",
@@ -68,13 +71,24 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "Unfortunately, the signed copy of Form 27b-6 went missing below a " +
         "desk, we forgot about it, and now we aren't exactly sure where that " +
         "base is.",
-      state("hasMonsters").then(
+      state("hasMonsters")
+        .then(skip, state("hasSlugs"))
+        .then(
+          "We were all set to mine this cavern, but the team was scared off " +
+            "by readings of ${enemies} in the area. They left in such a hurry " +
+            "that they forgot to record where exactly the Rock Raider HQ is.",
+          "There should be a base near here, but it's not showing up on our " +
+            "scanners. We hope it hasn't been destroyed by ${enemies}, but to " +
+            "be safe, we're sending you to a nearby cavern instead.",
+        ),
+      state("hasSlugs").then(
         "We were all set to mine this cavern, but the team was scared off " +
-          "by readings of ${enemies} in the area. They left in such a hurry " +
-          "that they forgot to record where exactly the Rock Raider HQ is.",
+          "by a Slimy Slug that suddenly appeared in the middle of our HQ. " +
+          "They even left without recording their location properly.",
         "There should be a base near here, but it's not showing up on our " +
-          "scanners. We hope it hasn't been destroyed by ${enemies}, but to " +
-          "be safe, we're sending you to a nearby cavern instead.",
+          "scanners. Some interference from ${enemies} must have shut off " +
+          "its location beacon! To be safe, we're sending you to a nearby " +
+          "cavern instead.",
       ),
     )
     .then(end);
@@ -144,7 +158,10 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       )
         .then(
           skip,
-          state("hasMonsters").then(
+          pg(
+            state("hasMonsters").then(skip, state("hasSlugs")),
+            state("hasSlugs"),
+          ).then(
             "\n\nBe on the lookout for ${enemies}, especially once you start " +
               "construction.",
             "Use caution! There may be ${enemies} afoot and I don't want you " +
@@ -261,6 +278,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   negativeGreeting
     .then(state("hqIsRuin"))
     .then(state("treasureCaveOne", "treasureCaveMany"), skip)
+    .then(state("hasSlugs"), skip)
     .then(
       "Recent seismic activity has damaged our Rock Raider HQ",
       "An earthquake in this area has caused several cave-ins and destroyed " +

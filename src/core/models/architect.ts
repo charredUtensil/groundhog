@@ -92,6 +92,11 @@ export type BaseArchitect<T extends Readonly<T>> = {
     readonly tiles: MutableGrid<Tile>;
     readonly ore: MutableGrid<number>;
   }): void;
+  placeSlugHoles(args: {
+    readonly cavern: RoughPlasticCavern;
+    readonly plan: PlanWithMetadata<T>;
+    readonly tiles: MutableGrid<Tile>;
+  }): void;
 
   placeLandslides(args: {
     readonly cavern: StrataformedCavern;
@@ -130,11 +135,17 @@ export type BaseArchitect<T extends Readonly<T>> = {
     cavern: EnscribedCavern;
     plan: PlanWithMetadata<T>;
   }): string | undefined;
+  slugSpawnScript(args: {
+    cavern: EnscribedCavern;
+    plan: PlanWithMetadata<T>;
+  }): string | undefined;
 
   isHq: boolean;
   isLostMiners: boolean;
   isNomads: boolean;
   isRuin: boolean;
+  isSlugNest: boolean;
+  isTreasure: boolean;
 };
 
 export type Architect<T> = BaseArchitect<T> &

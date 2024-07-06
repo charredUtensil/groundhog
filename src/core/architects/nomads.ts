@@ -2,10 +2,7 @@ import { Architect } from "../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster } from "./utils/oyster";
 import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
-import {
-  getPlaceRechargeSeams,
-  sprinkleOre,
-} from "./utils/resources";
+import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
 import {
@@ -26,7 +23,7 @@ import {
   TUNNEL_SCOUT,
   Vehicle,
 } from "../models/vehicle";
-import { Loadout } from "../models/miner";
+import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
 import { gFoundHq } from "./established_hq";
@@ -60,9 +57,7 @@ const BASE: PartialArchitect<Metadata> = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 3, min: 1, max: 4 });
-    const vehicles = filterTruthy([
-      rng.weightedChoice(VEHICLE_BIDS),
-    ]);
+    const vehicles = filterTruthy([rng.weightedChoice(VEHICLE_BIDS)]);
     return { minersCount, vehicles };
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
@@ -75,15 +70,17 @@ const BASE: PartialArchitect<Metadata> = {
       true,
     );
     // If there is an HQ, ensure it is accessible to the nomads.
-    cavern.plans.find(p => p.architect.isHq)?.hops.forEach(hopId => {
-      pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
-        for (const pos of plotLine(a.center, b.center)) {
-          if (tiles.get(...pos) === Tile.HARD_ROCK) {
-            tiles.set(...pos, Tile.LOOSE_ROCK);
+    cavern.plans
+      .find((p) => p.architect.isHq)
+      ?.hops.forEach((hopId) => {
+        pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
+          for (const pos of plotLine(a.center, b.center)) {
+            if (tiles.get(...pos) === Tile.HARD_ROCK) {
+              tiles.set(...pos, Tile.LOOSE_ROCK);
+            }
           }
-        }
-      })
-    });
+        });
+      });
   },
   placeEntities: ({
     cavern,
@@ -126,6 +123,7 @@ const BASE: PartialArchitect<Metadata> = {
         template,
       });
     });
+    const placedMiners: Miner[] = [];
     for (let i = 0; i < plan.metadata.minersCount; i++) {
       const driving = placedVehicles[i] as Vehicle | undefined;
       const pos = driving ? position(driving) : randomlyInTile({ x, y, rng });
@@ -141,15 +139,18 @@ const BASE: PartialArchitect<Metadata> = {
       if (placedVehicles[i]) {
         placedVehicles[i] = { ...placedVehicles[i], driverId: miner.id };
       }
-      miners.push(miner);
+      placedMiners.push(miner);
     }
     vehicles.push(...placedVehicles);
-    setCameraPosition(position({
-      x: miners[0].x,
-      y: miners[0].y,
-      aimedAt: plan.path.baseplates[0].center,
-      pitch: Math.PI / 4,
-    }));
+    miners.push(...placedMiners);
+    setCameraPosition(
+      position({
+        x: placedMiners[0].x,
+        y: placedMiners[0].y,
+        aimedAt: plan.path.baseplates[0].center,
+        pitch: Math.PI / 4,
+      }),
+    );
   },
   scriptGlobals({ cavern }) {
     if (cavern.plans.some((plan) => plan.architect.isHq)) {
@@ -201,7 +202,7 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
       Math.max(plan.crystalRichness * plan.perimeter, 5),
     ore: ({ plan }) => Math.max(plan.oreRichness * plan.perimeter, 10),
     placeOre: (args) => {
-      return sprinkleOre(args, {seamBias: 1});
+      return sprinkleOre(args, { seamBias: 1 });
     },
     spawnBid: ({ cavern, plan }) =>
       !plan.fluid &&

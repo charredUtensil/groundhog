@@ -14,7 +14,10 @@ export function mkVars<T extends string>(
   return r as VarType<T>;
 }
 
-export function transformPoint(cavern: FencedCavern, [x, y]: Point): `${number},${number}` {
+export function transformPoint(
+  cavern: FencedCavern,
+  [x, y]: Point,
+): `${number},${number}` {
   return `${y - cavern.top},${x - cavern.left}`;
 }
 
@@ -24,13 +27,10 @@ export function scriptFragment(...rest: (string | Falsy)[]) {
   return rest.filter((s) => s).join("\n");
 }
 
-export function eventChain(
-  name: string,
-  ...rest: (`${string};` | Falsy)[]
-) {
+export function eventChain(name: string, ...rest: (`${string};` | Falsy)[]) {
   return `${name}::;\n${scriptFragment(...rest)}\n`;
 }
 
 export function escapeString(s: string) {
-  return s.replace('"', '\\"');
+  return s.replace(/\\/g, "").replace(/"/g, '\\"');
 }

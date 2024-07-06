@@ -82,6 +82,7 @@ export function CavernContextInput({
     [context, dispatchState],
   );
   const contextWithDefaults = inferContextDefaults(context);
+  const rest = { update, context, contextWithDefaults };
 
   return (
     <div className={styles.contextInput}>
@@ -134,81 +135,38 @@ export function CavernContextInput({
                   <div className={styles.invisible} />
                 )}
               </div>
-              <Choice
-                of="biome"
-                choices={["rock", "ice", "lava"]}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
-              <Choice
-                of="hasMonsters"
-                choices={[true, false]}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <Choice of="biome" choices={["rock", "ice", "lava"]} {...rest} />
+              <Choice of="hasMonsters" choices={[true, false]} {...rest} />
+              <Choice of="hasSlugs" choices={[true, false]} {...rest} />
             </div>
           </div>
           <div className={styles.section}>
             <h2>Outlines</h2>
             <div className={styles.subsection}>
               <h3>Partition</h3>
-              <Slider
-                of="targetSize"
-                min={40}
-                max={100}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
-              <Slider
-                of="baseplateMaxOblongness"
-                min={0}
-                max={10}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <Slider of="targetSize" min={40} max={100} {...rest} />
+              <Slider of="baseplateMaxOblongness" min={0} max={10} {...rest} />
               <Slider
                 of="baseplateMaxRatioOfSize"
                 min={0}
                 max={1}
                 percent
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
             </div>
             <div className={styles.subsection}>
               <h3>Discriminate</h3>
-              <Slider
-                of="caveCount"
-                min={2}
-                max={50}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <Slider of="caveCount" min={2} max={50} {...rest} />
             </div>
             <div className={styles.subsection}>
               <h3>Weave</h3>
-              <Slider
-                of="auxiliaryPathCount"
-                min={0}
-                max={50}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <Slider of="auxiliaryPathCount" min={0} max={50} {...rest} />
               <Slider
                 of="auxiliaryPathMinAngle"
                 min={0}
                 max={Math.PI}
                 angle
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
             </div>
           </div>
@@ -220,41 +178,31 @@ export function CavernContextInput({
                 of="waterPlans"
                 min={0}
                 max={expectedTotalPlans(contextWithDefaults)}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
               <Slider
                 of="lavaPlans"
                 min={0}
                 max={expectedTotalPlans(contextWithDefaults)}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
               <Slider
                 of="waterLakes"
                 min={1}
                 max={expectedCavePlans(contextWithDefaults)}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
               <Slider
                 of="lavaLakes"
                 min={1}
                 max={expectedCavePlans(contextWithDefaults)}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
               <Slider
                 of="erosionPlans"
                 min={0}
                 max={expectedTotalPlans(contextWithDefaults)}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
             </div>
             <div className={styles.subsection}>
@@ -274,9 +222,7 @@ export function CavernContextInput({
                   min={-0.5}
                   max={1.5}
                   step={0.01}
-                  update={update}
-                  context={context}
-                  contextWithDefaults={contextWithDefaults}
+                  {...rest}
                 />
               ))}
               <CurveSliders
@@ -284,36 +230,14 @@ export function CavernContextInput({
                 min={-1}
                 max={5}
                 step={0.25}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
               />
-              <ArchitectsInput
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <ArchitectsInput {...rest} />
             </div>
             <div className={styles.subsection}>
               <h3>Pearl</h3>
-              <Slider
-                of="caveBaroqueness"
-                min={0}
-                max={1}
-                percent
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
-              <Slider
-                of="hallBaroqueness"
-                min={0}
-                max={1}
-                percent
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <Slider of="caveBaroqueness" min={0} max={1} percent {...rest} />
+              <Slider of="hallBaroqueness" min={0} max={1} percent {...rest} />
             </div>
           </div>
           <div className={styles.section}>
@@ -328,6 +252,8 @@ export function CavernContextInput({
                   "hallCrystalSeamBias",
                   "caveOreSeamBias",
                   "hallOreSeamBias",
+                  "caveHasSlugHoleChance",
+                  "hallHasSlugHoleChance",
                 ] as const
               ).map((of) => (
                 <Slider
@@ -352,23 +278,32 @@ export function CavernContextInput({
                 min={0}
                 max={600}
                 step={5}
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
+                {...rest}
+              />
+              <Slider
+                of="stratascosity"
+                min={0}
+                max={20}
+                step={1}
+                {...rest}
               />
             </div>
             <div className={styles.subsection}>
               <h3>Strataflux</h3>
-              {(["caveMaxSlope", "hallMaxSlope", "voidMaxSlope"] as const).map(
+              <Slider
+                of={"strataplanity"}
+                min={0}
+                max={10}
+                {...rest}
+              />
+              {(["caveMaxSlope", "hallMaxSlope", "voidMaxSlope", "borderMaxSlope"] as const).map(
                 (of) => (
                   <Slider
                     key={of}
                     of={of}
                     min={0}
-                    max={200}
-                    update={update}
-                    context={context}
-                    contextWithDefaults={contextWithDefaults}
+                    max={300}
+                    {...rest}
                   />
                 ),
               )}
@@ -395,15 +330,7 @@ export function CavernContextInput({
             <h2>Ephemera</h2>
             <div className={styles.subsection}>
               <h3>Adjure</h3>
-              <Slider
-                of="crystalGoalRatio"
-                min={0}
-                max={1}
-                percent
-                update={update}
-                context={context}
-                contextWithDefaults={contextWithDefaults}
-              />
+              <Slider of="crystalGoalRatio" min={0} max={1} percent {...rest} />
             </div>
           </div>
         </>

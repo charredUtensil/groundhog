@@ -3,24 +3,21 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
-import { getMonsterSpawner } from "./utils/monster_spawner";
+import { monsterSpawnScript } from "./utils/creature_spawners";
 import { sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const monsterSpawner = getMonsterSpawner({
-  retriggerMode: "automatic",
-});
-
 const BASE: PartialArchitect<unknown> = {
   ...DefaultCaveArchitect,
-  monsterSpawnScript: ({ cavern, plan }) => {
-    if (cavern.context.biome === "ice" && plan.fluid === Tile.LAVA) {
+  placeSlugHoles() {},
+  monsterSpawnScript(args) {
+    if (args.cavern.context.biome === "ice" && args.plan.fluid === Tile.LAVA) {
       return undefined;
     }
-    if (cavern.context.biome === "lava" && plan.fluid !== Tile.LAVA) {
+    if (args.cavern.context.biome === "lava" && args.plan.fluid !== Tile.LAVA) {
       return undefined;
     }
-    return monsterSpawner({ cavern, plan });
+    return monsterSpawnScript(args);
   },
 };
 
@@ -166,10 +163,9 @@ const FLOODED: readonly Architect<unknown>[] = [
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
     placeCrystals(args) {
-      sprinkleCrystals(
-        args,
-        {seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.6)},
-      );
+      sprinkleCrystals(args, {
+        seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.6),
+      });
     },
     caveBid: ({ plan }) =>
       plan.fluid === Tile.LAVA &&

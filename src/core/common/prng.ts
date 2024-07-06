@@ -81,7 +81,11 @@ export class PseudorandomStream {
 }
 
 /**
- * DO NOT REMOVE OR RE-ORDER THIS ENUM. APPEND NEW ENTRIES TO THE END.
+ * DO NOT RE-ORDER THIS ENUM!
+ * ALWAYS APPEND NEW ENTRIES TO THE END!
+ *
+ * Otherwise, new versions of groundHog will generate wildly different caverns
+ * from the same seeds in a previous version.
  */
 enum Die {
   init = 0,
@@ -106,6 +110,8 @@ enum Die {
   monsterSpawnScript,
   brace,
   height,
+  placeSlugHoles,
+  slugSpawnScript,
 }
 
 /**
@@ -181,6 +187,7 @@ export class DiceBox {
   placeBuildings = (id: number) => this.prng(Die.placeBuildings, id);
   placeCrystals = (id: number) => this.prng(Die.placeCrystals, id);
   placeOre = (id: number) => this.prng(Die.placeOre, id);
+  placeSlugHoles = (id: number) => this.prng(Die.placeSlugHoles, id);
 
   placeLandslides = (id: number) => this.prng(Die.placeLandslides, id);
   placeErosion = (id: number) => this.prng(Die.placeErosion, id);
@@ -198,4 +205,5 @@ export class DiceBox {
 
   script = (id: number) => this.prng(Die.script, id);
   monsterSpawnScript = (id: number) => this.prng(Die.monsterSpawnScript, id);
+  slugSpawnScript = (id: number) => this.prng(Die.slugSpawnScript, id);
 }
