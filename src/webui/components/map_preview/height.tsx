@@ -8,18 +8,6 @@ import {
 
 const SCALE = 6;
 
-const OCTAGON = [
-  "M0.5,0.125",
-  "L0.125,0.5",
-  "L-0.125,0.5",
-  "L-0.5,0.125",
-  "L-0.5,-0.125",
-  "L-0.125,-0.5",
-  "L0.125,-0.5",
-  "L0.5, -0.125",
-  "Z",
-].join(" ");
-
 function toColor(h: number) {
   const v = (h - HEIGHT_MIN) / (HEIGHT_MAX - HEIGHT_MIN);
   const lum = v * 100;
