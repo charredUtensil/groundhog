@@ -141,8 +141,11 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
         slope,
         cavern.pearlInnerDex
           .get(x, y)
-          ?.reduce((r: number | undefined, _, i) => Math.min(r ?? Infinity, maxSlopeForPlan[i]), undefined) ??
-        planlessSlope
+          ?.reduce(
+            (r: number | undefined, _, i) =>
+              Math.min(r ?? Infinity, maxSlopeForPlan[i]),
+            undefined,
+          ) ?? planlessSlope,
       );
       result.set(x, y, slope);
     }

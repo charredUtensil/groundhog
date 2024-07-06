@@ -31,7 +31,11 @@ function superflat(cavern: StrataformedCavern): Grid<number> {
   return result;
 }
 
-function getRandomHeight(node: HeightNode, rng: PseudorandomStream, strataplanity: number): number {
+function getRandomHeight(
+  node: HeightNode,
+  rng: PseudorandomStream,
+  strataplanity: number,
+): number {
   if (node.min === node.max) {
     return node.min;
   }
@@ -83,7 +87,7 @@ export default function strataflux(
       }
     }
     return collapseQueue.splice(r, 1)[0];
-  }
+  };
 
   // Collapsing a node means picking a specific height in range for that node.
   const collapse = () => {

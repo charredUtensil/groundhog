@@ -280,33 +280,21 @@ export function CavernContextInput({
                 step={5}
                 {...rest}
               />
-              <Slider
-                of="stratascosity"
-                min={0}
-                max={20}
-                step={1}
-                {...rest}
-              />
+              <Slider of="stratascosity" min={0} max={20} step={1} {...rest} />
             </div>
             <div className={styles.subsection}>
               <h3>Strataflux</h3>
-              <Slider
-                of={"strataplanity"}
-                min={0}
-                max={10}
-                {...rest}
-              />
-              {(["caveMaxSlope", "hallMaxSlope", "voidMaxSlope", "borderMaxSlope"] as const).map(
-                (of) => (
-                  <Slider
-                    key={of}
-                    of={of}
-                    min={0}
-                    max={300}
-                    {...rest}
-                  />
-                ),
-              )}
+              <Slider of={"strataplanity"} min={0} max={10} {...rest} />
+              {(
+                [
+                  "caveMaxSlope",
+                  "hallMaxSlope",
+                  "voidMaxSlope",
+                  "borderMaxSlope",
+                ] as const
+              ).map((of) => (
+                <Slider key={of} of={of} min={0} max={300} {...rest} />
+              ))}
             </div>
             <div className={styles.subsection}>
               <h3>Populate</h3>
