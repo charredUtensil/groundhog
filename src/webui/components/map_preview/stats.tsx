@@ -44,8 +44,12 @@ export default function Stats({
       {(() => {
         switch (mapOverlay) {
           case "overview":
-            return cavern.briefing?.intro && (
-              <p>Briefing: {cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
+            return (
+              cavern.briefing?.intro && (
+                <p>
+                  Briefing: {cavern.briefing.intro.replace(/\n/g, "\u00B6")}
+                </p>
+              )
             );
           case "tiles":
             return (
@@ -153,9 +157,7 @@ export default function Stats({
             );
           }
           case "oxygen": {
-            return (
-              <p>Oxygen: {cavern.oxygen?.join("/") ?? "Infinity"}</p>
-            );
+            return <p>Oxygen: {cavern.oxygen?.join("/") ?? "Infinity"}</p>;
           }
         }
       })()}

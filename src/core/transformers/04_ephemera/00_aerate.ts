@@ -1,6 +1,11 @@
 import { NSEW, Point } from "../../common/geometry";
 import { Grid, MutableGrid } from "../../common/grid";
-import { POWER_STATION, SUPPORT_STATION, TELEPORT_PAD, TOOL_STORE } from "../../models/building";
+import {
+  POWER_STATION,
+  SUPPORT_STATION,
+  TELEPORT_PAD,
+  TOOL_STORE,
+} from "../../models/building";
 import { EntityPosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
 import { PopulatedCavern } from "../03_plastic/04_populate";
@@ -8,7 +13,7 @@ import { PopulatedCavern } from "../03_plastic/04_populate";
 export type AeratedCavern = PopulatedCavern & {
   readonly oxygen: null | readonly [number, number];
   readonly aerationLog: null | Grid<true>;
-}
+};
 
 // Some timing stats
 const TIMING = {
@@ -30,21 +35,20 @@ const TIMING = {
   BUILD_TELEPORT_PAD: 125,
   BUILD_POWER_STATION: 210,
   BUILD_SUPPORT_STATION: 215,
-} as const satisfies {[key: string]: number};
+} as const satisfies { [key: string]: number };
 
 function getOrigin(cavern: PopulatedCavern): Point {
-  const entity = (
-    cavern.buildings.find(b => b.template === TOOL_STORE) ??
+  const entity =
+    cavern.buildings.find((b) => b.template === TOOL_STORE) ??
     cavern.miners[0] ??
-    cavern.vehicles[0]
-  );
+    cavern.vehicles[0];
   // This will fail for lava/water spawns with a rapid rider/tunnel scout
   return [Math.floor(entity.x), Math.floor(entity.y)];
 }
 
 export default function aerate(cavern: PopulatedCavern): AeratedCavern {
   if (!cavern.context.hasAirLimit) {
-    return {...cavern, oxygen: null, aerationLog: null};
+    return { ...cavern, oxygen: null, aerationLog: null };
   }
 
   const presentAtSpawn = (e: EntityPosition) =>
@@ -64,7 +68,7 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
 
   const aerationLog = new MutableGrid<true>();
 
-  buildings.forEach(b => {
+  buildings.forEach((b) => {
     hasToolStore ||= b.template === TOOL_STORE;
     hasTeleportPad ||= b.template === TELEPORT_PAD;
     hasPowerStation ||= b.template === POWER_STATION;
@@ -72,10 +76,10 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
     // Any building can be scrapped for crystals.
     crystals += b.template.crystals;
   });
-  vehicles.forEach(v => {
+  vehicles.forEach((v) => {
     // Any vehicle can be scrapped for crystals.
     crystals += v.template.crystals;
-  })
+  });
 
   // Assume the player has to build 2 power paths.
   air += 2 * TIMING.BUILD_POWER_PATH;
@@ -160,12 +164,15 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
           air += drillTiming(t)!;
         }
         if (ore < 0) {
-          const oreYield = t.oreYield + (cavern.ore.get(x, y) ?? 0)
+          const oreYield = t.oreYield + (cavern.ore.get(x, y) ?? 0);
           ore += oreYield;
-          air += oreYield * d * (TIMING.WALK + TIMING.WALK_ENCUMBERED) + TIMING.CLEAR_RUBBLE;
+          air +=
+            oreYield * d * (TIMING.WALK + TIMING.WALK_ENCUMBERED) +
+            TIMING.CLEAR_RUBBLE;
         }
         if (crystals < 0) {
-          const crystalYield = t.crystalYield + (cavern.crystals.get(x, y) ?? 0)
+          const crystalYield =
+            t.crystalYield + (cavern.crystals.get(x, y) ?? 0);
           crystals += crystalYield;
           air += crystalYield * d * (TIMING.WALK + TIMING.WALK_ENCUMBERED);
         }
@@ -178,30 +185,27 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
         // Failure mode: This simulation can't figure out how to build a
         // Support Station. Use an arbitrary high air quantity.
         console.log("Unable to playtest this level for air consumption.");
-        return {...cavern, oxygen: [8000, 8000], aerationLog};
+        return { ...cavern, oxygen: [8000, 8000], aerationLog };
       }
     }
   }
 
-  const spawn = cavern.plans.find(plan => !plan.hops.length)!;
-  
+  const spawn = cavern.plans.find((plan) => !plan.hops.length)!;
+
   if (cavern.context.hasMonsters) {
-    air += TIMING.KILL_MONSTER * spawn.monsterSpawnRate / 60 * (air / 5)
+    air += ((TIMING.KILL_MONSTER * spawn.monsterSpawnRate) / 60) * (air / 5);
   }
-  
+
   // Multiply by safety factor and round up to the nearest 250.
   air *= cavern.context.airSafetyFactor;
-  air = Math.max(
-    500,
-    Math.ceil(air / 250) * 250,
-  );
+  air = Math.max(500, Math.ceil(air / 250) * 250);
 
   // Larger caverns should have more max air, even if the starting air is low.
   const maxAir = Math.max(
     air,
     3000,
-    Math.ceil(cavern.context.targetSize * 80 / 250) * 250,
+    Math.ceil((cavern.context.targetSize * 80) / 250) * 250,
   );
 
-  return {...cavern, oxygen: [air, maxAir], aerationLog}
+  return { ...cavern, oxygen: [air, maxAir], aerationLog };
 }

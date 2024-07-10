@@ -319,7 +319,13 @@ export function CavernContextInput({
             <h2>Ephemera</h2>
             <div className={styles.subsection}>
               <h3>Aerate</h3>
-              <Slider of="airSafetyFactor" min={1} max={5} step={0.1} {...rest} />
+              <Slider
+                of="airSafetyFactor"
+                min={1}
+                max={5}
+                step={0.1}
+                {...rest}
+              />
             </div>
             <div className={styles.subsection}>
               <h3>Adjure</h3>
