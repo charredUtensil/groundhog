@@ -8,7 +8,7 @@ import { serializeObjectives } from "../../models/objectives";
 import { serializePosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
 import { serializeVehicle } from "../../models/vehicle";
-import { ProgrammedCavern } from "./02_program";
+import { ProgrammedCavern } from "./03_program";
 
 export type SerializedCavern = ProgrammedCavern & {
   serialized: string;

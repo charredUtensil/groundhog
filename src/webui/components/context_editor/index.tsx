@@ -138,6 +138,7 @@ export function CavernContextInput({
               <Choice of="biome" choices={["rock", "ice", "lava"]} {...rest} />
               <Choice of="hasMonsters" choices={[true, false]} {...rest} />
               <Choice of="hasSlugs" choices={[true, false]} {...rest} />
+              <Choice of="hasAirLimit" choices={[true, false]} {...rest} />
             </div>
           </div>
           <div className={styles.section}>
@@ -316,6 +317,10 @@ export function CavernContextInput({
           </div>
           <div className={styles.section}>
             <h2>Ephemera</h2>
+            <div className={styles.subsection}>
+              <h3>Aerate</h3>
+              <Slider of="airSafetyFactor" min={1} max={5} step={0.1} {...rest} />
+            </div>
             <div className={styles.subsection}>
               <h3>Adjure</h3>
               <Slider of="crystalGoalRatio" min={0} max={1} percent {...rest} />

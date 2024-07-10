@@ -1,4 +1,4 @@
-import { EnscribedCavern } from "../04_ephemera/01_enscribe";
+import { EnscribedCavern } from "../04_ephemera/02_enscribe";
 import fence, { FencedCavern } from "./00_fence";
 
 function bounds({ left, right, bottom, top }: FencedCavern) {

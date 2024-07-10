@@ -52,18 +52,21 @@ class BuildingTemplate {
   readonly id: string;
   readonly inspectAbbrev: string;
   readonly maxLevel: number;
+  readonly ore: number;
   readonly crystals: number;
   readonly footprint: Footprint;
   constructor(
     id: string,
     inspectAbbrev: string,
     maxLevel: Level,
+    ore: number,
     crystals: number,
     footprint: Footprint,
   ) {
     this.id = id;
     this.inspectAbbrev = inspectAbbrev;
     this.maxLevel = maxLevel;
+    this.ore = ore;
     this.crystals = crystals;
     this.footprint = footprint;
   }
@@ -91,12 +94,14 @@ export const TOOL_STORE = new BuildingTemplate(
   "Ts",
   3,
   0,
+  0,
   F_DEFAULT,
 );
 export const TELEPORT_PAD = new BuildingTemplate(
   "BuildingTeleportPad_C",
   "Tp",
   2,
+  8,
   0,
   F_DEFAULT,
 );
@@ -106,7 +111,8 @@ export const DOCKS = new BuildingTemplate(
   "BuildingDocks_C",
   "Dk",
   1,
-  1,
+  8,
+  0,
   F_DEFAULT,
 );
 // The Canteen is functionally symmetrical, but if you care, the end with
@@ -115,6 +121,7 @@ export const CANTEEN = new BuildingTemplate(
   "BuildingCanteen_C",
   "Cn",
   1,
+  10,
   1,
   F_CANTEEN_REFINERY,
 );
@@ -124,6 +131,7 @@ export const POWER_STATION = new BuildingTemplate(
   "BuildingPowerStation_C",
   "Ps",
   2,
+  12,
   2,
   F_POWER_STATION,
 );
@@ -131,6 +139,7 @@ export const SUPPORT_STATION = new BuildingTemplate(
   "BuildingSupportStation_C",
   "Ss",
   2,
+  15,
   3,
   F_DEFAULT,
 );
@@ -138,6 +147,7 @@ export const UPGRADE_STATION = new BuildingTemplate(
   "BuildingUpgradeStation_C",
   "Us",
   3,
+  20,
   3,
   F_DEFAULT,
 );
@@ -146,6 +156,7 @@ export const GEOLOGICAL_CENTER = new BuildingTemplate(
   "BuildingGeologicalCenter_C",
   "Gc",
   5,
+  20,
   2,
   F_DEFAULT,
 );
@@ -154,6 +165,7 @@ export const ORE_REFINERY = new BuildingTemplate(
   "BuildingOreRefinery_C",
   "Or",
   4,
+  20,
   3,
   F_CANTEEN_REFINERY,
 );
@@ -161,6 +173,7 @@ export const MINING_LASER = new BuildingTemplate(
   "BuildingMiningLaser_C",
   "Ml",
   1,
+  10,
   1,
   F_MINING_LASER,
 );
@@ -169,6 +182,7 @@ export const SUPER_TELEPORT = new BuildingTemplate(
   "BuildingSuperTeleport_C",
   "St",
   2,
+  20,
   4,
   F_SUPER_TELEPORT,
 );

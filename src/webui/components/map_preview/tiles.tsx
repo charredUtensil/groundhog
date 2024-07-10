@@ -51,7 +51,7 @@ function getFill(
       return null;
     }
     case "entities":
-      if (t === Tile.FOUNDATION) {
+      if (t === Tile.FOUNDATION || t === Tile.POWER_PATH) {
         return t.inspectColor;
       }
       break;
@@ -100,6 +100,15 @@ function getFill(
             Math.max(0, 1 - cooldown / MAX_COOLDOWN[mapOverlay]),
         );
         return SCALE_COLORS[i];
+      }
+      break;
+    case "oxygen":
+      const aeration = cavern.aerationLog?.get(x, y);
+      if (aeration) {
+        if (cavern.crystals?.get(x, y)) {
+          return Tile.CRYSTAL_SEAM.inspectColor;
+        }
+        return t.isWall ? t.inspectColor : "#555533";
       }
       break;
     case "about":

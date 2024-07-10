@@ -43,6 +43,10 @@ export default function Stats({
     <div className={styles.stats}>
       {(() => {
         switch (mapOverlay) {
+          case "overview":
+            return cavern.briefing?.intro && (
+              <p>Briefing: {cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
+            );
           case "tiles":
             return (
               <ul>
@@ -148,11 +152,13 @@ export default function Stats({
               </ul>
             );
           }
+          case "oxygen": {
+            return (
+              <p>Oxygen: {cavern.oxygen?.join("/") ?? "Infinity"}</p>
+            );
+          }
         }
       })()}
-      {cavern.briefing?.intro && (
-        <p>Briefing: {cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
-      )}
     </div>
   );
 }

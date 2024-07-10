@@ -27,6 +27,7 @@ const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
   { of: "erosion", label: "Erosion" },
   { of: "discovery", label: "Discovery" },
   { of: "height", label: "Height" },
+  { of: "oxygen", label: "Oxygen" },
   { of: "lore", label: "Lore" },
   { of: "about", label: "About" },
 ];

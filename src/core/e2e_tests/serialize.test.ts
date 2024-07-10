@@ -29,7 +29,7 @@ import { atCenterOfTile, position } from "../models/position";
 import { Tile } from "../models/tiles";
 import discover from "../transformers/03_plastic/01_discover";
 import fence from "../transformers/03_plastic/00_fence";
-import serialize from "../transformers/04_ephemera/03_serialize";
+import serialize from "../transformers/04_ephemera/04_serialize";
 import goldenTest from "./golden";
 import strataflux from "../transformers/03_plastic/03_strataflux";
 import {

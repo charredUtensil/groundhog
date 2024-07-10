@@ -91,6 +91,10 @@ export type CavernContext = {
    */
   hasSlugs: boolean;
   /**
+   * Does this cavern have limited air?
+   */
+  hasAirLimit: boolean;
+  /**
    * How blobby and jagged caves should be.
    * 0 results in perfectly squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves, up
@@ -241,6 +245,14 @@ export type CavernContext = {
    * that is out of play on the border of the map.
    */
   borderMaxSlope: number;
+  /**
+   * GroundHog attempts to calculate how much air is needed to build a Support
+   * Station by playing perfectly through a (rough) simulation of the level.
+   * In theory, it should be possible for a very good player to match or beat
+   * this simulation - but that's not going to be fun. Multiply the estimate by
+   * the safety factor to get the final air number.
+   */
+  airSafetyFactor: number;
 };
 
 enum Die {
@@ -250,6 +262,7 @@ enum Die {
   flood,
   heightTargetRange,
   hasSlugs,
+  hasAirLimit,
 }
 
 const STANDARD_DEFAULTS = {
@@ -278,6 +291,7 @@ const STANDARD_DEFAULTS = {
   hallHasLandslidesChance: 0.8,
   caveLandslideCooldownRange: { min: 15, max: 120 },
   hallLandslideCooldownRange: { min: 30, max: 150 },
+  airSafetyFactor: 2,
   crystalGoalRatio: 0.2,
 } as const satisfies Partial<CavernContext>;
 
@@ -363,6 +377,7 @@ export function inferContextDefaults(
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 78 }),
     ...args,
   };
+  const hasAirLimit = false; // dice.init(Die.hasAirLimit).chance(0.75);
   const hasSlugs = dice.init(Die.hasSlugs).chance(
     {
       rock: 0.25,
@@ -381,6 +396,7 @@ export function inferContextDefaults(
     ...STANDARD_DEFAULTS,
     ...DEFAULTS_FOR_BIOME[r.biome],
     ...getDefaultFlooding(dice, r.biome),
+    hasAirLimit,
     hasSlugs,
     heightTargetRange,
     ...r,
