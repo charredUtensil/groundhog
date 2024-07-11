@@ -64,7 +64,6 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
   const buildings = cavern.buildings.filter(presentAtSpawn);
   const vehicles = cavern.vehicles.filter(presentAtSpawn);
 
-  let hasToolStore = false;
   let hasTeleportPad = false;
   let hasPowerStation = false;
   let hasSupportStation = false;
@@ -76,7 +75,6 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
   const aerationLog = new MutableGrid<true>();
 
   buildings.forEach((b) => {
-    hasToolStore ||= b.template === TOOL_STORE;
     hasTeleportPad ||= b.template === TELEPORT_PAD;
     hasPowerStation ||= b.template === POWER_STATION;
     hasSupportStation ||= b.template === SUPPORT_STATION;
