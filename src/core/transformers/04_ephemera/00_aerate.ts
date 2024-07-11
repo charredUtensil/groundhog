@@ -38,12 +38,19 @@ const TIMING = {
 } as const satisfies { [key: string]: number };
 
 function getOrigin(cavern: PopulatedCavern): Point {
-  const entity =
-    cavern.buildings.find((b) => b.template === TOOL_STORE) ??
-    cavern.miners[0] ??
-    cavern.vehicles[0];
-  // This will fail for lava/water spawns with a rapid rider/tunnel scout
-  return [Math.floor(entity.x), Math.floor(entity.y)];
+  const entities = [
+    ...cavern.buildings.filter((b) => b.template === TOOL_STORE),
+    ...cavern.buildings,
+    ...cavern.miners,
+    ...cavern.vehicles,
+  ];
+  for (const e of entities) {
+    const pos = [Math.floor(e.x), Math.floor(e.y)] as Point;
+    if (cavern.discoveryZones.get(...pos)?.openOnSpawn) {
+      return pos;
+    }
+  }
+  throw new Error("No discovered entities. Is this level even playable?");
 }
 
 export default function aerate(cavern: PopulatedCavern): AeratedCavern {
