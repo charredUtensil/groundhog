@@ -1,6 +1,6 @@
 import { filterTruthy } from "../../common/utils";
 import { Architect } from "../../models/architect";
-import { EnscribedCavern } from "./01_enscribe";
+import { EnscribedCavern } from "./02_enscribe";
 
 export type ProgrammedCavern = EnscribedCavern & {
   readonly script: string;

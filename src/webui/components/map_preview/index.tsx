@@ -23,6 +23,7 @@ export type MapOverlay =
   | "lore"
   | "ore"
   | "overview"
+  | "oxygen"
   | "tiles"
   | null;
 

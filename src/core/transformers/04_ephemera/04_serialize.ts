@@ -8,7 +8,7 @@ import { serializeObjectives } from "../../models/objectives";
 import { serializePosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
 import { serializeVehicle } from "../../models/vehicle";
-import { ProgrammedCavern } from "./02_program";
+import { ProgrammedCavern } from "./03_program";
 
 export type SerializedCavern = ProgrammedCavern & {
   serialized: string;
@@ -86,6 +86,7 @@ opencaves:${pointSet(
     cavern.openCaveFlags.map((_, x, y) => [y, x]),
     [-cavern.top, -cavern.left],
   )}
+${cavern.oxygen ? `oxygen:${cavern.oxygen.join("/")}` : ""}
 spiderrate:10
 spidermin:2
 spidermax:4

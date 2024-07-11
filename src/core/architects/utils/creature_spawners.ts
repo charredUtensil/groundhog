@@ -7,7 +7,7 @@ import {
 } from "../../models/creature";
 import { Plan } from "../../models/plan";
 import { FencedCavern } from "../../transformers/03_plastic/00_fence";
-import { EnscribedCavern } from "../../transformers/04_ephemera/01_enscribe";
+import { EnscribedCavern } from "../../transformers/04_ephemera/02_enscribe";
 import { getDiscoveryPoint } from "./discovery";
 import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
 

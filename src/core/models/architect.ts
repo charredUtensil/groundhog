@@ -15,7 +15,7 @@ import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
-import { EnscribedCavern } from "../transformers/04_ephemera/01_enscribe";
+import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { CollapseUnion } from "../common/utils";
 
