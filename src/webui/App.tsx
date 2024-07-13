@@ -15,21 +15,24 @@ import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
 import About from "./components/about";
 import styles from "./App.module.scss";
-import { TILE_STYLE_VARS } from "../core/models/tiles";
 
-const MAP_OVERLAY_BUTTONS: readonly { of: MapOverlay; label: String }[] = [
-  { of: "overview", label: "Overview" },
-  { of: "tiles", label: "Tiles" },
-  { of: "crystals", label: "Crystals" },
-  { of: "ore", label: "Ore" },
-  { of: "entities", label: "Entities" },
-  { of: "landslides", label: "Landslides" },
-  { of: "erosion", label: "Erosion" },
-  { of: "discovery", label: "Discovery" },
-  { of: "height", label: "Height" },
-  { of: "oxygen", label: "Oxygen" },
-  { of: "lore", label: "Lore" },
-  { of: "about", label: "About" },
+const MAP_OVERLAY_BUTTONS: readonly {
+  of: MapOverlay;
+  label: String;
+  enabled: (cavern: Cavern | undefined) => boolean;
+}[] = [
+  { of: "overview", label: "Overview", enabled: c => true},
+  { of: "tiles", label: "Tiles", enabled: c => !!c?.tiles},
+  { of: "crystals", label: "Crystals", enabled: c => !!c?.crystals},
+  { of: "ore", label: "Ore", enabled: c => !!c?.ore},
+  { of: "entities", label: "Entities", enabled: c => !!c?.buildings},
+  { of: "discovery", label: "Discovery", enabled: c => !!c?.discoveryZones},
+  { of: "height", label: "Height", enabled: c => !!c?.height},
+  { of: "landslides", label: "Landslides", enabled: c => !!c?.landslides},
+  { of: "erosion", label: "Erosion", enabled: c => !!c?.erosion},
+  { of: "oxygen", label: "Oxygen", enabled: c => c?.oxygen !== undefined},
+  { of: "lore", label: "Lore", enabled: c => !!c?.lore},
+  { of: "about", label: "About", enabled: c => true},
 ];
 
 function getDownloadLink(serializedData: string) {
@@ -118,7 +121,6 @@ function App() {
   return (
     <div
       className={`${styles.App} ${styles[`${biome}Biome`]}`}
-      style={TILE_STYLE_VARS}
     >
       <div className={styles.settingsPanel}>
         <CavernContextInput dispatchState={dispatchState} />
@@ -188,10 +190,10 @@ function App() {
         >
           Pearls
         </button>
-        {MAP_OVERLAY_BUTTONS.map(({ of, label }) => (
+        {MAP_OVERLAY_BUTTONS.map(({ of, label, enabled }) => (
           <button
             key={of}
-            className={mapOverlay === of ? styles.active : styles.inactive}
+            className={mapOverlay === of ? styles.active : (enabled(state.cavern) ? styles.inactive : styles.disabled)}
             onClick={() => setMapOverlay((v) => (v === of ? "overview" : of))}
           >
             {label}

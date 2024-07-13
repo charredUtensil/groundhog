@@ -156,8 +156,8 @@
       height: 6px;
       background: linear-gradient(
         to right,
-        var(--palette-brand) 4px,
-        var(--palette-brand) var(--completion),
+        var(--palette-accent) 4px,
+        var(--palette-accent) var(--completion),
         var(--palette-fg) var(--completion),
         var(--palette-fg) 100%
       );
@@ -167,7 +167,7 @@
         appearance: none;
         height: 14px;
         width: 8px;
-        background-color: var(--palette-brand);
+        background-color: var(--palette-accent);
         border-radius: 2px;
         border: none;
       }
@@ -175,7 +175,7 @@
       &::-moz-range-thumb {
         height: 14px;
         width: 8px;
-        background-color: var(--palette-brand);
+        background-color: var(--palette-accent);
         border-radius: 2px;
         border: none;
       }
