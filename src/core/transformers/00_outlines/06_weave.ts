@@ -110,13 +110,13 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
     paths[path.id] = new Path(path.id, 'auxiliary', path.baseplates);
   }
 
-  for (let i = 0; i < cavern.context.auxiliaryPathCount; i++) {
+  for (let i = 0; i < cavern.context.optimalAuxiliaryPathCount; i++) {
     pruneByAngle();
-    if (i === 0) {
-      addBestShortcut();
-    } else {
-      addRandomShortcut();
-    }
+    addBestShortcut();
+  }
+  for (let i = 0; i < cavern.context.randomAuxiliaryPathCount; i++) {
+    pruneByAngle();
+    addRandomShortcut();
   }
 
   return { ...cavern, paths: paths.filter((path) => path) };

@@ -55,7 +55,11 @@ export type CavernContext = {
   /**
    * Add at most this many extra redundant paths.
    */
-  auxiliaryPathCount: number;
+  optimalAuxiliaryPathCount: number;
+  /**
+   * Add at most this many extra redundant paths.
+   */
+  randomAuxiliaryPathCount: number;
   /**
    * Auxiliary paths will not be chosen if they make an angle less than this
    * against another path.
@@ -269,7 +273,8 @@ const STANDARD_DEFAULTS = {
   baseplateMaxOblongness: 3,
   baseplateMaxRatioOfSize: 0.33,
   caveCount: 20,
-  auxiliaryPathCount: 4,
+  optimalAuxiliaryPathCount: 1,
+  randomAuxiliaryPathCount: 3,
   auxiliaryPathMinAngle: Math.PI / 4,
   caveBaroqueness: 0.14,
   hallBaroqueness: 0.05,
