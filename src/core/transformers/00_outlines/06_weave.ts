@@ -69,23 +69,24 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
     (pathIdsByEnds[path.destination.id] ||= [])[path.origin.id] = path.id;
   });
 
+  function minAngle(path: Path, node: GraphNode) {
+    const theta = node.edges[path.id].theta;
+    return node.edges
+      .reduce((r, {theta: t}, pathId) => {
+        const pathKind = paths[pathId]?.kind;
+        if (pathKind === 'spanning' || pathKind === 'auxiliary') {
+          return Math.min(getOffset(theta, t), r);
+        }
+        return r;
+      }, Infinity);
+  };
+
   // Delete any paths that don't form a minimum angle
   function pruneByAngle() {
     paths.filter(path => path.kind === 'ambiguous').forEach((path) => {
-      function minAngle(node: GraphNode) {
-        const theta = node.edges[path.id].theta;
-        return node.edges
-          .reduce((r, {theta: t}, pathId) => {
-            const pathKind = paths[pathId]?.kind;
-            if (pathKind === 'spanning' || pathKind === 'auxiliary') {
-              return Math.min(getOffset(theta, t), r);
-            }
-            return r;
-          }, Infinity);
-      };
       if (Math.min(
-        minAngle(graph[path.origin.id]),
-        minAngle(graph[path.destination.id]),
+        minAngle(path, graph[path.origin.id]),
+        minAngle(path, graph[path.destination.id]),
       ) < cavern.context.auxiliaryPathMinAngle) {
         delete paths[path.id];
       }
@@ -106,7 +107,16 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
   }
 
   function addRandomShortcut() {
-    const path = rng.uniformChoice(paths.filter(path => path.kind === 'ambiguous'));
+    const path = rng.betaChoice(paths
+      .filter(path => path.kind === 'ambiguous')
+      .map((path) => ({
+        path,
+        oa: minAngle(path, graph[path.origin.id]),
+        da: minAngle(path, graph[path.destination.id]),
+      }))
+      .sort((a, b) => a.oa + a.da - b.oa - b.da),
+      {a: 1, b: 5},
+    ).path;
     paths[path.id] = new Path(path.id, 'auxiliary', path.baseplates);
   }
 

@@ -164,8 +164,8 @@ export function CavernContextInput({
             </div>
             <div className={styles.subsection}>
               <h3>Weave</h3>
-              <Slider of="optimalAuxiliaryPathCount" min={0} max={50} {...rest} />
-              <Slider of="randomAuxiliaryPathCount" min={0} max={50} {...rest} />
+              <Slider of="optimalAuxiliaryPathCount" min={0} max={30} {...rest} />
+              <Slider of="randomAuxiliaryPathCount" min={0} max={30} {...rest} />
               <Slider
                 of="auxiliaryPathMinAngle"
                 min={0}
