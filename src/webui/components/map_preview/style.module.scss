@@ -5,7 +5,7 @@
   height: 100%;
 
   --pvw-bpak: #222222;
-  --pvw-bpck: #2D004B;
+  --pvw-bpck: #2d004b;
   --pvw-bphk: #166921;
   --pvw-pathspan: yellow;
   --pvw-pathaux: #24b136;
@@ -13,7 +13,7 @@
   --pvw-entenemy: red;
   --pvw-dfluid: #080022;
   --pvw-dfloor: #180032;
-  --pvw-dwall: #2D004B;
+  --pvw-dwall: #2d004b;
   --pvw-scale0: #555544;
   --pvw-scale1: #777744;
   --pvw-scale2: #999944;
@@ -22,23 +22,23 @@
   --pvw-scale5: #ffff44;
   --pvw-scale6: #ffff66;
   --pvw-scale7: #ffff88;
-  --pvw-tile1: #2D004B;
+  --pvw-tile1: #2d004b;
   --pvw-tile2: #180032;
   --pvw-tile3: #180032;
   --pvw-tile4: #180032;
   --pvw-tile5: #180032;
-  --pvw-tile6: #FF5A00;
-  --pvw-tile11: #002FB5;
+  --pvw-tile6: #ff5a00;
+  --pvw-tile11: #002fb5;
   --pvw-tile12: #166921;
-  --pvw-tile14: #BFBFBF;
-  --pvw-tile24: #9D9B00;
-  --pvw-tile26: #AD59EF;
-  --pvw-tile30: #943CC3;
-  --pvw-tile34: #731CAD;
+  --pvw-tile14: #bfbfbf;
+  --pvw-tile24: #9d9b00;
+  --pvw-tile26: #ad59ef;
+  --pvw-tile30: #943cc3;
+  --pvw-tile34: #731cad;
   --pvw-tile38: #800080;
-  --pvw-tile42: #B5FF00;
-  --pvw-tile46: #9C4108;
-  --pvw-tile50: #FFFF00;
+  --pvw-tile42: #b5ff00;
+  --pvw-tile46: #9c4108;
+  --pvw-tile50: #ffff00;
   --pvw-tile60: #180032;
   --pvw-tile61: #180032;
   --pvw-tile62: #180032;
@@ -191,7 +191,8 @@
         fill: none;
       }
 
-      &.oly-entities, &.oly-tiles {
+      &.oly-entities,
+      &.oly-tiles {
         .bounds {
           fill: var(--pvw-tile38);
         }

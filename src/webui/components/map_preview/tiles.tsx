@@ -6,7 +6,7 @@ import styles from "./style.module.scss";
 
 const SCALE = 6;
 
-const SCALE_COLORS = 8
+const SCALE_COLORS = 8;
 
 const MAX_COOLDOWN = {
   landslides: 300,
@@ -19,13 +19,13 @@ function tk(t: Tile) {
 
 function dk(t: Tile) {
   if (t === Tile.WATER || t === Tile.LAVA) {
-    return 'dfluid';
+    return "dfluid";
   }
-  return t.isWall ? 'dwall' : 'dfloor';
+  return t.isWall ? "dwall" : "dfloor";
 }
 
 function sk(s: number) {
-  return `scale${Math.min(Math.floor(s), SCALE_COLORS - 1)}`
+  return `scale${Math.min(Math.floor(s), SCALE_COLORS - 1)}`;
 }
 
 function getFill(
@@ -53,36 +53,33 @@ function getFill(
       return dk(t);
     case "tiles":
       return tk(t);
-    case "crystals":
-      {
-        if (t.crystalYield > 0) {
-          return tk(t);
-        }
-        const c = cavern.crystals?.get(x, y) ?? 0;
-        if (c > 0) {
-          return sk(c - 1);
-        }
-        return dk(t)
+    case "crystals": {
+      if (t.crystalYield > 0) {
+        return tk(t);
       }
-    case "ore":
-      {
-        if (t.oreYield > 4) {
-          return tk(t);
-        }
-        const o = (cavern.ore?.get(x, y) ?? 0) + t.oreYield;
-        if (o > 0) {
-          return sk(o - 1);
-        }
-        return dk(t)
+      const c = cavern.crystals?.get(x, y) ?? 0;
+      if (c > 0) {
+        return sk(c - 1);
       }
-    case "discovery":
-      {
-        const dz = cavern.discoveryZones?.get(x, y);
-        if (dz) {
-          return dz.openOnSpawn ? 'disco0' : 'disco1';
-        }
-        return dk(t);
+      return dk(t);
+    }
+    case "ore": {
+      if (t.oreYield > 4) {
+        return tk(t);
       }
+      const o = (cavern.ore?.get(x, y) ?? 0) + t.oreYield;
+      if (o > 0) {
+        return sk(o - 1);
+      }
+      return dk(t);
+    }
+    case "discovery": {
+      const dz = cavern.discoveryZones?.get(x, y);
+      if (dz) {
+        return dz.openOnSpawn ? "disco0" : "disco1";
+      }
+      return dk(t);
+    }
     case "erosion":
       if (t === Tile.WATER || t === Tile.LAVA) {
         return tk(t);
@@ -97,17 +94,16 @@ function getFill(
         );
       }
       return dk(t);
-    case "oxygen":
-      {
-        const aeration = cavern.aerationLog?.get(x, y);
-        if (!aeration) {
-          return dk(t);
-        }
-        if (cavern.crystals?.get(x, y)) {
-          return 'oxhc';
-        }
-        return t.isWall ? tk(t) : 'oxex';
+    case "oxygen": {
+      const aeration = cavern.aerationLog?.get(x, y);
+      if (!aeration) {
+        return dk(t);
       }
+      if (cavern.crystals?.get(x, y)) {
+        return "oxhc";
+      }
+      return t.isWall ? tk(t) : "oxex";
+    }
   }
   return null;
 }

@@ -11,7 +11,7 @@ const SCALE = 6;
 function getGClassName(plan: Partial<Plan>) {
   const r = [styles.plan];
   plan.kind && r.push(styles[`${plan.kind}Kind`]);
-  plan.path?.kind && r.push(styles[`${plan.path.kind}PathKind`])
+  plan.path?.kind && r.push(styles[`${plan.path.kind}PathKind`]);
   plan.fluid && r.push(styles[`fluid${plan.fluid.id}`]);
   plan.hasErosion && r.push("hasErosion");
   return r.join(" ");
@@ -95,10 +95,7 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
     };
   });
 
-  const [x0, y0] = plan.path!.baseplates[0].center;
-  return (
-    <path className={styles.bg} d={dWrapping(a, b)} />
-  );
+  return <path className={styles.bg} d={dWrapping(a, b)} />;
 }
 
 function hall(plan: Partial<Plan>) {
@@ -126,11 +123,11 @@ export default function PlansPreview({ cavern }: { cavern: Cavern }) {
   }
 
   const planCoords: Point[] = [];
-  cavern.plans.forEach(plan => {
+  cavern.plans.forEach((plan) => {
     const bp = plan.path.baseplates;
 
     const i = Math.floor((bp.length - 1) / 2);
-    const j = Math.floor((bp.length) / 2);
+    const j = Math.floor(bp.length / 2);
     if (i === j) {
       planCoords[plan.id] = bp[i].center;
     } else {
@@ -138,44 +135,59 @@ export default function PlansPreview({ cavern }: { cavern: Cavern }) {
       const [jx, jy] = bp[j].center;
       planCoords[plan.id] = [(ix + jx) / 2, (iy + jy) / 2];
     }
-  })
+  });
 
   const right = [...cavern.plans];
   right.sort((a, b) => planCoords[b.id][0] - planCoords[a.id][0]);
   const left = right.splice(Math.floor(right.length / 2));
   right.sort((a, b) => planCoords[a.id][1] - planCoords[b.id][1]);
-  left.sort((a, b) => (planCoords[a.id][1] - planCoords[b.id][1]) || (planCoords[a.id][0] - planCoords[b.id][0]));
+  left.sort(
+    (a, b) =>
+      planCoords[a.id][1] - planCoords[b.id][1] ||
+      planCoords[a.id][0] - planCoords[b.id][0],
+  );
 
-  function drawLabels(plans: NonNullable<Cavern['plans']>, sign: -1 | 1, className: string): ReactNode {
+  function drawLabels(
+    plans: NonNullable<Cavern["plans"]>,
+    sign: -1 | 1,
+    className: string,
+  ): ReactNode {
     let py = -Infinity;
     return plans.map((plan, i) => {
       const px = SCALE * planCoords[plan.id][0];
       py = Math.max(SCALE * planCoords[plan.id][1], py + 4);
-      const lx = (SCALE * cavern.context.targetSize / 2 + 50) * sign;
-      const ly = SCALE * cavern.context.targetSize * ((i + 1) / plans.length - 0.5);
-      const bx = lx - Math.abs(py - ly) * 0.56 * sign
+      const lx = ((SCALE * cavern.context.targetSize) / 2 + 50) * sign;
+      const ly =
+        SCALE * cavern.context.targetSize * ((i + 1) / plans.length - 0.5);
+      const bx = lx - Math.abs(py - ly) * 0.56 * sign;
       const d = filterTruthy([
         `M ${lx + 25 * sign} ${ly}`,
         `L ${lx} ${ly}`,
-        (bx * sign > px * sign) && `L ${bx} ${py}`,
+        bx * sign > px * sign && `L ${bx} ${py}`,
         `L ${px} ${py}`,
-      ]).join('');
-      return (<g key={plan.id} className={`${className} ${getGClassName(plan)}`}>
-        <path className={styles.pointer} d={d} />
-        <text className={styles.label} x={lx + 25 * sign} y={ly}>
-          {'architect' in plan
-            ? <>{plan.architect.name}{!plan.hops.length && '*'} {plan.id}</>
-            : <>{plan.id}</>
-          }
-        </text>
-      </g>);
+      ]).join("");
+      return (
+        <g key={plan.id} className={`${className} ${getGClassName(plan)}`}>
+          <path className={styles.pointer} d={d} />
+          <text className={styles.label} x={lx + 25 * sign} y={ly}>
+            {"architect" in plan ? (
+              <>
+                {plan.architect.name}
+                {!plan.hops.length && "*"} {plan.id}
+              </>
+            ) : (
+              <>{plan.id}</>
+            )}
+          </text>
+        </g>
+      );
     });
   }
 
   return (
     <>
-      {cavern.plans.map(plan => {
-        if ('pearlRadius' in plan) {
+      {cavern.plans.map((plan) => {
+        if ("pearlRadius" in plan) {
           return (
             <g key={plan.id} className={getGClassName(plan)}>
               {plan.kind === "cave"
@@ -194,5 +206,5 @@ export default function PlansPreview({ cavern }: { cavern: Cavern }) {
       {drawLabels(left, -1, styles.left)}
       {drawLabels(right, 1, styles.right)}
     </>
-  )
+  );
 }
