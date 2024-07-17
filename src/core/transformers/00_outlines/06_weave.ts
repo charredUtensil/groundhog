@@ -83,14 +83,18 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
 
   // Delete any paths that don't form a minimum angle
   function pruneByAngle() {
+    let ok = false;
     paths.filter(path => path.kind === 'ambiguous').forEach((path) => {
       if (Math.min(
         minAngle(path, graph[path.origin.id]),
         minAngle(path, graph[path.destination.id]),
       ) < cavern.context.auxiliaryPathMinAngle) {
         delete paths[path.id];
+      } else {
+        ok = true;
       }
-    })
+    });
+    return ok;
   }
 
   // Find the largest distance shortcut
@@ -121,12 +125,10 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
   }
 
   for (let i = 0; i < cavern.context.optimalAuxiliaryPathCount; i++) {
-    pruneByAngle();
-    addBestShortcut();
+    pruneByAngle() && addBestShortcut();
   }
   for (let i = 0; i < cavern.context.randomAuxiliaryPathCount; i++) {
-    pruneByAngle();
-    addRandomShortcut();
+    pruneByAngle() && addRandomShortcut();
   }
 
   return { ...cavern, paths: paths.filter((path) => path) };
