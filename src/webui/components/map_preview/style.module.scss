@@ -59,10 +59,6 @@
         fill: white;
       }
 
-      &.stockKind .bg {
-        stroke: blue;
-      }
-
       &.ambiguousKind .bg {
         fill: var(--pvw-bpak);
       }
@@ -110,16 +106,21 @@
     .plan {
       --color-bg: #444444;
       --color-fg: white;
-
       &.caveKind .bg {
-        stroke: var(--color-bg);
         stroke-width: 2px;
         fill: none;
       }
-      &.hallKind .bg {
-        stroke: var(--color-bg);
-        stroke-linecap: round;
-        opacity: 0.4;
+      &.hallKind {
+        .bg {
+          stroke-linecap: round;
+          opacity: 0.4;
+        }
+        &.spanningPathKind {
+          --color-fg: var(--pvw-pathspan);
+        }
+        &.auxiliaryPathKind {
+          --color-fg: var(--pvw-pathaux);
+        }
       }
       &.fluid6 {
         --color-bg: var(--pvw-tile6);
@@ -127,13 +128,20 @@
       &.fluid11 {
         --color-bg: var(--pvw-tile11);
       }
-      .fg {
-        text-anchor: middle;
+      &.left .label {
+        text-anchor: end;
+      }
+      .label {
         fill: var(--color-fg);
-        font-family: "Silkscreen";
-        font-size: 8px;
-        stroke: black;
-        stroke-width: 0.2;
+        font-size: 12px;
+      }
+      .pointer {
+        fill: none;
+        stroke-width: 1px;
+        stroke: var(--color-fg);
+      }
+      .bg {
+        stroke: var(--color-bg);
       }
     }
 

@@ -2,7 +2,6 @@ import React, { createRef } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
-import PlanPreview from "./plan";
 import PearlPreview from "./pearl";
 import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
 import TilesPreview from "./tiles";
@@ -11,6 +10,7 @@ import OpenCaveFlagPreview from "./open_cave_flag";
 import styles from "./style.module.scss";
 import HeightPreview from "./height";
 import Stats from "./stats";
+import PlansPreview from "./plan";
 
 export type MapOverlay =
   | "about"
@@ -49,20 +49,21 @@ export default function CavernPreview({
   showPearls: boolean;
 }) {
   const holder = createRef<HTMLDivElement>();
-  const size = cavern.context.targetSize * 2 * 6;
+  const height = cavern.context.targetSize * 2 * 6;
+  const width = Math.max(height, cavern.context.targetSize * 6 + 600);
 
   return (
     <div ref={holder} className={styles.cavernPreview}>
       <svg
         className={styles.map}
         style={{
-          top: `calc(50% - ${size / 2}px)`,
-          left: `calc(50% - ${size / 2}px)`,
-          width: size,
-          height: size,
+          top: `calc(50% - ${height / 2}px)`,
+          left: `calc(50% - ${width / 2}px)`,
+          width: width,
+          height: height,
           transform: getTransform(cavern, mapOverlay),
         }}
-        viewBox={`${size / -2} ${size / -2} ${size} ${size}`}
+        viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
@@ -115,8 +116,7 @@ export default function CavernPreview({
           cavern.openCaveFlags?.map((_, x, y) => (
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
           ))}
-        {showOutlines &&
-          cavern.plans?.map((pl) => <PlanPreview key={pl.id} plan={pl} />)}
+        {showOutlines && cavern.plans && <PlansPreview cavern={cavern} />}
         {showPearls &&
           cavern.plans
             ?.filter((pl) => "outerPearl" in pl)
