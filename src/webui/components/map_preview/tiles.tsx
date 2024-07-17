@@ -6,30 +6,26 @@ import styles from "./style.module.scss";
 
 const SCALE = 6;
 
-const SCALE_COLORS = [
-  "#555544",
-  "#777744",
-  "#999944",
-  "#bbbb44",
-  "#dddd44",
-  "#ffff44",
-  "#ffff66",
-  "#ffff88",
-] as const;
+const SCALE_COLORS = 8;
 
 const MAX_COOLDOWN = {
   landslides: 300,
   erosion: 100,
 } as const;
 
-function getBoundsFill(mapOverlay: MapOverlay): string | null {
-  switch (mapOverlay) {
-    case "entities":
-    case "tiles":
-      return Tile.SOLID_ROCK.inspectColor;
-    default:
-      return null;
+function tk(t: Tile) {
+  return `tile${t.id}`;
+}
+
+function dk(t: Tile) {
+  if (t === Tile.WATER || t === Tile.LAVA) {
+    return "dfluid";
   }
+  return t.isWall ? "dwall" : "dfloor";
+}
+
+function sk(s: number) {
+  return `scale${Math.min(Math.floor(s), SCALE_COLORS - 1)}`;
 }
 
 function getFill(
@@ -44,7 +40,7 @@ function getFill(
       for (let ox = -1; ox <= 1; ox++) {
         for (let oy = -1; oy <= 1; oy++) {
           if (cavern.discoveryZones?.get(x + ox, y + oy)?.openOnSpawn) {
-            return t.inspectColor;
+            return tk(t);
           }
         }
       }
@@ -52,75 +48,64 @@ function getFill(
     }
     case "entities":
       if (t === Tile.FOUNDATION || t === Tile.POWER_PATH) {
-        return t.inspectColor;
+        return tk(t);
       }
-      break;
+      return dk(t);
     case "tiles":
-      return t.inspectColor;
-    case "crystals":
-      {
-        if (t.crystalYield > 0) {
-          return t.inspectColor;
-        }
-        const c = cavern.crystals?.get(x, y) ?? 0;
-        if (c > 0) {
-          return SCALE_COLORS[Math.min(c, SCALE_COLORS.length) - 1];
-        }
+      return tk(t);
+    case "crystals": {
+      if (t.crystalYield > 0) {
+        return tk(t);
       }
-      break;
-    case "ore":
-      {
-        if (t.oreYield > 4) {
-          return t.inspectColor;
-        }
-        const o = (cavern.ore?.get(x, y) ?? 0) + t.oreYield;
-        if (o > 0) {
-          return SCALE_COLORS[Math.min(o, SCALE_COLORS.length) - 1];
-        }
+      const c = cavern.crystals?.get(x, y) ?? 0;
+      if (c > 0) {
+        return sk(c - 1);
       }
-      break;
-    case "discovery":
-      {
-        const dz = cavern.discoveryZones?.get(x, y);
-        if (dz) {
-          return dz.openOnSpawn ? "#FFFF44" : "#882222";
-        }
+      return dk(t);
+    }
+    case "ore": {
+      if (t.oreYield > 4) {
+        return tk(t);
       }
-      break;
+      const o = (cavern.ore?.get(x, y) ?? 0) + t.oreYield;
+      if (o > 0) {
+        return sk(o - 1);
+      }
+      return dk(t);
+    }
+    case "discovery": {
+      const dz = cavern.discoveryZones?.get(x, y);
+      if (dz) {
+        return dz.openOnSpawn ? "disco0" : "disco1";
+      }
+      return dk(t);
+    }
     case "erosion":
       if (t === Tile.WATER || t === Tile.LAVA) {
-        return t.inspectColor;
+        return tk(t);
       }
     // Fall through
     case "landslides":
       const cooldown = cavern[mapOverlay]?.get(x, y)?.cooldown;
       if (cooldown) {
-        const i = Math.floor(
-          (SCALE_COLORS.length - 1) *
+        return sk(
+          (SCALE_COLORS - 1) *
             Math.max(0, 1 - cooldown / MAX_COOLDOWN[mapOverlay]),
         );
-        return SCALE_COLORS[i];
       }
-      break;
-    case "oxygen":
+      return dk(t);
+    case "oxygen": {
       const aeration = cavern.aerationLog?.get(x, y);
-      if (aeration) {
-        if (cavern.crystals?.get(x, y)) {
-          return Tile.CRYSTAL_SEAM.inspectColor;
-        }
-        return t.isWall ? t.inspectColor : "#555533";
+      if (!aeration) {
+        return dk(t);
       }
-      break;
-    case "about":
-    case "height":
-    case "lore":
-    case null:
-      return null;
+      if (cavern.crystals?.get(x, y)) {
+        return "oxhc";
+      }
+      return t.isWall ? tk(t) : "oxex";
+    }
   }
-  if (t === Tile.WATER || t === Tile.LAVA) {
-    return "#080022";
-  }
-  return t.isWall ? "#2D004B" : "#180032";
+  return null;
 }
 
 function getTitle(
@@ -185,16 +170,14 @@ export default function TilesPreview({
   if (!cavern.tiles || !mapOverlay) {
     return null;
   }
-  const boundsFill = getBoundsFill(mapOverlay);
   return (
     <g
-      className={`${styles.tiles} ${styles[`${mapOverlay}Overlay`]}`}
+      className={`${styles.tiles} ${styles[`oly-${mapOverlay}`]}`}
       style={{ scale: `${SCALE}` }}
     >
-      {boundsFill && cavern.top && (
+      {cavern.top && (
         <rect
           className={styles.bounds}
-          fill={boundsFill}
           x={cavern.left!}
           y={cavern.top!}
           width={cavern.right! - cavern.left!}
@@ -203,15 +186,15 @@ export default function TilesPreview({
       )}
       {cavern.tiles.map((t, x, y) => {
         const fill = getFill(cavern, mapOverlay, t, x, y);
-        const title = getTitle(cavern, mapOverlay, t, x, y);
         if (!fill) {
           return null;
         }
+        const title = getTitle(cavern, mapOverlay, t, x, y);
         return (
           <rect
             key={`${x},${y}`}
             className={styles.tile}
-            fill={fill}
+            fill={`var(--pvw-${fill})`}
             x={x}
             y={y}
             width={1}

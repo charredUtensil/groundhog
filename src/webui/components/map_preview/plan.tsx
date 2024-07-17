@@ -1,13 +1,17 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Plan } from "../../../core/models/plan";
 import PathPreview from "./path";
 import styles from "./style.module.scss";
+import { Cavern } from "../../../core/models/cavern";
+import { Point } from "../../../core/common/geometry";
+import { filterTruthy } from "../../../core/common/utils";
 
 const SCALE = 6;
 
 function getGClassName(plan: Partial<Plan>) {
   const r = [styles.plan];
   plan.kind && r.push(styles[`${plan.kind}Kind`]);
+  plan.path?.kind && r.push(styles[`${plan.path.kind}PathKind`]);
   plan.fluid && r.push(styles[`fluid${plan.fluid.id}`]);
   plan.hasErosion && r.push("hasErosion");
   return r.join(" ");
@@ -20,17 +24,12 @@ function drawRadius(pearlRadius: number) {
 function caveWithOneBaseplate(plan: Partial<Plan>) {
   const [x, y] = plan.path!.baseplates[0].center;
   return (
-    <>
-      <circle
-        className={styles.bg}
-        cx={x * SCALE}
-        cy={y * SCALE}
-        r={drawRadius(plan.pearlRadius!) * SCALE}
-      />
-      <text className={styles.fg} x={x * SCALE} y={y * SCALE}>
-        {plan.architect?.name} {plan.id}
-      </text>
-    </>
+    <circle
+      className={styles.bg}
+      cx={x * SCALE}
+      cy={y * SCALE}
+      r={drawRadius(plan.pearlRadius!) * SCALE}
+    />
   );
 }
 
@@ -96,15 +95,7 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
     };
   });
 
-  const [x0, y0] = plan.path!.baseplates[0].center;
-  return (
-    <>
-      <path className={styles.bg} d={dWrapping(a, b)} />
-      <text className={styles.fg} x={x0 * SCALE} y={y0 * SCALE}>
-        {plan.architect?.name} {plan.id}
-      </text>
-    </>
-  );
+  return <path className={styles.bg} d={dWrapping(a, b)} />;
 }
 
 function hall(plan: Partial<Plan>) {
@@ -116,44 +107,104 @@ function hall(plan: Partial<Plan>) {
     })
     .join(" ");
   return (
-    <>
-      <path
-        id={`plan${plan.id}`}
-        className={styles.bg}
-        d={d}
-        fill="none"
-        strokeWidth={drawRadius(plan.pearlRadius!) * 2 * SCALE}
-      >
-        <title>
-          {plan.architect?.name} {plan.id}
-        </title>
-      </path>
-      <text className={styles.fg}>
-        <textPath href={`#plan${plan.id}`} startOffset="50%">
-          {plan.architect?.name} {plan.id}
-        </textPath>
-      </text>
-    </>
+    <path
+      id={`plan${plan.id}`}
+      className={styles.bg}
+      d={d}
+      fill="none"
+      strokeWidth={drawRadius(plan.pearlRadius!) * 2 * SCALE}
+    />
   );
 }
 
-export default function PlanPreview({ plan }: { plan: Partial<Plan> }) {
-  if (!plan) {
+export default function PlansPreview({ cavern }: { cavern: Cavern }) {
+  if (!cavern.plans) {
     return null;
   }
-  if (plan.pearlRadius) {
-    return (
-      <g className={getGClassName(plan)}>
-        {plan.kind === "cave"
-          ? plan.path!.baseplates.length === 2
-            ? caveWithTwoBaseplates(plan)
-            : caveWithOneBaseplate(plan)
-          : hall(plan)}
-      </g>
-    );
+
+  const planCoords: Point[] = [];
+  cavern.plans.forEach((plan) => {
+    const bp = plan.path.baseplates;
+
+    const i = Math.floor((bp.length - 1) / 2);
+    const j = Math.floor(bp.length / 2);
+    if (i === j) {
+      planCoords[plan.id] = bp[i].center;
+    } else {
+      const [ix, iy] = bp[i].center;
+      const [jx, jy] = bp[j].center;
+      planCoords[plan.id] = [(ix + jx) / 2, (iy + jy) / 2];
+    }
+  });
+
+  const right = [...cavern.plans];
+  right.sort((a, b) => planCoords[b.id][0] - planCoords[a.id][0]);
+  const left = right.splice(Math.floor(right.length / 2));
+  right.sort((a, b) => planCoords[a.id][1] - planCoords[b.id][1]);
+  left.sort(
+    (a, b) =>
+      planCoords[a.id][1] - planCoords[b.id][1] ||
+      planCoords[a.id][0] - planCoords[b.id][0],
+  );
+
+  function drawLabels(
+    plans: NonNullable<Cavern["plans"]>,
+    sign: -1 | 1,
+    className: string,
+  ): ReactNode {
+    let py = -Infinity;
+    return plans.map((plan, i) => {
+      const px = SCALE * planCoords[plan.id][0];
+      py = Math.max(SCALE * planCoords[plan.id][1], py + 4);
+      const lx = ((SCALE * cavern.context.targetSize) / 2 + 50) * sign;
+      const ly =
+        SCALE * cavern.context.targetSize * ((i + 1) / plans.length - 0.5);
+      const bx = lx - Math.abs(py - ly) * 0.56 * sign;
+      const d = filterTruthy([
+        `M ${lx + 25 * sign} ${ly}`,
+        `L ${lx} ${ly}`,
+        bx * sign > px * sign && `L ${bx} ${py}`,
+        `L ${px} ${py}`,
+      ]).join("");
+      return (
+        <g key={plan.id} className={`${className} ${getGClassName(plan)}`}>
+          <path className={styles.pointer} d={d} />
+          <text className={styles.label} x={lx + 25 * sign} y={ly}>
+            {"architect" in plan ? (
+              <>
+                {plan.architect.name}
+                {!plan.hops.length && "*"} {plan.id}
+              </>
+            ) : (
+              <>{plan.id}</>
+            )}
+          </text>
+        </g>
+      );
+    });
   }
-  if (plan.path?.baseplates.length ?? 0 > 1) {
-    return <PathPreview path={plan.path!} />;
-  }
-  return null;
+
+  return (
+    <>
+      {cavern.plans.map((plan) => {
+        if ("pearlRadius" in plan) {
+          return (
+            <g key={plan.id} className={getGClassName(plan)}>
+              {plan.kind === "cave"
+                ? plan.path.baseplates.length === 2
+                  ? caveWithTwoBaseplates(plan)
+                  : caveWithOneBaseplate(plan)
+                : hall(plan)}
+            </g>
+          );
+        }
+        if (plan.path.baseplates.length ?? 0 > 1) {
+          return <PathPreview key={plan.id} path={plan.path} />;
+        }
+        return null;
+      })}
+      {drawLabels(left, -1, styles.left)}
+      {drawLabels(right, 1, styles.right)}
+    </>
+  );
 }

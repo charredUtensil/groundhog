@@ -6,19 +6,20 @@
   --palette-fg: white;
   --palette-bg: #121212;
   --palette-lines: #999999;
+  --palette-disabled: #999999;
   --palette-settings-bg: #333333;
-  --palette-brand: #c96f12;
+  --palette-accent: #c96f12;
 
   &.iceBiome {
     --palette-bg: #060716;
     --palette-settings-bg: hsl(200, 45%, 24%);
-    --palette-brand: hsl(186, 97%, 44%);
+    --palette-accent: hsl(186, 97%, 44%);
   }
 
   &.lavaBiome {
     --palette-bg: #140b05;
     --palette-settings-bg: #4d2114;
-    --palette-brand: #ca0b0b;
+    --palette-accent: #ca0b0b;
   }
 
   display: flex;
@@ -58,8 +59,8 @@
       bottom: 0;
       background: linear-gradient(
         90deg,
-        var(--palette-brand) 0%,
-        var(--palette-brand) var(--progress),
+        var(--palette-accent) 0%,
+        var(--palette-accent) var(--progress),
         transparent var(--progress),
         transparent 100%
       );
@@ -137,10 +138,18 @@
       font-family: var(--font-cyber);
       transition: left 200ms ease-out;
 
+      &:hover {
+        left: -14px;
+      }
+
       &.active {
         left: -16px;
         color: var(--palette-bg);
         background: var(--palette-fg);
+      }
+
+      &.disabled {
+        color: var(--palette-disabled);
       }
     }
   }
