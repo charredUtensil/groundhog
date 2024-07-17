@@ -4,6 +4,50 @@
   width: 100%;
   height: 100%;
 
+  --pvw-bpak: #222222;
+  --pvw-bpck: #2d004b;
+  --pvw-bphk: #166921;
+  --pvw-pathspan: yellow;
+  --pvw-pathaux: #24b136;
+  --pvw-entfriend: yellow;
+  --pvw-entenemy: red;
+  --pvw-dfluid: #080022;
+  --pvw-dfloor: #180032;
+  --pvw-dwall: #2d004b;
+  --pvw-scale0: #555544;
+  --pvw-scale1: #777744;
+  --pvw-scale2: #999944;
+  --pvw-scale3: #bbbb44;
+  --pvw-scale4: #dddd44;
+  --pvw-scale5: #ffff44;
+  --pvw-scale6: #ffff66;
+  --pvw-scale7: #ffff88;
+  --pvw-tile1: #2d004b;
+  --pvw-tile2: #180032;
+  --pvw-tile3: #180032;
+  --pvw-tile4: #180032;
+  --pvw-tile5: #180032;
+  --pvw-tile6: #ff5a00;
+  --pvw-tile11: #002fb5;
+  --pvw-tile12: #166921;
+  --pvw-tile14: #bfbfbf;
+  --pvw-tile24: #9d9b00;
+  --pvw-tile26: #ad59ef;
+  --pvw-tile30: #943cc3;
+  --pvw-tile34: #731cad;
+  --pvw-tile38: #800080;
+  --pvw-tile42: #b5ff00;
+  --pvw-tile46: #9c4108;
+  --pvw-tile50: #ffff00;
+  --pvw-tile60: #180032;
+  --pvw-tile61: #180032;
+  --pvw-tile62: #180032;
+  --pvw-tile63: #180032;
+  --pvw-disco0: #ffff44;
+  --pvw-disco1: #882222;
+  --pvw-oxex: #555533;
+  --pvw-oxhc: var(--pvw-tile42);
+
   .map {
     position: absolute;
 
@@ -15,20 +59,16 @@
         fill: white;
       }
 
-      &.stockKind .bg {
-        stroke: blue;
-      }
-
       &.ambiguousKind .bg {
-        fill: #222222;
+        fill: var(--pvw-bpak);
       }
 
       &.caveKind .bg {
-        fill: red;
+        fill: var(--pvw-bpck);
       }
 
       &.hallKind .bg {
-        fill: darkred;
+        fill: var(--pvw-bphk);
       }
     }
 
@@ -42,11 +82,11 @@
       }
 
       &.spanningKind {
-        --fg-color: yellow;
+        --fg-color: var(--pvw-pathspan);
       }
 
       &.auxiliaryKind {
-        --fg-color: yellowgreen;
+        --fg-color: var(--pvw-pathaux);
       }
 
       & > path {
@@ -66,30 +106,42 @@
     .plan {
       --color-bg: #444444;
       --color-fg: white;
-
       &.caveKind .bg {
-        stroke: var(--color-bg);
         stroke-width: 2px;
         fill: none;
       }
-      &.hallKind .bg {
-        stroke: var(--color-bg);
-        stroke-linecap: round;
-        opacity: 0.4;
+      &.hallKind {
+        .bg {
+          stroke-linecap: round;
+          opacity: 0.4;
+        }
+        &.spanningPathKind {
+          --color-fg: var(--pvw-pathspan);
+        }
+        &.auxiliaryPathKind {
+          --color-fg: var(--pvw-pathaux);
+        }
       }
       &.fluid6 {
-        --color-bg: var(--palette-tile-6);
+        --color-bg: var(--pvw-tile6);
       }
       &.fluid11 {
-        --color-bg: var(--palette-tile-11);
+        --color-bg: var(--pvw-tile11);
       }
-      .fg {
-        text-anchor: middle;
+      &.left .label {
+        text-anchor: end;
+      }
+      .label {
         fill: var(--color-fg);
-        font-family: "Silkscreen";
-        font-size: 8px;
-        stroke: black;
-        stroke-width: 0.2;
+        font-size: 12px;
+      }
+      .pointer {
+        fill: none;
+        stroke-width: 1px;
+        stroke: var(--color-fg);
+      }
+      .bg {
+        stroke: var(--color-bg);
       }
     }
 
@@ -134,11 +186,16 @@
 
     .tiles {
       shape-rendering: crispEdges;
-      .label {
-        text-anchor: middle;
-        font-size: 2px;
-        font-family: "Silkscreen";
-        color: black;
+
+      .bounds {
+        fill: none;
+      }
+
+      &.oly-entities,
+      &.oly-tiles {
+        .bounds {
+          fill: var(--pvw-tile38);
+        }
       }
     }
 
@@ -147,9 +204,9 @@
     }
 
     .entity {
-      --color-fg: yellow;
+      --color-fg: var(--pvw-entfriend);
       &.enemy {
-        --color-fg: #ff0000;
+        --color-fg: var(--pvw-entenemy);
       }
       .marker {
         fill: var(--color-fg);
@@ -174,7 +231,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    color: var(--palette-brand);
+    color: var(--palette-accent);
     background: var(--palette-bg);
     font-family: var(--font-tiny);
     font-size: 8px;
