@@ -2,16 +2,28 @@ import { Baseplate } from "../../models/baseplate";
 import { TriangulatedCavern } from "./02_triangulate";
 import { Path } from "../../models/path";
 
-type GraphNode = {src: Baseplate, edges: {theta: number, distance: number, dest: Baseplate}[]};
+type GraphNode = {
+  src: Baseplate;
+  edges: { theta: number; distance: number; dest: Baseplate }[];
+};
 
 function getGraph(paths: readonly Path[]): GraphNode[] {
   const result: GraphNode[] = [];
-  const push = (path: Path, src: Baseplate, next: Baseplate, dest: Baseplate) => {
+  const push = (
+    path: Path,
+    src: Baseplate,
+    next: Baseplate,
+    dest: Baseplate,
+  ) => {
     const [ax, ay] = src.center;
     const [bx, by] = next.center;
     const theta = Math.atan2(by - ay, bx - ax);
     const distance = path.snakeDistance;
-    (result[src.id] ||= {src, edges: []}).edges[path.id] = {theta, distance, dest};
+    (result[src.id] ||= { src, edges: [] }).edges[path.id] = {
+      theta,
+      distance,
+      dest,
+    };
   };
   paths.forEach((path) => {
     const bps = path.baseplates;
@@ -24,7 +36,7 @@ function getGraph(paths: readonly Path[]): GraphNode[] {
 function getAllDistances(graph: GraphNode[], paths: Path[], src: Baseplate) {
   const distances: number[] = [];
   const queue: Baseplate[] = [];
-  const result: {src: Baseplate, dest: Baseplate, distance: number}[] = [];
+  const result: { src: Baseplate; dest: Baseplate; distance: number }[] = [];
 
   distances[src.id] = 0;
   queue.push(src);
@@ -32,10 +44,10 @@ function getAllDistances(graph: GraphNode[], paths: Path[], src: Baseplate) {
   // Dijkstra's algorithm
   while (queue.length) {
     const node = queue.shift()!;
-    result.unshift({src, dest: node, distance: distances[node.id]});
-    graph[node.id].edges.forEach(({distance, dest}, pathId) => {
+    result.unshift({ src, dest: node, distance: distances[node.id] });
+    graph[node.id].edges.forEach(({ distance, dest }, pathId) => {
       const pathKind = paths[pathId]?.kind;
-      if (pathKind === 'spanning' || pathKind === 'auxiliary') {
+      if (pathKind === "spanning" || pathKind === "auxiliary") {
         const d = distances[node.id] + distance;
         if (distances[dest.id] === undefined) {
           queue.push(dest);
@@ -45,7 +57,7 @@ function getAllDistances(graph: GraphNode[], paths: Path[], src: Baseplate) {
         }
       }
     });
-    queue.sort((a, b) => distances[a.id] - distances[b.id])
+    queue.sort((a, b) => distances[a.id] - distances[b.id]);
   }
 
   return result;
@@ -71,57 +83,65 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
 
   function minAngle(path: Path, node: GraphNode) {
     const theta = node.edges[path.id].theta;
-    return node.edges
-      .reduce((r, {theta: t}, pathId) => {
-        const pathKind = paths[pathId]?.kind;
-        if (pathKind === 'spanning' || pathKind === 'auxiliary') {
-          return Math.min(getOffset(theta, t), r);
-        }
-        return r;
-      }, Infinity);
-  };
+    return node.edges.reduce((r, { theta: t }, pathId) => {
+      const pathKind = paths[pathId]?.kind;
+      if (pathKind === "spanning" || pathKind === "auxiliary") {
+        return Math.min(getOffset(theta, t), r);
+      }
+      return r;
+    }, Infinity);
+  }
 
   // Delete any paths that don't form a minimum angle
   function pruneByAngle() {
     let ok = false;
-    paths.filter(path => path.kind === 'ambiguous').forEach((path) => {
-      if (Math.min(
-        minAngle(path, graph[path.origin.id]),
-        minAngle(path, graph[path.destination.id]),
-      ) < cavern.context.auxiliaryPathMinAngle) {
-        delete paths[path.id];
-      } else {
-        ok = true;
-      }
-    });
+    paths
+      .filter((path) => path.kind === "ambiguous")
+      .forEach((path) => {
+        if (
+          Math.min(
+            minAngle(path, graph[path.origin.id]),
+            minAngle(path, graph[path.destination.id]),
+          ) < cavern.context.auxiliaryPathMinAngle
+        ) {
+          delete paths[path.id];
+        } else {
+          ok = true;
+        }
+      });
     return ok;
   }
 
   // Find the largest distance shortcut
   function addBestShortcut() {
-    const distances = graph.map(({src}) => getAllDistances(graph, paths, src));
+    const distances = graph.map(({ src }) =>
+      getAllDistances(graph, paths, src),
+    );
     while (true) {
-      const {src, dest} = distances.reduce((p, c) => p[0].distance > c[0].distance ? p : c).shift()!;
+      const { src, dest } = distances
+        .reduce((p, c) => (p[0].distance > c[0].distance ? p : c))
+        .shift()!;
       const path = paths[pathIdsByEnds[src.id][dest.id]];
-      if (path?.kind === 'ambiguous') {
-        paths[path.id] = new Path(path.id, 'auxiliary', path.baseplates);
+      if (path?.kind === "ambiguous") {
+        paths[path.id] = new Path(path.id, "auxiliary", path.baseplates);
         break;
       }
     }
   }
 
   function addRandomShortcut() {
-    const path = rng.betaChoice(paths
-      .filter(path => path.kind === 'ambiguous')
-      .map((path) => ({
-        path,
-        oa: minAngle(path, graph[path.origin.id]),
-        da: minAngle(path, graph[path.destination.id]),
-      }))
-      .sort((a, b) => a.oa + a.da - b.oa - b.da),
-      {a: 1, b: 5},
+    const path = rng.betaChoice(
+      paths
+        .filter((path) => path.kind === "ambiguous")
+        .map((path) => ({
+          path,
+          oa: minAngle(path, graph[path.origin.id]),
+          da: minAngle(path, graph[path.destination.id]),
+        }))
+        .sort((a, b) => a.oa + a.da - b.oa - b.da),
+      { a: 1, b: 5 },
     ).path;
-    paths[path.id] = new Path(path.id, 'auxiliary', path.baseplates);
+    paths[path.id] = new Path(path.id, "auxiliary", path.baseplates);
   }
 
   for (let i = 0; i < cavern.context.optimalAuxiliaryPathCount; i++) {
