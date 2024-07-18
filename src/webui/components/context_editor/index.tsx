@@ -19,15 +19,14 @@ function unparseSeed(v: number) {
   return v.toString(16).padStart(8, "0").toUpperCase();
 }
 
-const expectedCavePlans = (contextWithDefaults: CavernContext | undefined) =>
-  contextWithDefaults ? contextWithDefaults.caveCount : 20;
-
-const expectedTotalPlans = (contextWithDefaults: CavernContext | undefined) =>
-  contextWithDefaults
-    ? contextWithDefaults.caveCount * 2 -
-      1 +
-      contextWithDefaults.auxiliaryPathCount
-    : 50;
+const expectedTotalPlans = (contextWithDefaults: CavernContext) => {
+  const caves = contextWithDefaults.caveCount;
+  const spanHalls = contextWithDefaults.caveCount - 1;
+  const auxHalls =
+    contextWithDefaults.optimalAuxiliaryPathCount +
+    contextWithDefaults.randomAuxiliaryPathCount;
+  return caves + spanHalls + auxHalls;
+};
 
 type PartialContext = Partial<CavernContext> & Pick<CavernContext, "seed">;
 
@@ -161,7 +160,18 @@ export function CavernContextInput({
             </div>
             <div className={styles.subsection}>
               <h3>Weave</h3>
-              <Slider of="auxiliaryPathCount" min={0} max={50} {...rest} />
+              <Slider
+                of="optimalAuxiliaryPathCount"
+                min={0}
+                max={contextWithDefaults.caveCount}
+                {...rest}
+              />
+              <Slider
+                of="randomAuxiliaryPathCount"
+                min={0}
+                max={contextWithDefaults.caveCount}
+                {...rest}
+              />
               <Slider
                 of="auxiliaryPathMinAngle"
                 min={0}
@@ -190,13 +200,13 @@ export function CavernContextInput({
               <Slider
                 of="waterLakes"
                 min={1}
-                max={expectedCavePlans(contextWithDefaults)}
+                max={contextWithDefaults.caveCount}
                 {...rest}
               />
               <Slider
                 of="lavaLakes"
                 min={1}
-                max={expectedCavePlans(contextWithDefaults)}
+                max={contextWithDefaults.caveCount}
                 {...rest}
               />
               <Slider
