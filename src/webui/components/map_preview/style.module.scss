@@ -1,3 +1,37 @@
+@property --pvw-yaw {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --pvw-pitch {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --pvw-tr-x {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --pvw-tr-y {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --pvw-scale {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+@keyframes scan-scrim {
+  0% {
+    background-position-x: -800px;
+  }
+  100% {
+    background-position-x: 0;
+  }
+}
+
 .cavernPreview {
   position: absolute;
   overflow: hidden;
@@ -47,9 +81,16 @@
   --pvw-disco1: #882222;
   --pvw-oxex: #555533;
   --pvw-oxhc: var(--pvw-tile42);
+  --pvw-overscrim: var(--palette-settings-bg);
 
   .map {
     position: absolute;
+    transition: transform 1s linear;
+    transform:
+      scale(var(--pvw-scale))
+      rotate3d(1, 0, 0, var(--pvw-pitch))
+      rotate(var(--pvw-yaw))
+      translate(var(--pvw-tr-x), var(--pvw-tr-y));
 
     .baseplate {
       font-family: var(--font-tiny);
@@ -130,6 +171,10 @@
       }
       &.left .label {
         text-anchor: end;
+      }
+      &.inline .label {
+        text-anchor: middle;
+        font-size: 6px;
       }
       .label {
         fill: var(--color-fg);
@@ -227,6 +272,65 @@
     }
   }
 
+  .grid {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    background: var(--palette-settings-bg);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+
+      background-image:
+        linear-gradient(
+          to left,
+          transparent 0px,
+          var(--palette-accent) 25px,
+          transparent 400px);
+      background-size: 800px 100%;
+      animation: scan-scrim 3s infinite linear;
+      transition: opacity 250ms ease-out;
+    }
+
+    &.complete::before {
+      opacity: 0;
+      transition: opacity 1000ms ease-out;
+    }
+  
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+
+      background: var(--palette-bg);
+      mask-composite: subtract;
+      mask-image:
+        linear-gradient(
+          to right,
+          white 16px,
+          transparent 16px,
+          transparent 17px,
+          white 17px),
+        linear-gradient(
+          transparent 16px,
+          black 16px,
+          black 17px,
+          transparent 17px);
+      mask-size: 32px 32px;
+    }
+  }
+
   .stats {
     position: absolute;
     left: 0;
@@ -236,7 +340,7 @@
     font-family: var(--font-tiny);
     font-size: 8px;
     max-width: 400px;
-    border: 1px solid var(--palette-lines);
+    border: 1px solid var(--palette-settings-bg);
     padding: 4px 14px;
     margin: 16px;
 

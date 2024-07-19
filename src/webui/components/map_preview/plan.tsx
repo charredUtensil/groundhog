@@ -5,6 +5,7 @@ import styles from "./style.module.scss";
 import { Cavern } from "../../../core/models/cavern";
 import { Point } from "../../../core/common/geometry";
 import { filterTruthy } from "../../../core/common/utils";
+import { MapOverlay } from ".";
 
 const SCALE = 6;
 
@@ -108,7 +109,6 @@ function hall(plan: Partial<Plan>) {
     .join(" ");
   return (
     <path
-      id={`plan${plan.id}`}
       className={styles.bg}
       d={d}
       fill="none"
@@ -117,7 +117,7 @@ function hall(plan: Partial<Plan>) {
   );
 }
 
-export default function PlansPreview({ cavern }: { cavern: Cavern }) {
+export default function PlansPreview({ cavern, mapOverlay }: { cavern: Cavern, mapOverlay: MapOverlay }) {
   if (!cavern.plans) {
     return null;
   }
@@ -152,6 +152,41 @@ export default function PlansPreview({ cavern }: { cavern: Cavern }) {
     sign: -1 | 1,
     className: string,
   ): ReactNode {
+    if (mapOverlay === 'overview') {
+      return plans.map(plan => {
+        const bps = plan.path.baseplates;
+        if (bps.length <= 1) {
+          const [x, y] = bps[0].center;
+          return (
+            <g key={plan.id} className={`${styles.inline} ${getGClassName(plan)}`}>
+              <text className={styles.label} x={x * SCALE} y={y * SCALE}>
+                {'architect' in plan && plan.architect.name} {plan.id}
+              </text>
+            </g>
+          );
+        }
+        const d = bps
+          .map((bp, i) => {
+            const [x, y] = bp.center;
+            return `${i === 0 ? "M" : "L"}${x * SCALE} ${y * SCALE}`;
+          })
+          .join(" ");
+        return (
+          <g key={plan.id} className={`${styles.inline} ${getGClassName(plan)}`}>
+            <path
+              id={`planLabel${plan.id}`}
+              d={d}
+              fill="none"
+            />
+            <text className={styles.label}>
+              <textPath href={`#planLabel${plan.id}`} startOffset="50%">
+                {'architect' in plan && plan.architect.name} {plan.id}
+              </textPath>
+            </text>
+          </g>
+        );
+      });
+    }
     let py = -Infinity;
     return plans.map((plan, i) => {
       const px = SCALE * planCoords[plan.id][0];

@@ -124,6 +124,15 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
+        {state.cavern && (
+          <CavernPreview
+            cavern={state.cavern}
+            error={state.error}
+            mapOverlay={mapOverlay}
+            showOutlines={showOutlines}
+            showPearls={showPearls}
+          />
+        )}
         {autoGenerate && state.progress !== undefined && (
           <div
             className={`${styles.progressBar} ${state.progress < 1 ? "" : styles.complete}`}
@@ -132,15 +141,6 @@ function App() {
                 "--progress": `${(state.progress * 100).toFixed()}%`,
               } as CSSProperties
             }
-          />
-        )}
-        {state.cavern && (
-          <CavernPreview
-            cavern={state.cavern}
-            error={state.error}
-            mapOverlay={mapOverlay}
-            showOutlines={showOutlines}
-            showPearls={showPearls}
           />
         )}
         {!autoGenerate && state.name && (
