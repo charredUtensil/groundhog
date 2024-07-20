@@ -124,6 +124,7 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
+        <div className={`${styles.grid} ${autoGenerate && !state.cavern?.serialized ? styles.loading : ''}`} />
         {state.cavern && (
           <CavernPreview
             cavern={state.cavern}

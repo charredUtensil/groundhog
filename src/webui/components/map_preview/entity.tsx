@@ -69,7 +69,9 @@ export default function EntityPreview({
           <path
             className={styles.marker}
             d={`M${u + SCALE / 4} 0 L${u} ${v} L${-u} ${v} L${-u} ${-v} L${u} ${-v} Z`}
-          />
+          >
+            <title>{entity.template.name}</title>
+          </path>
           <text className={styles.label} x={0} y={0.75}>
             {entity.template.inspectAbbrev}
           </text>

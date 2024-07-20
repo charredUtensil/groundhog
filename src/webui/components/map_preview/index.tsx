@@ -43,11 +43,11 @@ function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
   }
   const { x, y, yaw, pitch } = cavern.cameraPosition;
   return {
-    '--pvw-scale': '6',
+    '--pvw-scale': 6,
     '--pvw-pitch': `${pitch}rad`,
-    '--pvw-yaw': `${Math.PI / -2 - yaw}rad`,
-    '--pvw-tr-x': `${-x * 6}px`,
-    '--pvw-tr-y': `${-y * 6}px`,
+    '--pvw-yaw': `${Math.PI - (yaw + Math.PI * 1.5) % (Math.PI * 2)}rad`,
+    '--pvw-tr-x': -x * 6,
+    '--pvw-tr-y': -y * 6,
   } as CSSProperties;
 }
 
@@ -74,7 +74,6 @@ export default function CavernPreview({
       className={styles.cavernPreview}
       style={getTransform(cavern, mapOverlay)}
     >
-      <div className={`${styles.grid} ${cavern.serialized ? styles.complete : styles.loading}`} />
       <svg
         className={styles.map}
         style={{

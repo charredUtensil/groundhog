@@ -172,18 +172,9 @@ export default function TilesPreview({
   }
   return (
     <g
-      className={`${styles.tiles} ${styles[`oly-${mapOverlay}`]}`}
+      className={styles.tiles}
       style={{ scale: `${SCALE}` }}
     >
-      {cavern.top && (
-        <rect
-          className={styles.bounds}
-          x={cavern.left!}
-          y={cavern.top!}
-          width={cavern.right! - cavern.left!}
-          height={cavern.bottom! - cavern.top!}
-        />
-      )}
       {cavern.tiles.map((t, x, y) => {
         const fill = getFill(cavern, mapOverlay, t, x, y);
         if (!fill) {
