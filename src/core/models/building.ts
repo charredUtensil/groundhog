@@ -50,6 +50,7 @@ export type BuildingExtraArgs = {
 
 class BuildingTemplate {
   readonly id: string;
+  readonly name: string;
   readonly inspectAbbrev: string;
   readonly maxLevel: number;
   readonly ore: number;
@@ -57,6 +58,7 @@ class BuildingTemplate {
   readonly footprint: Footprint;
   constructor(
     id: string,
+    name: string,
     inspectAbbrev: string,
     maxLevel: Level,
     ore: number,
@@ -64,6 +66,7 @@ class BuildingTemplate {
     footprint: Footprint,
   ) {
     this.id = id;
+    this.name = name;
     this.inspectAbbrev = inspectAbbrev;
     this.maxLevel = maxLevel;
     this.ore = ore;
@@ -91,6 +94,7 @@ class BuildingTemplate {
 
 export const TOOL_STORE = new BuildingTemplate(
   "BuildingToolStore_C",
+  "Tool Store",
   "Ts",
   3,
   0,
@@ -99,6 +103,7 @@ export const TOOL_STORE = new BuildingTemplate(
 );
 export const TELEPORT_PAD = new BuildingTemplate(
   "BuildingTeleportPad_C",
+  "Teleport Pad",
   "Tp",
   2,
   8,
@@ -109,6 +114,7 @@ export const TELEPORT_PAD = new BuildingTemplate(
 // Note the water tile is not counted as part of the foundation
 export const DOCKS = new BuildingTemplate(
   "BuildingDocks_C",
+  "Docks",
   "Dk",
   1,
   8,
@@ -119,6 +125,7 @@ export const DOCKS = new BuildingTemplate(
 // the yellow/black chevron piece is the FRONT.
 export const CANTEEN = new BuildingTemplate(
   "BuildingCanteen_C",
+  "Canteen",
   "Cn",
   1,
   10,
@@ -129,6 +136,7 @@ export const CANTEEN = new BuildingTemplate(
 // the crystals in.
 export const POWER_STATION = new BuildingTemplate(
   "BuildingPowerStation_C",
+  "Power Station",
   "Ps",
   2,
   12,
@@ -137,6 +145,7 @@ export const POWER_STATION = new BuildingTemplate(
 );
 export const SUPPORT_STATION = new BuildingTemplate(
   "BuildingSupportStation_C",
+  "Support Station",
   "Ss",
   2,
   15,
@@ -145,6 +154,7 @@ export const SUPPORT_STATION = new BuildingTemplate(
 );
 export const UPGRADE_STATION = new BuildingTemplate(
   "BuildingUpgradeStation_C",
+  "Upgrade Station",
   "Us",
   3,
   20,
@@ -154,6 +164,7 @@ export const UPGRADE_STATION = new BuildingTemplate(
 // Geological Center origin is the BACK of the building.
 export const GEOLOGICAL_CENTER = new BuildingTemplate(
   "BuildingGeologicalCenter_C",
+  "Geological Center",
   "Gc",
   5,
   20,
@@ -163,6 +174,7 @@ export const GEOLOGICAL_CENTER = new BuildingTemplate(
 // Ore Refinery origin is the FRONT of the building were miners put ore in.
 export const ORE_REFINERY = new BuildingTemplate(
   "BuildingOreRefinery_C",
+  "Ore Refinery",
   "Or",
   4,
   20,
@@ -171,6 +183,7 @@ export const ORE_REFINERY = new BuildingTemplate(
 );
 export const MINING_LASER = new BuildingTemplate(
   "BuildingMiningLaser_C",
+  "Mining Laser",
   "Ml",
   1,
   10,
@@ -180,6 +193,7 @@ export const MINING_LASER = new BuildingTemplate(
 // Super teleport origin is the LEFT side of the building when facing it.
 export const SUPER_TELEPORT = new BuildingTemplate(
   "BuildingSuperTeleport_C",
+  "Super Teleport",
   "St",
   2,
   20,

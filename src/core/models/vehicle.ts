@@ -19,6 +19,7 @@ const JOBS = {
 
 export class VehicleTemplate {
   readonly id: string;
+  readonly name: string;
   readonly inspectAbbrev: string;
   readonly frame: "small" | "large";
   readonly kind: "land" | "sea" | "air";
@@ -26,6 +27,7 @@ export class VehicleTemplate {
   readonly upgrades: readonly Upgrade[];
   constructor(
     id: string,
+    name: string,
     inspectAbbrev: string,
     frame: "small" | "large",
     kind: "land" | "sea" | "air",
@@ -33,6 +35,7 @@ export class VehicleTemplate {
     upgrades: readonly Upgrade[],
   ) {
     this.id = id;
+    this.name = name;
     this.inspectAbbrev = inspectAbbrev;
     this.frame = frame;
     this.kind = kind;
@@ -47,6 +50,7 @@ export class VehicleTemplate {
 
 export const HOVER_SCOUT = new VehicleTemplate(
   "VehicleHoverScout_C",
+  "Hover Scout",
   "HoSc",
   "small",
   "land",
@@ -55,6 +59,7 @@ export const HOVER_SCOUT = new VehicleTemplate(
 );
 export const SMALL_DIGGER = new VehicleTemplate(
   "VehicleSmallDigger_C",
+  "Small Digger",
   "SmDi",
   "small",
   "land",
@@ -63,6 +68,7 @@ export const SMALL_DIGGER = new VehicleTemplate(
 );
 export const SMALL_TRANSPORT_TRUCK = new VehicleTemplate(
   "VehicleSmallTransportTruck_C",
+  "Small Transport Truck",
   "SmTT",
   "small",
   "land",
@@ -71,6 +77,7 @@ export const SMALL_TRANSPORT_TRUCK = new VehicleTemplate(
 );
 export const RAPID_RIDER = new VehicleTemplate(
   "VehicleRapidRider_C",
+  "Rapid Rider",
   "RaRr",
   "small",
   "sea",
@@ -79,6 +86,7 @@ export const RAPID_RIDER = new VehicleTemplate(
 );
 export const SMLC = new VehicleTemplate(
   "VehicleSMLC_C",
+  "Small Mobile Laser Cutter",
   "SMLC",
   "small",
   "land",
@@ -87,6 +95,7 @@ export const SMLC = new VehicleTemplate(
 );
 export const TUNNEL_SCOUT = new VehicleTemplate(
   "VehicleTunnelScout_C",
+  "Tunnel Scout",
   "TuSc",
   "small",
   "air",
@@ -95,6 +104,7 @@ export const TUNNEL_SCOUT = new VehicleTemplate(
 );
 export const LOADER_DOZER = new VehicleTemplate(
   "VehicleLoaderDozer_C",
+  "Loader Dozer",
   "LoDz",
   "large",
   "land",
@@ -103,6 +113,7 @@ export const LOADER_DOZER = new VehicleTemplate(
 );
 export const GRANITE_GRINDER = new VehicleTemplate(
   "VehicleGraniteGrinder_C",
+  "Granite Grinder",
   "GrGr",
   "large",
   "land",
@@ -111,6 +122,7 @@ export const GRANITE_GRINDER = new VehicleTemplate(
 );
 export const CARGO_CARRIER = new VehicleTemplate(
   "VehicleCargoCarrier_C",
+  "Cargo Carrier",
   "CaCa",
   "large",
   "sea",
@@ -119,6 +131,7 @@ export const CARGO_CARRIER = new VehicleTemplate(
 );
 export const LMLC = new VehicleTemplate(
   "VehicleLMLC_C",
+  "Large Mobile Laser Cutter",
   "LMLC",
   "large",
   "land",
@@ -127,6 +140,7 @@ export const LMLC = new VehicleTemplate(
 );
 export const CHROME_CRUSHER = new VehicleTemplate(
   "VehicleChromeCrusher_C",
+  "Chrome Crusher",
   "CrCr",
   "large",
   "land",
@@ -135,6 +149,7 @@ export const CHROME_CRUSHER = new VehicleTemplate(
 );
 export const TUNNEL_TRANSPORT = new VehicleTemplate(
   "VehicleTunnelTransport_C",
+  "Tunnel Transport",
   "TuTr",
   "large",
   "air",

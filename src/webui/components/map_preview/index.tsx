@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React, { CSSProperties, createRef } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -27,12 +27,28 @@ export type MapOverlay =
   | "tiles"
   | null;
 
+// function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
+//   if (mapOverlay !== "overview") {
+//     return undefined;
+//   }
+//   if (!cavern.cameraPosition) {
+//     return `scale(2) rotate3d(1, 0, 0, 60deg) rotate(-30deg)`
+//   }
+//   const { x, y, yaw, pitch } = cavern.cameraPosition;
+//   return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`;
+// }
 function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
   if (mapOverlay !== "overview" || !cavern.cameraPosition) {
-    return undefined;
+    return {};
   }
   const { x, y, yaw, pitch } = cavern.cameraPosition;
-  return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`;
+  return {
+    '--pvw-scale': 6,
+    '--pvw-pitch': `${pitch}rad`,
+    '--pvw-yaw': `${Math.PI - (yaw + Math.PI * 1.5) % (Math.PI * 2)}rad`,
+    '--pvw-tr-x': -x * 6,
+    '--pvw-tr-y': -y * 6,
+  } as CSSProperties;
 }
 
 export default function CavernPreview({
@@ -53,7 +69,11 @@ export default function CavernPreview({
   const width = Math.max(height, cavern.context.targetSize * 6 + 600);
 
   return (
-    <div ref={holder} className={styles.cavernPreview}>
+    <div
+      ref={holder}
+      className={styles.cavernPreview}
+      style={getTransform(cavern, mapOverlay)}
+    >
       <svg
         className={styles.map}
         style={{
@@ -61,7 +81,6 @@ export default function CavernPreview({
           left: `calc(50% - ${width / 2}px)`,
           width: width,
           height: height,
-          transform: getTransform(cavern, mapOverlay),
         }}
         viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +135,7 @@ export default function CavernPreview({
           cavern.openCaveFlags?.map((_, x, y) => (
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
           ))}
-        {showOutlines && cavern.plans && <PlansPreview cavern={cavern} />}
+        {showOutlines && cavern.plans && <PlansPreview cavern={cavern} mapOverlay={mapOverlay} />}
         {showPearls &&
           cavern.plans
             ?.filter((pl) => "outerPearl" in pl)

@@ -1,3 +1,29 @@
+@property --pvw-yaw {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --pvw-pitch {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --pvw-tr-x {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --pvw-tr-y {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --pvw-scale {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
 .cavernPreview {
   position: absolute;
   overflow: hidden;
@@ -50,6 +76,18 @@
 
   .map {
     position: absolute;
+    transition: transform 1s linear;
+    transform:
+      rotate3d(1, 0, 0, var(--pvw-pitch))
+      rotate(var(--pvw-yaw))
+      matrix(
+        var(--pvw-scale),
+        0,
+        0,
+        var(--pvw-scale),
+        calc(var(--pvw-tr-x) * var(--pvw-scale)),
+        calc(var(--pvw-tr-y) * var(--pvw-scale))
+      );
 
     .baseplate {
       font-family: var(--font-tiny);
@@ -131,6 +169,10 @@
       &.left .label {
         text-anchor: end;
       }
+      &.inline .label {
+        text-anchor: middle;
+        font-size: 6px;
+      }
       .label {
         fill: var(--color-fg);
         font-size: 12px;
@@ -186,17 +228,6 @@
 
     .tiles {
       shape-rendering: crispEdges;
-
-      .bounds {
-        fill: none;
-      }
-
-      &.oly-entities,
-      &.oly-tiles {
-        .bounds {
-          fill: var(--pvw-tile38);
-        }
-      }
     }
 
     .height {
@@ -218,6 +249,7 @@
         font-family: "Outfit";
         font-size: 2px;
         text-anchor: middle;
+        pointer-events: none;
       }
     }
 
@@ -236,7 +268,7 @@
     font-family: var(--font-tiny);
     font-size: 8px;
     max-width: 400px;
-    border: 1px solid var(--palette-lines);
+    border: 1px solid var(--palette-settings-bg);
     padding: 4px 14px;
     margin: 16px;
 
