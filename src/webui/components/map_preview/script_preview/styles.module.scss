@@ -1,0 +1,34 @@
+.popoverWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  > div {
+    background: var(--palette-bg);
+    border: 1px solid var(--palette-settings-bg);
+    margin: 0 auto;
+    padding: 0 24px;
+    max-width: 500px;
+    max-height: calc(100% - 100px);
+  }
+
+  .script {
+    transform: translateX(-250px);
+    width: 300px;
+
+    .src {
+      position: relative;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      word-wrap: break-word;
+      max-height: 380px;
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+  }
+}

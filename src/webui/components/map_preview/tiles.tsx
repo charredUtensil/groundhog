@@ -104,6 +104,8 @@ function getFill(
       }
       return t.isWall ? tk(t) : "oxex";
     }
+    case "script":
+      return dk(t);
   }
   return null;
 }
@@ -151,11 +153,7 @@ function getTitle(
     case "overview":
     case "tiles":
       return t.name;
-    case "about":
-    case "entities":
-    case "height":
-    case "lore":
-    case null:
+    default:
       return null;
   }
 }

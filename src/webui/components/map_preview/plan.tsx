@@ -152,6 +152,9 @@ export default function PlansPreview({ cavern, mapOverlay }: { cavern: Cavern, m
     sign: -1 | 1,
     className: string,
   ): ReactNode {
+    if (mapOverlay === 'script') {
+      return null;
+    }
     if (mapOverlay === 'overview') {
       return plans.map(plan => {
         const bps = plan.path.baseplates;

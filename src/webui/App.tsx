@@ -15,6 +15,7 @@ import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
 import About from "./components/about";
 import styles from "./App.module.scss";
+import ScriptPreview from "./components/map_preview/script_preview";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -32,6 +33,7 @@ const MAP_OVERLAY_BUTTONS: readonly {
   { of: "erosion", label: "Erosion", enabled: (c) => !!c?.erosion },
   { of: "oxygen", label: "Oxygen", enabled: (c) => c?.oxygen !== undefined },
   { of: "lore", label: "Lore", enabled: (c) => !!c?.lore },
+  { of: "script", label: "Script", enabled: (c) => !!c?.script },
   { of: "about", label: "About", enabled: (c) => true },
 ];
 
@@ -118,13 +120,15 @@ function App() {
     (window as any).cavern = state.cavern;
   }, [state]);
 
+  const isLoading = (autoGenerate && !state.cavern?.serialized) || mapOverlay === 'about';
+
   return (
     <div className={`${styles.App} ${styles[`${biome}Biome`]}`}>
       <div className={styles.settingsPanel}>
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
-        <div className={`${styles.grid} ${autoGenerate && !state.cavern?.serialized ? styles.loading : ''}`} />
+        <div className={`${styles.grid} ${isLoading ? styles.loading : ''}`} />
         {state.cavern && (
           <CavernPreview
             cavern={state.cavern}
@@ -172,8 +176,8 @@ function App() {
             </div>
           )}
         </div>
-        {mapOverlay === "lore" && <LorePreview cavern={state.cavern} />}
         {mapOverlay === "about" && <About />}
+        {mapOverlay === "lore" && <LorePreview cavern={state.cavern} />}
       </div>
       <div className={styles.vizOptsPanel}>
         <h1>Show</h1>

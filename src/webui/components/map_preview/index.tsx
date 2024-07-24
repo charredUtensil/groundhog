@@ -1,4 +1,4 @@
-import React, { CSSProperties, createRef } from "react";
+import React, { CSSProperties, createRef, useState } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -11,6 +11,7 @@ import styles from "./style.module.scss";
 import HeightPreview from "./height";
 import Stats from "./stats";
 import PlansPreview from "./plan";
+import ScriptPreview, { ScriptOverlay } from "./script_preview";
 
 export type MapOverlay =
   | "about"
@@ -24,20 +25,16 @@ export type MapOverlay =
   | "ore"
   | "overview"
   | "oxygen"
+  | "script"
   | "tiles"
   | null;
 
-// function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
-//   if (mapOverlay !== "overview") {
-//     return undefined;
-//   }
-//   if (!cavern.cameraPosition) {
-//     return `scale(2) rotate3d(1, 0, 0, 60deg) rotate(-30deg)`
-//   }
-//   const { x, y, yaw, pitch } = cavern.cameraPosition;
-//   return `scale(6) rotate3d(1, 0, 0, ${pitch}rad) rotate(${Math.PI / -2 - yaw}rad) translate(${-x * 6}px, ${-y * 6}px)`;
-// }
 function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
+  if (mapOverlay === "script") {
+    return {
+      '--pvw-tr-x': 200,
+    } as CSSProperties
+  }
   if (mapOverlay !== "overview" || !cavern.cameraPosition) {
     return {};
   }
@@ -64,13 +61,20 @@ export default function CavernPreview({
   showOutlines: boolean;
   showPearls: boolean;
 }) {
-  const holder = createRef<HTMLDivElement>();
+  const [scriptRange, setScriptRange] = useState<[number, number]>([-1, -1]);
+
+  switch (mapOverlay) {
+    case 'about':
+    case 'lore':
+      return null;
+    default:
+  }
+
   const height = cavern.context.targetSize * 2 * 6;
   const width = Math.max(height, cavern.context.targetSize * 6 + 600);
 
   return (
     <div
-      ref={holder}
       className={styles.cavernPreview}
       style={getTransform(cavern, mapOverlay)}
     >
@@ -135,6 +139,7 @@ export default function CavernPreview({
           cavern.openCaveFlags?.map((_, x, y) => (
             <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
           ))}
+        {mapOverlay === "script" && <ScriptOverlay cavern={cavern} scriptRange={scriptRange} />}
         {showOutlines && cavern.plans && <PlansPreview cavern={cavern} mapOverlay={mapOverlay} />}
         {showPearls &&
           cavern.plans
@@ -158,6 +163,7 @@ export default function CavernPreview({
             ))}
       </svg>
       <Stats cavern={cavern} mapOverlay={mapOverlay} />
+      {mapOverlay === "script" && <ScriptPreview cavern={cavern} setScriptRange={setScriptRange} />}
       {error && <div className={styles.error}>{error.message}</div>}
     </div>
   );

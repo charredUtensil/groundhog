@@ -76,7 +76,7 @@
 
   .map {
     position: absolute;
-    transition: transform 1s linear;
+    transition: transform 500ms linear;
     transform:
       rotate3d(1, 0, 0, var(--pvw-pitch))
       rotate(var(--pvw-yaw))
@@ -228,6 +228,9 @@
 
     .tiles {
       shape-rendering: crispEdges;
+      .tile {
+        transition: fill 500ms ease-out;
+      }
     }
 
     .height {
