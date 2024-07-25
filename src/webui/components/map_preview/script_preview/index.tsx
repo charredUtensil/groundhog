@@ -1,6 +1,11 @@
-import React, { Fragment, ReactNode, createRef, useLayoutEffect, useMemo, useRef } from "react";
+import React, {
+  Fragment,
+  createRef,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 import { Cavern } from "../../../../core/models/cavern";
-import styles from './styles.module.scss'
+import styles from "./styles.module.scss";
 import { Point } from "../../../../core/common/geometry";
 import { filterTruthy } from "../../../../core/common/utils";
 
@@ -8,30 +13,36 @@ type Statement = {
   kind: string;
   code: string;
   pos?: Point;
-}
+};
 
 const SCALE = 6;
 
 function parse(script: string): Statement[] {
-  return script.split('\n').map((line) => {
-    if (line.startsWith('#')) {
-      return {kind: 'misc', code: line};
+  return script.split("\n").map((line) => {
+    if (line.startsWith("#")) {
+      return { kind: "misc", code: line };
     }
     if (!line) {
-      return {kind: 'misc', code: '\u00A0'};
+      return { kind: "misc", code: "\u00A0" };
     }
     const m = line.match(/(?<prefix>(^|\())[a-z]+:(?<y>\d+),(?<x>\d+)/);
     if (m) {
-      const kind = m.groups!.prefix === '(' ? 'condition' : 'event';
-      return {kind: kind, code: line, pos: [parseInt(m.groups!.x, 10), parseInt(m.groups!.y)]};
+      const kind = m.groups!.prefix === "(" ? "condition" : "event";
+      return {
+        kind: kind,
+        code: line,
+        pos: [parseInt(m.groups!.x, 10), parseInt(m.groups!.y)],
+      };
     }
-    return {kind: 'misc', code: line};
+    return { kind: "misc", code: line };
   });
 }
 
 function getLineOffsets(container: HTMLDivElement) {
   const result = [];
-  const lines = Array.from(container.getElementsByClassName(styles.line)) as HTMLElement[];
+  const lines = Array.from(
+    container.getElementsByClassName(styles.line),
+  ) as HTMLElement[];
   let i = 0;
   for (; i < lines.length; i++) {
     if (lines[i].offsetTop + lines[i].clientHeight >= container.scrollTop) {
@@ -42,39 +53,59 @@ function getLineOffsets(container: HTMLDivElement) {
     if (lines[i].offsetTop >= container.scrollTop + container.clientHeight) {
       break;
     }
-    result[i] = (
-      lines[i].offsetTop 
-      + lines[i].clientHeight / 2
-      - container.clientHeight / 2 
-      - container.scrollTop
-    );
+    result[i] =
+      lines[i].offsetTop +
+      lines[i].clientHeight / 2 -
+      container.clientHeight / 2 -
+      container.scrollTop;
   }
   return result;
 }
 
-export default function ScriptPreview({cavern, setScriptLineOffsets, scriptLineHovered, setScriptLineHovered}: {
-  cavern: Cavern | undefined, setScriptLineOffsets: (v: number[]) => void, scriptLineHovered: number, setScriptLineHovered: (v: number) => void}) {
-  const ref = createRef<HTMLDivElement>()
+export default function ScriptPreview({
+  cavern,
+  setScriptLineOffsets,
+  scriptLineHovered,
+  setScriptLineHovered,
+}: {
+  cavern: Cavern | undefined;
+  setScriptLineOffsets: (v: number[]) => void;
+  scriptLineHovered: number;
+  setScriptLineHovered: (v: number) => void;
+}) {
+  const ref = createRef<HTMLDivElement>();
   useLayoutEffect(() => {
-    const container = ref.current
+    const container = ref.current;
     if (!container) {
       return;
     }
     setScriptLineOffsets(getLineOffsets(container));
-  }, [ref]);
-  const statements = useMemo(() => cavern?.script ? parse(cavern.script) : undefined, [cavern]);
+  }, [ref, setScriptLineOffsets]);
+  const statements = useMemo(
+    () => (cavern?.script ? parse(cavern.script) : undefined),
+    [cavern],
+  );
   return (
-    <div className={styles.script} ref={ref} onScroll={() => setScriptLineOffsets(getLineOffsets(ref.current!))}>
+    <div
+      className={styles.script}
+      ref={ref}
+      onScroll={() => setScriptLineOffsets(getLineOffsets(ref.current!))}
+    >
       <h2>Script</h2>
       <div className={styles.src}>
-        {statements?.map(({code, pos, kind}, i) => {
+        {statements?.map(({ code, pos, kind }, i) => {
           const className = filterTruthy([
             styles.line,
             scriptLineHovered === i && styles.hovered,
             styles[kind],
-          ]).join(' ');
+          ]).join(" ");
           return (
-            <div className={className} onMouseOver={pos ? () => setScriptLineHovered(i) : undefined}>{code}</div>
+            <div
+              className={className}
+              onMouseOver={pos ? () => setScriptLineHovered(i) : undefined}
+            >
+              {code}
+            </div>
           );
         })}
       </div>
@@ -82,9 +113,19 @@ export default function ScriptPreview({cavern, setScriptLineOffsets, scriptLineH
   );
 }
 
-export function ScriptOverlay({cavern, scriptLineOffsets, scriptLineHovered}: {
-  cavern: Cavern | undefined, scriptLineOffsets: number[], scriptLineHovered: number}) {
-  const statements = useMemo(() => cavern?.script ? parse(cavern.script) : undefined, [cavern]);
+export function ScriptOverlay({
+  cavern,
+  scriptLineOffsets,
+  scriptLineHovered,
+}: {
+  cavern: Cavern | undefined;
+  scriptLineOffsets: number[];
+  scriptLineHovered: number;
+}) {
+  const statements = useMemo(
+    () => (cavern?.script ? parse(cavern.script) : undefined),
+    [cavern],
+  );
   if (!cavern?.script) {
     return null;
   }
@@ -93,7 +134,7 @@ export function ScriptOverlay({cavern, scriptLineOffsets, scriptLineHovered}: {
   return (
     <>
       <g className={styles.tiles}>
-        {statements!.map(({kind, pos}, i) => {
+        {statements!.map(({ kind, pos }, i) => {
           if (!pos || scriptLineOffsets[i] === undefined) {
             return null;
           }
@@ -103,7 +144,7 @@ export function ScriptOverlay({cavern, scriptLineOffsets, scriptLineHovered}: {
             active ? styles.active : styles.inactive,
             scriptLineHovered === i && styles.hovered,
             styles[kind],
-          ]).join(' ');
+          ]).join(" ");
           return (
             <rect
               key={i}
@@ -116,17 +157,21 @@ export function ScriptOverlay({cavern, scriptLineOffsets, scriptLineHovered}: {
           );
         })}
       </g>
-      {parse(cavern.script).map(({kind, pos}, i) => {
-        if (!pos || scriptLineOffsets[i] === undefined || scriptLineHovered !== i) {
-          return null
+      {parse(cavern.script).map(({ kind, pos }, i) => {
+        if (
+          !pos ||
+          scriptLineOffsets[i] === undefined ||
+          scriptLineHovered !== i
+        ) {
+          return null;
         }
         const className = filterTruthy([
           styles.arrow,
           scriptLineHovered === i && styles.hovered,
           styles[kind],
-        ]).join(' ');
+        ]).join(" ");
         const lx = -9999;
-        const ly = scriptLineOffsets[i]
+        const ly = scriptLineOffsets[i];
         const px = (pos[0] + ox + 0.5) * SCALE;
         const py = (pos[1] + oy + 0.5) * SCALE;
         const bx = px - Math.abs(py - ly) * 0.3;
@@ -137,16 +182,8 @@ export function ScriptOverlay({cavern, scriptLineOffsets, scriptLineHovered}: {
         ]).join("");
         return (
           <Fragment key={i}>
-            <path
-              className={className}
-              d={d}
-            />
-            <circle
-              className={className}
-              cx={px}
-              cy={py}
-              r={10}
-            />
+            <path className={className} d={d} />
+            <circle className={className} cx={px} cy={py} r={10} />
           </Fragment>
         );
       })}

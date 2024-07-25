@@ -169,10 +169,7 @@ export default function TilesPreview({
     return null;
   }
   return (
-    <g
-      className={styles.tiles}
-      style={{ scale: `${SCALE}` }}
-    >
+    <g className={styles.tiles} style={{ scale: `${SCALE}` }}>
       {cavern.tiles.map((t, x, y) => {
         const fill = getFill(cavern, mapOverlay, t, x, y);
         if (!fill) {

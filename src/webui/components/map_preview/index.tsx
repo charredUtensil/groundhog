@@ -1,4 +1,4 @@
-import React, { CSSProperties, createRef, useReducer, useState } from "react";
+import React, { CSSProperties, useReducer, useState } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -35,11 +35,11 @@ function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
   }
   const { x, y, yaw, pitch } = cavern.cameraPosition;
   return {
-    '--pvw-scale': 6,
-    '--pvw-pitch': `${pitch}rad`,
-    '--pvw-yaw': `${Math.PI - (yaw + Math.PI * 1.5) % (Math.PI * 2)}rad`,
-    '--pvw-tr-x': -x * 6,
-    '--pvw-tr-y': -y * 6,
+    "--pvw-scale": 6,
+    "--pvw-pitch": `${pitch}rad`,
+    "--pvw-yaw": `${Math.PI - ((yaw + Math.PI * 1.5) % (Math.PI * 2))}rad`,
+    "--pvw-tr-x": -x * 6,
+    "--pvw-tr-y": -y * 6,
   } as CSSProperties;
 }
 
@@ -57,21 +57,24 @@ export default function CavernPreview({
   showPearls: boolean;
 }) {
   const [scriptLineHovered, setScriptLineHovered] = useState(-1);
-  const [scriptLineOffsets, setScriptLineOffsets] = useReducer((was: number[], now: number[]) => {
-    if (was.length != now.length) {
-      return now;
-    }
-    for (let i = 0; i < was.length; i++) {
-      if (was[i] !== now[i]) {
+  const [scriptLineOffsets, setScriptLineOffsets] = useReducer(
+    (was: number[], now: number[]) => {
+      if (was.length !== now.length) {
         return now;
       }
-    }
-    return was;
-  }, []);
+      for (let i = 0; i < was.length; i++) {
+        if (was[i] !== now[i]) {
+          return now;
+        }
+      }
+      return was;
+    },
+    [],
+  );
 
   switch (mapOverlay) {
-    case 'about':
-    case 'lore':
+    case "about":
+    case "lore":
       return null;
     default:
   }
@@ -84,14 +87,14 @@ export default function CavernPreview({
       className={styles.cavernPreview}
       style={getTransform(cavern, mapOverlay)}
     >
-      {mapOverlay === "script" && 
+      {mapOverlay === "script" && (
         <ScriptPreview
           cavern={cavern}
           setScriptLineOffsets={setScriptLineOffsets}
           scriptLineHovered={scriptLineHovered}
           setScriptLineHovered={setScriptLineHovered}
         />
-      }
+      )}
       <div className={styles.mapWrapper}>
         <svg
           className={styles.map}
@@ -154,14 +157,16 @@ export default function CavernPreview({
             cavern.openCaveFlags?.map((_, x, y) => (
               <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
             ))}
-          {mapOverlay === "script" && 
+          {mapOverlay === "script" && (
             <ScriptOverlay
               cavern={cavern}
               scriptLineOffsets={scriptLineOffsets}
               scriptLineHovered={scriptLineHovered}
             />
-          }
-          {showOutlines && cavern.plans && <PlansPreview cavern={cavern} mapOverlay={mapOverlay} />}
+          )}
+          {showOutlines && cavern.plans && (
+            <PlansPreview cavern={cavern} mapOverlay={mapOverlay} />
+          )}
           {showPearls &&
             cavern.plans
               ?.filter((pl) => "outerPearl" in pl)

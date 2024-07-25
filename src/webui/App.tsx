@@ -15,7 +15,6 @@ import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/lore_preview";
 import About from "./components/about";
 import styles from "./App.module.scss";
-import ScriptPreview from "./components/map_preview/script_preview";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -120,7 +119,8 @@ function App() {
     (window as any).cavern = state.cavern;
   }, [state]);
 
-  const isLoading = (autoGenerate && !state.cavern?.serialized) || mapOverlay === 'about';
+  const isLoading =
+    (autoGenerate && !state.cavern?.serialized) || mapOverlay === "about";
 
   return (
     <div className={`${styles.App} ${styles[`${biome}Biome`]}`}>
@@ -128,7 +128,7 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
-        <div className={`${styles.grid} ${isLoading ? styles.loading : ''}`} />
+        <div className={`${styles.grid} ${isLoading ? styles.loading : ""}`} />
         {state.cavern && (
           <CavernPreview
             cavern={state.cavern}

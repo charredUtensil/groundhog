@@ -117,7 +117,13 @@ function hall(plan: Partial<Plan>) {
   );
 }
 
-export default function PlansPreview({ cavern, mapOverlay }: { cavern: Cavern, mapOverlay: MapOverlay }) {
+export default function PlansPreview({
+  cavern,
+  mapOverlay,
+}: {
+  cavern: Cavern;
+  mapOverlay: MapOverlay;
+}) {
   if (!cavern.plans) {
     return null;
   }
@@ -152,18 +158,21 @@ export default function PlansPreview({ cavern, mapOverlay }: { cavern: Cavern, m
     sign: -1 | 1,
     className: string,
   ): ReactNode {
-    if (mapOverlay === 'script') {
+    if (mapOverlay === "script") {
       return null;
     }
-    if (mapOverlay === 'overview') {
-      return plans.map(plan => {
+    if (mapOverlay === "overview") {
+      return plans.map((plan) => {
         const bps = plan.path.baseplates;
         if (bps.length <= 1) {
           const [x, y] = bps[0].center;
           return (
-            <g key={plan.id} className={`${styles.inline} ${getGClassName(plan)}`}>
+            <g
+              key={plan.id}
+              className={`${styles.inline} ${getGClassName(plan)}`}
+            >
               <text className={styles.label} x={x * SCALE} y={y * SCALE}>
-                {'architect' in plan && plan.architect.name} {plan.id}
+                {"architect" in plan && plan.architect.name} {plan.id}
               </text>
             </g>
           );
@@ -175,15 +184,14 @@ export default function PlansPreview({ cavern, mapOverlay }: { cavern: Cavern, m
           })
           .join(" ");
         return (
-          <g key={plan.id} className={`${styles.inline} ${getGClassName(plan)}`}>
-            <path
-              id={`planLabel${plan.id}`}
-              d={d}
-              fill="none"
-            />
+          <g
+            key={plan.id}
+            className={`${styles.inline} ${getGClassName(plan)}`}
+          >
+            <path id={`planLabel${plan.id}`} d={d} fill="none" />
             <text className={styles.label}>
               <textPath href={`#planLabel${plan.id}`} startOffset="50%">
-                {'architect' in plan && plan.architect.name} {plan.id}
+                {"architect" in plan && plan.architect.name} {plan.id}
               </textPath>
             </text>
           </g>
