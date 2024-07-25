@@ -1,4 +1,4 @@
-import React, { CSSProperties, createRef, useState } from "react";
+import React, { CSSProperties, createRef, useReducer, useState } from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -30,11 +30,6 @@ export type MapOverlay =
   | null;
 
 function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
-  if (mapOverlay === "script") {
-    return {
-      '--pvw-tr-x': 200,
-    } as CSSProperties
-  }
   if (mapOverlay !== "overview" || !cavern.cameraPosition) {
     return {};
   }
@@ -61,7 +56,18 @@ export default function CavernPreview({
   showOutlines: boolean;
   showPearls: boolean;
 }) {
-  const [scriptRange, setScriptRange] = useState<[number, number]>([-1, -1]);
+  const [scriptLineHovered, setScriptLineHovered] = useState(-1);
+  const [scriptLineOffsets, setScriptLineOffsets] = useReducer((was: number[], now: number[]) => {
+    if (was.length != now.length) {
+      return now;
+    }
+    for (let i = 0; i < was.length; i++) {
+      if (was[i] !== now[i]) {
+        return now;
+      }
+    }
+    return was;
+  }, []);
 
   switch (mapOverlay) {
     case 'about':
@@ -78,92 +84,107 @@ export default function CavernPreview({
       className={styles.cavernPreview}
       style={getTransform(cavern, mapOverlay)}
     >
-      <svg
-        className={styles.map}
-        style={{
-          top: `calc(50% - ${height / 2}px)`,
-          left: `calc(50% - ${width / 2}px)`,
-          width: width,
-          height: height,
-        }}
-        viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
-        {mapOverlay === "height" && cavern.height && (
-          <HeightPreview height={cavern.height} />
-        )}
-        {showOutlines &&
-          cavern.baseplates?.map((bp) => (
-            <BaseplatePreview key={bp.id} baseplate={bp} />
-          ))}
-        {showOutlines &&
-          cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
-        {cavern.buildings?.map((b, i) => (
-          <EntityPreview
-            key={i}
-            entity={b}
-            mapOverlay={mapOverlay}
-            cavern={cavern}
-            building
-          />
-        ))}
-        {cavern.creatures?.map((c) => (
-          <EntityPreview
-            key={c.id}
-            entity={c}
-            mapOverlay={mapOverlay}
-            cavern={cavern}
-            creature
-          />
-        ))}
-        {cavern.miners?.map((m) => (
-          <EntityPreview
-            key={m.id}
-            entity={m}
-            mapOverlay={mapOverlay}
-            cavern={cavern}
-            miner
-          />
-        ))}
-        {cavern.vehicles?.map((v) => (
-          <EntityPreview
-            key={v.id}
-            entity={v}
-            mapOverlay={mapOverlay}
-            cavern={cavern}
-            vehicle
-          />
-        ))}
-        {mapOverlay === "discovery" &&
-          cavern.openCaveFlags?.map((_, x, y) => (
-            <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
-          ))}
-        {mapOverlay === "script" && <ScriptOverlay cavern={cavern} scriptRange={scriptRange} />}
-        {showOutlines && cavern.plans && <PlansPreview cavern={cavern} mapOverlay={mapOverlay} />}
-        {showPearls &&
-          cavern.plans
-            ?.filter((pl) => "outerPearl" in pl)
-            .map((pl) => (
-              <PearlPreview
-                key={pl.id}
-                plan={pl as PearledPlan}
-                pearl={"outerPearl"}
-              />
+      {mapOverlay === "script" && 
+        <ScriptPreview
+          cavern={cavern}
+          setScriptLineOffsets={setScriptLineOffsets}
+          scriptLineHovered={scriptLineHovered}
+          setScriptLineHovered={setScriptLineHovered}
+        />
+      }
+      <div className={styles.mapWrapper}>
+        <svg
+          className={styles.map}
+          style={{
+            top: `calc(50% - ${height / 2}px)`,
+            left: `calc(50% - ${width / 2}px)`,
+            width: width,
+            height: height,
+          }}
+          viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
+          {mapOverlay === "height" && cavern.height && (
+            <HeightPreview height={cavern.height} />
+          )}
+          {showOutlines &&
+            cavern.baseplates?.map((bp) => (
+              <BaseplatePreview key={bp.id} baseplate={bp} />
             ))}
-        {showPearls &&
-          cavern.plans
-            ?.filter((pl) => "innerPearl" in pl)
-            .map((pl) => (
-              <PearlPreview
-                key={pl.id}
-                plan={pl as PearledPlan}
-                pearl={"innerPearl"}
-              />
+          {showOutlines &&
+            cavern.paths?.map((pa) => <PathPreview key={pa.id} path={pa} />)}
+          {cavern.buildings?.map((b, i) => (
+            <EntityPreview
+              key={i}
+              entity={b}
+              mapOverlay={mapOverlay}
+              cavern={cavern}
+              building
+            />
+          ))}
+          {cavern.creatures?.map((c) => (
+            <EntityPreview
+              key={c.id}
+              entity={c}
+              mapOverlay={mapOverlay}
+              cavern={cavern}
+              creature
+            />
+          ))}
+          {cavern.miners?.map((m) => (
+            <EntityPreview
+              key={m.id}
+              entity={m}
+              mapOverlay={mapOverlay}
+              cavern={cavern}
+              miner
+            />
+          ))}
+          {cavern.vehicles?.map((v) => (
+            <EntityPreview
+              key={v.id}
+              entity={v}
+              mapOverlay={mapOverlay}
+              cavern={cavern}
+              vehicle
+            />
+          ))}
+          {mapOverlay === "discovery" &&
+            cavern.openCaveFlags?.map((_, x, y) => (
+              <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
             ))}
-      </svg>
+          {mapOverlay === "script" && 
+            <ScriptOverlay
+              cavern={cavern}
+              scriptLineOffsets={scriptLineOffsets}
+              scriptLineHovered={scriptLineHovered}
+            />
+          }
+          {showOutlines && cavern.plans && <PlansPreview cavern={cavern} mapOverlay={mapOverlay} />}
+          {showPearls &&
+            cavern.plans
+              ?.filter((pl) => "outerPearl" in pl)
+              .map((pl) => (
+                <PearlPreview
+                  key={pl.id}
+                  plan={pl as PearledPlan}
+                  pearl={"outerPearl"}
+                />
+              ))}
+          {showPearls &&
+            cavern.plans
+              ?.filter((pl) => "innerPearl" in pl)
+              .map((pl) => (
+                <PearlPreview
+                  key={pl.id}
+                  plan={pl as PearledPlan}
+                  pearl={"innerPearl"}
+                />
+              ))}
+        </svg>
+      </div>
       <Stats cavern={cavern} mapOverlay={mapOverlay} />
-      {mapOverlay === "script" && <ScriptPreview cavern={cavern} setScriptRange={setScriptRange} />}
       {error && <div className={styles.error}>{error.message}</div>}
     </div>
   );

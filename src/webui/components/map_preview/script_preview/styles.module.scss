@@ -1,34 +1,55 @@
-.popoverWrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.script {
+  position: relative;
+  background: var(--palette-bg);
+  border-right: 1px solid var(--palette-settings-bg);
+  width: 450px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  z-index: 1;
 
-  > div {
-    background: var(--palette-bg);
-    border: 1px solid var(--palette-settings-bg);
-    margin: 0 auto;
-    padding: 0 24px;
-    max-width: 500px;
-    max-height: calc(100% - 100px);
+  > h2 {
+    padding: 0 12px;
   }
 
-  .script {
-    transform: translateX(-250px);
-    width: 300px;
+  .src {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    word-wrap: break-word;
 
-    .src {
-      position: relative;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      word-wrap: break-word;
-      max-height: 380px;
-      overflow-x: hidden;
-      overflow-y: scroll;
+    .line {
+      color: var(--color-codehlt);
+      padding: 0 12px;
+
+      &.hovered {
+        color: black;
+        background: var(--color-codehlt);
+      }
     }
   }
+}
+
+.tiles {
+  .active.tile {
+    fill: var(--color-codehlt);
+  }
+
+  .inactive.tile {
+    fill: transparent;
+  }
+}
+
+.arrow {
+  fill: none;
+  stroke: var(--color-codehlt);
+  stroke-width: 2px;
+}
+
+.misc {
+  --color-codehlt: var(--palette-fg);
+}
+.condition {
+  --color-codehlt: yellow;
+}
+.event {
+  --color-codehlt: cyan;
 }
