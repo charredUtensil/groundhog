@@ -11,6 +11,7 @@
   --font-body: "Outfit";
   --font-cyber: "Russo One";
   --font-tiny: "Silkscreen";
+  --font-mono: "IBM Plex Mono";
 
   --palette-fg: white;
   --palette-bg: #121212;
@@ -61,21 +62,21 @@
       bottom: 0;
 
       background: var(--palette-settings-bg);
-      
+
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         left: 0;
         top: 0;
         right: 0;
         bottom: 0;
 
-        background-image:
-          linear-gradient(
-            to left,
-            transparent 0px,
-            var(--palette-accent) 25px,
-            transparent 400px);
+        background-image: linear-gradient(
+          to left,
+          transparent 0px,
+          var(--palette-accent) 25px,
+          transparent 400px
+        );
         background-size: 800px 100%;
         animation: scan-scrim 3s infinite linear;
         opacity: 0;
@@ -86,9 +87,9 @@
         opacity: 1;
         transition: opacity 250ms ease-out;
       }
-    
+
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         left: 0;
         top: 0;
@@ -97,18 +98,19 @@
 
         background: var(--palette-bg);
         mask-composite: subtract;
-        mask-image:
-          linear-gradient(
+        mask-image: linear-gradient(
             to right,
             white 16px,
             transparent 16px,
             transparent 17px,
-            white 17px),
+            white 17px
+          ),
           linear-gradient(
             transparent 16px,
             black 16px,
             black 17px,
-            transparent 17px);
+            transparent 17px
+          );
         mask-size: 32px 32px;
       }
     }

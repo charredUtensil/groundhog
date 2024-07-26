@@ -14,11 +14,31 @@ export class CreatureTemplate {
   }
 }
 
-export const ROCK_MONSTER = new CreatureTemplate("CreatureRockMonster_C", "Rock Monster", "Rm");
-export const ICE_MONSTER = new CreatureTemplate("CreatureIceMonster_C", "Ice Monster", "Im");
-export const LAVA_MONSTER = new CreatureTemplate("CreatureLavaMonster_C", "Lava Monster", "Lm");
-export const SLIMY_SLUG = new CreatureTemplate("CreatureSlimySlug_C", "Slimy Slug", "Sg");
-export const SMALL_SPIDER = new CreatureTemplate("CreatureSmallSpider_C", "Small Spider", "Sr");
+export const ROCK_MONSTER = new CreatureTemplate(
+  "CreatureRockMonster_C",
+  "Rock Monster",
+  "Rm",
+);
+export const ICE_MONSTER = new CreatureTemplate(
+  "CreatureIceMonster_C",
+  "Ice Monster",
+  "Im",
+);
+export const LAVA_MONSTER = new CreatureTemplate(
+  "CreatureLavaMonster_C",
+  "Lava Monster",
+  "Lm",
+);
+export const SLIMY_SLUG = new CreatureTemplate(
+  "CreatureSlimySlug_C",
+  "Slimy Slug",
+  "Sg",
+);
+export const SMALL_SPIDER = new CreatureTemplate(
+  "CreatureSmallSpider_C",
+  "Small Spider",
+  "Sr",
+);
 export const BAT = new CreatureTemplate("CreatureBat_C", "Bat", "Bt");
 
 export function monsterForBiome(biome: Biome): CreatureTemplate {

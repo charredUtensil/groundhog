@@ -30,6 +30,8 @@
   width: 100%;
   height: 100%;
 
+  display: flex;
+
   --pvw-bpak: #222222;
   --pvw-bpck: #2d004b;
   --pvw-bphk: #166921;
@@ -74,188 +76,194 @@
   --pvw-oxex: #555533;
   --pvw-oxhc: var(--pvw-tile42);
 
-  .map {
-    position: absolute;
-    transition: transform 1s linear;
-    transform:
-      rotate3d(1, 0, 0, var(--pvw-pitch))
-      rotate(var(--pvw-yaw))
-      matrix(
-        var(--pvw-scale),
-        0,
-        0,
-        var(--pvw-scale),
-        calc(var(--pvw-tr-x) * var(--pvw-scale)),
-        calc(var(--pvw-tr-y) * var(--pvw-scale))
-      );
+  .mapWrapper {
+    position: relative;
+    width: 100%;
 
-    .baseplate {
-      font-family: var(--font-tiny);
-      font-size: 8px;
+    .map {
+      position: absolute;
+      transition: transform 500ms linear;
+      transform: rotate3d(1, 0, 0, var(--pvw-pitch)) rotate(var(--pvw-yaw))
+        matrix(
+          var(--pvw-scale),
+          0,
+          0,
+          var(--pvw-scale),
+          calc(var(--pvw-tr-x) * var(--pvw-scale)),
+          calc(var(--pvw-tr-y) * var(--pvw-scale))
+        );
 
-      .fg {
-        fill: white;
-      }
-
-      &.ambiguousKind .bg {
-        fill: var(--pvw-bpak);
-      }
-
-      &.caveKind .bg {
-        fill: var(--pvw-bpck);
-      }
-
-      &.hallKind .bg {
-        fill: var(--pvw-bphk);
-      }
-    }
-
-    .path {
-      stroke-linecap: round;
-      stroke-dasharray: 2, 3;
-
-      &.ambiguousKind {
-        --fg-color: white;
-        --fg-opacity: 0.3;
-      }
-
-      &.spanningKind {
-        --fg-color: var(--pvw-pathspan);
-      }
-
-      &.auxiliaryKind {
-        --fg-color: var(--pvw-pathaux);
-      }
-
-      & > path {
-        stroke: var(--fg-color);
-        stroke-opacity: var(--fg-opacity);
-        stroke-width: 2px;
-      }
-
-      & > text {
-        fill: var(--fg-color);
-        opacity: var(--fg-opacity);
+      .baseplate {
         font-family: var(--font-tiny);
-        font-size: 12px;
-      }
-    }
+        font-size: 8px;
 
-    .plan {
-      --color-bg: #444444;
-      --color-fg: white;
-      &.caveKind .bg {
-        stroke-width: 2px;
-        fill: none;
-      }
-      &.hallKind {
-        .bg {
-          stroke-linecap: round;
-          opacity: 0.4;
+        .fg {
+          fill: white;
         }
-        &.spanningPathKind {
-          --color-fg: var(--pvw-pathspan);
-        }
-        &.auxiliaryPathKind {
-          --color-fg: var(--pvw-pathaux);
-        }
-      }
-      &.fluid6 {
-        --color-bg: var(--pvw-tile6);
-      }
-      &.fluid11 {
-        --color-bg: var(--pvw-tile11);
-      }
-      &.left .label {
-        text-anchor: end;
-      }
-      &.inline .label {
-        text-anchor: middle;
-        font-size: 6px;
-      }
-      .label {
-        fill: var(--color-fg);
-        font-size: 12px;
-      }
-      .pointer {
-        fill: none;
-        stroke-width: 1px;
-        stroke: var(--color-fg);
-      }
-      .bg {
-        stroke: var(--color-bg);
-      }
-    }
 
-    .pearl {
-      &.innerPearl {
-        stroke-width: 1px;
-        &.caveKind {
-          --color0: #40ffff;
-          --color1: #40dddd;
-          --color2: #40bbbb;
-          --color3: #409999;
+        &.ambiguousKind .bg {
+          fill: var(--pvw-bpak);
+        }
+
+        &.caveKind .bg {
+          fill: var(--pvw-bpck);
+        }
+
+        &.hallKind .bg {
+          fill: var(--pvw-bphk);
+        }
+      }
+
+      .path {
+        stroke-linecap: round;
+        stroke-dasharray: 2, 3;
+
+        &.ambiguousKind {
+          --fg-color: white;
+          --fg-opacity: 0.3;
+        }
+
+        &.spanningKind {
+          --fg-color: var(--pvw-pathspan);
+        }
+
+        &.auxiliaryKind {
+          --fg-color: var(--pvw-pathaux);
+        }
+
+        & > path {
+          stroke: var(--fg-color);
+          stroke-opacity: var(--fg-opacity);
+          stroke-width: 2px;
+        }
+
+        & > text {
+          fill: var(--fg-color);
+          opacity: var(--fg-opacity);
+          font-family: var(--font-tiny);
+          font-size: 12px;
+        }
+      }
+
+      .plan {
+        --color-bg: #444444;
+        --color-fg: white;
+        &.caveKind .bg {
+          stroke-width: 2px;
+          fill: none;
         }
         &.hallKind {
-          --color0: #ffff20;
-          --color1: #dddd20;
-          --color2: #bbbb20;
-          --color3: #999920;
+          .bg {
+            stroke-linecap: round;
+            opacity: 0.4;
+          }
+          &.spanningPathKind {
+            --color-fg: var(--pvw-pathspan);
+          }
+          &.auxiliaryPathKind {
+            --color-fg: var(--pvw-pathaux);
+          }
+        }
+        &.fluid6 {
+          --color-bg: var(--pvw-tile6);
+        }
+        &.fluid11 {
+          --color-bg: var(--pvw-tile11);
+        }
+        &.left .label {
+          text-anchor: end;
+        }
+        &.inline .label {
+          text-anchor: middle;
+          font-size: 6px;
+        }
+        .label {
+          fill: var(--color-fg);
+          font-size: 12px;
+        }
+        .pointer {
+          fill: none;
+          stroke-width: 1px;
+          stroke: var(--color-fg);
+        }
+        .bg {
+          stroke: var(--color-bg);
         }
       }
-      &.outerPearl {
-        stroke-width: 0.5px;
-        --color0: #999999;
-        --color1: #888888;
-        --color2: #777777;
-        --color3: #666666;
-      }
-      .layer {
-        &.layer0 {
-          stroke: var(--color0);
-        }
-        &.layer1 {
-          stroke: var(--color1);
-        }
-        &.layer2 {
-          stroke: var(--color2);
-        }
-        &.layer3 {
-          stroke: var(--color3);
-        }
-      }
-    }
 
-    .tiles {
-      shape-rendering: crispEdges;
-    }
-
-    .height {
-      shape-rendering: crispEdges;
-    }
-
-    .entity {
-      --color-fg: var(--pvw-entfriend);
-      &.enemy {
-        --color-fg: var(--pvw-entenemy);
+      .pearl {
+        &.innerPearl {
+          stroke-width: 1px;
+          &.caveKind {
+            --color0: #40ffff;
+            --color1: #40dddd;
+            --color2: #40bbbb;
+            --color3: #409999;
+          }
+          &.hallKind {
+            --color0: #ffff20;
+            --color1: #dddd20;
+            --color2: #bbbb20;
+            --color3: #999920;
+          }
+        }
+        &.outerPearl {
+          stroke-width: 0.5px;
+          --color0: #999999;
+          --color1: #888888;
+          --color2: #777777;
+          --color3: #666666;
+        }
+        .layer {
+          &.layer0 {
+            stroke: var(--color0);
+          }
+          &.layer1 {
+            stroke: var(--color1);
+          }
+          &.layer2 {
+            stroke: var(--color2);
+          }
+          &.layer3 {
+            stroke: var(--color3);
+          }
+        }
       }
-      .marker {
-        fill: var(--color-fg);
-        stroke: black;
-        stroke-width: 0.5px;
-      }
-      .label {
-        fill: black;
-        font-family: "Outfit";
-        font-size: 2px;
-        text-anchor: middle;
-        pointer-events: none;
-      }
-    }
 
-    .openCaveFlag {
-      stroke: red;
-      fill: white;
+      .tiles {
+        shape-rendering: crispEdges;
+        .tile {
+          transition: fill 500ms ease-out;
+        }
+      }
+
+      .height {
+        shape-rendering: crispEdges;
+      }
+
+      .entity {
+        --color-fg: var(--pvw-entfriend);
+        &.enemy {
+          --color-fg: var(--pvw-entenemy);
+        }
+        .marker {
+          fill: var(--color-fg);
+          stroke: black;
+          stroke-width: 0.5px;
+        }
+        .label {
+          fill: black;
+          font-family: "Outfit";
+          font-size: 2px;
+          text-anchor: middle;
+          pointer-events: none;
+        }
+      }
+
+      .openCaveFlag {
+        stroke: red;
+        fill: white;
+      }
     }
   }
 

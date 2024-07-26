@@ -1,9 +1,9 @@
 import React from "react";
-import styles from "./about.module.scss";
+import styles from "./styles.module.scss";
 
 const About = () => (
-  <div className={styles.about}>
-    <div>
+  <div className={styles.popoverWrapper}>
+    <div className={styles.about}>
       <h2>groundHog v{process.env.REACT_APP_VERSION}</h2>
       <p>By Christopher Dollard (aka charredUtensil)</p>
       <p>

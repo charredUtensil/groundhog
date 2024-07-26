@@ -1,0 +1,55 @@
+.script {
+  position: relative;
+  background: var(--palette-bg);
+  border-right: 1px solid var(--palette-settings-bg);
+  width: 450px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  z-index: 1;
+
+  > h2 {
+    padding: 0 12px;
+  }
+
+  .src {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    word-wrap: break-word;
+
+    .line {
+      color: var(--color-codehlt);
+      padding: 0 12px;
+
+      &.hovered {
+        color: black;
+        background: var(--color-codehlt);
+      }
+    }
+  }
+}
+
+.tiles {
+  .active.tile {
+    fill: var(--color-codehlt);
+  }
+
+  .inactive.tile {
+    fill: transparent;
+  }
+}
+
+.arrow {
+  fill: none;
+  stroke: var(--color-codehlt);
+  stroke-width: 2px;
+}
+
+.misc {
+  --color-codehlt: var(--palette-fg);
+}
+.condition {
+  --color-codehlt: yellow;
+}
+.event {
+  --color-codehlt: cyan;
+}
