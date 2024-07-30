@@ -206,7 +206,7 @@ const BASE: PartialArchitect<Metadata> = {
   },
   scriptGlobals({ cavern }) {
     const lostMiners = countLostMiners(cavern);
-    const message = cavern.lore.generateFoundAllLostMiners(cavern.dice).text;
+    const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
       `# Lost Miners Globals`,
       `int ${g.lostMinersCount}=${lostMiners}`,
@@ -226,7 +226,7 @@ const BASE: PartialArchitect<Metadata> = {
       pickMinerPoint(plan, cavern)!,
     );
     const rng = cavern.dice.script(plan.id);
-    const message = cavern.lore.generateFoundLostMiners(
+    const message = cavern.lore.foundLostMiners(
       rng,
       plan.metadata.minersCount,
     ).text;

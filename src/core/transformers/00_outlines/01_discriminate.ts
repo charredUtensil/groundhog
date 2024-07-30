@@ -7,7 +7,8 @@ export default function discriminate(
   const dexes = cavern.baseplates
     .map((bp, i) => [bp.area, i])
     .sort(([a], [b]) => b - a);
-  for (let i = 0; i < cavern.context.caveCount; i++) {
+  const count = Math.min(cavern.context.caveCount, baseplates.length - 1);
+  for (let i = 0; i < count; i++) {
     const j = dexes[i][1];
     baseplates[j] = baseplates[j].withKind("cave");
   }

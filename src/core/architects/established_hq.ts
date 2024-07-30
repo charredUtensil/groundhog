@@ -239,7 +239,7 @@ const WITH_FIND_OBJECTIVE: Pick<
     }).center;
 
     const v = mkVars(`p${plan.id}FoundHq`, ["messageDiscover", "onDiscover"]);
-    const message = cavern.lore.generateFoundHq(cavern.dice).text;
+    const message = cavern.lore.foundHq(cavern.dice).text;
 
     return scriptFragment(
       `# Lost HQ ${plan.id}`,

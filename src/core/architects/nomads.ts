@@ -176,7 +176,7 @@ const BASE: PartialArchitect<Metadata> = {
 
     // Acknowledge the construction of a Support Station.
     const msg = escapeString(
-      cavern.lore.generateNomadsSettled(cavern.dice).text,
+      cavern.lore.nomadsSettled(cavern.dice).text,
     );
 
     return scriptFragment(

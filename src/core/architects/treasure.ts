@@ -71,7 +71,7 @@ const HOARD: typeof BASE = {
     }
     return `# Hoard Globals
 bool ${g.wasTriggered}=false
-string ${g.message}="${cavern.lore.generateFoundHoard(cavern.dice).text}"
+string ${g.message}="${cavern.lore.foundHoard(cavern.dice).text}"
 int ${g.crystalsAvailable}=0
 `;
   },

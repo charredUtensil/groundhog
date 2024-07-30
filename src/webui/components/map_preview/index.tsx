@@ -45,13 +45,11 @@ function getTransform(cavern: Cavern, mapOverlay: MapOverlay) {
 
 export default function CavernPreview({
   cavern,
-  error,
   mapOverlay,
   showOutlines,
   showPearls,
 }: {
   cavern: Cavern;
-  error: Error | undefined;
   mapOverlay: MapOverlay;
   showOutlines: boolean;
   showPearls: boolean;
@@ -190,7 +188,6 @@ export default function CavernPreview({
         </svg>
       </div>
       <Stats cavern={cavern} mapOverlay={mapOverlay} />
-      {error && <div className={styles.error}>{error.message}</div>}
     </div>
   );
 }

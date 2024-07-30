@@ -44,7 +44,7 @@ export default function Stats({
       case "overview":
         return (
           cavern.briefing?.intro && (
-            <p>Briefing: {cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
+            <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
           )
         );
       case "tiles":

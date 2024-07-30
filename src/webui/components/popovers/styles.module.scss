@@ -1,0 +1,53 @@
+.popoverWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  > div {
+    background: var(--palette-bg);
+    border: 1px solid var(--palette-settings-bg);
+    margin: 0 auto;
+    padding: 0 24px;
+    max-width: 500px;
+    max-height: calc(100% - 100px);
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    h2, h3, a {
+      color: var(--palette-accent);
+    }
+
+    h3::before {
+      font-family: "Material Symbols Outlined";
+      content: "subdirectory_arrow_right";
+    }
+
+    &.error {
+      --palette-settings-bg: yellow;
+      --palette-accent: yellow;
+
+      .info {
+        padding-left: 0;
+        font-size: 8px;
+        font-family: var(--font-tiny);
+      }
+
+      .stack {
+        font-size: 8px;
+        font-family: var(--font-tiny);
+        white-space: pre;
+      }
+
+      .context {
+        font-size: 8px;
+        font-family: var(--font-tiny);
+        line-break: anywhere;
+      }
+    }
+  }
+}

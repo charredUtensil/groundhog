@@ -156,7 +156,7 @@ export function CavernContextInput({
             </div>
             <div className={styles.subsection}>
               <h3>Discriminate</h3>
-              <Slider of="caveCount" min={2} max={50} {...rest} />
+              <Slider of="caveCount" min={3} max={50} {...rest} />
             </div>
             <div className={styles.subsection}>
               <h3>Weave</h3>
