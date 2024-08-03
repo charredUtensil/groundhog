@@ -52,10 +52,11 @@ class BuildingTemplate {
   readonly id: string;
   readonly name: string;
   readonly inspectAbbrev: string;
-  readonly maxLevel: number;
+  readonly maxLevel: Level;
   readonly ore: number;
   readonly crystals: number;
   readonly footprint: Footprint;
+  readonly dependencies: readonly BuildingTemplate[];
   constructor(
     id: string,
     name: string,
@@ -64,6 +65,7 @@ class BuildingTemplate {
     ore: number,
     crystals: number,
     footprint: Footprint,
+    dependencies: readonly BuildingTemplate[],
   ) {
     this.id = id;
     this.name = name;
@@ -72,6 +74,7 @@ class BuildingTemplate {
     this.ore = ore;
     this.crystals = crystals;
     this.footprint = footprint;
+    this.dependencies = dependencies;
   }
   atTile: (
     args: {
@@ -100,6 +103,7 @@ export const TOOL_STORE = new BuildingTemplate(
   0,
   0,
   F_DEFAULT,
+  [],
 );
 export const TELEPORT_PAD = new BuildingTemplate(
   "BuildingTeleportPad_C",
@@ -109,6 +113,7 @@ export const TELEPORT_PAD = new BuildingTemplate(
   8,
   0,
   F_DEFAULT,
+  [TOOL_STORE],
 );
 // The Docks faces the LAND tile with the water BEHIND it.
 // Note the water tile is not counted as part of the foundation
@@ -120,6 +125,7 @@ export const DOCKS = new BuildingTemplate(
   8,
   0,
   F_DEFAULT,
+  [TOOL_STORE],
 );
 // The Canteen is functionally symmetrical, but if you care, the end with
 // the yellow/black chevron piece is the FRONT.
@@ -131,6 +137,7 @@ export const CANTEEN = new BuildingTemplate(
   10,
   1,
   F_CANTEEN_REFINERY,
+  [TOOL_STORE],
 );
 // Power Station origin is the RIGHT side of the building where miners put
 // the crystals in.
@@ -142,6 +149,7 @@ export const POWER_STATION = new BuildingTemplate(
   12,
   2,
   F_POWER_STATION,
+  [TOOL_STORE, TELEPORT_PAD],
 );
 export const SUPPORT_STATION = new BuildingTemplate(
   "BuildingSupportStation_C",
@@ -151,6 +159,7 @@ export const SUPPORT_STATION = new BuildingTemplate(
   15,
   3,
   F_DEFAULT,
+  [TOOL_STORE, TELEPORT_PAD, POWER_STATION],
 );
 export const UPGRADE_STATION = new BuildingTemplate(
   "BuildingUpgradeStation_C",
@@ -160,6 +169,7 @@ export const UPGRADE_STATION = new BuildingTemplate(
   20,
   3,
   F_DEFAULT,
+  [TOOL_STORE, TELEPORT_PAD, POWER_STATION],
 );
 // Geological Center origin is the BACK of the building.
 export const GEOLOGICAL_CENTER = new BuildingTemplate(
@@ -170,6 +180,7 @@ export const GEOLOGICAL_CENTER = new BuildingTemplate(
   20,
   2,
   F_DEFAULT,
+  [TOOL_STORE, TELEPORT_PAD, POWER_STATION],
 );
 // Ore Refinery origin is the FRONT of the building were miners put ore in.
 export const ORE_REFINERY = new BuildingTemplate(
@@ -180,6 +191,7 @@ export const ORE_REFINERY = new BuildingTemplate(
   20,
   3,
   F_CANTEEN_REFINERY,
+  [TOOL_STORE, TELEPORT_PAD, POWER_STATION],
 );
 export const MINING_LASER = new BuildingTemplate(
   "BuildingMiningLaser_C",
@@ -189,6 +201,7 @@ export const MINING_LASER = new BuildingTemplate(
   10,
   1,
   F_MINING_LASER,
+  [TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION],
 );
 // Super teleport origin is the LEFT side of the building when facing it.
 export const SUPER_TELEPORT = new BuildingTemplate(
@@ -199,6 +212,7 @@ export const SUPER_TELEPORT = new BuildingTemplate(
   20,
   4,
   F_SUPER_TELEPORT,
+  [TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION],
 );
 
 export class BuildingDoesNotFitException extends Error {}
