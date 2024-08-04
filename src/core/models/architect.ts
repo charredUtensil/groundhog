@@ -24,13 +24,13 @@ type SpawnBidArgs = {
   readonly plan: FloodedPlan;
 };
 
-type BidArgs = SpawnBidArgs & {
-  readonly plans: readonly CollapseUnion<FloodedPlan | EstablishedPlan<any>>[];
+export type BaseMetadata = {readonly tag: string} | undefined
+
+type BidArgs<T extends BaseMetadata> = SpawnBidArgs & {
+  readonly plans: readonly CollapseUnion<FloodedPlan | EstablishedPlan<T | BaseMetadata>>[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
 };
-
-export type BaseMetadata = {readonly tag: string} | undefined
 
 type EstablishArgs<T extends BaseMetadata> = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -46,8 +46,8 @@ type PrimeArgs = {
 export type BaseArchitect<T extends BaseMetadata> = {
   readonly name: string;
 
-  caveBid?(args: BidArgs): number | false;
-  hallBid?(args: BidArgs): number | false;
+  caveBid?(args: BidArgs<T>): number | false;
+  hallBid?(args: BidArgs<T>): number | false;
   spawnBid?(args: SpawnBidArgs): number | false;
 
   prime(args: PrimeArgs): T;
@@ -139,16 +139,6 @@ export type BaseArchitect<T extends BaseMetadata> = {
     cavern: EnscribedCavern;
     plan: Plan<T>;
   }): string | undefined;
-
-
-  // isHq|isLostMiners|isNomads|isRuin|isSlugNest|isTreasure
-
-  isHq: boolean;
-  isLostMiners: boolean;
-  isNomads: boolean;
-  isRuin: boolean;
-  isSlugNest: boolean;
-  isTreasure: boolean;
 };
 
 export type Architect<T extends BaseMetadata> = BaseArchitect<T> &

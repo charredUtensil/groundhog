@@ -28,7 +28,7 @@ import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
 import { gFoundHq } from "./established_hq";
 
-type Metadata = {
+export type NomadsMetadata = {
   readonly tag: 'nomads';
   readonly minersCount: number;
   readonly vehicles: readonly VehicleTemplate[];
@@ -50,7 +50,7 @@ export const gNomads = mkVars("gNomads", [
   "onFoundHq",
 ]);
 
-const BASE: PartialArchitect<Metadata> = {
+const BASE: PartialArchitect<NomadsMetadata> = {
   ...DefaultCaveArchitect,
   crystalsToPlace: () => 5,
   crystalsFromMetadata: (metadata) =>
@@ -72,7 +72,7 @@ const BASE: PartialArchitect<Metadata> = {
     );
     // If there is an HQ, ensure it is accessible to the nomads.
     cavern.plans
-      .find((p) => p.architect.isHq)
+      .find((p) => p.metadata?.tag === 'hq')
       ?.hops.forEach((hopId) => {
         pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
           for (const pos of plotLine(a.center, b.center)) {
@@ -154,7 +154,7 @@ const BASE: PartialArchitect<Metadata> = {
     );
   },
   scriptGlobals({ cavern }) {
-    if (cavern.plans.some((plan) => plan.architect.isHq)) {
+    if (cavern.plans.some((plan) => plan.metadata?.tag === 'hq')) {
       // Has HQ: Disable everything until it's found.
       return scriptFragment(
         "Nomads Globals (With HQ)",
@@ -187,7 +187,6 @@ const BASE: PartialArchitect<Metadata> = {
       eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
     );
   },
-  isNomads: true,
 };
 
 const NOMAD_SPAWN = [
@@ -245,5 +244,5 @@ const NOMAD_SPAWN = [
       intersectsAny(cavern.plans, plan, null) &&
       0.5,
   },
-] as const satisfies readonly Architect<Metadata>[];
+] as const satisfies readonly Architect<NomadsMetadata>[];
 export default NOMAD_SPAWN;

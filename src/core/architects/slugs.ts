@@ -1,4 +1,4 @@
-import { Architect } from "../models/architect";
+import { Architect, BaseMetadata } from "../models/architect";
 import { Tile } from "../models/tiles";
 import {
   PartialArchitect,
@@ -12,15 +12,19 @@ import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 
 const getSlugHoles = (
-  args: Parameters<Architect<undefined>["slugSpawnScript"]>[0],
+  args: Parameters<Architect<any>["slugSpawnScript"]>[0],
 ) =>
   args.plan.innerPearl.flatMap((layer) =>
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
   );
 
-const SLUG_NEST: PartialArchitect<undefined> = {
+const SLUG_NEST_METADATA = {
+  tag: 'slugNest'
+} as const satisfies BaseMetadata;
+  
+const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
   ...DefaultCaveArchitect,
-  isSlugNest: true,
+  prime: () => SLUG_NEST_METADATA,
   placeCrystals(args) {
     sprinkleCrystals(args, {
       seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.5),
@@ -106,7 +110,7 @@ const SLUGS = [
       !plan.fluid &&
       !plan.hasErosion &&
       intersectsOnly(plans, plan, null) &&
-      !plans.some((p) => p.architect?.isSlugNest) &&
+      !plans.some((p) => p.metadata?.tag === 'slugNest') &&
       0.25,
   },
   {
@@ -129,5 +133,5 @@ const SLUGS = [
       !plan.hasErosion &&
       1,
   },
-] as const satisfies readonly Architect<undefined>[];
+] as const satisfies readonly Architect<any>[];
 export default SLUGS;

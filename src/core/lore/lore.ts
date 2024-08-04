@@ -1,6 +1,8 @@
+import { HqMetadata } from "../architects/established_hq";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
+import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
@@ -165,17 +167,17 @@ export class Lore {
 
     const spawn = cavern.plans.find((p) => !p.hops.length)!;
 
-    const hq = cavern.plans.find((p) => p.architect.isHq);
+    const hq = cavern.plans.find((p) => p.metadata?.tag === 'hq') as Plan<HqMetadata>;
     const spawnIsHq = spawn === hq;
     const findHq = !!hq && !spawnIsHq;
-    const hqIsRuin = !!hq && hq.architect.isRuin;
+    const hqIsRuin = !!hq?.metadata.ruin;
 
-    const nomads = spawn.architect.isNomads
-      ? ((spawn.metadata as any).minersCount as number)
+    const nomads = spawn.metadata?.tag === 'nomads'
+      ? (spawn.metadata.minersCount as number)
       : 0;
 
     const treasures = cavern.plans.reduce(
-      (r, plan) => (plan.architect.isTreasure ? r + 1 : r),
+      (r, plan) => (plan.metadata?.tag === 'treasure' ? r + 1 : r),
       0,
     );
 

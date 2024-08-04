@@ -44,13 +44,13 @@ const T3_BUILDINGS = [
 const OMIT_T1 = T0_BUILDINGS.length;
 const MAX_HOPS = 3;
 
-type Metadata = {
+export type HqMetadata = {
   readonly tag: 'hq';
   readonly ruin: boolean;
   readonly crystalsInBuildings: number;
 };
 
-function getPrime(maxCrystals: number, ruin: boolean): Architect<Metadata>["prime"] {
+function getPrime(maxCrystals: number, ruin: boolean): Architect<HqMetadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const crystalsInBuildings = rng.betaInt({
@@ -66,7 +66,7 @@ function getPrime(maxCrystals: number, ruin: boolean): Architect<Metadata>["prim
 function getPlaceBuildings({
   discovered = false,
   from = 2,
-}): Architect<Metadata>["placeBuildings"] {
+}): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
 
     const asRuin = args.plan.metadata.ruin;
@@ -223,7 +223,7 @@ function getPlaceBuildings({
 export const gFoundHq = mkVars("gFoundHq", ["foundHq"]);
 
 const WITH_FIND_OBJECTIVE: Pick<
-  Architect<Metadata>,
+  Architect<HqMetadata>,
   "objectives" | "scriptGlobals" | "script"
 > = {
   objectives: () => ({
@@ -265,8 +265,8 @@ const WITH_FIND_OBJECTIVE: Pick<
   },
 };
 
-const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
-  Pick<Architect<Metadata>, "rough" | "roughExtent"> = {
+const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
+  Pick<Architect<HqMetadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
     { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
@@ -278,7 +278,6 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
   maxSlope: 15,
-  isHq: true,
 };
 
 export const ESTABLISHED_HQ = [
@@ -310,7 +309,7 @@ export const ESTABLISHED_HQ = [
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
       !hops.some((id) => plans[id].fluid) &&
-      !plans.some((p) => p.architect?.isHq) &&
+      !plans.some((p) => p.metadata?.tag === 'hq') &&
       0.5,
     ...WITH_FIND_OBJECTIVE,
   },
@@ -324,8 +323,8 @@ export const ESTABLISHED_HQ = [
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops.length <= MAX_HOPS &&
-      !plans.some((p) => p.architect?.isHq) &&
-      (plans[hops[0]].architect!.isNomads ? 5 : 0.5),
+      !plans.some((p) => p.metadata?.tag === 'hq') &&
+      (plans[hops[0]].metadata?.tag === 'nomads' ? 5 : 0.5),
     ...WITH_FIND_OBJECTIVE,
   },
-] as const satisfies readonly Architect<Metadata>[];
+] as const satisfies readonly Architect<HqMetadata>[];

@@ -31,7 +31,7 @@ import {
   transformPoint,
 } from "./utils/script";
 
-type Metadata = {
+export type LostMinersMetadata = {
   readonly tag: 'lostMiners';
   readonly minersCount: number;
 };
@@ -48,9 +48,8 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
     if (plan.metadata?.tag === 'lostMiners') {
-      const metadata = plan.metadata as Metadata;
       lostMinerCaves++;
-      lostMiners += metadata.minersCount;
+      lostMiners += plan.metadata.minersCount;
     }
   });
   return { lostMiners, lostMinerCaves };
@@ -149,7 +148,7 @@ const pickMinerPoint = (
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
   });
 
-const BASE: PartialArchitect<Metadata> = {
+const BASE: PartialArchitect<LostMinersMetadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
@@ -249,7 +248,6 @@ const BASE: PartialArchitect<Metadata> = {
       eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
     );
   },
-  isLostMiners: true,
 };
 
 // The L.M.S. Explorer's teleporters just seem to be real lousy in ice
@@ -272,8 +270,8 @@ const LOST_MINERS = [
       hops.length > 3 &&
       hops.length <= 8 &&
       isDeadEnd(plan) &&
-      plans.reduce((r, p) => (p.architect?.isLostMiners ? r + 1 : r), 0) < 4 &&
+      plans.reduce((r, p) => (p.metadata?.tag === 'lostMiners' ? r + 1 : r), 0) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
-] as const satisfies readonly Architect<Metadata>[];
+] as const satisfies readonly Architect<LostMinersMetadata>[];
 export default LOST_MINERS;
