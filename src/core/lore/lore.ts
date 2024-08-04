@@ -3,7 +3,6 @@ import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
-import { GenerateResult } from "./builder";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {
   FOUND_ALL_LOST_MINERS,
@@ -156,22 +155,9 @@ function spellResourceGoal(cavern: AdjuredCavern) {
   };
 }
 
-type Results = {
-  readonly premise?: GenerateResult<State>;
-  readonly orders?: GenerateResult<State>;
-  readonly success?: GenerateResult<State & { readonly commend: boolean }>;
-  readonly failure?: GenerateResult<State>;
-  readonly foundHoard?: GenerateResult<State>;
-  readonly foundHq?: GenerateResult<State>;
-  readonly foundLostMiners?: GenerateResult<FoundLostMinersState>;
-  readonly foundAllLostMiners?: GenerateResult<State>;
-  readonly nomadsSettled?: GenerateResult<State>;
-};
-
 export class Lore {
   readonly state: State;
   readonly vars: ReplaceStrings;
-  private _results: Results = {};
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
 
@@ -233,8 +219,8 @@ export class Lore {
     };
   }
 
-  generateBriefings(dice: DiceBox) {
-    const r = {
+  briefings(dice: DiceBox) {
+    return {
       premise: PREMISE.generate(dice.lore(Die.premise), this.state, this.vars),
       orders: ORDERS.generate(dice.lore(Die.orders), this.state, this.vars),
       success: SUCCESS.generate(
@@ -244,32 +230,26 @@ export class Lore {
       ),
       failure: FAILURE.generate(dice.lore(Die.failure), this.state, this.vars),
     };
-    this._results = { ...this._results, ...r };
-    return r;
   }
 
-  generateFoundHoard(dice: DiceBox) {
-    const foundHoard = FOUND_HOARD.generate(
+  foundHoard(dice: DiceBox) {
+    return FOUND_HOARD.generate(
       dice.lore(Die.foundHoard),
       this.state,
       this.vars,
     );
-    this._results = { ...this._results, foundHoard };
-    return foundHoard;
   }
 
-  generateFoundHq(dice: DiceBox) {
-    const foundHq = FOUND_HQ.generate(
+  foundHq(dice: DiceBox) {
+    return FOUND_HQ.generate(
       dice.lore(Die.foundHq),
       this.state,
       this.vars,
     );
-    this._results = { ...this._results, foundHq };
-    return foundHq;
   }
 
-  generateFoundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {
-    const foundLostMiners = FOUND_LOST_MINERS.generate(
+  foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {
+    return FOUND_LOST_MINERS.generate(
       rng,
       {
         ...this.state,
@@ -281,31 +261,21 @@ export class Lore {
         foundMinersCount: foundMinersCount.toFixed(),
       },
     );
-    this._results = { ...this._results, foundLostMiners };
-    return foundLostMiners;
   }
 
-  generateFoundAllLostMiners(dice: DiceBox) {
-    const foundAllLostMiners = FOUND_ALL_LOST_MINERS.generate(
+  foundAllLostMiners(dice: DiceBox) {
+    return FOUND_ALL_LOST_MINERS.generate(
       dice.lore(Die.foundAllLostMiners),
       this.state,
       this.vars,
     );
-    this._results = { ...this._results, foundAllLostMiners };
-    return foundAllLostMiners;
   }
 
-  generateNomadsSettled(dice: DiceBox) {
-    const nomadsSettled = NOMADS_SETTLED.generate(
+  nomadsSettled(dice: DiceBox) {
+    return NOMADS_SETTLED.generate(
       dice.lore(Die.nomadsSettled),
       this.state,
       this.vars,
     );
-    this._results = { ...this._results, nomadsSettled };
-    return nomadsSettled;
-  }
-
-  get results() {
-    return this._results;
   }
 }

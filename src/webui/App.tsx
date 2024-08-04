@@ -12,9 +12,11 @@ import { Cavern } from "../core/models/cavern";
 import CavernPreview, { MapOverlay } from "./components/map_preview";
 import { CAVERN_TF } from "../core/transformers";
 import { TransformResult } from "../core/common/transform";
-import LorePreview from "./components/lore_preview";
-import About from "./components/about";
+import LorePreview from "./components/popovers/lore";
+import About from "./components/popovers/about";
 import styles from "./App.module.scss";
+import ErrorPreview from "./components/popovers/error";
+import { filterTruthy } from "../core/common/utils";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -128,11 +130,10 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
-        <div className={`${styles.grid} ${isLoading ? styles.loading : ""}`} />
-        {state.cavern && (
+        <div className={filterTruthy([styles.grid, isLoading && styles.loading, state.error && styles.hasError]).join(' ')} />
+        {state.cavern && !state.error && (
           <CavernPreview
             cavern={state.cavern}
-            error={state.error}
             mapOverlay={mapOverlay}
             showOutlines={showOutlines}
             showPearls={showPearls}
@@ -148,6 +149,9 @@ function App() {
             }
           />
         )}
+        {mapOverlay === "about" && <About />}
+        {mapOverlay === "lore" && <LorePreview briefing={state.cavern?.briefing} script={state.cavern?.script} />}
+        {state.error && <ErrorPreview error={state.error} context={state.cavern?.context}  />}
         {!autoGenerate && state.name && (
           <div className={styles.stepName}>{state.name}</div>
         )}
@@ -176,8 +180,6 @@ function App() {
             </div>
           )}
         </div>
-        {mapOverlay === "about" && <About />}
-        {mapOverlay === "lore" && <LorePreview cavern={state.cavern} />}
       </div>
       <div className={styles.vizOptsPanel}>
         <h1>Show</h1>

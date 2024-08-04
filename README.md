@@ -68,6 +68,10 @@ I have been using Gemini to do some limited code generation (mostly for tests)
 and for translating Python code from
 [Hognose](https://github.com/charredUtensil/hognose).
 
+## How does it work?
+
+See the documentation [here](./src/core/transformers) for an overview.
+
 ## Can I use this as a template to build my custom Manic Miners level on?
 
 Sure! I'd appreciate it if you included a link to this GitHub page, at least
@@ -92,7 +96,7 @@ speaking, I would recommend tweaking them in order from top to bottom as
 changes near the start of the process are likely to affect the end of it in
 major and unpredictable ways.
 
-See [code comments](https://github.com/charredUtensil/groundhog/blob/main/src/core/common/context.ts)
+See [code comments](./src/core/common/context.ts)
 for explanations of what these values do.
 
 ## Can you give me some cool seeds to play?

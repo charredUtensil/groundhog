@@ -113,6 +113,16 @@
           );
         mask-size: 32px 32px;
       }
+
+      &.hasError {
+        background: #bebe13;
+        mask-image: linear-gradient(120deg, white 25%, transparent 25%, transparent 50%, white 50%, white 75%, transparent 75%, transparent 100%);
+        mask-size: 46.19px 80.00px;
+
+        &::before, &::after {
+          content: none;
+        }
+      }
     }
 
     .stepName {

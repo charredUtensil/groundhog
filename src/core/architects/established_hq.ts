@@ -108,27 +108,32 @@ function getPlaceBuildings({
           return true;
         }
       } else if (asRuin) {
-        bq.push((pos) => {
-          const b = bt.atTile(pos);
-          (b as any).destroyed_now = true;
-          return b;
-        });
+        bq.push((pos) => ({...bt.atTile(pos), isRuinAtSpawn: true}));
       }
       return false;
     });
 
-    // Create and place the buildings.
+    // Fit the buildings.
     const buildings = getBuildings({ from, queue: bq }, args);
 
+    const dependencies = new Set(buildings.flatMap(b => b.template.dependencies));
+
     // Place the buildings.
-    buildings.forEach((b) => {
-      if ("destroyed_now" in b) {
-        b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.RUBBLE_4));
+    for (let i = 0; i < buildings.length; i++) {
+      const building = buildings[i];
+      let fTile: Tile;
+      if ("isRuinAtSpawn" in building) {
+        fTile = Tile.RUBBLE_4;
       } else {
-        b.foundation.forEach(([x, y]) => args.tiles.set(x, y, Tile.FOUNDATION));
-        args.buildings.push(b);
+        fTile = Tile.FOUNDATION;
+        if (dependencies.has(building.template)) {
+          args.buildings.push({...building, level: 2});
+        } else {
+          args.buildings.push(building);
+        }
       }
-    });
+      building.foundation.forEach(([x, y]) => args.tiles.set(x, y, fTile));
+    };
 
     // Place power path trails between the buildings.
     const getPorch: (b: Building) => Point = (b) =>
@@ -239,7 +244,7 @@ const WITH_FIND_OBJECTIVE: Pick<
     }).center;
 
     const v = mkVars(`p${plan.id}FoundHq`, ["messageDiscover", "onDiscover"]);
-    const message = cavern.lore.generateFoundHq(cavern.dice).text;
+    const message = cavern.lore.foundHq(cavern.dice).text;
 
     return scriptFragment(
       `# Lost HQ ${plan.id}`,
