@@ -29,8 +29,9 @@ import { plotLine } from "../common/geometry";
 import { gFoundHq } from "./established_hq";
 
 type Metadata = {
+  readonly tag: 'nomads';
   readonly minersCount: number;
-  readonly vehicles: VehicleTemplate[];
+  readonly vehicles: readonly VehicleTemplate[];
 };
 
 const VEHICLE_BIDS = [
@@ -58,7 +59,7 @@ const BASE: PartialArchitect<Metadata> = {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 3, min: 1, max: 4 });
     const vehicles = filterTruthy([rng.weightedChoice(VEHICLE_BIDS)]);
-    return { minersCount, vehicles };
+    return { tag: 'nomads', minersCount, vehicles };
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
   placeBuildings: ({ cavern, plan, tiles, openCaveFlags }) => {
@@ -220,7 +221,7 @@ const NOMAD_SPAWN = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({ minersCount: 1, vehicles: [RAPID_RIDER] }),
+    prime: () => ({ tag: 'nomads', minersCount: 1, vehicles: [RAPID_RIDER] }),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 4 &&
@@ -237,7 +238,7 @@ const NOMAD_SPAWN = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({ minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
+    prime: () => ({ tag: 'nomads', minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 4 &&

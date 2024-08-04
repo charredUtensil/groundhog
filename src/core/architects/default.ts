@@ -1,4 +1,4 @@
-import { Architect } from "../models/architect";
+import { Architect, BaseMetadata } from "../models/architect";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
@@ -7,7 +7,7 @@ import {
   sprinkleOre,
 } from "./utils/resources";
 
-export type PartialArchitect<T> = Omit<
+export type PartialArchitect<T extends BaseMetadata> = Omit<
   Architect<T>,
   "name" | "rough" | "roughExtent"
 >;

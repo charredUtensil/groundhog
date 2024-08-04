@@ -45,10 +45,12 @@ const OMIT_T1 = T0_BUILDINGS.length;
 const MAX_HOPS = 3;
 
 type Metadata = {
-  crystalsInBuildings: number;
+  readonly tag: 'hq';
+  readonly ruin: boolean;
+  readonly crystalsInBuildings: number;
 };
 
-function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
+function getPrime(maxCrystals: number, ruin: boolean): Architect<Metadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const crystalsInBuildings = rng.betaInt({
@@ -57,17 +59,19 @@ function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
       min: 3,
       max: maxCrystals,
     });
-    return { crystalsInBuildings };
+    return { crystalsInBuildings, ruin, tag: 'hq' };
   };
 }
 
 function getPlaceBuildings({
-  asRuin = false,
-  asSpawn = false,
   discovered = false,
   from = 2,
 }): Architect<Metadata>["placeBuildings"] {
   return (args) => {
+
+    const asRuin = args.plan.metadata.ruin;
+    const asSpawn = !args.plan.hops.length;
+
     // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
     const tq = [
@@ -281,29 +285,25 @@ export const ESTABLISHED_HQ = [
   {
     name: "Established HQ Spawn",
     ...BASE,
-    prime: getPrime(10),
-    placeBuildings: getPlaceBuildings({ asSpawn: true, discovered: true }),
+    prime: getPrime(10, false),
+    placeBuildings: getPlaceBuildings({ discovered: true }),
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
-    isRuin: false,
   },
   {
     name: "Ruined HQ Spawn",
     ...BASE,
-    prime: getPrime(12),
+    prime: getPrime(12, true),
     placeBuildings: getPlaceBuildings({
-      asRuin: true,
-      asSpawn: true,
       discovered: true,
       from: 3,
     }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 60 }, args),
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
-    isRuin: true,
   },
   {
     name: "Find Established HQ",
     ...BASE,
-    prime: getPrime(15),
+    prime: getPrime(15, false),
     placeBuildings: getPlaceBuildings({}),
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
@@ -312,14 +312,13 @@ export const ESTABLISHED_HQ = [
       !hops.some((id) => plans[id].fluid) &&
       !plans.some((p) => p.architect?.isHq) &&
       0.5,
-    isRuin: false,
     ...WITH_FIND_OBJECTIVE,
   },
   {
     name: "Find Ruined HQ",
     ...BASE,
-    prime: getPrime(15),
-    placeBuildings: getPlaceBuildings({ asRuin: true, from: 3 }),
+    prime: getPrime(15, true),
+    placeBuildings: getPlaceBuildings({ from: 3 }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 100 }, args),
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
@@ -327,7 +326,6 @@ export const ESTABLISHED_HQ = [
       hops.length <= MAX_HOPS &&
       !plans.some((p) => p.architect?.isHq) &&
       (plans[hops[0]].architect!.isNomads ? 5 : 0.5),
-    isRuin: true,
     ...WITH_FIND_OBJECTIVE,
   },
 ] as const satisfies readonly Architect<Metadata>[];

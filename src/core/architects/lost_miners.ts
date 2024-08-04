@@ -32,6 +32,7 @@ import {
 } from "./utils/script";
 
 type Metadata = {
+  readonly tag: 'lostMiners';
   readonly minersCount: number;
 };
 
@@ -46,7 +47,7 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
-    if (plan.architect.isLostMiners) {
+    if (plan.metadata?.tag === 'lostMiners') {
       const metadata = plan.metadata as Metadata;
       lostMinerCaves++;
       lostMiners += metadata.minersCount;
@@ -59,7 +60,7 @@ function getBreadcrumbPoint(
   cavern: DiscoveredCavern,
   [minersX, minersY]: Point,
   minersDz: DiscoveryZone,
-  plan: Plan,
+  plan: Plan<any>,
 ): Point {
   if (!plan.hops.length) {
     throw new Error("Reached spawn without a breadcrumb");
@@ -102,7 +103,7 @@ function getBreadcrumbPoint(
 
 function placeBreadcrumbVehicle(
   cavern: StrataformedCavern,
-  plan: Plan,
+  plan: Plan<any>,
   [x, y]: Point,
   vehicles: Vehicle[],
   vehicleFactory: VehicleFactory,
@@ -134,7 +135,7 @@ function placeBreadcrumbVehicle(
 }
 
 const pickMinerPoint = (
-  plan: Plan,
+  plan: Plan<any>,
   {
     tiles,
     discoveryZones,
@@ -153,7 +154,7 @@ const BASE: PartialArchitect<Metadata> = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
-    return { minersCount };
+    return { tag: 'lostMiners', minersCount };
   },
   placeEntities: ({
     cavern,

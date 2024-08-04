@@ -12,7 +12,7 @@ import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 
 const getSlugHoles = (
-  args: Parameters<Architect<unknown>["slugSpawnScript"]>[0],
+  args: Parameters<Architect<undefined>["slugSpawnScript"]>[0],
 ) =>
   args.plan.innerPearl.flatMap((layer) =>
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
