@@ -43,9 +43,14 @@ export default function Stats({
     switch (mapOverlay) {
       case "overview":
         return (
-          cavern.briefing?.intro && (
-            <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
-          )
+          <>
+            {cavern.levelName && (
+              <p>{cavern.levelName}</p>
+            )}
+            {cavern.briefing?.intro && (
+              <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
+            )}
+          </>
         );
       case "tiles":
         return (
