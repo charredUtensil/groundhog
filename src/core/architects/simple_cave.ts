@@ -1,6 +1,6 @@
 import { Architect } from "../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
+import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { intersectsOnly } from "./utils/intersects";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 
@@ -13,7 +13,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Filled Cave",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.DIRT, width: 0, grow: 0.25 },
       {
         of: weightedSprinkle(
@@ -30,7 +30,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Open Cave",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.AT_MOST_DIRT, width: 0, grow: 0.5 },
       {
@@ -40,7 +40,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
         ),
         grow: 1,
       },
-      { of: Rough.AT_MOST_HARD_ROCK, grow: 0.25 },
+      { of: Rough.MIX_FRINGE },
       { of: Rough.VOID, width: 0, grow: 0.5 },
     ),
     caveBid: ({ plans, plan }) =>
@@ -52,7 +52,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Empty Cave",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.DIRT, width: 0, grow: 0.1 },
       {
@@ -62,7 +62,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
         ),
         grow: 1,
       },
-      { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.5 },
+      { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.5 },
       { of: Rough.VOID, width: 0, grow: 0.5 },
     ),
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius < 10 && 1,
@@ -70,7 +70,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Filled Cave with Paths",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR, width: 0, grow: 0.5 },
       { of: Rough.INVERT_TO_LOOSE_ROCK, grow: 0.5 },
       { of: Rough.INVERT_TO_DIRT, grow: 1 },
@@ -88,7 +88,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Doughnut Cave",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, grow: 0.2 },
       { of: Rough.ALWAYS_HARD_ROCK, grow: 0.3 },
       { of: Rough.LOOSE_ROCK, width: 0, grow: 0.5 },
@@ -102,7 +102,7 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
   {
     name: "Stalagmite Cave",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       {
         of: weightedSprinkle(
           { item: Rough.ALWAYS_DIRT, bid: 0.01 },
@@ -112,14 +112,8 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
         width: 4,
         grow: 3,
       },
-      {
-        of: weightedSprinkle(
-          { item: Rough.DIRT, bid: 0.25 },
-          { item: Rough.LOOSE_ROCK, bid: 1 },
-        ),
-        grow: 1,
-      },
-      { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.25 },
+      { of: Rough.MIX_DIRT_LOOSE_ROCK, grow: 1 },
+      { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.25 },
     ),
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.2,
   },

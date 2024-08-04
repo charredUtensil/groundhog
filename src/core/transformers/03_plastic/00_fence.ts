@@ -1,4 +1,4 @@
-import { FinePlasticCavern } from "../02_masonry/04_fine";
+import { FinePlasticCavern } from "../02_masonry/05_fine";
 
 export type FencedCavern = FinePlasticCavern & {
   left: number;

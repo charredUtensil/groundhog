@@ -1,7 +1,7 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultHallArchitect } from "./default";
-import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
+import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { intersectsOnly } from "./utils/intersects";
 import { sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
@@ -14,7 +14,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Open Hall",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
@@ -25,7 +25,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Wide Hall With Monsters",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
       { of: Rough.VOID },
@@ -45,7 +45,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Filled Hall",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       {
         of: weightedSprinkle(
           { item: Rough.FLOOR, bid: 1 },
@@ -53,7 +53,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
           { item: Rough.LOOSE_ROCK, bid: 0.1 },
         ),
       },
-      { of: Rough.LOOSE_OR_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
       { of: Rough.VOID, grow: 1 },
     ),
     hallBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 0 && 1,
@@ -62,7 +62,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
     name: "River",
     ...BASE,
     crystalsToPlace: ({ plan }) => 3 * plan.crystalRichness * plan.perimeter,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.WATER, width: 2, grow: 1 },
       {
         of: weightedSprinkle(
@@ -82,7 +82,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Stream",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.WATER, grow: 0.5 },
       { of: Rough.FLOOR, grow: 0.25, shrink: 1 },
       { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 1 },
@@ -94,7 +94,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Lava River",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.LAVA, width: 2, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK, width: 0, grow: 1 },
       { of: Rough.VOID, grow: 1 },
@@ -104,7 +104,7 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
   {
     name: "Wide Lava River with Monsters",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.LAVA, width: 2, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
       { of: Rough.VOID },

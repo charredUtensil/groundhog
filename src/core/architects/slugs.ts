@@ -8,8 +8,10 @@ import {
 import { slugSpawnScript } from "./utils/creature_spawners";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { intersectsOnly } from "./utils/intersects";
-import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
+import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
+import { getDiscoveryPoint } from "./utils/discovery";
+import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
 
 const getSlugHoles = (
   args: Parameters<Architect<unknown>["slugSpawnScript"]>[0],
@@ -41,6 +43,26 @@ const SLUG_NEST: PartialArchitect<unknown> = {
       triggerOnFirstArmed: true,
       waveSize: holeCount,
     });
+  },
+  script: ({cavern, plan}) => {
+    const discoPoint = getDiscoveryPoint(cavern, plan);
+    if (!discoPoint) {
+      return undefined;
+    }
+    
+    const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover", "onDiscover"]);
+    const message = cavern.lore.generateFoundSlugNest(cavern.dice).text;
+
+    return scriptFragment(
+      `# P${plan.id}: Slug Nest`,
+      `string ${v.messageDiscover}="${escapeString(message)}"`,
+      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
+      eventChain(
+        v.onDiscover,
+        `msg:${v.messageDiscover};`,
+        `pan:${transformPoint(cavern, discoPoint)};`,
+      ),
+    );
   },
 };
 
@@ -87,7 +109,7 @@ const SLUGS: readonly Architect<unknown>[] = [
   {
     name: "Slug Nest",
     ...SLUG_NEST,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR, width: 3, grow: 1 },
       { of: Rough.AT_MOST_DIRT, width: 0, grow: 0.5 },
       {
@@ -97,7 +119,7 @@ const SLUGS: readonly Architect<unknown>[] = [
         ),
         grow: 1,
       },
-      { of: Rough.LOOSE_OR_HARD_ROCK, grow: 0.25 },
+      { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.25 },
     ),
     caveBid: ({ cavern, plans, plan }) =>
       cavern.context.hasSlugs &&
@@ -112,7 +134,7 @@ const SLUGS: readonly Architect<unknown>[] = [
   {
     name: "Slug Hall",
     ...SLUG_HALL,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.FLOOR },
       {
         of: weightedSprinkle(

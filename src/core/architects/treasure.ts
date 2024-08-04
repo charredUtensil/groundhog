@@ -1,7 +1,7 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
   eventChain,
@@ -62,6 +62,7 @@ const HOARD: typeof BASE = {
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
       meanWaveSize: args.plan.monsterWaveSize * 1.5,
+      retriggerMode: "hoard",
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
@@ -69,11 +70,12 @@ const HOARD: typeof BASE = {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
-    return `# Hoard Globals
-bool ${g.wasTriggered}=false
-string ${g.message}="${cavern.lore.foundHoard(cavern.dice).text}"
-int ${g.crystalsAvailable}=0
-`;
+    return scriptFragment(
+      "# Globals: Hoard",
+      `bool ${g.wasTriggered}=false`,
+      `string ${g.message}="${cavern.lore.foundHoard(cavern.dice).text}"`,
+      `int ${g.crystalsAvailable}=0`,
+    );
   },
   script({ cavern, plan }) {
     if (!cavern.objectives.crystals) {
@@ -86,7 +88,7 @@ int ${g.crystalsAvailable}=0
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
-      `# Hoard ${plan.id}`,
+      `# P${plan.id}: Hoard`,
       `if(change:${centerPoint})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
@@ -108,7 +110,6 @@ const RICH: typeof BASE = {
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
       meanWaveSize: args.plan.monsterWaveSize * 1.5,
-      retriggerMode: "hoard",
       spawnRate: args.plan.monsterSpawnRate * 2,
     }),
 };
@@ -117,7 +118,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Open Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 3 },
       { of: Rough.LOOSE_ROCK, shrink: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
@@ -132,7 +133,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Sealed Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 1, grow: 3 },
       { of: Rough.ALWAYS_LOOSE_ROCK },
       { of: Rough.ALWAYS_HARD_ROCK, grow: 0.5 },
@@ -146,7 +147,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Open Rich Cave",
     ...RICH,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.5 },
       { of: Rough.LOOSE_ROCK, grow: 2 },
@@ -160,7 +161,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Rich Island",
     ...RICH,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.5 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 2 },
@@ -185,7 +186,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Peninsula Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.BRIDGE_ON_WATER, width: 2, grow: 3 },
       { of: Rough.LOOSE_ROCK, shrink: 1 },
@@ -202,7 +203,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Rich Lava Island",
     ...RICH,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.5 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 2 },
@@ -219,7 +220,7 @@ const TREASURE: readonly Architect<unknown>[] = [
   {
     name: "Lava Peninsula Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.BRIDGE_ON_LAVA, width: 2, grow: 3 },
       { of: Rough.HARD_ROCK, grow: 0.5 },

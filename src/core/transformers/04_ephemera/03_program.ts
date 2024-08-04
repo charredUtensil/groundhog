@@ -17,20 +17,29 @@ export default function program(cavern: EnscribedCavern): ProgrammedCavern {
       return r;
     }, []),
   );
-  const script = filterTruthy([
-    ...globalsFns.map((fn) => fn({ cavern })),
-    ...cavern.plans.map((plan) => plan.architect.script({ cavern, plan })),
-    ...(cavern.context.hasMonsters
-      ? cavern.plans.map((plan) =>
-          plan.architect.monsterSpawnScript({ cavern, plan }),
-        )
-      : []),
-    ...(cavern.context.hasSlugs
-      ? cavern.plans.map((plan) =>
-          plan.architect.slugSpawnScript({ cavern, plan }),
-        )
-      : []),
-  ]).join("\n");
+  const archGlobals = filterTruthy(globalsFns.map((fn) => fn({ cavern })));
+  const archScripts = filterTruthy(cavern.plans.map((plan) => plan.architect.script({ cavern, plan })));
+  const monsters = cavern.context.hasMonsters
+    ? filterTruthy(cavern.plans.map((plan) =>
+        plan.architect.monsterSpawnScript({ cavern, plan }),
+      ))
+    : [];
+  const slugs = cavern.context.hasSlugs
+    ? filterTruthy(cavern.plans.map((plan) =>
+        plan.architect.slugSpawnScript({ cavern, plan }),
+      ))
+    : [];
+  const na = ["# n/a", ""]
+  const script = [
+    "# I. Architect Globals",
+    ...(archGlobals.length ? archGlobals : na),
+    "# II. Architect Scripts",
+    ...(archScripts.length ? archScripts : na),
+    "# III. Spawn Monsters",
+    ...(monsters.length ? monsters : na),
+    "# IV. Spawn Slugs",
+    ...(slugs.length ? slugs : na),
+  ].join("\n");
 
   return { ...cavern, script };
 }

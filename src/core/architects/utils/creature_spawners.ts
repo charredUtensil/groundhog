@@ -129,7 +129,7 @@ function creatureSpawnScript(
   );
   const triggerPoints = opts.triggerPoints ?? getTriggerPoints(cavern, plan);
 
-  const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Spawner`, [
+  const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
     "needCrystals",
     "state",
     "triggerCount",
@@ -138,7 +138,7 @@ function creatureSpawnScript(
     "doRetrigger",
   ]);
   return scriptFragment(
-    `# Spawn ${opts.creature.id} x${waveSize} ${plan.id}`,
+    `# P${plan.id}: Spawn ${opts.creature.name} x${waveSize}`,
 
     // Declare variables
     `int ${v.state}=${STATE.UNDISCOVERED}`,
@@ -202,14 +202,16 @@ function creatureSpawnScript(
     // Hoard mode must be "manually" re-armed by a monster visiting the hoard
     // within cooldown.
     ...(opts.retriggerMode === "hoard"
-      ? plan.innerPearl[0].map(
-          (point) =>
-            `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
+      ? [
+          ...plan.innerPearl[0].map(
+            (point) =>
+              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`
+          ),
           eventChain(
             v.doRetrigger,
             `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
           ),
-        )
+        ] 
       : []),
   );
 }

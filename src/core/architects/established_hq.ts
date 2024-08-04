@@ -16,7 +16,7 @@ import {
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { position } from "../models/position";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
@@ -216,7 +216,7 @@ function getPlaceBuildings({
   };
 }
 
-export const gFoundHq = mkVars("gFoundHq", ["foundHq"]);
+export const gLostHq = mkVars("gLostHq", ["foundHq"]);
 
 const WITH_FIND_OBJECTIVE: Pick<
   Architect<Metadata>,
@@ -225,14 +225,14 @@ const WITH_FIND_OBJECTIVE: Pick<
   objectives: () => ({
     variables: [
       {
-        condition: `${gFoundHq.foundHq}>0`,
+        condition: `${gLostHq.foundHq}>0`,
         description: "Find the lost Rock Raider HQ",
       },
     ],
     sufficient: false,
   }),
   scriptGlobals: () =>
-    scriptFragment("# Lost HQ Globals", `int ${gFoundHq.foundHq}=0`),
+    scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
   script({ cavern, plan }) {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
@@ -243,11 +243,11 @@ const WITH_FIND_OBJECTIVE: Pick<
       return r.pearlRadius > p.pearlRadius ? r : p;
     }).center;
 
-    const v = mkVars(`p${plan.id}FoundHq`, ["messageDiscover", "onDiscover"]);
+    const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
     const message = cavern.lore.foundHq(cavern.dice).text;
 
     return scriptFragment(
-      `# Lost HQ ${plan.id}`,
+      `# P${plan.id}: Lost HQ`,
       `string ${v.messageDiscover}="${escapeString(message)}"`,
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
       eventChain(
@@ -255,7 +255,7 @@ const WITH_FIND_OBJECTIVE: Pick<
         `msg:${v.messageDiscover};`,
         `pan:${transformPoint(cavern, camPoint)};`,
         `wait:1;`,
-        `${gFoundHq.foundHq}=1;`,
+        `${gLostHq.foundHq}=1;`,
       ),
     );
   },
@@ -264,12 +264,12 @@ const WITH_FIND_OBJECTIVE: Pick<
 const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   Pick<Architect<Metadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
-  ...new RoughOyster(
+  ...mkRough(
     { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
     { of: Rough.FLOOR, width: 0, grow: 2 },
     { of: Rough.DIRT, width: 0, grow: 0.5 },
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
-    { of: Rough.HARD_ROCK, grow: 0.25 },
+    { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.25 },
   ),
   crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),

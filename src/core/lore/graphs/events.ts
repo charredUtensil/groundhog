@@ -191,6 +191,7 @@ export const FOUND_SLUG_NEST = phraseGraph<State>(
       .then(
         "It must be a nest of Slimy Slugs!",
         "We need to keep these Slimy Slugs at bay.",
-      );
+      )
+      .then(end);
   },
 );

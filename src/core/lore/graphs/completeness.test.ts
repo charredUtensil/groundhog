@@ -6,6 +6,7 @@ import {
   FOUND_HOARD,
   FOUND_HQ,
   FOUND_LOST_MINERS,
+  FOUND_SLUG_NEST,
 } from "./events";
 import ORDERS from "./orders";
 import PREMISE from "./premise";
@@ -92,4 +93,8 @@ test(`Found hoard is complete`, () => {
 
 test(`Found HQ is complete`, () => {
   expectCompletion(FOUND_HQ, EXPECTED);
+});
+
+test(`Found Slug Nest is complete`, () => {
+  expectCompletion(FOUND_SLUG_NEST, EXPECTED);
 });

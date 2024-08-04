@@ -5,7 +5,7 @@ import {
   SUPPORT_STATION,
 } from "../models/building";
 import { DefaultHallArchitect } from "./default";
-import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
+import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 
 const BASE: typeof DefaultHallArchitect = {
   ...DefaultHallArchitect,
@@ -21,15 +21,22 @@ const HARD_ROCK_MIN_CRYSTALS =
 
 const THIN_HALL: readonly Architect<unknown>[] = [
   {
-    name: "Thin, Open Hall",
+    name: "Thin Open Hall",
     ...BASE,
-    ...new RoughOyster({ of: Rough.FLOOR }, { of: Rough.VOID, grow: 1 }),
+    ...mkRough(
+      { of: Rough.FLOOR },
+      { of: weightedSprinkle(
+        { item: Rough.AT_MOST_HARD_ROCK, bid: 1 },
+        { item: Rough.VOID, bid: 10 },
+      )},
+      { of: Rough.VOID, grow: 1 },
+    ),
     hallBid: ({ plan }) => !plan.fluid && 0.2,
   },
   {
     name: "Thin Filled Hall",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       {
         of: weightedSprinkle(
           { item: Rough.FLOOR, bid: 1 },
@@ -43,7 +50,7 @@ const THIN_HALL: readonly Architect<unknown>[] = [
   {
     name: "Thin Hard Rock Hall",
     ...BASE,
-    ...new RoughOyster({ of: Rough.HARD_ROCK }, { of: Rough.VOID, grow: 1 }),
+    ...mkRough({ of: Rough.HARD_ROCK }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan, totalCrystals }) =>
       !plan.fluid &&
       totalCrystals >= HARD_ROCK_MIN_CRYSTALS &&

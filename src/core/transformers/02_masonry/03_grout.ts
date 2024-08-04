@@ -41,14 +41,22 @@ function isHole(tiles: Grid<Tile>, x: number, y: number) {
 export default function grout(cavern: RoughPlasticCavern): RoughPlasticCavern {
   const tiles = cavern.tiles.copy();
   cavern.tiles.forEach((t, x, y) => {
-    if (t.isWall) {
-      return;
-    }
-    if (isHole(tiles, x, y)) {
-      tiles.set(x, y, Tile.DIRT);
-      return;
-    }
     if (
+      // If the point is surrounded by hard or solid rock, make it hard rock
+      t !== Tile.SOLID_ROCK &&
+      !NSEW.some(([ox, oy]) => {
+        const ot = tiles.get(x + ox, y + oy);
+        return ot && ot !== Tile.HARD_ROCK && ot !== Tile.SOLID_ROCK
+      })
+    ) {
+      tiles.set(x, y, Tile.HARD_ROCK);
+    } else if (
+      // If the point is not wall and should be, make it dirt
+      !t.isWall && isHole(tiles, x, y)
+    ) {
+      tiles.set(x, y, Tile.DIRT);
+    } else if (
+      // If the point is fluid and not connected to other fluid, make it floor
       t.isFluid &&
       !NSEW.some(([ox, oy]) => tiles.get(x + ox, y + oy)?.isFluid)
     ) {

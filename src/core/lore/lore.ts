@@ -9,6 +9,7 @@ import {
   FOUND_HOARD,
   FOUND_HQ,
   FOUND_LOST_MINERS,
+  FOUND_SLUG_NEST,
   NOMADS_SETTLED,
 } from "./graphs/events";
 import ORDERS from "./graphs/orders";
@@ -55,6 +56,7 @@ enum Die {
   foundHq,
   foundAllLostMiners,
   nomadsSettled,
+  foundSlugNest,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -274,6 +276,14 @@ export class Lore {
   nomadsSettled(dice: DiceBox) {
     return NOMADS_SETTLED.generate(
       dice.lore(Die.nomadsSettled),
+      this.state,
+      this.vars,
+    );
+  }
+
+  generateFoundSlugNest(dice: DiceBox) {
+    return FOUND_SLUG_NEST.generate(
+      dice.lore(Die.foundSlugNest),
       this.state,
       this.vars,
     );
