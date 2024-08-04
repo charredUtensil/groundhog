@@ -10,6 +10,7 @@ import {
 } from "./events";
 import ORDERS from "./orders";
 import PREMISE from "./premise";
+import { SEISMIC_FORESHADOW } from "./seismic";
 
 function expectCompletion(
   actual: PhraseGraph<any>,
@@ -97,4 +98,8 @@ test(`Found HQ is complete`, () => {
 
 test(`Found Slug Nest is complete`, () => {
   expectCompletion(FOUND_SLUG_NEST, EXPECTED);
+});
+
+test(`Seismic Foreshadow is complete`, () => {
+  expectCompletion(SEISMIC_FORESHADOW, EXPECTED);
 });

@@ -28,7 +28,8 @@ function withBarrier({
       .reduce((r, p) => (p.hops < r.hops ? p : r));
 
     const overlaps = (pos: Point) =>
-      args.cavern.pearlInnerDex.get(...pos)?.[args.plan.id] !== undefined;
+      args.cavern.pearlInnerDex.get(...pos)?.[args.plan.id] !== undefined ||
+      args.cavern.pearlOuterDex.get(...pos)?.[args.plan.id] !== undefined;
 
     // Add a "crust" of solid rock on the outer pearl
     planCloseEnd.outerPearl[0]
@@ -71,7 +72,7 @@ const LOOPBACK: readonly Architect<unknown>[] = [
       plan.pearlRadius > 1 &&
       plan.path.kind === 'auxiliary' &&
       plan.path.exclusiveSnakeDistance > 5 &&
-      5,
+      2,
   },
 ];
 

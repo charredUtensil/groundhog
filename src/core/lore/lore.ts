@@ -14,6 +14,7 @@ import {
 } from "./graphs/events";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
+import { SEISMIC_FORESHADOW } from "./graphs/seismic";
 
 export type State = {
   readonly floodedWithWater: boolean;
@@ -287,5 +288,13 @@ export class Lore {
       this.state,
       this.vars,
     );
+  }
+
+  generateSeismicForeshadow(rng: PseudorandomStream) {
+    return SEISMIC_FORESHADOW.generate(
+      rng,
+      this.state,
+      this.vars,
+    )
   }
 }
