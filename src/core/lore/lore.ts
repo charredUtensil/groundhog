@@ -3,7 +3,6 @@ import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
-import { GenerateResult } from "./builder";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {
   FOUND_ALL_LOST_MINERS,
