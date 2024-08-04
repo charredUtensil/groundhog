@@ -13,7 +13,7 @@ import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: PartialArchitect<unknown> = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   isTreasure: true,
   objectives: ({ cavern }) => {
@@ -113,7 +113,7 @@ const RICH: typeof BASE = {
     }),
 };
 
-const TREASURE: readonly Architect<unknown>[] = [
+const TREASURE = [
   {
     name: "Open Hoard",
     ...HOARD,
@@ -232,5 +232,5 @@ const TREASURE: readonly Architect<unknown>[] = [
       intersectsOnly(plans, plan, null) &&
       0.5,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 export default TREASURE;

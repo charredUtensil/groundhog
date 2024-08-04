@@ -277,7 +277,7 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
+export const ESTABLISHED_HQ = [
   {
     name: "Established HQ Spawn",
     ...BASE,
@@ -330,4 +330,4 @@ export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
     isRuin: true,
     ...WITH_FIND_OBJECTIVE,
   },
-];
+] as const satisfies readonly Architect<Metadata>[];

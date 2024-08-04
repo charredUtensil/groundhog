@@ -140,6 +140,9 @@ export type BaseArchitect<T extends Readonly<T>> = {
     plan: PlanWithMetadata<T>;
   }): string | undefined;
 
+
+  // isHq|isLostMiners|isNomads|isRuin|isSlugNest|isTreasure
+
   isHq: boolean;
   isLostMiners: boolean;
   isNomads: boolean;

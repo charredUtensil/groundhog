@@ -67,5 +67,5 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       isRuin: false,
       isSlugNest: false,
       isTreasure: false,
-    }) as PartialArchitect<unknown>,
+    }) as PartialArchitect<any>,
 );

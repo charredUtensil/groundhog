@@ -255,7 +255,7 @@ const BASE: PartialArchitect<Metadata> = {
 // caverns for some reason.
 const MULTIPLIERS = { rock: 1.0, ice: 1.4, lava: 0.7 } as const;
 
-const LOST_MINERS: readonly Architect<Metadata>[] = [
+const LOST_MINERS = [
   {
     name: "Lost Miners",
     ...BASE,
@@ -274,6 +274,5 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       plans.reduce((r, p) => (p.architect?.isLostMiners ? r + 1 : r), 0) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
-];
-
+] as const satisfies readonly Architect<Metadata>[];
 export default LOST_MINERS;

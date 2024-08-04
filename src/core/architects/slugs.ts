@@ -18,7 +18,7 @@ const getSlugHoles = (
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
   );
 
-const SLUG_NEST: PartialArchitect<unknown> = {
+const SLUG_NEST: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   isSlugNest: true,
   placeCrystals(args) {
@@ -44,7 +44,7 @@ const SLUG_NEST: PartialArchitect<unknown> = {
   },
 };
 
-const SLUG_HALL: PartialArchitect<unknown> = {
+const SLUG_HALL: PartialArchitect<undefined> = {
   ...DefaultHallArchitect,
   crystalsToPlace: ({ plan }) =>
     Math.max(plan.crystalRichness * plan.perimeter, 5),
@@ -83,7 +83,7 @@ const SLUG_HALL: PartialArchitect<unknown> = {
   },
 };
 
-const SLUGS: readonly Architect<unknown>[] = [
+const SLUGS = [
   {
     name: "Slug Nest",
     ...SLUG_NEST,
@@ -129,5 +129,5 @@ const SLUGS: readonly Architect<unknown>[] = [
       !plan.hasErosion &&
       1,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 export default SLUGS;

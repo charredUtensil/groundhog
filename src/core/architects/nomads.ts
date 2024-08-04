@@ -189,7 +189,7 @@ const BASE: PartialArchitect<Metadata> = {
   isNomads: true,
 };
 
-const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
+const NOMAD_SPAWN = [
   {
     name: "Nomad Spawn",
     ...BASE,
@@ -244,5 +244,5 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
       intersectsAny(cavern.plans, plan, null) &&
       0.5,
   },
-];
+] as const satisfies readonly Architect<Metadata>[];
 export default NOMAD_SPAWN;
