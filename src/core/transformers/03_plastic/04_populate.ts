@@ -31,14 +31,12 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
     vehicleFactory: new VehicleFactory(),
     vehicles: [] as Vehicle[],
   };
-  cavern.plans.forEach(
-    <T extends AnyMetadata>(plan: Plan<T>) => {
-      const args = { ...diorama, setCameraPosition, plan };
-      plan.architect.placeLandslides(args);
-      plan.architect.placeErosion(args);
-      plan.architect.placeEntities(args);
-    },
-  );
+  cavern.plans.forEach(<T extends AnyMetadata>(plan: Plan<T>) => {
+    const args = { ...diorama, setCameraPosition, plan };
+    plan.architect.placeLandslides(args);
+    plan.architect.placeErosion(args);
+    plan.architect.placeEntities(args);
+  });
   if (!cameraPosition) {
     throw new Error(
       "No architect set a camera position! The spawn cave was expected to " +

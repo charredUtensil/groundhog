@@ -24,10 +24,12 @@ type SpawnBidArgs = {
   readonly plan: FloodedPlan;
 };
 
-export type BaseMetadata = {readonly tag: string} | undefined
+export type BaseMetadata = { readonly tag: string } | undefined;
 
 type BidArgs<T extends BaseMetadata> = SpawnBidArgs & {
-  readonly plans: readonly CollapseUnion<FloodedPlan | EstablishedPlan<T | BaseMetadata>>[];
+  readonly plans: readonly CollapseUnion<
+    FloodedPlan | EstablishedPlan<T | BaseMetadata>
+  >[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
 };
@@ -127,10 +129,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
   readonly maxSlope: number | undefined;
 
   scriptGlobals(args: { cavern: EnscribedCavern }): string | undefined;
-  script(args: {
-    cavern: EnscribedCavern;
-    plan: Plan<T>;
-  }): string | undefined;
+  script(args: { cavern: EnscribedCavern; plan: Plan<T> }): string | undefined;
   monsterSpawnScript(args: {
     cavern: EnscribedCavern;
     plan: Plan<T>;

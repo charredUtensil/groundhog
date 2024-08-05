@@ -1,4 +1,10 @@
-import React, { CSSProperties, createRef, useLayoutEffect, useReducer, useState } from "react";
+import React, {
+  CSSProperties,
+  createRef,
+  useLayoutEffect,
+  useReducer,
+  useState,
+} from "react";
 import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
@@ -29,17 +35,25 @@ export type MapOverlay =
   | "tiles"
   | null;
 
-function getScale(cavern: Cavern, mapOverlay: MapOverlay, showOutlines: boolean, mapWrapper: HTMLDivElement | null) {
+function getScale(
+  cavern: Cavern,
+  mapOverlay: MapOverlay,
+  showOutlines: boolean,
+  mapWrapper: HTMLDivElement | null,
+) {
   if (!mapWrapper || cavern.left === undefined) {
     return 1;
   }
   const tw = Math.max(-1 * (cavern.left ?? 0), 1 + (cavern.right ?? 0)) + 1;
   const th = Math.max(-1 * (cavern.top ?? 0), 1 + (cavern.bottom ?? 0)) + 1;
-  const overlayMargin = cavern.plans && showOutlines && mapOverlay !== 'script' ? 400 : 0;
+  const overlayMargin =
+    cavern.plans && showOutlines && mapOverlay !== "script" ? 400 : 0;
   const mw = 6 * 2 * tw + overlayMargin;
   const mh = 6 * 2 * th;
   return Math.max(
-    Math.floor(Math.min(mapWrapper.clientWidth / mw, mapWrapper.clientHeight / mh) * 2) / 2,
+    Math.floor(
+      Math.min(mapWrapper.clientWidth / mw, mapWrapper.clientHeight / mh) * 2,
+    ) / 2,
     0.5,
   );
 }
@@ -87,17 +101,18 @@ export default function CavernPreview({
     [],
   );
 
-  
   const mapWrapperRef = createRef<HTMLDivElement>();
   const [scale, setScale] = useState(1);
-  
+
   useLayoutEffect(() => {
-    const fn = () => setScale(getScale(cavern, mapOverlay, showOutlines, mapWrapperRef.current));
-    window.addEventListener('resize', fn);
+    const fn = () =>
+      setScale(
+        getScale(cavern, mapOverlay, showOutlines, mapWrapperRef.current),
+      );
+    window.addEventListener("resize", fn);
     fn();
-    return () => window.removeEventListener('resize', fn);
-  },
-  [cavern, mapOverlay, showOutlines, mapWrapperRef]);
+    return () => window.removeEventListener("resize", fn);
+  }, [cavern, mapOverlay, showOutlines, mapWrapperRef]);
 
   switch (mapOverlay) {
     case "about":
@@ -124,7 +139,7 @@ export default function CavernPreview({
       )}
       <div className={styles.mapWrapper} ref={mapWrapperRef}>
         <svg
-          className={`${styles.map} ${(cavern.baseplates || cavern.plans) ? '' : styles.void}`}
+          className={`${styles.map} ${cavern.baseplates || cavern.plans ? "" : styles.void}`}
           style={{
             top: `calc(50% - ${height / 2}px)`,
             left: `calc(50% - ${width / 2}px)`,

@@ -14,7 +14,7 @@ import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
 const METADATA = {
-  tag: 'treasure'
+  tag: "treasure",
 } as const satisfies BaseMetadata;
 
 const BASE: PartialArchitect<typeof METADATA> = {
@@ -22,7 +22,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
   prime: () => METADATA,
   objectives: ({ cavern }) => {
     const crystals = cavern.plans
-      .filter((plan) => plan.metadata?.tag === 'treasure')
+      .filter((plan) => plan.metadata?.tag === "treasure")
       .reduce((r, plan) => Math.max(r, plan.crystals), 0);
     if (crystals < 15) {
       return undefined;

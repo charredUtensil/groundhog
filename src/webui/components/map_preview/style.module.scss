@@ -83,16 +83,15 @@
     .map {
       position: absolute;
       transition: transform 500ms linear;
-      transform:
-        rotate3d(1, 0, 0, var(--pvw-pitch))
-        rotate(var(--pvw-yaw))
+      transform: rotate3d(1, 0, 0, var(--pvw-pitch)) rotate(var(--pvw-yaw))
         matrix(
           var(--pvw-scale),
           0,
           0,
           var(--pvw-scale),
           calc(var(--pvw-tr-x) * var(--pvw-scale)),
-          calc(var(--pvw-tr-y) * var(--pvw-scale)));
+          calc(var(--pvw-tr-y) * var(--pvw-scale))
+        );
 
       &.void {
         transition: none;

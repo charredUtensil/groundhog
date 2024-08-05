@@ -1,9 +1,4 @@
-import React, {
-  Fragment,
-  createRef,
-  useLayoutEffect,
-  useMemo,
-} from "react";
+import React, { Fragment, createRef, useLayoutEffect, useMemo } from "react";
 import { Cavern } from "../../../../core/models/cavern";
 import styles from "./styles.module.scss";
 import { Point } from "../../../../core/common/geometry";

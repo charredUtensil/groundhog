@@ -23,4 +23,4 @@ export const ARCHITECTS = [
   ...TREASURE,
 ] as const satisfies readonly Architect<any>[];
 
-export type AnyMetadata = ReturnType<(typeof ARCHITECTS)[number]['prime']>
+export type AnyMetadata = ReturnType<(typeof ARCHITECTS)[number]["prime"]>;

@@ -45,12 +45,15 @@ const OMIT_T1 = T0_BUILDINGS.length;
 const MAX_HOPS = 3;
 
 export type HqMetadata = {
-  readonly tag: 'hq';
+  readonly tag: "hq";
   readonly ruin: boolean;
   readonly crystalsInBuildings: number;
 };
 
-function getPrime(maxCrystals: number, ruin: boolean): Architect<HqMetadata>["prime"] {
+function getPrime(
+  maxCrystals: number,
+  ruin: boolean,
+): Architect<HqMetadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const crystalsInBuildings = rng.betaInt({
@@ -59,7 +62,7 @@ function getPrime(maxCrystals: number, ruin: boolean): Architect<HqMetadata>["pr
       min: 3,
       max: maxCrystals,
     });
-    return { crystalsInBuildings, ruin, tag: 'hq' };
+    return { crystalsInBuildings, ruin, tag: "hq" };
   };
 }
 
@@ -68,7 +71,6 @@ function getPlaceBuildings({
   from = 2,
 }): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
-
     const asRuin = args.plan.metadata.ruin;
     const asSpawn = !args.plan.hops.length;
 
@@ -112,7 +114,7 @@ function getPlaceBuildings({
           return true;
         }
       } else if (asRuin) {
-        bq.push((pos) => ({...bt.atTile(pos), isRuinAtSpawn: true}));
+        bq.push((pos) => ({ ...bt.atTile(pos), isRuinAtSpawn: true }));
       }
       return false;
     });
@@ -120,7 +122,9 @@ function getPlaceBuildings({
     // Fit the buildings.
     const buildings = getBuildings({ from, queue: bq }, args);
 
-    const dependencies = new Set(buildings.flatMap(b => b.template.dependencies));
+    const dependencies = new Set(
+      buildings.flatMap((b) => b.template.dependencies),
+    );
 
     // Place the buildings.
     for (let i = 0; i < buildings.length; i++) {
@@ -131,13 +135,13 @@ function getPlaceBuildings({
       } else {
         fTile = Tile.FOUNDATION;
         if (dependencies.has(building.template)) {
-          args.buildings.push({...building, level: 2});
+          args.buildings.push({ ...building, level: 2 });
         } else {
           args.buildings.push(building);
         }
       }
       building.foundation.forEach(([x, y]) => args.tiles.set(x, y, fTile));
-    };
+    }
 
     // Place power path trails between the buildings.
     const getPorch: (b: Building) => Point = (b) =>
@@ -309,7 +313,7 @@ export const ESTABLISHED_HQ = [
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
       !hops.some((id) => plans[id].fluid) &&
-      !plans.some((p) => p.metadata?.tag === 'hq') &&
+      !plans.some((p) => p.metadata?.tag === "hq") &&
       0.5,
     ...WITH_FIND_OBJECTIVE,
   },
@@ -323,8 +327,8 @@ export const ESTABLISHED_HQ = [
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops.length <= MAX_HOPS &&
-      !plans.some((p) => p.metadata?.tag === 'hq') &&
-      (plans[hops[0]].metadata?.tag === 'nomads' ? 5 : 0.5),
+      !plans.some((p) => p.metadata?.tag === "hq") &&
+      (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
     ...WITH_FIND_OBJECTIVE,
   },
 ] as const satisfies readonly Architect<HqMetadata>[];

@@ -167,17 +167,20 @@ export class Lore {
 
     const spawn = cavern.plans.find((p) => !p.hops.length)!;
 
-    const hq = cavern.plans.find((p) => p.metadata?.tag === 'hq') as Plan<HqMetadata>;
+    const hq = cavern.plans.find(
+      (p) => p.metadata?.tag === "hq",
+    ) as Plan<HqMetadata>;
     const spawnIsHq = spawn === hq;
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
-    const nomads = spawn.metadata?.tag === 'nomads'
-      ? (spawn.metadata.minersCount as number)
-      : 0;
+    const nomads =
+      spawn.metadata?.tag === "nomads"
+        ? (spawn.metadata.minersCount as number)
+        : 0;
 
     const treasures = cavern.plans.reduce(
-      (r, plan) => (plan.metadata?.tag === 'treasure' ? r + 1 : r),
+      (r, plan) => (plan.metadata?.tag === "treasure" ? r + 1 : r),
       0,
     );
 
@@ -243,11 +246,7 @@ export class Lore {
   }
 
   foundHq(dice: DiceBox) {
-    return FOUND_HQ.generate(
-      dice.lore(Die.foundHq),
-      this.state,
-      this.vars,
-    );
+    return FOUND_HQ.generate(dice.lore(Die.foundHq), this.state, this.vars);
   }
 
   foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {

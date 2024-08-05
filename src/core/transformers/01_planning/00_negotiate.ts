@@ -5,9 +5,10 @@ import { Path } from "../../models/path";
 import { Plan } from "../../models/plan";
 import { AnyMetadata } from "../../architects";
 
-export type PartialPlannedCavern<T extends Partial<Plan<AnyMetadata>>> = BaseCavern & {
-  readonly plans: readonly T[];
-};
+export type PartialPlannedCavern<T extends Partial<Plan<AnyMetadata>>> =
+  BaseCavern & {
+    readonly plans: readonly T[];
+  };
 
 export type NegotiatedPlan = {
   /** Unique ID of the Plan, used for RNG and indexing. */

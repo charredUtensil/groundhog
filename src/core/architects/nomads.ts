@@ -29,7 +29,7 @@ import { plotLine } from "../common/geometry";
 import { gFoundHq } from "./established_hq";
 
 export type NomadsMetadata = {
-  readonly tag: 'nomads';
+  readonly tag: "nomads";
   readonly minersCount: number;
   readonly vehicles: readonly VehicleTemplate[];
 };
@@ -59,7 +59,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 3, min: 1, max: 4 });
     const vehicles = filterTruthy([rng.weightedChoice(VEHICLE_BIDS)]);
-    return { tag: 'nomads', minersCount, vehicles };
+    return { tag: "nomads", minersCount, vehicles };
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
   placeBuildings: ({ cavern, plan, tiles, openCaveFlags }) => {
@@ -72,7 +72,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     );
     // If there is an HQ, ensure it is accessible to the nomads.
     cavern.plans
-      .find((p) => p.metadata?.tag === 'hq')
+      .find((p) => p.metadata?.tag === "hq")
       ?.hops.forEach((hopId) => {
         pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
           for (const pos of plotLine(a.center, b.center)) {
@@ -154,7 +154,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     );
   },
   scriptGlobals({ cavern }) {
-    if (cavern.plans.some((plan) => plan.metadata?.tag === 'hq')) {
+    if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
       return scriptFragment(
         "Nomads Globals (With HQ)",
@@ -176,9 +176,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     }
 
     // Acknowledge the construction of a Support Station.
-    const msg = escapeString(
-      cavern.lore.nomadsSettled(cavern.dice).text,
-    );
+    const msg = escapeString(cavern.lore.nomadsSettled(cavern.dice).text);
 
     return scriptFragment(
       "# Nomads Globals (No HQ)",
@@ -220,7 +218,7 @@ const NOMAD_SPAWN = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({ tag: 'nomads', minersCount: 1, vehicles: [RAPID_RIDER] }),
+    prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [RAPID_RIDER] }),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 4 &&
@@ -237,7 +235,7 @@ const NOMAD_SPAWN = [
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({ tag: 'nomads', minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
+    prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 4 &&

@@ -27,9 +27,7 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
   })();
 
   const lore = new Lore(cavern);
-  const { premise, orders, success, failure } = lore.briefings(
-    cavern.dice,
-  );
+  const { premise, orders, success, failure } = lore.briefings(cavern.dice);
   const briefing = {
     intro: `${premise.text}\n\n${orders.text}`,
     success: success.text,

@@ -26,15 +26,13 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     buildings: [] as Building[],
     openCaveFlags: new MutableGrid<true>(),
   };
-  cavern.plans.forEach(
-    <T extends AnyMetadata>(plan: Plan<T>) => {
-      const args = { ...diorama, setCameraPosition, plan };
-      plan.architect.placeRechargeSeam(args);
-      plan.architect.placeBuildings(args);
-      plan.architect.placeCrystals(args);
-      plan.architect.placeOre(args);
-      plan.architect.placeSlugHoles(args);
-    },
-  );
+  cavern.plans.forEach(<T extends AnyMetadata>(plan: Plan<T>) => {
+    const args = { ...diorama, setCameraPosition, plan };
+    plan.architect.placeRechargeSeam(args);
+    plan.architect.placeBuildings(args);
+    plan.architect.placeCrystals(args);
+    plan.architect.placeOre(args);
+    plan.architect.placeSlugHoles(args);
+  });
   return { ...cavern, ...diorama, cameraPosition };
 }

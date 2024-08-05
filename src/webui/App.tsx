@@ -130,7 +130,13 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
-        <div className={filterTruthy([styles.grid, isLoading && styles.loading, state.error && styles.hasError]).join(' ')} />
+        <div
+          className={filterTruthy([
+            styles.grid,
+            isLoading && styles.loading,
+            state.error && styles.hasError,
+          ]).join(" ")}
+        />
         {state.cavern && !state.error && (
           <CavernPreview
             cavern={state.cavern}
@@ -150,8 +156,15 @@ function App() {
           />
         )}
         {mapOverlay === "about" && <About />}
-        {mapOverlay === "lore" && <LorePreview briefing={state.cavern?.briefing} script={state.cavern?.script} />}
-        {state.error && <ErrorPreview error={state.error} context={state.cavern?.context}  />}
+        {mapOverlay === "lore" && (
+          <LorePreview
+            briefing={state.cavern?.briefing}
+            script={state.cavern?.script}
+          />
+        )}
+        {state.error && (
+          <ErrorPreview error={state.error} context={state.cavern?.context} />
+        )}
         {!autoGenerate && state.name && (
           <div className={styles.stepName}>{state.name}</div>
         )}

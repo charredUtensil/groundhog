@@ -11,17 +11,15 @@ import { intersectsOnly } from "./utils/intersects";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 
-const getSlugHoles = (
-  args: Parameters<Architect<any>["slugSpawnScript"]>[0],
-) =>
+const getSlugHoles = (args: Parameters<Architect<any>["slugSpawnScript"]>[0]) =>
   args.plan.innerPearl.flatMap((layer) =>
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
   );
 
 const SLUG_NEST_METADATA = {
-  tag: 'slugNest'
+  tag: "slugNest",
 } as const satisfies BaseMetadata;
-  
+
 const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
   ...DefaultCaveArchitect,
   prime: () => SLUG_NEST_METADATA,
@@ -110,7 +108,7 @@ const SLUGS = [
       !plan.fluid &&
       !plan.hasErosion &&
       intersectsOnly(plans, plan, null) &&
-      !plans.some((p) => p.metadata?.tag === 'slugNest') &&
+      !plans.some((p) => p.metadata?.tag === "slugNest") &&
       0.25,
   },
   {

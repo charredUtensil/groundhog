@@ -10,6 +10,8 @@ export type BaseCavern = {
   context: CavernContext;
   dice: DiceBox;
 };
-export type PlannedCavern = BaseCavern & { plans: readonly Plan<AnyMetadata>[] };
+export type PlannedCavern = BaseCavern & {
+  plans: readonly Plan<AnyMetadata>[];
+};
 
 export type Cavern = CollapseUnion<AnyTfResultOf<typeof CAVERN_TF>>;

@@ -32,7 +32,7 @@ import {
 } from "./utils/script";
 
 export type LostMinersMetadata = {
-  readonly tag: 'lostMiners';
+  readonly tag: "lostMiners";
   readonly minersCount: number;
 };
 
@@ -47,7 +47,7 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
-    if (plan.metadata?.tag === 'lostMiners') {
+    if (plan.metadata?.tag === "lostMiners") {
       lostMinerCaves++;
       lostMiners += plan.metadata.minersCount;
     }
@@ -153,7 +153,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
-    return { tag: 'lostMiners', minersCount };
+    return { tag: "lostMiners", minersCount };
   },
   placeEntities: ({
     cavern,
@@ -270,7 +270,10 @@ const LOST_MINERS = [
       hops.length > 3 &&
       hops.length <= 8 &&
       isDeadEnd(plan) &&
-      plans.reduce((r, p) => (p.metadata?.tag === 'lostMiners' ? r + 1 : r), 0) < 4 &&
+      plans.reduce(
+        (r, p) => (p.metadata?.tag === "lostMiners" ? r + 1 : r),
+        0,
+      ) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
 ] as const satisfies readonly Architect<LostMinersMetadata>[];
