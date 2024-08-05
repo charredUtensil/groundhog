@@ -2,9 +2,9 @@ import { RoughPlasticCavern } from "./01_rough";
 import { MutableGrid, Grid } from "../../common/grid";
 import { Tile } from "../../models/tiles";
 import { Building } from "../../models/building";
-import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { EntityPosition } from "../../models/position";
+import { AnyMetadata } from "../../architects";
 
 export type FinePlasticCavern = Omit<RoughPlasticCavern, "tiles"> & {
   readonly tiles: Grid<Tile>;
@@ -27,7 +27,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
     openCaveFlags: new MutableGrid<true>(),
   };
   cavern.plans.forEach(
-    <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
+    <T extends AnyMetadata>(plan: Plan<T>) => {
       const args = { ...diorama, setCameraPosition, plan };
       plan.architect.placeRechargeSeam(args);
       plan.architect.placeBuildings(args);

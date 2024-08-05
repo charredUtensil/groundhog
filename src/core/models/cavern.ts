@@ -1,3 +1,4 @@
+import { AnyMetadata } from "../architects";
 import { DiceBox } from "../common";
 import { CavernContext } from "../common/context";
 import { AnyTfResultOf } from "../common/transform";
@@ -9,6 +10,6 @@ export type BaseCavern = {
   context: CavernContext;
   dice: DiceBox;
 };
-export type PlannedCavern = BaseCavern & { plans: readonly Plan[] };
+export type PlannedCavern = BaseCavern & { plans: readonly Plan<AnyMetadata>[] };
 
 export type Cavern = CollapseUnion<AnyTfResultOf<typeof CAVERN_TF>>;

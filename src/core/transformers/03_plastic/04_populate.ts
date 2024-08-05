@@ -2,11 +2,11 @@ import { MutableGrid, Grid } from "../../common/grid";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Creature, CreatureFactory } from "../../models/creature";
 import { Miner, MinerFactory } from "../../models/miner";
-import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
 import { Vehicle, VehicleFactory } from "../../models/vehicle";
 import { StrataformedCavern } from "./02_strataform";
 import { EntityPosition } from "../../models/position";
+import { AnyMetadata } from "../../architects";
 
 export type PopulatedCavern = StrataformedCavern & {
   readonly landslides: Grid<Landslide>;
@@ -32,7 +32,7 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
     vehicles: [] as Vehicle[],
   };
   cavern.plans.forEach(
-    <T>(plan: Plan & { architect: Architect<T>; metadata: T }) => {
+    <T extends AnyMetadata>(plan: Plan<T>) => {
       const args = { ...diorama, setCameraPosition, plan };
       plan.architect.placeLandslides(args);
       plan.architect.placeErosion(args);

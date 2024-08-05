@@ -197,7 +197,7 @@ export default function CavernPreview({
               .map((pl) => (
                 <PearlPreview
                   key={pl.id}
-                  plan={pl as PearledPlan}
+                  plan={pl as PearledPlan<any>}
                   pearl={"outerPearl"}
                 />
               ))}
@@ -207,7 +207,7 @@ export default function CavernPreview({
               .map((pl) => (
                 <PearlPreview
                   key={pl.id}
-                  plan={pl as PearledPlan}
+                  plan={pl as PearledPlan<any>}
                   pearl={"innerPearl"}
                 />
               ))}

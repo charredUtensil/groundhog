@@ -4,10 +4,10 @@ import {
   SUPER_TELEPORT,
   SUPPORT_STATION,
 } from "../models/building";
-import { DefaultHallArchitect } from "./default";
+import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 
-const BASE: typeof DefaultHallArchitect = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultHallArchitect,
 };
 
@@ -19,7 +19,7 @@ const HARD_ROCK_MIN_CRYSTALS =
   1 +
   5;
 
-const THIN_HALL: readonly Architect<unknown>[] = [
+const THIN_HALL = [
   {
     name: "Thin, Open Hall",
     ...BASE,
@@ -50,5 +50,5 @@ const THIN_HALL: readonly Architect<unknown>[] = [
       plan.path.exclusiveSnakeDistance < 10 &&
       0.7,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 export default THIN_HALL;

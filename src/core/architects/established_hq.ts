@@ -44,11 +44,13 @@ const T3_BUILDINGS = [
 const OMIT_T1 = T0_BUILDINGS.length;
 const MAX_HOPS = 3;
 
-type Metadata = {
-  crystalsInBuildings: number;
+export type HqMetadata = {
+  readonly tag: 'hq';
+  readonly ruin: boolean;
+  readonly crystalsInBuildings: number;
 };
 
-function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
+function getPrime(maxCrystals: number, ruin: boolean): Architect<HqMetadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const crystalsInBuildings = rng.betaInt({
@@ -57,17 +59,19 @@ function getPrime(maxCrystals: number): Architect<Metadata>["prime"] {
       min: 3,
       max: maxCrystals,
     });
-    return { crystalsInBuildings };
+    return { crystalsInBuildings, ruin, tag: 'hq' };
   };
 }
 
 function getPlaceBuildings({
-  asRuin = false,
-  asSpawn = false,
   discovered = false,
   from = 2,
-}): Architect<Metadata>["placeBuildings"] {
+}): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
+
+    const asRuin = args.plan.metadata.ruin;
+    const asSpawn = !args.plan.hops.length;
+
     // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
     const tq = [
@@ -219,7 +223,7 @@ function getPlaceBuildings({
 export const gFoundHq = mkVars("gFoundHq", ["foundHq"]);
 
 const WITH_FIND_OBJECTIVE: Pick<
-  Architect<Metadata>,
+  Architect<HqMetadata>,
   "objectives" | "scriptGlobals" | "script"
 > = {
   objectives: () => ({
@@ -261,8 +265,8 @@ const WITH_FIND_OBJECTIVE: Pick<
   },
 };
 
-const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
-  Pick<Architect<Metadata>, "rough" | "roughExtent"> = {
+const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
+  Pick<Architect<HqMetadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
   ...new RoughOyster(
     { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
@@ -274,60 +278,53 @@ const BASE: Omit<PartialArchitect<Metadata>, "prime"> &
   crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
   maxSlope: 15,
-  isHq: true,
 };
 
-export const ESTABLISHED_HQ: readonly Architect<Metadata>[] = [
+export const ESTABLISHED_HQ = [
   {
     name: "Established HQ Spawn",
     ...BASE,
-    prime: getPrime(10),
-    placeBuildings: getPlaceBuildings({ asSpawn: true, discovered: true }),
+    prime: getPrime(10, false),
+    placeBuildings: getPlaceBuildings({ discovered: true }),
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
-    isRuin: false,
   },
   {
     name: "Ruined HQ Spawn",
     ...BASE,
-    prime: getPrime(12),
+    prime: getPrime(12, true),
     placeBuildings: getPlaceBuildings({
-      asRuin: true,
-      asSpawn: true,
       discovered: true,
       from: 3,
     }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 60 }, args),
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
-    isRuin: true,
   },
   {
     name: "Find Established HQ",
     ...BASE,
-    prime: getPrime(15),
+    prime: getPrime(15, false),
     placeBuildings: getPlaceBuildings({}),
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
       !hops.some((id) => plans[id].fluid) &&
-      !plans.some((p) => p.architect?.isHq) &&
+      !plans.some((p) => p.metadata?.tag === 'hq') &&
       0.5,
-    isRuin: false,
     ...WITH_FIND_OBJECTIVE,
   },
   {
     name: "Find Ruined HQ",
     ...BASE,
-    prime: getPrime(15),
-    placeBuildings: getPlaceBuildings({ asRuin: true, from: 3 }),
+    prime: getPrime(15, true),
+    placeBuildings: getPlaceBuildings({ from: 3 }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 100 }, args),
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops.length <= MAX_HOPS &&
-      !plans.some((p) => p.architect?.isHq) &&
-      (plans[hops[0]].architect!.isNomads ? 5 : 0.5),
-    isRuin: true,
+      !plans.some((p) => p.metadata?.tag === 'hq') &&
+      (plans[hops[0]].metadata?.tag === 'nomads' ? 5 : 0.5),
     ...WITH_FIND_OBJECTIVE,
   },
-];
+] as const satisfies readonly Architect<HqMetadata>[];

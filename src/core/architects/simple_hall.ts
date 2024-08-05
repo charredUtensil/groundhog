@@ -1,16 +1,16 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
-import { DefaultHallArchitect } from "./default";
+import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly } from "./utils/intersects";
 import { sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: typeof DefaultHallArchitect = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultHallArchitect,
 };
 
-const SIMPLE_HALL: readonly Architect<unknown>[] = [
+const SIMPLE_HALL = [
   {
     name: "Open Hall",
     ...BASE,
@@ -122,6 +122,5 @@ const SIMPLE_HALL: readonly Architect<unknown>[] = [
       placeSleepingMonsters(args, rng, count);
     },
   },
-];
-
+] as const satisfies readonly Architect<undefined>[];
 export default SIMPLE_HALL;

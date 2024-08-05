@@ -7,7 +7,7 @@ import { monsterSpawnScript } from "./utils/creature_spawners";
 import { sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: PartialArchitect<unknown> = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   placeSlugHoles() {},
   monsterSpawnScript(args) {
@@ -21,7 +21,7 @@ const BASE: PartialArchitect<unknown> = {
   },
 };
 
-const FLOODED: readonly Architect<unknown>[] = [
+const FLOODED = [
   {
     name: "Lake",
     ...BASE,
@@ -173,6 +173,5 @@ const FLOODED: readonly Architect<unknown>[] = [
       plan.pearlRadius > 5 &&
       0.4,
   },
-];
-
+] as const satisfies readonly Architect<undefined>[];
 export default FLOODED;
