@@ -117,10 +117,12 @@ export function ScriptOverlay({
   cavern,
   scriptLineOffsets,
   scriptLineHovered,
+  scale,
 }: {
   cavern: Cavern | undefined;
   scriptLineOffsets: number[];
   scriptLineHovered: number;
+  scale: number;
 }) {
   const statements = useMemo(
     () => (cavern?.script ? parse(cavern.script) : undefined),
@@ -171,7 +173,7 @@ export function ScriptOverlay({
           styles[kind],
         ]).join(" ");
         const lx = -9999;
-        const ly = scriptLineOffsets[i];
+        const ly = scriptLineOffsets[i] / scale;
         const px = (pos[0] + ox + 0.5) * SCALE;
         const py = (pos[1] + oy + 0.5) * SCALE;
         const bx = px - Math.abs(py - ly) * 0.3;

@@ -38,7 +38,10 @@ function getScale(cavern: Cavern, mapOverlay: MapOverlay, showOutlines: boolean,
   const overlayMargin = cavern.plans && showOutlines && mapOverlay !== 'script' ? 400 : 0;
   const mw = 6 * 2 * tw + overlayMargin;
   const mh = 6 * 2 * th;
-  return Math.min(mapWrapper.clientWidth / mw, mapWrapper.clientHeight / mh);
+  return Math.max(
+    Math.floor(Math.min(mapWrapper.clientWidth / mw, mapWrapper.clientHeight / mh) * 2) / 2,
+    0.5,
+  );
 }
 
 function getTransform(cavern: Cavern, mapOverlay: MapOverlay, scale: number) {
@@ -89,7 +92,10 @@ export default function CavernPreview({
   const [scale, setScale] = useState(1);
   
   useLayoutEffect(() => {
-    setScale(getScale(cavern, mapOverlay, showOutlines, mapWrapperRef.current));
+    const fn = () => setScale(getScale(cavern, mapOverlay, showOutlines, mapWrapperRef.current));
+    window.addEventListener('resize', fn);
+    fn();
+    return () => window.removeEventListener('resize', fn);
   },
   [cavern, mapOverlay, showOutlines, mapWrapperRef]);
 
@@ -179,6 +185,7 @@ export default function CavernPreview({
               cavern={cavern}
               scriptLineOffsets={scriptLineOffsets}
               scriptLineHovered={scriptLineHovered}
+              scale={scale}
             />
           )}
           {showOutlines && cavern.plans && (
