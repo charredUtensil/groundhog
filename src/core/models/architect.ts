@@ -18,6 +18,7 @@ import { Vehicle, VehicleFactory } from "./vehicle";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { CollapseUnion } from "../common/utils";
+import { AnyMetadata } from "../architects";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -26,9 +27,9 @@ type SpawnBidArgs = {
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
-type BidArgs<T extends BaseMetadata> = SpawnBidArgs & {
+type BidArgs = SpawnBidArgs & {
   readonly plans: readonly CollapseUnion<
-    FloodedPlan | EstablishedPlan<T | BaseMetadata>
+    FloodedPlan | EstablishedPlan<AnyMetadata>
   >[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
@@ -48,8 +49,8 @@ type PrimeArgs = {
 export type BaseArchitect<T extends BaseMetadata> = {
   readonly name: string;
 
-  caveBid?(args: BidArgs<T>): number | false;
-  hallBid?(args: BidArgs<T>): number | false;
+  caveBid?(args: BidArgs): number | false;
+  hallBid?(args: BidArgs): number | false;
   spawnBid?(args: SpawnBidArgs): number | false;
 
   prime(args: PrimeArgs): T;
