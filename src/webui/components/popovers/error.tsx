@@ -28,7 +28,7 @@ const ErrorPreview = ({
         <li>
           seed: {context?.seed.toString(16).padStart(8, "0").toUpperCase()}
         </li>
-        <li>overrides: {context?.overrides.join(', ') || '[none]'}</li>
+        <li>overrides: {context?.overrides.join(", ") || "[none]"}</li>
         <li>error: {error.message}</li>
         <li>line: {error.stack?.split("\n", 1)[0]}</li>
       </ul>

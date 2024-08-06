@@ -370,8 +370,7 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 }
 
 export function inferContextDefaults(
-  args: Partial<Omit<CavernContext, "overrides">> &
-    Pick<CavernContext, "seed">,
+  args: Partial<Omit<CavernContext, "overrides">> & Pick<CavernContext, "seed">,
 ): CavernContext {
   const dice = new DiceBox(args.seed);
   const r = {
@@ -405,6 +404,8 @@ export function inferContextDefaults(
     hasSlugs,
     heightTargetRange,
     ...r,
-    overrides: Object.keys(args).filter(k => k !== 'seed').sort(),
+    overrides: Object.keys(args)
+      .filter((k) => k !== "seed")
+      .sort(),
   };
 }
