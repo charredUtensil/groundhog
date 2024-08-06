@@ -11,7 +11,13 @@ import { intersectsOnly } from "./utils/intersects";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
-import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
+import {
+  escapeString,
+  eventChain,
+  mkVars,
+  scriptFragment,
+  transformPoint,
+} from "./utils/script";
 
 const getSlugHoles = (args: Parameters<Architect<any>["slugSpawnScript"]>[0]) =>
   args.plan.innerPearl.flatMap((layer) =>
@@ -46,12 +52,12 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
       waveSize: holeCount,
     });
   },
-  script: ({cavern, plan}) => {
+  script: ({ cavern, plan }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
       return undefined;
     }
-    
+
     const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover", "onDiscover"]);
     const message = cavern.lore.generateFoundSlugNest(cavern.dice).text;
 

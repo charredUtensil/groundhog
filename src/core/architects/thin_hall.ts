@@ -25,10 +25,12 @@ const THIN_HALL = [
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR },
-      { of: weightedSprinkle(
-        { item: Rough.AT_MOST_HARD_ROCK, bid: 1 },
-        { item: Rough.VOID, bid: 10 },
-      )},
+      {
+        of: weightedSprinkle(
+          { item: Rough.AT_MOST_HARD_ROCK, bid: 1 },
+          { item: Rough.VOID, bid: 10 },
+        ),
+      },
       { of: Rough.VOID, grow: 1 },
     ),
     hallBid: ({ plan }) => !plan.fluid && 0.2,

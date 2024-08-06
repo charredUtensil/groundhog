@@ -173,8 +173,19 @@ export function ScriptOverlay({
         return (
           <Fragment key={i}>
             <path className={`${styles.arrow} ${styles[kind]}`} d={d} />
-            <circle className={`${styles.arrowhead} ${styles[kind]}`} cx={px} cy={py} r={cr} />
-            <rect className={`${styles.tile} ${styles[kind]}`} x={px - tr} y={py - tr} width={2 * tr} height={2 * tr} />
+            <circle
+              className={`${styles.arrowhead} ${styles[kind]}`}
+              cx={px}
+              cy={py}
+              r={cr}
+            />
+            <rect
+              className={`${styles.tile} ${styles[kind]}`}
+              x={px - tr}
+              y={py - tr}
+              width={2 * tr}
+              height={2 * tr}
+            />
           </Fragment>
         );
       })}

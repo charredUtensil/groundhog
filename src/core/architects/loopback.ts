@@ -69,7 +69,7 @@ const LOOPBACK: readonly Architect<unknown>[] = [
     hallBid: ({ plan }) =>
       !plan.fluid &&
       plan.pearlRadius > 1 &&
-      plan.path.kind === 'auxiliary' &&
+      plan.path.kind === "auxiliary" &&
       plan.path.exclusiveSnakeDistance > 5 &&
       5,
   },

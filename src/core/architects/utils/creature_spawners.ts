@@ -205,13 +205,13 @@ function creatureSpawnScript(
       ? [
           ...plan.innerPearl[0].map(
             (point) =>
-              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`
+              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
           ),
           eventChain(
             v.doRetrigger,
             `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
           ),
-        ] 
+        ]
       : []),
   );
 }

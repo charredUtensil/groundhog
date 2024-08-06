@@ -1,6 +1,7 @@
 This directory contains all of the individual steps to "transform" a cavern from a context object to a completed, serialized cavern. Each step builds on the previous, and is meant to perform a single concrete task. These steps are organized into different "phases" as follows:
 
 # I. Outlines
+
 Determine the rough position of the playable area of the cavern. The result of this phase is a graph of baseplates (non-overlapping regions of 2D space) connected by paths. This phase is loosely based on [AAdonaac's dungeon generation algorithm](https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm) with some modifications to make a more organic result.
 
 1. _Partition_: Starting with a square, slice it repeatedly into smaller rectangles, trimming off some edges at each step. The remaining rectangles become "baseplates" that later steps will build on.
@@ -12,6 +13,7 @@ Determine the rough position of the playable area of the cavern. The result of t
 1. _Weave_: Choose some of the ambiguous paths to become auxilliary halls.
 
 # II. Planning
+
 Create "plans" for the baseplates and paths that will determine how the space will be used, but don't actually place anything in the map yet.
 
 1. _Negotiate_: Assign baseplates and paths to new plans. Some paths connecting two adjacent baseplates will become caves. All remaining paths become halls and all remaining baseplates become caves.
@@ -21,6 +23,7 @@ Create "plans" for the baseplates and paths that will determine how the space wi
 1. _Pearl_: Create "pearls" that determine exactly where plans will go. This is the step that ensures the caves and halls will be more "natural" shapes.
 
 # III. Masonry
+
 Place tiles and a few other related things in the map. After this phase, tiles may not be modified
 
 1. _Foundation_: Determine which tiles are assigned to which plans.
@@ -32,6 +35,7 @@ Place tiles and a few other related things in the map. After this phase, tiles m
 1. _Annex_: Find any solid rock that can be collapsed by drilling adjacent walls. Mark these tiles as in-play.
 
 # IV. Plastic
+
 Place other things in the map that rely on the tile placement being finalized.
 
 1. _Fence_: Determine the final bounds of the map.
@@ -41,6 +45,7 @@ Place other things in the map that rely on the tile placement being finalized.
 1. _Populate_: Plans add miners, vehicles, landslides, erosion, and creatures (but not monster spawns).
 
 # V. Ephemera
+
 Add everything else that doesn't necessarily have a position within the map.
 
 1. _Aerate_: Estimate the total playtime required before the player will have a working Support Station and use this to determine how much oxygen the level should have.
