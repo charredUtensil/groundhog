@@ -14,11 +14,11 @@ const BASE: typeof DefaultHallArchitect = {
 function withBarrier({
   roughExtent,
   rough,
-}: Pick<Architect<unknown>, "roughExtent" | "rough">): Pick<
-  Architect<unknown>,
+}: Pick<Architect<any>, "roughExtent" | "rough">): Pick<
+  Architect<any>,
   "roughExtent" | "rough"
 > {
-  const roughWithBarrier: Architect<unknown>["rough"] = (args) => {
+  const roughWithBarrier: Architect<any>["rough"] = (args) => {
     rough(args);
 
     // Determine the end closest to spawn
@@ -54,7 +54,7 @@ function withBarrier({
   return { roughExtent, rough: roughWithBarrier };
 }
 
-const LOOPBACK: readonly Architect<unknown>[] = [
+const LOOPBACK = [
   {
     name: "Loopback Hall",
     ...BASE,
@@ -73,6 +73,6 @@ const LOOPBACK: readonly Architect<unknown>[] = [
       plan.path.exclusiveSnakeDistance > 5 &&
       5,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 
 export default LOOPBACK;
