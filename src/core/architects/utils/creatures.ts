@@ -19,7 +19,7 @@ const PLACEMENT_FN = {
 } as const;
 
 export function placeSleepingMonsters(
-  args: Parameters<Architect<unknown>["placeEntities"]>[0],
+  args: Parameters<Architect<any>["placeEntities"]>[0],
   rng: PseudorandomStream,
   count: number,
   placement: "outer" | "inner" = "outer",
@@ -42,7 +42,7 @@ export function placeSleepingMonsters(
 }
 
 export function sprinkleSlugHoles(
-  args: Parameters<Architect<unknown>["placeSlugHoles"]>[0],
+  args: Parameters<Architect<any>["placeSlugHoles"]>[0],
   opts?: {
     count?: number;
     placements?: readonly Point[];

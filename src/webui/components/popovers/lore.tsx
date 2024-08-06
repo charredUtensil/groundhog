@@ -2,10 +2,20 @@ import React, { Fragment } from "react";
 import styles from "./styles.module.scss";
 import { Cavern } from "../../../core/models/cavern";
 
-const disp = (value: string | undefined) => value?.split('\n').flatMap((s, i) => i > 0 ? [<br />, s] : [s]);
+const disp = (value: string | undefined) =>
+  value?.split("\n").flatMap((s, i) => (i > 0 ? [<br />, s] : [s]));
 
-export default function LorePreview({ briefing, script }: Pick<Cavern, 'briefing' | 'script'>) {
-  const scriptStrings = script?.split('\n').map(s => s.match(/^string\s+(?<name>[a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*"(?<value>.*)"$/));
+export default function LorePreview({
+  briefing,
+  script,
+}: Pick<Cavern, "briefing" | "script">) {
+  const scriptStrings = script
+    ?.split("\n")
+    .map((s) =>
+      s.match(
+        /^string\s+(?<name>[a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*"(?<value>.*)"$/,
+      ),
+    );
   if (!(briefing || script)) {
     return null;
   }
@@ -20,11 +30,11 @@ export default function LorePreview({ briefing, script }: Pick<Cavern, 'briefing
         <h3>Failure</h3>
         <p>{disp(briefing?.failure)}</p>
         {scriptStrings && <h2>Scripted Events</h2>}
-        {scriptStrings?.map(m => {
+        {scriptStrings?.map((m) => {
           if (!m) {
             return null;
           }
-          const {name, value} = m.groups!;
+          const { name, value } = m.groups!;
           return (
             <Fragment key={name}>
               <h3>{name}</h3>

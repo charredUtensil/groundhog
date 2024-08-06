@@ -4,12 +4,12 @@ import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
 import { intersectsOnly } from "./utils/intersects";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 
-const BASE: PartialArchitect<unknown> = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   monsterSpawnScript: (args) => monsterSpawnScript(args),
 };
 
-const SIMPLE_CAVE: readonly Architect<unknown>[] = [
+const SIMPLE_CAVE = [
   {
     name: "Filled Cave",
     ...BASE,
@@ -123,5 +123,5 @@ const SIMPLE_CAVE: readonly Architect<unknown>[] = [
     ),
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.2,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 export default SIMPLE_CAVE;
