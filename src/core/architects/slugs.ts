@@ -1,4 +1,4 @@
-import { Architect } from "../models/architect";
+import { Architect, BaseMetadata } from "../models/architect";
 import { Tile } from "../models/tiles";
 import {
   PartialArchitect,
@@ -13,16 +13,18 @@ import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
 
-const getSlugHoles = (
-  args: Parameters<Architect<unknown>["slugSpawnScript"]>[0],
-) =>
+const getSlugHoles = (args: Parameters<Architect<any>["slugSpawnScript"]>[0]) =>
   args.plan.innerPearl.flatMap((layer) =>
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
   );
 
-const SLUG_NEST: PartialArchitect<unknown> = {
+const SLUG_NEST_METADATA = {
+  tag: "slugNest",
+} as const satisfies BaseMetadata;
+
+const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
   ...DefaultCaveArchitect,
-  isSlugNest: true,
+  prime: () => SLUG_NEST_METADATA,
   placeCrystals(args) {
     sprinkleCrystals(args, {
       seamBias: Math.max(args.cavern.context.caveCrystalSeamBias, 0.5),
@@ -66,7 +68,7 @@ const SLUG_NEST: PartialArchitect<unknown> = {
   },
 };
 
-const SLUG_HALL: PartialArchitect<unknown> = {
+const SLUG_HALL: PartialArchitect<undefined> = {
   ...DefaultHallArchitect,
   crystalsToPlace: ({ plan }) =>
     Math.max(plan.crystalRichness * plan.perimeter, 5),
@@ -105,7 +107,7 @@ const SLUG_HALL: PartialArchitect<unknown> = {
   },
 };
 
-const SLUGS: readonly Architect<unknown>[] = [
+const SLUGS = [
   {
     name: "Slug Nest",
     ...SLUG_NEST,
@@ -128,7 +130,7 @@ const SLUGS: readonly Architect<unknown>[] = [
       !plan.fluid &&
       !plan.hasErosion &&
       intersectsOnly(plans, plan, null) &&
-      !plans.some((p) => p.architect?.isSlugNest) &&
+      !plans.some((p) => p.metadata?.tag === "slugNest") &&
       0.25,
   },
   {
@@ -151,5 +153,5 @@ const SLUGS: readonly Architect<unknown>[] = [
       !plan.hasErosion &&
       1,
   },
-];
+] as const satisfies readonly Architect<any>[];
 export default SLUGS;

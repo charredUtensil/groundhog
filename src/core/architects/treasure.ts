@@ -1,4 +1,4 @@
-import { Architect } from "../models/architect";
+import { Architect, BaseMetadata } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
@@ -13,12 +13,16 @@ import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 
-const BASE: PartialArchitect<unknown> = {
+const METADATA = {
+  tag: "treasure",
+} as const satisfies BaseMetadata;
+
+const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
-  isTreasure: true,
+  prime: () => METADATA,
   objectives: ({ cavern }) => {
     const crystals = cavern.plans
-      .filter((plan) => plan.architect.isTreasure)
+      .filter((plan) => plan.metadata?.tag === "treasure")
       .reduce((r, plan) => Math.max(r, plan.crystals), 0);
     if (crystals < 15) {
       return undefined;
@@ -114,7 +118,7 @@ const RICH: typeof BASE = {
     }),
 };
 
-const TREASURE: readonly Architect<unknown>[] = [
+const TREASURE = [
   {
     name: "Open Hoard",
     ...HOARD,
@@ -233,5 +237,5 @@ const TREASURE: readonly Architect<unknown>[] = [
       intersectsOnly(plans, plan, null) &&
       0.5,
   },
-];
+] as const satisfies readonly Architect<typeof METADATA>[];
 export default TREASURE;

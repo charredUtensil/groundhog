@@ -163,10 +163,10 @@ export type ReplaceFn<T extends Tile> = (
 
 export function mkRough(
   ...args: Layer<ReplaceFn<RoughTile>>[]
-): Pick<Architect<unknown>, "roughExtent" | "rough"> {
+): Pick<Architect<any>, "roughExtent" | "rough"> {
   const layers = fixLayers(args);
 
-  const roughExtent: Architect<unknown>["roughExtent"] =
+  const roughExtent: Architect<any>["roughExtent"] =
     layers[layers.length - 1].of === Rough.VOID
       ? (plan) => {
           const ly = expand(layers, plan.pearlRadius);
@@ -179,7 +179,7 @@ export function mkRough(
         }
       : (plan) => plan.pearlRadius;
 
-  const rough: Architect<unknown>["rough"] = ({ cavern, plan, tiles }) => {
+  const rough: Architect<any>["rough"] = ({ cavern, plan, tiles }) => {
     const rng = cavern.dice.rough(plan.id);
     const replacements = expand(layers, plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {

@@ -25,8 +25,8 @@ export type CavernContext = {
   /** The root seed for the dice box. */
   seed: number;
 
-  /** Indicates this Context is not purely derived from the given seed. */
-  hasOverrides: boolean;
+  /** Any values not infered directly from the seed. */
+  overrides: readonly string[];
   /**
    * Which biome this map is in. Biome affects the default setting for some
    * other context values, such as how much water or lava a map has.
@@ -370,8 +370,7 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 }
 
 export function inferContextDefaults(
-  args: Partial<Omit<CavernContext, "hasOverrides">> &
-    Pick<CavernContext, "seed">,
+  args: Partial<Omit<CavernContext, "overrides">> & Pick<CavernContext, "seed">,
 ): CavernContext {
   const dice = new DiceBox(args.seed);
   const r = {
@@ -405,6 +404,8 @@ export function inferContextDefaults(
     hasSlugs,
     heightTargetRange,
     ...r,
-    hasOverrides: Object.keys(args).length > 1,
+    overrides: Object.keys(args)
+      .filter((k) => k !== "seed")
+      .sort(),
   };
 }

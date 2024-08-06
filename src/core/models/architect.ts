@@ -24,13 +24,17 @@ type SpawnBidArgs = {
   readonly plan: FloodedPlan;
 };
 
-type BidArgs = SpawnBidArgs & {
-  readonly plans: readonly CollapseUnion<FloodedPlan | EstablishedPlan>[];
+export type BaseMetadata = { readonly tag: string } | undefined;
+
+type BidArgs<T extends BaseMetadata> = SpawnBidArgs & {
+  readonly plans: readonly CollapseUnion<
+    FloodedPlan | EstablishedPlan<T | BaseMetadata>
+  >[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
 };
 
-type EstablishArgs<T> = {
+type EstablishArgs<T extends BaseMetadata> = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
   readonly plan: ArchitectedPlan<T>;
   readonly totalCrystals: number;
@@ -41,13 +45,11 @@ type PrimeArgs = {
   readonly plan: FloodedPlan;
 };
 
-type PlanWithMetadata<T> = Plan & { readonly metadata: T };
-
-export type BaseArchitect<T extends Readonly<T>> = {
+export type BaseArchitect<T extends BaseMetadata> = {
   readonly name: string;
 
-  caveBid?(args: BidArgs): number | false;
-  hallBid?(args: BidArgs): number | false;
+  caveBid?(args: BidArgs<T>): number | false;
+  hallBid?(args: BidArgs<T>): number | false;
   spawnBid?(args: SpawnBidArgs): number | false;
 
   prime(args: PrimeArgs): T;
@@ -57,22 +59,22 @@ export type BaseArchitect<T extends Readonly<T>> = {
   crystalsFromMetadata(metadata: T): number;
   ore(args: EstablishArgs<T>): number;
 
-  roughExtent(plan: EstablishedPlan): number;
+  roughExtent(plan: EstablishedPlan<T>): number;
 
   rough(args: {
     cavern: FoundationPlasticCavern;
-    plan: PlanWithMetadata<T>;
+    plan: Plan<T>;
     tiles: MutableGrid<RoughTile>;
   }): void;
 
   placeRechargeSeam(args: {
     readonly cavern: RoughPlasticCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
   }): void;
   placeBuildings(args: {
     readonly cavern: RoughPlasticCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
     readonly crystals: MutableGrid<number>;
     readonly ore: MutableGrid<number>;
@@ -82,35 +84,35 @@ export type BaseArchitect<T extends Readonly<T>> = {
   }): void;
   placeCrystals(args: {
     readonly cavern: RoughPlasticCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
     readonly crystals: MutableGrid<number>;
   }): void;
   placeOre(args: {
     readonly cavern: RoughPlasticCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
     readonly ore: MutableGrid<number>;
   }): void;
   placeSlugHoles(args: {
     readonly cavern: RoughPlasticCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
   }): void;
 
   placeLandslides(args: {
     readonly cavern: StrataformedCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly landslides: MutableGrid<Landslide>;
   }): void;
   placeErosion(args: {
     readonly cavern: StrataformedCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly erosion: MutableGrid<Erosion>;
   }): void;
   placeEntities(args: {
     readonly cavern: StrataformedCavern;
-    readonly plan: PlanWithMetadata<T>;
+    readonly plan: Plan<T>;
     readonly creatureFactory: CreatureFactory;
     readonly creatures: Creature[];
     readonly minerFactory: MinerFactory;
@@ -127,28 +129,18 @@ export type BaseArchitect<T extends Readonly<T>> = {
   readonly maxSlope: number | undefined;
 
   scriptGlobals(args: { cavern: EnscribedCavern }): string | undefined;
-  script(args: {
-    cavern: EnscribedCavern;
-    plan: PlanWithMetadata<T>;
-  }): string | undefined;
+  script(args: { cavern: EnscribedCavern; plan: Plan<T> }): string | undefined;
   monsterSpawnScript(args: {
     cavern: EnscribedCavern;
-    plan: PlanWithMetadata<T>;
+    plan: Plan<T>;
   }): string | undefined;
   slugSpawnScript(args: {
     cavern: EnscribedCavern;
-    plan: PlanWithMetadata<T>;
+    plan: Plan<T>;
   }): string | undefined;
-
-  isHq: boolean;
-  isLostMiners: boolean;
-  isNomads: boolean;
-  isRuin: boolean;
-  isSlugNest: boolean;
-  isTreasure: boolean;
 };
 
-export type Architect<T> = BaseArchitect<T> &
+export type Architect<T extends BaseMetadata> = BaseArchitect<T> &
   (
     | { caveBid: NonNullable<BaseArchitect<T>["caveBid"]> }
     | { hallBid: NonNullable<BaseArchitect<T>["hallBid"]> }

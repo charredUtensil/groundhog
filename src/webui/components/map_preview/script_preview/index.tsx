@@ -1,9 +1,4 @@
-import React, {
-  Fragment,
-  createRef,
-  useLayoutEffect,
-  useMemo,
-} from "react";
+import React, { Fragment, createRef, useLayoutEffect, useMemo } from "react";
 import { Cavern } from "../../../../core/models/cavern";
 import styles from "./styles.module.scss";
 import { Point } from "../../../../core/common/geometry";
@@ -117,10 +112,12 @@ export function ScriptOverlay({
   cavern,
   scriptLineOffsets,
   scriptLineHovered,
+  scale,
 }: {
   cavern: Cavern | undefined;
   scriptLineOffsets: number[];
   scriptLineHovered: number;
+  scale: number;
 }) {
   const statements = useMemo(
     () => (cavern?.script ? parse(cavern.script) : undefined),
@@ -162,7 +159,7 @@ export function ScriptOverlay({
           return null;
         }
         const lx = -9999;
-        const ly = scriptLineOffsets[i];
+        const ly = scriptLineOffsets[i] / scale;
         const px = (pos[0] + ox + 0.5) * SCALE;
         const py = (pos[1] + oy + 0.5) * SCALE;
         const bx = px - Math.abs(py - ly) * 0.3;

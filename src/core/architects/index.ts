@@ -11,7 +11,7 @@ import SLUGS from "./slugs";
 import THIN_HALL from "./thin_hall";
 import TREASURE from "./treasure";
 
-export const ARCHITECTS: readonly Architect<unknown>[] = [
+export const ARCHITECTS = [
   ...ESTABLISHED_HQ,
   ...FLOODED,
   ...LOOPBACK,
@@ -23,4 +23,6 @@ export const ARCHITECTS: readonly Architect<unknown>[] = [
   ...SLUGS,
   ...THIN_HALL,
   ...TREASURE,
-];
+] as const satisfies readonly Architect<any>[];
+
+export type AnyMetadata = ReturnType<(typeof ARCHITECTS)[number]["prime"]>;

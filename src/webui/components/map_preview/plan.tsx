@@ -9,7 +9,7 @@ import { MapOverlay } from ".";
 
 const SCALE = 6;
 
-function getGClassName(plan: Partial<Plan>) {
+function getGClassName(plan: Partial<Plan<any>>) {
   const r = [styles.plan];
   plan.kind && r.push(styles[`${plan.kind}Kind`]);
   plan.path?.kind && r.push(styles[`${plan.path.kind}PathKind`]);
@@ -22,7 +22,7 @@ function drawRadius(pearlRadius: number) {
   return pearlRadius + 1;
 }
 
-function caveWithOneBaseplate(plan: Partial<Plan>) {
+function caveWithOneBaseplate(plan: Partial<Plan<any>>) {
   const [x, y] = plan.path!.baseplates[0].center;
   return (
     <circle
@@ -86,7 +86,7 @@ function dWrapping(
   ].join("");
 }
 
-function caveWithTwoBaseplates(plan: Partial<Plan>) {
+function caveWithTwoBaseplates(plan: Partial<Plan<any>>) {
   const [a, b] = plan.path!.baseplates.map((bp) => {
     const [x, y] = bp.center;
     return {
@@ -99,7 +99,7 @@ function caveWithTwoBaseplates(plan: Partial<Plan>) {
   return <path className={styles.bg} d={dWrapping(a, b)} />;
 }
 
-function hall(plan: Partial<Plan>) {
+function hall(plan: Partial<Plan<any>>) {
   const bps = plan.path!.baseplates;
   const d = bps
     .map((bp, i) => {

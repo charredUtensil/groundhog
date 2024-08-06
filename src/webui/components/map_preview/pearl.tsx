@@ -22,7 +22,7 @@ export default function PearlPreview({
   plan,
   pearl,
 }: {
-  plan: PearledPlan;
+  plan: PearledPlan<any>;
   pearl: "innerPearl" | "outerPearl";
 }) {
   const io = pearl === "outerPearl" ? plan.innerPearl.length : 0;
