@@ -1,5 +1,5 @@
-import { Architect } from "../models/architect";
-import { DefaultHallArchitect } from "./default";
+import { Architect, BaseMetadata } from "../models/architect";
+import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { escapeString, eventChain, mkVars, scriptFragment, transformPoint } from "./utils/script";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
@@ -10,7 +10,9 @@ import { Hardness, Tile } from "../models/tiles";
 // Fissure halls are not drillable, but suddenly crack open without any player
 // involvement after being discovered.
 
-function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan) {
+const METADATA = {tag: 'fissure'} as const satisfies BaseMetadata;
+
+function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
   const used: true[] = [];
   return plan.innerPearl[0].filter(pos => {
     const dz = cavern.discoveryZones.get(...pos);
@@ -22,7 +24,7 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan) {
   })
 }
 
-const sVars = (plan: Plan) => mkVars(`p${plan.id}Fissure`, [
+const sVars = (plan: Plan<any>) => mkVars(`p${plan.id}Fissure`, [
   'onDiscover',
   `onTrip`,
   `msgForeshadow`,
@@ -30,8 +32,9 @@ const sVars = (plan: Plan) => mkVars(`p${plan.id}Fissure`, [
   'tripCount',
 ]);
 
-const BASE: typeof DefaultHallArchitect = {
+const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
+  prime: () => METADATA,
   script: ({cavern, plan}) => {
     const v = sVars(plan);
     const discoveryPoints = getDiscoveryPoints(cavern, plan);
@@ -89,7 +92,7 @@ const BASE: typeof DefaultHallArchitect = {
   },
 };
 
-const FISSURE: readonly Architect<unknown>[] = [
+const FISSURE = [
   {
     name: "Fissure Hall",
     ...BASE,
@@ -97,12 +100,13 @@ const FISSURE: readonly Architect<unknown>[] = [
       { of: Rough.SOLID_ROCK },
       { of: Rough.VOID, grow: 1},
     ),
-    hallBid: ({ plan }) =>
+    hallBid: ({ plan, plans }) =>
       !plan.fluid &&
       plan.path.kind === 'auxiliary' &&
       plan.path.exclusiveSnakeDistance > 1 &&
+      !plan.intersects.some((_, i) => plans[i].metadata?.tag === 'fissure') &&
       1,
   },
-];
+] as const satisfies readonly Architect<typeof METADATA>[];
 
 export default FISSURE;
