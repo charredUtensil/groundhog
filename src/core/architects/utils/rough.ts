@@ -137,13 +137,13 @@ const _Rough = {
     hardRock: Tile.FLOOR,
     solidRock: Tile.LOOSE_ROCK,
   }),
-}
+};
 
 export const Rough = {
   ..._Rough,
   MIX_DIRT_LOOSE_ROCK: weightedSprinkle(
     { item: _Rough.DIRT, bid: 1 },
-    { item: _Rough.LOOSE_ROCK, bid: 4},
+    { item: _Rough.LOOSE_ROCK, bid: 4 },
   ),
   MIX_LOOSE_HARD_ROCK: weightedSprinkle(
     { item: _Rough.LOOSE_ROCK, bid: 4 },
@@ -153,7 +153,7 @@ export const Rough = {
     { item: _Rough.AT_MOST_LOOSE_ROCK, bid: 10 },
     { item: _Rough.AT_MOST_HARD_ROCK, bid: 1 },
     { item: _Rough.VOID, bid: 4 },
-  )
+  ),
 } as const;
 
 export type ReplaceFn<T extends Tile> = (
@@ -163,10 +163,10 @@ export type ReplaceFn<T extends Tile> = (
 
 export function mkRough(
   ...args: Layer<ReplaceFn<RoughTile>>[]
-): Pick<Architect<unknown>, "roughExtent" | "rough"> {
+): Pick<Architect<any>, "roughExtent" | "rough"> {
   const layers = fixLayers(args);
 
-  const roughExtent: Architect<unknown>["roughExtent"] =
+  const roughExtent: Architect<any>["roughExtent"] =
     layers[layers.length - 1].of === Rough.VOID
       ? (plan) => {
           const ly = expand(layers, plan.pearlRadius);
@@ -179,7 +179,7 @@ export function mkRough(
         }
       : (plan) => plan.pearlRadius;
 
-  const rough: Architect<unknown>["rough"] = ({ cavern, plan, tiles }) => {
+  const rough: Architect<any>["rough"] = ({ cavern, plan, tiles }) => {
     const rng = cavern.dice.rough(plan.id);
     const replacements = expand(layers, plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {

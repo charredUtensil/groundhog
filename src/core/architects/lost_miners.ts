@@ -31,7 +31,8 @@ import {
   transformPoint,
 } from "./utils/script";
 
-type Metadata = {
+export type LostMinersMetadata = {
+  readonly tag: "lostMiners";
   readonly minersCount: number;
 };
 
@@ -46,10 +47,9 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
-    if (plan.architect.isLostMiners) {
-      const metadata = plan.metadata as Metadata;
+    if (plan.metadata?.tag === "lostMiners") {
       lostMinerCaves++;
-      lostMiners += metadata.minersCount;
+      lostMiners += plan.metadata.minersCount;
     }
   });
   return { lostMiners, lostMinerCaves };
@@ -59,7 +59,7 @@ function getBreadcrumbPoint(
   cavern: DiscoveredCavern,
   [minersX, minersY]: Point,
   minersDz: DiscoveryZone,
-  plan: Plan,
+  plan: Plan<any>,
 ): Point {
   if (!plan.hops.length) {
     throw new Error("Reached spawn without a breadcrumb");
@@ -102,7 +102,7 @@ function getBreadcrumbPoint(
 
 function placeBreadcrumbVehicle(
   cavern: StrataformedCavern,
-  plan: Plan,
+  plan: Plan<any>,
   [x, y]: Point,
   vehicles: Vehicle[],
   vehicleFactory: VehicleFactory,
@@ -134,7 +134,7 @@ function placeBreadcrumbVehicle(
 }
 
 const pickMinerPoint = (
-  plan: Plan,
+  plan: Plan<any>,
   {
     tiles,
     discoveryZones,
@@ -148,12 +148,12 @@ const pickMinerPoint = (
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
   });
 
-const BASE: PartialArchitect<Metadata> = {
+const BASE: PartialArchitect<LostMinersMetadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
-    return { minersCount };
+    return { tag: "lostMiners", minersCount };
   },
   placeEntities: ({
     cavern,
@@ -248,14 +248,13 @@ const BASE: PartialArchitect<Metadata> = {
       eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
     );
   },
-  isLostMiners: true,
 };
 
 // The L.M.S. Explorer's teleporters just seem to be real lousy in ice
 // caverns for some reason.
 const MULTIPLIERS = { rock: 1.0, ice: 1.4, lava: 0.7 } as const;
 
-const LOST_MINERS: readonly Architect<Metadata>[] = [
+const LOST_MINERS = [
   {
     name: "Lost Miners",
     ...BASE,
@@ -271,9 +270,11 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       hops.length > 3 &&
       hops.length <= 8 &&
       isDeadEnd(plan) &&
-      plans.reduce((r, p) => (p.architect?.isLostMiners ? r + 1 : r), 0) < 4 &&
+      plans.reduce(
+        (r, p) => (p.metadata?.tag === "lostMiners" ? r + 1 : r),
+        0,
+      ) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
-];
-
+] as const satisfies readonly Architect<LostMinersMetadata>[];
 export default LOST_MINERS;

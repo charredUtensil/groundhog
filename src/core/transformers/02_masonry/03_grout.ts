@@ -46,13 +46,14 @@ export default function grout(cavern: RoughPlasticCavern): RoughPlasticCavern {
       t !== Tile.SOLID_ROCK &&
       !NSEW.some(([ox, oy]) => {
         const ot = tiles.get(x + ox, y + oy);
-        return ot && ot !== Tile.HARD_ROCK && ot !== Tile.SOLID_ROCK
+        return ot && ot !== Tile.HARD_ROCK && ot !== Tile.SOLID_ROCK;
       })
     ) {
       tiles.set(x, y, Tile.HARD_ROCK);
     } else if (
       // If the point is not wall and should be, make it dirt
-      !t.isWall && isHole(tiles, x, y)
+      !t.isWall &&
+      isHole(tiles, x, y)
     ) {
       tiles.set(x, y, Tile.DIRT);
     } else if (

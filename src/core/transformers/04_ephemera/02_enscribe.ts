@@ -21,15 +21,13 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
       [
         seed.substring(6),
         { rock: "k", ice: "e", lava: "a" }[cavern.context.biome],
-        cavern.context.hasOverrides ? "x" : "",
+        cavern.context.overrides.length ? "x" : "",
       ].join(""),
     ].join("-");
   })();
 
   const lore = new Lore(cavern);
-  const { premise, orders, success, failure } = lore.briefings(
-    cavern.dice,
-  );
+  const { premise, orders, success, failure } = lore.briefings(cavern.dice);
   const briefing = {
     intro: `${premise.text}\n\n${orders.text}`,
     success: success.text,

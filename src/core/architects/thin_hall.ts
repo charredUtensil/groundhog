@@ -4,10 +4,10 @@ import {
   SUPER_TELEPORT,
   SUPPORT_STATION,
 } from "../models/building";
-import { DefaultHallArchitect } from "./default";
+import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 
-const BASE: typeof DefaultHallArchitect = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultHallArchitect,
 };
 
@@ -19,16 +19,18 @@ const HARD_ROCK_MIN_CRYSTALS =
   1 +
   5;
 
-const THIN_HALL: readonly Architect<unknown>[] = [
+const THIN_HALL = [
   {
     name: "Thin Open Hall",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR },
-      { of: weightedSprinkle(
-        { item: Rough.AT_MOST_HARD_ROCK, bid: 1 },
-        { item: Rough.VOID, bid: 10 },
-      )},
+      {
+        of: weightedSprinkle(
+          { item: Rough.AT_MOST_HARD_ROCK, bid: 1 },
+          { item: Rough.VOID, bid: 10 },
+        ),
+      },
       { of: Rough.VOID, grow: 1 },
     ),
     hallBid: ({ plan }) => !plan.fluid && 0.2,
@@ -57,5 +59,5 @@ const THIN_HALL: readonly Architect<unknown>[] = [
       plan.path.exclusiveSnakeDistance < 10 &&
       0.7,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 export default THIN_HALL;

@@ -52,7 +52,7 @@ type Emerge = {
   readonly radius: number;
 };
 
-function getEmerges(plan: Plan): Emerge[] {
+function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
     const [x, y] = bp.center;
     return { x: Math.floor(x), y: Math.floor(y), radius: bp.pearlRadius };
@@ -72,7 +72,7 @@ function cycleEmerges(
   return result;
 }
 
-function getArmTriggers(cavern: EnscribedCavern, plan: Plan, armFn: string) {
+function getArmTriggers(cavern: EnscribedCavern, plan: Plan<any>, armFn: string) {
   const discoveryPoint = getDiscoveryPoint(cavern, plan);
   if (discoveryPoint) {
     // There is a non-wall tile that starts undiscovered.
@@ -83,13 +83,13 @@ function getArmTriggers(cavern: EnscribedCavern, plan: Plan, armFn: string) {
   return [`if(time:0)[${armFn}]`];
 }
 
-function getTriggerPoints(cavern: EnscribedCavern, plan: Plan): Point[] {
+function getTriggerPoints(cavern: EnscribedCavern, plan: Plan<any>): Point[] {
   // Pick any tile that was set with a value, even if it is solid rock.
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
 }
 
 export function monsterSpawnScript(
-  args: { cavern: EnscribedCavern; plan: Plan },
+  args: { cavern: EnscribedCavern; plan: Plan<any> },
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -102,7 +102,7 @@ export function monsterSpawnScript(
 }
 
 export function slugSpawnScript(
-  args: { cavern: EnscribedCavern; plan: Plan },
+  args: { cavern: EnscribedCavern; plan: Plan<any> },
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -116,7 +116,7 @@ export function slugSpawnScript(
 }
 
 function creatureSpawnScript(
-  { cavern, plan }: { cavern: EnscribedCavern; plan: Plan },
+  { cavern, plan }: { cavern: EnscribedCavern; plan: Plan<any> },
   opts: CreatureSpawnerArgs,
 ) {
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
@@ -219,13 +219,13 @@ function creatureSpawnScript(
       ? [
           ...plan.innerPearl[0].map(
             (point) =>
-              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`
+              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
           ),
           eventChain(
             v.doRetrigger,
             `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
           ),
-        ] 
+        ]
       : []),
   );
 }

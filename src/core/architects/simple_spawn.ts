@@ -1,7 +1,7 @@
 import { Architect } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
 import { Tile } from "../models/tiles";
-import { DefaultCaveArchitect } from "./default";
+import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { getBuildings } from "./utils/buildings";
 import { intersectsOnly } from "./utils/intersects";
@@ -10,7 +10,7 @@ import { position } from "../models/position";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { slugSpawnScript } from "./utils/creature_spawners";
 
-const BASE: typeof DefaultCaveArchitect = {
+const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   crystalsToPlace: () => 5,
   placeRechargeSeam: getPlaceRechargeSeams(1),
@@ -59,7 +59,7 @@ const OPEN = mkRough(
   { of: Rough.MIX_FRINGE },
 );
 
-const SIMPLE_SPAWN: readonly Architect<unknown>[] = [
+const SIMPLE_SPAWN = [
   {
     name: "Open Spawn",
     ...BASE,
@@ -94,5 +94,5 @@ const SIMPLE_SPAWN: readonly Architect<unknown>[] = [
     crystalsToPlace: () => 9,
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius >= 2 && 0.01,
   },
-];
+] as const satisfies readonly Architect<undefined>[];
 export default SIMPLE_SPAWN;

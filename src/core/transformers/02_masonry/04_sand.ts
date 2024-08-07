@@ -16,5 +16,5 @@ export default function sand(cavern: RoughPlasticCavern): RoughPlasticCavern {
       tiles.set(x, y, Tile.LOOSE_ROCK);
     }
   });
-  return {...cavern, tiles};
+  return { ...cavern, tiles };
 }
