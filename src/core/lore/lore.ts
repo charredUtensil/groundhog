@@ -292,10 +292,6 @@ export class Lore {
   }
 
   generateSeismicForeshadow(rng: PseudorandomStream) {
-    return SEISMIC_FORESHADOW.generate(
-      rng,
-      this.state,
-      this.vars,
-    )
+    return SEISMIC_FORESHADOW.generate(rng, this.state, this.vars);
   }
 }

@@ -12,6 +12,7 @@ import {
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
+import { gLostMiners } from "./lost_miners";
 
 const METADATA = {
   tag: "treasure",
@@ -85,9 +86,12 @@ const HOARD: typeof BASE = {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
+    const hasLostMiners = cavern.plans.some(
+      (p) => p.metadata?.tag === "lostMiners",
+    );
+
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    // TODO(charredutensil): Need to figure out clashes with lost miners
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
@@ -99,10 +103,14 @@ const HOARD: typeof BASE = {
         `((${g.wasTriggered}))return;`,
         `${g.wasTriggered}=true;`,
         `wait:1;`,
+        `${g.wasTriggered}=false;`,
+        // If there's a lost miners objective that isn't fulfilled, don't
+        // act like the level is done.
+        hasLostMiners && `((${gLostMiners.done}<1))return;`,
         // Count all the crystals in storage and on the floor.
         `${g.crystalsAvailable}=crystals+Crystal_C;`,
         // If this is enough to win the level, alert the player.
-        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${g.wasTriggered}=false];`,
+        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))${v.go};`,
       ),
       eventChain(v.go, `msg:${g.message};`, `pan:${centerPoint};`),
     );

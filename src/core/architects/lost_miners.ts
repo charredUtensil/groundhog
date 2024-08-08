@@ -36,7 +36,7 @@ export type LostMinersMetadata = {
   readonly minersCount: number;
 };
 
-const g = mkVars("gLostMiners", [
+export const gLostMiners = mkVars("gLostMiners", [
   "lostMinersCount",
   "onFoundAll",
   "messageFoundAll",
@@ -200,23 +200,23 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
           ? "Find the cave with the lost Rock Radiers"
           : `Find ${lostMiners} lost Rock Raiders`;
     return {
-      variables: [{ condition: `${g.done}>0`, description }],
+      variables: [{ condition: `${gLostMiners.done}>0`, description }],
       sufficient: true,
     };
   },
   scriptGlobals({ cavern }) {
-    const lostMiners = countLostMiners(cavern);
+    const { lostMiners } = countLostMiners(cavern);
     const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
       `# Globals: Lost Miners`,
-      `int ${g.lostMinersCount}=${lostMiners}`,
-      `int ${g.done}=0`,
-      `string ${g.messageFoundAll}="${escapeString(message)}"`,
+      `int ${gLostMiners.lostMinersCount}=${lostMiners}`,
+      `int ${gLostMiners.done}=0`,
+      `string ${gLostMiners.messageFoundAll}="${escapeString(message)}"`,
       eventChain(
-        g.onFoundAll,
-        `msg:${g.messageFoundAll};`,
+        gLostMiners.onFoundAll,
+        `msg:${gLostMiners.messageFoundAll};`,
         `wait:3;`,
-        `${g.done}=1;`,
+        `${gLostMiners.done}=1;`,
       ),
     );
   },
@@ -242,8 +242,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       eventChain(
         v.onDiscover,
         `pan:${lostMinersPoint};`,
-        `${g.lostMinersCount}-=${plan.metadata.minersCount};`,
-        `((${g.lostMinersCount}>0))[${v.onIncomplete}][${g.onFoundAll}];`,
+        `${gLostMiners.lostMinersCount}-=${plan.metadata.minersCount};`,
+        `((${gLostMiners.lostMinersCount}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
       ),
       eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
     );

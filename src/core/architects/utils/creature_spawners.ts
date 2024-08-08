@@ -72,12 +72,16 @@ function cycleEmerges(
   return result;
 }
 
-function getArmTriggers(cavern: EnscribedCavern, plan: Plan<any>, armFn: string) {
+function getArmTriggers(
+  cavern: EnscribedCavern,
+  plan: Plan<any>,
+  armFn: string,
+) {
   const discoveryPoint = getDiscoveryPoint(cavern, plan);
   if (discoveryPoint) {
     // There is a non-wall tile that starts undiscovered.
     // Enable when it is discovered.
-    return[`if(change:${transformPoint(cavern, discoveryPoint)})[${armFn}]`];
+    return [`if(change:${transformPoint(cavern, discoveryPoint)})[${armFn}]`];
   }
   // Just enable on init.
   return [`if(time:0)[${armFn}]`];
@@ -141,7 +145,9 @@ function creatureSpawnScript(
   const meanCooldown = (60 * waveSize) / spawnRate;
 
   const armEvent = opts.armEvent ?? v.doArm;
-  const armTriggers = opts.armEvent ? [] : getArmTriggers(cavern, plan, armEvent);
+  const armTriggers = opts.armEvent
+    ? []
+    : getArmTriggers(cavern, plan, armEvent);
   const cooldownOffset = meanCooldown / 4;
   const cooldown = {
     min: meanCooldown - cooldownOffset,
@@ -173,16 +179,18 @@ function creatureSpawnScript(
       armEvent,
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-      armTriggers.length !== 1 &&
-        `((${v.state}>${STATE.INITIAL}))return;`,
+      armTriggers.length !== 1 && `((${v.state}>${STATE.INITIAL}))return;`,
       `${v.state}=${STATE.ARMED};`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
-  
+
     // Do the actual spawning.
-    ...needTriggerPoints ? triggerPoints.map(
-      (point) => `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`,
-    ): [],
+    ...(needTriggerPoints
+      ? triggerPoints.map(
+          (point) =>
+            `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`,
+        )
+      : []),
     eventChain(
       v.doSpawn,
 
@@ -206,11 +214,14 @@ function creatureSpawnScript(
       // Update the counter.
       once
         ? `${v.state}=${STATE.EXHAUSTED};`
-        : opts.maxTriggerCount !== undefined && `((${v.triggerCount}>=${opts.maxTriggerCount}))${v.state}=${STATE.EXHAUSTED};`,
+        : opts.maxTriggerCount !== undefined &&
+            `((${v.triggerCount}>=${opts.maxTriggerCount}))${v.state}=${STATE.EXHAUSTED};`,
       // Wait for the cooldown period.
-      !once && `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
+      !once &&
+        `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
       // Re-arm if in cooldown.
-      !once && `((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.ARMED}][${v.state}=${STATE.EXHAUSTED}];`
+      !once &&
+        `((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.ARMED}][${v.state}=${STATE.EXHAUSTED}];`,
     ),
 
     // Hoard mode must be "manually" re-armed by a monster visiting the hoard

@@ -14,6 +14,10 @@ export type SerializedCavern = ProgrammedCavern & {
   serialized: string;
 };
 
+// If any of these are found in the level output, assume JavaScript did
+// something stupid and throw an error.
+const RESTRICTED_STRINGS = ["[object Object]", "undefined", "NaN"] as const;
+
 function indent(it: string, prefix: string) {
   return it
     .split(/\r?\n/)
@@ -66,6 +70,18 @@ export function serializeHazards(
   return Array.from(out.entries())
     .map(([key, points]) => `${key}:${pointSet(points, offset)}`)
     .join("\n");
+}
+
+function performErrorChecking(serialized: string) {
+  serialized.split("\n").forEach((line, i) => {
+    RESTRICTED_STRINGS.forEach((restricted) => {
+      if (line.includes(restricted)) {
+        throw new Error(
+          `Found restricted string ${JSON.stringify(restricted)} on line ${i}:\n${line}`,
+        );
+      }
+    });
+  });
 }
 
 export default function serialize(cavern: ProgrammedCavern): SerializedCavern {
@@ -152,5 +168,6 @@ ${
 
 }`;
 
+  performErrorChecking(serialized);
   return { ...cavern, serialized };
 }

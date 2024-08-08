@@ -15,6 +15,11 @@ export type AeratedCavern = PopulatedCavern & {
   readonly aerationLog: null | Grid<true>;
 };
 
+const MIN_STARTING_AIR = 1000;
+const MIN_AIR_CAP = 3000;
+const FALLBACK_AIR = 8000;
+const AIR_STEP = 250;
+
 // Some timing stats
 const TIMING = {
   // Time required to walk across 1 tile.
@@ -108,6 +113,8 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
     ore -= 5 + SUPPORT_STATION.ore;
   }
 
+  crystals = Math.min(crystals, -1);
+
   const origin = getOrigin(cavern);
 
   function drillTiming(t: Tile) {
@@ -190,7 +197,7 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
         // Failure mode: This simulation can't figure out how to build a
         // Support Station. Use an arbitrary high air quantity.
         console.log("Unable to playtest this level for air consumption.");
-        return { ...cavern, oxygen: [8000, 8000], aerationLog };
+        return { ...cavern, oxygen: [FALLBACK_AIR, FALLBACK_AIR], aerationLog };
       }
     }
   }
@@ -203,13 +210,13 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
 
   // Multiply by safety factor and round up to the nearest 250.
   air *= cavern.context.airSafetyFactor;
-  air = Math.max(500, Math.ceil(air / 250) * 250);
+  air = Math.max(MIN_STARTING_AIR, Math.ceil(air / AIR_STEP) * AIR_STEP);
 
   // Larger caverns should have more max air, even if the starting air is low.
   const maxAir = Math.max(
     air,
-    3000,
-    Math.ceil((cavern.context.targetSize * 80) / 250) * 250,
+    MIN_AIR_CAP,
+    Math.ceil((cavern.context.targetSize * 80) / AIR_STEP) * AIR_STEP,
   );
 
   return { ...cavern, oxygen: [air, maxAir], aerationLog };

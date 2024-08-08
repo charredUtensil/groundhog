@@ -17,7 +17,7 @@ export type AnyMetadata =
   | HqMetadata
   | LostMinersMetadata
   | NomadsMetadata
-  | { tag: 'fissure' | "slugNest" | "treasure" };
+  | { tag: "fissure" | "slugNest" | "treasure" };
 
 export const ARCHITECTS = [
   ...ESTABLISHED_HQ,
