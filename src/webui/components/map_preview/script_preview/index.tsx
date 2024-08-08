@@ -129,44 +129,35 @@ export function ScriptOverlay({
   const ox = cavern.left!;
   const oy = cavern.top!;
   return (
-    <>
-      <g className={styles.tiles}>
-        {statements!.map(({ kind, pos }, i) => {
-          if (!pos || scriptLineOffsets[i] === undefined) {
-            return null;
-          }
-          const active = true;
-          const className = filterTruthy([
-            styles.tile,
-            active ? styles.active : styles.inactive,
-            scriptLineHovered === i && styles.hovered,
-            styles[kind],
-          ]).join(" ");
-          return (
-            <rect
-              key={i}
-              className={className}
-              x={(pos[0] + ox) * SCALE}
-              y={(pos[1] + oy) * SCALE}
-              width={SCALE}
-              height={SCALE}
-            />
-          );
-        })}
-      </g>
-      {parse(cavern.script).map(({ kind, pos }, i) => {
-        if (
-          !pos ||
-          scriptLineOffsets[i] === undefined ||
-          scriptLineHovered !== i
-        ) {
+    <g className={styles.scriptOverlay}>
+      {statements!.map(({ kind, pos }, i) => {
+        if (!pos || scriptLineOffsets[i] === undefined) {
           return null;
         }
         const className = filterTruthy([
-          styles.arrow,
+          styles.tile,
           scriptLineHovered === i && styles.hovered,
           styles[kind],
         ]).join(" ");
+        return (
+          <rect
+            key={i}
+            className={className}
+            x={(pos[0] + ox) * SCALE}
+            y={(pos[1] + oy) * SCALE}
+            width={SCALE}
+            height={SCALE}
+          />
+        );
+      })}
+      {parse(cavern.script).map(({ kind, pos }, i) => {
+        if (
+          !pos ||
+          scriptLineHovered !== i ||
+          scriptLineOffsets[i] === undefined
+        ) {
+          return null;
+        }
         const lx = -9999;
         const ly = scriptLineOffsets[i] / scale;
         const px = (pos[0] + ox + 0.5) * SCALE;
@@ -177,13 +168,27 @@ export function ScriptOverlay({
           `L ${bx} ${ly}`,
           `L ${lx} ${ly}`,
         ]).join("");
+        const cr = 10;
+        const tr = 4;
         return (
           <Fragment key={i}>
-            <path className={className} d={d} />
-            <circle className={className} cx={px} cy={py} r={10} />
+            <path className={`${styles.arrow} ${styles[kind]}`} d={d} />
+            <circle
+              className={`${styles.arrowhead} ${styles[kind]}`}
+              cx={px}
+              cy={py}
+              r={cr}
+            />
+            <rect
+              className={`${styles.tile} ${styles[kind]}`}
+              x={px - tr}
+              y={py - tr}
+              width={2 * tr}
+              height={2 * tr}
+            />
           </Fragment>
         );
       })}
-    </>
+    </g>
   );
 }

@@ -1,7 +1,7 @@
 import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster, weightedSprinkle } from "./utils/oyster";
+import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { sprinkleCrystals } from "./utils/resources";
@@ -25,11 +25,16 @@ const FLOODED = [
   {
     name: "Lake",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.WATER, grow: 2 },
       { of: Rough.FLOOR, shrink: 1, grow: 1 },
       { of: Rough.LOOSE_ROCK },
-      { of: Rough.LOOSE_OR_HARD_ROCK },
+      {
+        of: weightedSprinkle(
+          { item: Rough.LOOSE_ROCK, bid: 10 },
+          { item: Rough.LOOSE_OR_HARD_ROCK, bid: 1 },
+        ),
+      },
     ),
     caveBid: ({ plan }) =>
       plan.fluid === Tile.WATER && plan.pearlRadius < 10 && 1,
@@ -37,7 +42,7 @@ const FLOODED = [
   {
     name: "Lake With Sleeping Monsters",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.WATER, grow: 2 },
       { of: Rough.FLOOR, grow: 1 },
       { of: Rough.LOOSE_ROCK },
@@ -60,7 +65,7 @@ const FLOODED = [
   {
     name: "Island",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.2 },
       { of: Rough.ALWAYS_LOOSE_ROCK, width: 0, grow: 0.2 },
@@ -69,7 +74,7 @@ const FLOODED = [
       { of: Rough.WATER, grow: 2 },
       { of: Rough.FLOOR, grow: 1 },
       { of: Rough.LOOSE_ROCK },
-      { of: Rough.LOOSE_OR_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
     caveBid: ({ plan }) =>
       plan.fluid === Tile.WATER && plan.pearlRadius > 5 && 2,
@@ -77,7 +82,7 @@ const FLOODED = [
   {
     name: "Lava Lake",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.LAVA, grow: 2 },
       { of: Rough.FLOOR, grow: 1 },
       { of: Rough.LOOSE_ROCK, shrink: 1 },
@@ -89,7 +94,7 @@ const FLOODED = [
   {
     name: "Lava Island",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.2 },
       { of: Rough.ALWAYS_LOOSE_ROCK, width: 0, grow: 0.2 },
@@ -105,7 +110,7 @@ const FLOODED = [
   {
     name: "Peninsula",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.2 },
       { of: Rough.ALWAYS_LOOSE_ROCK, width: 0, grow: 0.2 },
@@ -113,7 +118,7 @@ const FLOODED = [
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 0.1 },
       { of: Rough.BRIDGE_ON_WATER, grow: 2 },
       { of: Rough.LOOSE_ROCK },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
     caveBid: ({ plans, plan }) =>
       plan.fluid === Tile.WATER &&
@@ -125,7 +130,7 @@ const FLOODED = [
   {
     name: "Lava Peninsula",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.2 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 0.2 },
@@ -144,7 +149,7 @@ const FLOODED = [
     name: "Lava Stalagmite Cave",
     ...BASE,
     crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
-    ...new RoughOyster(
+    ...mkRough(
       {
         of: weightedSprinkle(
           { item: Rough.ALWAYS_DIRT, bid: 0.01 },

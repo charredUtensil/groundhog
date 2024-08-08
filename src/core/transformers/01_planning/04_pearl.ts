@@ -169,8 +169,11 @@ export default function pearl(
     const innerPearl: Point[][] = [grid.map((_, x, y) => [x, y])];
     const outerPearl: Point[][] = [];
     const pearlRadius = plan.architect.roughExtent(plan);
-    for (let i = 1; i <= pearlRadius; i++) {
+    for (let i = 1; i < pearlRadius; i++) {
       innerPearl.push(addLayer(grid, rng, plan.baroqueness, i));
+    }
+    if (pearlRadius > 0) {
+      innerPearl.push(addLayer(grid, rng, 0, pearlRadius));
     }
     for (let i = 1; i < 4; i++) {
       outerPearl.push(addLayer(grid, rng, 0, i + pearlRadius));

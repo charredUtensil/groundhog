@@ -1,6 +1,6 @@
 import { NSEW, Point } from "../../common/geometry";
 import { Tile } from "../../models/tiles";
-import { FinePlasticCavern } from "./04_fine";
+import { FinePlasticCavern } from "./05_fine";
 
 function isInPlay(voidNeighbors: Point[]) {
   if (voidNeighbors.length === 2) {

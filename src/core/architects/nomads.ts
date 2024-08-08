@@ -1,6 +1,6 @@
 import { Architect } from "../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
@@ -26,7 +26,7 @@ import {
 import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
-import { gFoundHq } from "./established_hq";
+import { gLostHq } from "./established_hq";
 
 export type NomadsMetadata = {
   readonly tag: "nomads";
@@ -157,7 +157,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
       return scriptFragment(
-        "Nomads Globals (With HQ)",
+        "# Globals: Nomads with Lost HQ",
         `if(time:0)[${gNomads.onInit}]`,
         eventChain(
           gNomads.onInit,
@@ -165,7 +165,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
           "disable:buildings;",
           "disable:vehicles;",
         ),
-        `if(${gFoundHq.foundHq}>0)[${gNomads.onFoundHq}]`,
+        `if(${gLostHq.foundHq}>0)[${gNomads.onFoundHq}]`,
         eventChain(
           gNomads.onFoundHq,
           "enable:miners;",
@@ -179,7 +179,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     const msg = escapeString(cavern.lore.nomadsSettled(cavern.dice).text);
 
     return scriptFragment(
-      "# Nomads Globals (No HQ)",
+      "# Globals: Nomads, no HQ",
       `string ${gNomads.messageBuiltBase}="${msg}"`,
       `if(${SUPPORT_STATION.id}.new)[${gNomads.onBuiltBase}]`,
       eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
@@ -191,10 +191,10 @@ const NOMAD_SPAWN = [
   {
     name: "Nomad Spawn",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
     crystalsToPlace: ({ plan }) =>
       Math.max(plan.crystalRichness * plan.perimeter, 5),
@@ -211,12 +211,12 @@ const NOMAD_SPAWN = [
   {
     name: "Nomad Spawn Peninsula",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
       { of: Rough.BRIDGE_ON_WATER, width: 2, grow: 0.5 },
       { of: Rough.FLOOR },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
     prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [RAPID_RIDER] }),
     spawnBid: ({ cavern, plan }) =>
@@ -228,7 +228,7 @@ const NOMAD_SPAWN = [
   {
     name: "Nomad Spawn Lava Peninsula",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
       { of: Rough.BRIDGE_ON_LAVA, width: 2, grow: 0.5 },
       { of: Rough.FLOOR },

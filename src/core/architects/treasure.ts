@@ -1,7 +1,7 @@
 import { Architect, BaseMetadata } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
   eventChain,
@@ -12,6 +12,7 @@ import {
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
+import { gLostMiners } from "./lost_miners";
 
 const METADATA = {
   tag: "treasure",
@@ -66,6 +67,7 @@ const HOARD: typeof BASE = {
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
       meanWaveSize: args.plan.monsterWaveSize * 1.5,
+      retriggerMode: "hoard",
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
@@ -73,34 +75,42 @@ const HOARD: typeof BASE = {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
-    return `# Hoard Globals
-bool ${g.wasTriggered}=false
-string ${g.message}="${cavern.lore.foundHoard(cavern.dice).text}"
-int ${g.crystalsAvailable}=0
-`;
+    return scriptFragment(
+      "# Globals: Hoard",
+      `bool ${g.wasTriggered}=false`,
+      `string ${g.message}="${cavern.lore.foundHoard(cavern.dice).text}"`,
+      `int ${g.crystalsAvailable}=0`,
+    );
   },
   script({ cavern, plan }) {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
+    const hasLostMiners = cavern.plans.some(
+      (p) => p.metadata?.tag === "lostMiners",
+    );
+
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    // TODO(charredutensil): Need to figure out clashes with lost miners
     const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
-      `# Hoard ${plan.id}`,
+      `# P${plan.id}: Hoard`,
       `if(change:${centerPoint})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
         `((${g.wasTriggered}))return;`,
         `${g.wasTriggered}=true;`,
         `wait:1;`,
+        `${g.wasTriggered}=false;`,
+        // If there's a lost miners objective that isn't fulfilled, don't
+        // act like the level is done.
+        hasLostMiners && `((${gLostMiners.done}<1))return;`,
         // Count all the crystals in storage and on the floor.
         `${g.crystalsAvailable}=crystals+Crystal_C;`,
         // If this is enough to win the level, alert the player.
-        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))[${v.go}][${g.wasTriggered}=false];`,
+        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))${v.go};`,
       ),
       eventChain(v.go, `msg:${g.message};`, `pan:${centerPoint};`),
     );
@@ -112,7 +122,6 @@ const RICH: typeof BASE = {
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
       meanWaveSize: args.plan.monsterWaveSize * 1.5,
-      retriggerMode: "hoard",
       spawnRate: args.plan.monsterSpawnRate * 2,
     }),
 };
@@ -121,7 +130,7 @@ const TREASURE = [
   {
     name: "Open Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 3 },
       { of: Rough.LOOSE_ROCK, shrink: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
@@ -136,7 +145,7 @@ const TREASURE = [
   {
     name: "Sealed Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 1, grow: 3 },
       { of: Rough.ALWAYS_LOOSE_ROCK },
       { of: Rough.ALWAYS_HARD_ROCK, grow: 0.5 },
@@ -150,7 +159,7 @@ const TREASURE = [
   {
     name: "Open Rich Cave",
     ...RICH,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.5 },
       { of: Rough.LOOSE_ROCK, grow: 2 },
@@ -164,7 +173,7 @@ const TREASURE = [
   {
     name: "Rich Island",
     ...RICH,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.5 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 2 },
@@ -189,7 +198,7 @@ const TREASURE = [
   {
     name: "Peninsula Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.BRIDGE_ON_WATER, width: 2, grow: 3 },
       { of: Rough.LOOSE_ROCK, shrink: 1 },
@@ -206,7 +215,7 @@ const TREASURE = [
   {
     name: "Rich Lava Island",
     ...RICH,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK, width: 0, grow: 0.5 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 2 },
@@ -223,7 +232,7 @@ const TREASURE = [
   {
     name: "Lava Peninsula Hoard",
     ...HOARD,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.BRIDGE_ON_LAVA, width: 2, grow: 3 },
       { of: Rough.HARD_ROCK, grow: 0.5 },

@@ -16,6 +16,7 @@ const ErrorPreview = ({
   <div className={styles.popoverWrapper}>
     <div className={styles.error}>
       <h2>Cavern generation failed</h2>
+      <p>{error.message}</p>
       <p>
         This isn't supposed to happen. Please consider{" "}
         <a href={getBugLink(error, context)} target="_blank" rel="noreferrer">
@@ -29,7 +30,6 @@ const ErrorPreview = ({
           seed: {context?.seed.toString(16).padStart(8, "0").toUpperCase()}
         </li>
         <li>overrides: {context?.overrides.join(", ") || "[none]"}</li>
-        <li>error: {error.message}</li>
         <li>line: {error.stack?.split("\n", 1)[0]}</li>
       </ul>
       {error.stack && (

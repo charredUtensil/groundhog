@@ -6,9 +6,11 @@ import {
   FOUND_HOARD,
   FOUND_HQ,
   FOUND_LOST_MINERS,
+  FOUND_SLUG_NEST,
 } from "./events";
 import ORDERS from "./orders";
 import PREMISE from "./premise";
+import { SEISMIC_FORESHADOW } from "./seismic";
 
 function expectCompletion(
   actual: PhraseGraph<any>,
@@ -46,7 +48,7 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(skip, state("spawnHasErosion"))
     .then(skip, state("treasureCaveOne", "treasureCaveMany"))
     .then(
-      skip,
+        skip,
       state("spawnIsNomadOne", "spawnIsNomadsTogether"),
       state("spawnIsHq").then(hasHq).then(cut),
     )
@@ -92,4 +94,12 @@ test(`Found hoard is complete`, () => {
 
 test(`Found HQ is complete`, () => {
   expectCompletion(FOUND_HQ, EXPECTED);
+});
+
+test(`Found Slug Nest is complete`, () => {
+  expectCompletion(FOUND_SLUG_NEST, EXPECTED);
+});
+
+test(`Seismic Foreshadow is complete`, () => {
+  expectCompletion(SEISMIC_FORESHADOW, EXPECTED);
 });

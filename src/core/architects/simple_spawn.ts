@@ -2,7 +2,7 @@ import { Architect } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { getBuildings } from "./utils/buildings";
 import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";
@@ -53,10 +53,10 @@ const BASE: PartialArchitect<undefined> = {
   maxSlope: 15,
 };
 
-const OPEN = new RoughOyster(
+const OPEN = mkRough(
   { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
   { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
-  { of: Rough.AT_MOST_HARD_ROCK },
+  { of: Rough.MIX_FRINGE },
 );
 
 const SIMPLE_SPAWN = [
@@ -73,10 +73,10 @@ const SIMPLE_SPAWN = [
   {
     name: "Spawn",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.LOOSE_ROCK, grow: 1 },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
     spawnBid: ({ cavern, plan }) =>
       !plan.fluid &&

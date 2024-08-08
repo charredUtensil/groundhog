@@ -273,11 +273,11 @@ const STANDARD_DEFAULTS = {
   baseplateMaxOblongness: 3,
   baseplateMaxRatioOfSize: 0.33,
   caveCount: 20,
-  optimalAuxiliaryPathCount: 0,
-  randomAuxiliaryPathCount: 4,
+  optimalAuxiliaryPathCount: 2,
+  randomAuxiliaryPathCount: 3,
   auxiliaryPathMinAngle: Math.PI / 4,
-  caveBaroqueness: 0.14,
-  hallBaroqueness: 0.05,
+  caveBaroqueness: 0.16,
+  hallBaroqueness: 0.07,
   caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
   hallCrystalRichness: { base: 0.07, hops: 0, order: 0 },
   caveOreRichness: { base: 1.19, hops: -0.16, order: -0.08 },
@@ -381,7 +381,7 @@ export function inferContextDefaults(
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 78 }),
     ...args,
   };
-  const hasAirLimit = false; // dice.init(Die.hasAirLimit).chance(0.75);
+  const hasAirLimit = dice.init(Die.hasAirLimit).chance(0.75);
   const hasSlugs = dice.init(Die.hasSlugs).chance(
     {
       rock: 0.25,
