@@ -39,8 +39,6 @@ function expectCompletion(
 }
 
 const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
-  const hasHq = pg(pg(), state("hqIsRuin"));
-
   start
     .then(skip, state("floodedWithLava", "floodedWithWater"))
     .then(skip, state("hasMonsters"))
@@ -48,12 +46,16 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(skip, state("spawnHasErosion"))
     .then(skip, state("treasureCaveOne", "treasureCaveMany"))
     .then(
+      pg(skip, state("spawnIsNomadOne", "spawnIsNomadsTogether")).then(
         skip,
-      state("spawnIsNomadOne", "spawnIsNomadsTogether"),
-      state("spawnIsHq").then(hasHq).then(cut),
+        state("findHq").then(skip, state("hqIsRuin")),
+      ),
+      state("spawnIsHq").then(
+        skip,
+        state("hqIsFixedComplete"),
+        state("hqIsRuin"),
+      ),
     )
-    .then(skip, state("findHq").then(hasHq).then(cut))
-    .then(skip, cut.then(hasHq))
     .then(
       state("resourceObjective"),
       state("lostMinersOne", "lostMinersTogether", "lostMinersApart").then(

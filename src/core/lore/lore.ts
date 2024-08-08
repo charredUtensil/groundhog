@@ -29,6 +29,7 @@ export type State = {
   readonly hasSlugs: boolean;
   readonly spawnHasErosion: boolean;
   readonly spawnIsHq: boolean;
+  readonly hqIsFixedComplete: boolean;
   readonly spawnIsNomadOne: boolean;
   readonly spawnIsNomadsTogether: boolean;
   readonly findHq: boolean;
@@ -174,6 +175,7 @@ export class Lore {
       (p) => p.metadata?.tag === "hq",
     ) as Plan<HqMetadata>;
     const spawnIsHq = spawn === hq;
+    const hqIsFixedComplete = hq?.metadata.fixedComplete;
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
@@ -202,6 +204,7 @@ export class Lore {
       spawnHasErosion: spawn.hasErosion,
       spawnIsHq,
       findHq,
+      hqIsFixedComplete,
       hqIsRuin,
       spawnIsNomadOne: nomads === 1,
       spawnIsNomadsTogether: nomads > 1,

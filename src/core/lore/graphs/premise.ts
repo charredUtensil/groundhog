@@ -50,8 +50,20 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       "we have reason to believe there are dozens of ${enemies} just out of sight",
     );
 
+    const hqIsFixedComplete = state("hqIsFixedComplete")
+      .then(
+        "the teleporters are operating in a low-power mode, so",
+        "our engineers tell me that",
+      )
+      .then(
+        "you will not be able to construct any more buildings.",
+        "you must make do with the buildings that are already constructed.",
+      );
+
     spawnHasErosion.then(", and").then(hasMonstersTexts);
-    return pg(spawnHasErosion, hasMonstersTexts).then(".").then(end);
+    return pg(spawnHasErosion, hasMonstersTexts, hqIsFixedComplete.then(end))
+      .then(".")
+      .then(end, hqIsFixedComplete);
   })();
 
   // Weird case to explain: Find HQ, but the HQ is intact and there are no lost miners.
@@ -265,6 +277,14 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         .then(skip, findTheOthers.then(cut)),
     )
     .then(
+      state("hqIsFixedComplete")
+        .then(
+          "While the teleporters have been repaired, they are operating in" +
+            "a low-power mode and cannot send down any buildings.",
+          "We cannot risk running the teleporters at full power, so you will" +
+            "have to make do with the buildings that are already there.",
+        )
+        .then(alsoAdditionalHardship),
       pg(
         "Our engineers have assured us the teleporters have been repaired, " +
           "but",

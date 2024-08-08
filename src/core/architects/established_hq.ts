@@ -2,12 +2,14 @@ import Delaunator from "delaunator";
 import { Point, plotLine } from "../common/geometry";
 import { Architect } from "../models/architect";
 import {
+  ALL_BUILDINGS as ALL_BUILDING_TEMPLATES,
   Building,
   CANTEEN,
   DOCKS,
   GEOLOGICAL_CENTER,
   MINING_LASER,
   POWER_STATION,
+  SUPER_TELEPORT,
   SUPPORT_STATION,
   TELEPORT_PAD,
   TOOL_STORE,
@@ -18,7 +20,11 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { MakeBuildingFn, getBuildings } from "./utils/buildings";
 import { mkRough, Rough } from "./utils/rough";
 import { position } from "../models/position";
-import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
+import {
+  getPlaceRechargeSeams,
+  getTotalCrystals,
+  sprinkleCrystals,
+} from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
 import {
   escapeString,
@@ -41,12 +47,26 @@ const T3_BUILDINGS = [
   MINING_LASER,
 ] as const;
 
+const FIXED_COMPLETE_BUILDINGS = [
+  TOOL_STORE,
+  TELEPORT_PAD,
+  POWER_STATION,
+  SUPPORT_STATION,
+  DOCKS,
+  TOOL_STORE,
+  SUPER_TELEPORT,
+  UPGRADE_STATION,
+  GEOLOGICAL_CENTER,
+  SUPPORT_STATION,
+] as const;
+
 const OMIT_T1 = T0_BUILDINGS.length;
-const MAX_HOPS = 3;
+const MAX_HOPS_FOR_FIND_HQ = 3;
 
 export type HqMetadata = {
   readonly tag: "hq";
   readonly ruin: boolean;
+  readonly fixedComplete: boolean;
   readonly crystalsInBuildings: number;
 };
 
@@ -62,13 +82,18 @@ function getPrime(
       min: 3,
       max: maxCrystals,
     });
-    return { crystalsInBuildings, ruin, tag: "hq" };
+    return { crystalsInBuildings, ruin, fixedComplete: false, tag: "hq" };
   };
 }
 
 function getPlaceBuildings({
   discovered = false,
   from = 2,
+  templates,
+}: {
+  discovered?: boolean;
+  from?: number;
+  templates?: readonly Building["template"][];
 }): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
     const asRuin = args.plan.metadata.ruin;
@@ -76,7 +101,7 @@ function getPlaceBuildings({
 
     // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
-    const tq = [
+    const tq = templates ?? [
       ...T0_BUILDINGS,
       ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
       ...rng.shuffle(T2_BUILDINGS),
@@ -114,7 +139,7 @@ function getPlaceBuildings({
           return true;
         }
       } else if (asRuin) {
-        bq.push((pos) => ({ ...bt.atTile(pos), isRuinAtSpawn: true }));
+        bq.push((pos) => ({ ...bt.atTile(pos), placeRubbleInstead: true }));
       }
       return false;
     });
@@ -130,7 +155,7 @@ function getPlaceBuildings({
     for (let i = 0; i < buildings.length; i++) {
       const building = buildings[i];
       let fTile: Tile;
-      if ("isRuinAtSpawn" in building) {
+      if ("placeRubbleInstead" in building) {
         fTile = Tile.RUBBLE_4;
       } else {
         fTile = Tile.FOUNDATION;
@@ -269,6 +294,48 @@ const WITH_FIND_OBJECTIVE: Pick<
   },
 };
 
+const gFixedCompleteHq = mkVars("gFCHQ", ["onInit"]);
+
+const FIXED_COMPLETE: Pick<
+  Architect<HqMetadata>,
+  "prime" | "placeBuildings" | "objectives" | "scriptGlobals"
+> = {
+  prime: () => ({
+    crystalsInBuildings: FIXED_COMPLETE_BUILDINGS.reduce(
+      (r, bt) => r + bt.crystals,
+      0,
+    ),
+    ruin: false,
+    fixedComplete: true,
+    tag: "hq",
+  }),
+  placeBuildings: getPlaceBuildings({
+    discovered: true,
+    templates: FIXED_COMPLETE_BUILDINGS,
+  }),
+  objectives: ({ cavern }) => {
+    return {
+      crystals: Math.floor((getTotalCrystals(cavern) * 0.3) / 5) * 5,
+      sufficient: false,
+    };
+  },
+  scriptGlobals: ({ cavern }) => {
+    const startBuildings = cavern.buildings.length;
+    return scriptFragment(
+      `# Globals: Fixed Complete HQ`,
+      `if(time:0)[${gFixedCompleteHq.onInit}]`,
+      eventChain(
+        gFixedCompleteHq.onInit,
+        // Can't just disable buildings because that disables fences - and
+        // nobody wants that.
+        ...ALL_BUILDING_TEMPLATES.map(
+          (bt) => `disable:${bt.id};` as `${string};`,
+        ),
+      ),
+    );
+  },
+};
+
 const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
   Pick<Architect<HqMetadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
@@ -293,6 +360,12 @@ export const ESTABLISHED_HQ = [
     spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
   },
   {
+    name: "Fixed Complete HQ Spawn",
+    ...BASE,
+    ...FIXED_COMPLETE,
+    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.1,
+  },
+  {
     name: "Ruined HQ Spawn",
     ...BASE,
     prime: getPrime(12, true),
@@ -311,7 +384,7 @@ export const ESTABLISHED_HQ = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
-      hops.length <= MAX_HOPS &&
+      hops.length <= MAX_HOPS_FOR_FIND_HQ &&
       !hops.some((id) => plans[id].fluid) &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       0.5,
@@ -326,7 +399,7 @@ export const ESTABLISHED_HQ = [
     caveBid: ({ plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
-      hops.length <= MAX_HOPS &&
+      hops.length <= MAX_HOPS_FOR_FIND_HQ &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
     ...WITH_FIND_OBJECTIVE,
