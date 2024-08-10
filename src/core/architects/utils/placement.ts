@@ -7,7 +7,7 @@ import { Tile } from "../../models/tiles";
 import { StrataformedCavern } from "../../transformers/03_plastic/02_strataform";
 
 export function pickPoint(
-  plan: Plan,
+  plan: Plan<any>,
   filter: (x: number, y: number) => boolean,
 ) {
   for (let ly = 0; ly < plan.innerPearl.length; ly++) {
@@ -29,7 +29,7 @@ export function pickPoint(
 
 export function circumferencePositions(
   cavern: StrataformedCavern,
-  plan: Plan,
+  plan: Plan<any>,
   count: number,
   rng: PseudorandomStream,
   filterFn: (x: number, y: number, t: Tile) => boolean,
@@ -45,7 +45,7 @@ export function circumferencePositions(
 
 export function innerPositions(
   cavern: StrataformedCavern,
-  plan: Plan,
+  plan: Plan<any>,
   count: number,
   rng: PseudorandomStream,
   filterFn: (x: number, y: number, t: Tile) => boolean,
@@ -61,7 +61,7 @@ export function innerPositions(
 
 function positionsHelper(
   cavern: StrataformedCavern,
-  plan: Plan,
+  plan: Plan<any>,
   count: number,
   rng: PseudorandomStream,
   filterFn: (x: number, y: number, t: Tile) => boolean,

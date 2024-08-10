@@ -1,6 +1,8 @@
+import { HqMetadata } from "../architects/established_hq";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
+import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
@@ -9,11 +11,13 @@ import {
   FOUND_HOARD,
   FOUND_HQ,
   FOUND_LOST_MINERS,
+  FOUND_SLUG_NEST,
   NOMADS_SETTLED,
 } from "./graphs/events";
 import { NAME } from "./graphs/names";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
+import { SEISMIC_FORESHADOW } from "./graphs/seismic";
 
 export type State = {
   readonly floodedWithWater: boolean;
@@ -58,6 +62,7 @@ enum Die {
   foundHq,
   foundAllLostMiners,
   nomadsSettled,
+  foundSlugNest,
   name,
 }
 
@@ -169,17 +174,20 @@ export class Lore {
 
     const spawn = cavern.plans.find((p) => !p.hops.length)!;
 
-    const hq = cavern.plans.find((p) => p.architect.isHq);
+    const hq = cavern.plans.find(
+      (p) => p.metadata?.tag === "hq",
+    ) as Plan<HqMetadata>;
     const spawnIsHq = spawn === hq;
     const findHq = !!hq && !spawnIsHq;
-    const hqIsRuin = !!hq && hq.architect.isRuin;
+    const hqIsRuin = !!hq?.metadata.ruin;
 
-    const nomads = spawn.architect.isNomads
-      ? ((spawn.metadata as any).minersCount as number)
-      : 0;
+    const nomads =
+      spawn.metadata?.tag === "nomads"
+        ? (spawn.metadata.minersCount as number)
+        : 0;
 
     const treasures = cavern.plans.reduce(
-      (r, plan) => (plan.architect.isTreasure ? r + 1 : r),
+      (r, plan) => (plan.metadata?.tag === "treasure" ? r + 1 : r),
       0,
     );
 
@@ -248,11 +256,7 @@ export class Lore {
   }
 
   foundHq(dice: DiceBox) {
-    return FOUND_HQ.generate(
-      dice.lore(Die.foundHq),
-      this.state,
-      this.vars,
-    );
+    return FOUND_HQ.generate(dice.lore(Die.foundHq), this.state, this.vars);
   }
 
   foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {
@@ -284,5 +288,17 @@ export class Lore {
       this.state,
       this.vars,
     );
+  }
+
+  generateFoundSlugNest(dice: DiceBox) {
+    return FOUND_SLUG_NEST.generate(
+      dice.lore(Die.foundSlugNest),
+      this.state,
+      this.vars,
+    );
+  }
+
+  generateSeismicForeshadow(rng: PseudorandomStream) {
+    return SEISMIC_FORESHADOW.generate(rng, this.state, this.vars);
   }
 }

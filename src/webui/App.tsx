@@ -130,7 +130,13 @@ function App() {
         <CavernContextInput dispatchState={dispatchState} />
       </div>
       <div className={styles.mainPanel}>
-        <div className={filterTruthy([styles.grid, isLoading && styles.loading, state.error && styles.hasError]).join(' ')} />
+        <div
+          className={filterTruthy([
+            styles.grid,
+            isLoading && styles.loading,
+            state.error && styles.hasError,
+          ]).join(" ")}
+        />
         {state.cavern && !state.error && (
           <CavernPreview
             cavern={state.cavern}

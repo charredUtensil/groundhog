@@ -1,6 +1,6 @@
 import { Architect } from "../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
@@ -26,11 +26,12 @@ import {
 import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
-import { gFoundHq } from "./established_hq";
+import { gLostHq } from "./established_hq";
 
-type Metadata = {
+export type NomadsMetadata = {
+  readonly tag: "nomads";
   readonly minersCount: number;
-  readonly vehicles: VehicleTemplate[];
+  readonly vehicles: readonly VehicleTemplate[];
 };
 
 const VEHICLE_BIDS = [
@@ -49,7 +50,7 @@ export const gNomads = mkVars("gNomads", [
   "onFoundHq",
 ]);
 
-const BASE: PartialArchitect<Metadata> = {
+const BASE: PartialArchitect<NomadsMetadata> = {
   ...DefaultCaveArchitect,
   crystalsToPlace: () => 5,
   crystalsFromMetadata: (metadata) =>
@@ -58,7 +59,7 @@ const BASE: PartialArchitect<Metadata> = {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 3, min: 1, max: 4 });
     const vehicles = filterTruthy([rng.weightedChoice(VEHICLE_BIDS)]);
-    return { minersCount, vehicles };
+    return { tag: "nomads", minersCount, vehicles };
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
   placeBuildings: ({ cavern, plan, tiles, openCaveFlags }) => {
@@ -71,7 +72,7 @@ const BASE: PartialArchitect<Metadata> = {
     );
     // If there is an HQ, ensure it is accessible to the nomads.
     cavern.plans
-      .find((p) => p.architect.isHq)
+      .find((p) => p.metadata?.tag === "hq")
       ?.hops.forEach((hopId) => {
         pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
           for (const pos of plotLine(a.center, b.center)) {
@@ -153,10 +154,10 @@ const BASE: PartialArchitect<Metadata> = {
     );
   },
   scriptGlobals({ cavern }) {
-    if (cavern.plans.some((plan) => plan.architect.isHq)) {
+    if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
       return scriptFragment(
-        "Nomads Globals (With HQ)",
+        "# Globals: Nomads with Lost HQ",
         `if(time:0)[${gNomads.onInit}]`,
         eventChain(
           gNomads.onInit,
@@ -164,7 +165,7 @@ const BASE: PartialArchitect<Metadata> = {
           "disable:buildings;",
           "disable:vehicles;",
         ),
-        `if(${gFoundHq.foundHq}>0)[${gNomads.onFoundHq}]`,
+        `if(${gLostHq.foundHq}>0)[${gNomads.onFoundHq}]`,
         eventChain(
           gNomads.onFoundHq,
           "enable:miners;",
@@ -175,28 +176,25 @@ const BASE: PartialArchitect<Metadata> = {
     }
 
     // Acknowledge the construction of a Support Station.
-    const msg = escapeString(
-      cavern.lore.nomadsSettled(cavern.dice).text,
-    );
+    const msg = escapeString(cavern.lore.nomadsSettled(cavern.dice).text);
 
     return scriptFragment(
-      "# Nomads Globals (No HQ)",
+      "# Globals: Nomads, no HQ",
       `string ${gNomads.messageBuiltBase}="${msg}"`,
       `if(${SUPPORT_STATION.id}.new)[${gNomads.onBuiltBase}]`,
       eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
     );
   },
-  isNomads: true,
 };
 
-const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
+const NOMAD_SPAWN = [
   {
     name: "Nomad Spawn",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
     crystalsToPlace: ({ plan }) =>
       Math.max(plan.crystalRichness * plan.perimeter, 5),
@@ -213,14 +211,14 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
   {
     name: "Nomad Spawn Peninsula",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
       { of: Rough.BRIDGE_ON_WATER, width: 2, grow: 0.5 },
       { of: Rough.FLOOR },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
-      { of: Rough.AT_MOST_HARD_ROCK },
+      { of: Rough.MIX_FRINGE },
     ),
-    prime: () => ({ minersCount: 1, vehicles: [RAPID_RIDER] }),
+    prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [RAPID_RIDER] }),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 4 &&
@@ -230,19 +228,19 @@ const NOMAD_SPAWN: readonly Architect<Metadata>[] = [
   {
     name: "Nomad Spawn Lava Peninsula",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
       { of: Rough.BRIDGE_ON_LAVA, width: 2, grow: 0.5 },
       { of: Rough.FLOOR },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
-    prime: () => ({ minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
+    prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
     spawnBid: ({ cavern, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 4 &&
       intersectsAny(cavern.plans, plan, null) &&
       0.5,
   },
-];
+] as const satisfies readonly Architect<NomadsMetadata>[];
 export default NOMAD_SPAWN;

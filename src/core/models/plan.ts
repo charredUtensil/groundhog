@@ -1,2 +1,3 @@
 import { PearledPlan } from "../transformers/01_planning/04_pearl";
-export type Plan = PearledPlan;
+import { BaseMetadata } from "./architect";
+export type Plan<T extends BaseMetadata> = PearledPlan<T>;

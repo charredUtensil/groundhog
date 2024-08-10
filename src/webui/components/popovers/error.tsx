@@ -6,26 +6,31 @@ function getBugLink(error: Error, context: CavernContext | undefined) {
   return "https://github.com/charredUtensil/groundhog/issues";
 }
 
-const ErrorPreview = ({error, context}: {error: Error, context: CavernContext | undefined}) => (
+const ErrorPreview = ({
+  error,
+  context,
+}: {
+  error: Error;
+  context: CavernContext | undefined;
+}) => (
   <div className={styles.popoverWrapper}>
     <div className={styles.error}>
       <h2>Cavern generation failed</h2>
+      <p>{error.message}</p>
       <p>
         This isn't supposed to happen. Please consider{" "}
-        <a
-          href={getBugLink(error, context)}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a href={getBugLink(error, context)} target="_blank" rel="noreferrer">
           filing a bug
-        </a>.
+        </a>
+        .
       </p>
       <ul className={styles.info}>
         <li>groundHog version: {process.env.REACT_APP_VERSION}</li>
-        <li>seed: {context?.seed.toString(16).padStart(8, "0").toUpperCase()}</li>
-        <li>overrides: {context?.hasOverrides ? "yes" : "no"}</li>
-        <li>error: {error.message}</li>
-        <li>line: {error.stack?.split('\n', 1)[0]}</li>
+        <li>
+          seed: {context?.seed.toString(16).padStart(8, "0").toUpperCase()}
+        </li>
+        <li>overrides: {context?.overrides.join(", ") || "[none]"}</li>
+        <li>line: {error.stack?.split("\n", 1)[0]}</li>
       </ul>
       {error.stack && (
         <>

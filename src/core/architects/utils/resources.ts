@@ -51,7 +51,7 @@ function sprinkle(
 }
 
 export function sprinkleCrystals(
-  args: Parameters<Architect<unknown>["placeCrystals"]>[0],
+  args: Parameters<Architect<any>["placeCrystals"]>[0],
   opts?: {
     count?: number;
     getRandomTile?: () => Point;
@@ -73,7 +73,7 @@ export function sprinkleCrystals(
 }
 
 export function sprinkleOre(
-  args: Parameters<Architect<unknown>["placeOre"]>[0],
+  args: Parameters<Architect<any>["placeOre"]>[0],
   opts?: {
     count?: number;
     getRandomTile?: () => Point;
@@ -94,7 +94,7 @@ export function sprinkleOre(
 
 export function bidsForOuterPearl(args: {
   cavern: RoughPlasticCavern;
-  plan: Plan;
+  plan: Plan<any>;
   tiles: Grid<Tile>;
 }): { item: Point; bid: number }[] {
   return args.plan.outerPearl.flatMap((layer) =>
@@ -151,7 +151,7 @@ export function defaultGetRandomTile(
   rng: PseudorandomStream,
   args: {
     cavern: RoughPlasticCavern;
-    plan: Plan;
+    plan: Plan<any>;
     tiles: MutableGrid<Tile>;
   },
 ) {
@@ -171,7 +171,7 @@ export function defaultGetRandomTile(
 
 export function getPlaceRechargeSeams(
   count?: number,
-): Architect<unknown>["placeRechargeSeam"] {
+): Architect<any>["placeRechargeSeam"] {
   return (args) => {
     const rng = args.cavern.dice.placeRechargeSeam(args.plan.id);
     const c =

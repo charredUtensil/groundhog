@@ -22,7 +22,7 @@ export function placeLandslides(
     landslides,
   }: {
     cavern: DiscoveredCavern;
-    plan: Plan;
+    plan: Plan<any>;
     landslides: MutableGrid<Landslide>;
   },
 ) {
@@ -59,7 +59,7 @@ export function placeErosion(
     erosion,
   }: {
     cavern: DiscoveredCavern;
-    plan: Plan;
+    plan: Plan<any>;
     erosion: MutableGrid<Erosion>;
   },
 ) {

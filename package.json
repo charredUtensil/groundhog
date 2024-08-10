@@ -1,6 +1,6 @@
 {
   "name": "groundhog",
-  "version": "0.9.5",
+  "version": "0.10.0",
   "homepage": "https://charredutensil.github.io/groundhog",
   "private": true,
   "dependencies": {

@@ -28,20 +28,22 @@
   }
 }
 
-.tiles {
-  .active.tile {
+.scriptOverlay {
+  .tile {
     fill: var(--color-codehlt);
   }
 
-  .inactive.tile {
-    fill: transparent;
+  .arrow {
+    fill: none;
+    stroke: var(--color-codehlt);
+    stroke-width: 2px;
   }
-}
 
-.arrow {
-  fill: none;
-  stroke: var(--color-codehlt);
-  stroke-width: 2px;
+  .arrowhead {
+    fill: var(--palette-bg);
+    stroke: var(--color-codehlt);
+    stroke-width: 2px;
+  }
 }
 
 .misc {

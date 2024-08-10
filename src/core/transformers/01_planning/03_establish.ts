@@ -1,16 +1,16 @@
-import { ARCHITECTS } from "../../architects";
+import { ARCHITECTS, AnyMetadata } from "../../architects";
 import { Curve } from "../../common";
 import { CollapseUnion } from "../../common/utils";
-import { Architect } from "../../models/architect";
+import { Architect, BaseMetadata } from "../../models/architect";
 import { PartialPlannedCavern } from "./00_negotiate";
 import { FloodedPlan } from "./02_flood";
 
 type SortedPlan = {
-  plan: FloodedPlan & { architect?: Architect<unknown> };
+  plan: FloodedPlan & { architect?: Architect<any> };
   hops: readonly number[];
   index: number;
 };
-export type ArchitectedPlan<T> = FloodedPlan & {
+export type ArchitectedPlan<T extends BaseMetadata> = FloodedPlan & {
   readonly hops: readonly number[];
   /** The architect to use to build out the plan. */
   readonly architect: Architect<T>;
@@ -20,7 +20,7 @@ export type ArchitectedPlan<T> = FloodedPlan & {
   readonly monsterSpawnRate: number;
   readonly monsterWaveSize: number;
 };
-export type EstablishedPlan = ArchitectedPlan<unknown> & {
+export type EstablishedPlan<T extends BaseMetadata> = ArchitectedPlan<T> & {
   /** How blobby the pearl should be. */
   readonly baroqueness: number;
   /** How many crystals the Plan will add. */
@@ -35,10 +35,10 @@ function curved(curve: Curve, props: CurveProps): number {
   return curve.base + curve.hops * props.hops + curve.order * props.order;
 }
 
-function encourageDisable(
-  architects: readonly Architect<unknown>[],
+function encourageDisable<T extends Architect<any>>(
+  architects: readonly T[],
   cavern: PartialPlannedCavern<FloodedPlan>,
-) {
+): T[] {
   return architects
     .filter((a) => cavern.context.architects?.[a.name] !== "disable")
     .map((a) => {
@@ -55,7 +55,7 @@ function encourageDisable(
 
 export default function establish(
   cavern: PartialPlannedCavern<FloodedPlan>,
-): PartialPlannedCavern<EstablishedPlan> {
+): PartialPlannedCavern<EstablishedPlan<AnyMetadata>> {
   const architects = encourageDisable(ARCHITECTS, cavern);
 
   // Choose a spawn and an architect for that spawn.
@@ -104,7 +104,7 @@ export default function establish(
   }
   const inOrder = sortPlans();
 
-  const plans: CollapseUnion<FloodedPlan | EstablishedPlan>[] =
+  const plans: CollapseUnion<FloodedPlan | EstablishedPlan<AnyMetadata>>[] =
     cavern.plans.slice();
   let totalCrystals = 0;
 
@@ -154,7 +154,7 @@ export default function establish(
       monsterWaveSize,
     };
   }
-  function doEstablish<T>(plan: ArchitectedPlan<T>) {
+  function doEstablish<T extends AnyMetadata>(plan: ArchitectedPlan<T>) {
     const args = { cavern, plan, totalCrystals };
     const baroqueness = plan.architect.baroqueness(args);
     const crystals = Math.round(
@@ -163,7 +163,7 @@ export default function establish(
     );
     totalCrystals += crystals;
     const ore = Math.round(plan.architect.ore(args));
-    const established: EstablishedPlan = {
+    const established: EstablishedPlan<T> = {
       ...plan,
       baroqueness,
       crystals,
@@ -173,5 +173,5 @@ export default function establish(
   }
   inOrder.forEach((plan) => doEstablish(doArchitect(plan)));
 
-  return { ...cavern, plans: plans as EstablishedPlan[] };
+  return { ...cavern, plans: plans as EstablishedPlan<AnyMetadata>[] };
 }

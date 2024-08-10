@@ -123,7 +123,7 @@ export function CavernContextInput({
           <div className={styles.section}>
             <div className={styles.subsection}>
               <div className={styles.inputRow}>
-                {contextWithDefaults.hasOverrides ? (
+                {contextWithDefaults.overrides.length ? (
                   <button
                     className={styles.override}
                     onClick={() => update("reset")}

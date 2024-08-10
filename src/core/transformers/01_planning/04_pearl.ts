@@ -1,14 +1,16 @@
+import { AnyMetadata } from "../../architects";
 import { PseudorandomStream } from "../../common";
 import { NSEW, Point, plotLine } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { pairEach } from "../../common/utils";
+import { BaseMetadata } from "../../models/architect";
 import { PartialPlannedCavern } from "./00_negotiate";
 import { EstablishedPlan } from "./03_establish";
 
 type Layer = readonly Point[];
 export type Pearl = readonly Layer[];
 
-export type PearledPlan = EstablishedPlan & {
+export type PearledPlan<T extends BaseMetadata> = EstablishedPlan<T> & {
   /**
    * A pearl is an array of layers (from innermost to out).
    * Each layer contains an array of [x, y] coordinates in that layer.
@@ -37,7 +39,7 @@ export class LayerGrid extends MutableGrid<number> {
   }
 }
 
-export function hallNucleus(grid: LayerGrid, plan: EstablishedPlan) {
+export function hallNucleus(grid: LayerGrid, plan: EstablishedPlan<any>) {
   pairEach(plan.path.baseplates, (a, b) => {
     for (const [x, y] of plotLine(a.center, b.center)) {
       grid.set(x, y, 0);
@@ -45,7 +47,7 @@ export function hallNucleus(grid: LayerGrid, plan: EstablishedPlan) {
   });
 }
 
-export function caveNucleus(grid: LayerGrid, plan: EstablishedPlan) {
+export function caveNucleus(grid: LayerGrid, plan: EstablishedPlan<any>) {
   // The cave nucleus is less straightforward.
 
   plan.path.baseplates.forEach((bp) => {
@@ -158,8 +160,8 @@ function addLayer(
 }
 
 export default function pearl(
-  cavern: PartialPlannedCavern<EstablishedPlan>,
-): PartialPlannedCavern<PearledPlan> {
+  cavern: PartialPlannedCavern<EstablishedPlan<AnyMetadata>>,
+): PartialPlannedCavern<PearledPlan<AnyMetadata>> {
   const plans = cavern.plans.map((plan) => {
     const rng = cavern.dice.pearl(plan.id);
     const grid: LayerGrid = new LayerGrid();
@@ -167,8 +169,11 @@ export default function pearl(
     const innerPearl: Point[][] = [grid.map((_, x, y) => [x, y])];
     const outerPearl: Point[][] = [];
     const pearlRadius = plan.architect.roughExtent(plan);
-    for (let i = 1; i <= pearlRadius; i++) {
+    for (let i = 1; i < pearlRadius; i++) {
       innerPearl.push(addLayer(grid, rng, plan.baroqueness, i));
+    }
+    if (pearlRadius > 0) {
+      innerPearl.push(addLayer(grid, rng, 0, pearlRadius));
     }
     for (let i = 1; i < 4; i++) {
       outerPearl.push(addLayer(grid, rng, 0, i + pearlRadius));

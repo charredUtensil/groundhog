@@ -3,10 +3,12 @@ import { BaseCavern } from "../../models/cavern";
 import { TriangulatedCavern } from "../00_outlines/02_triangulate";
 import { Path } from "../../models/path";
 import { Plan } from "../../models/plan";
+import { AnyMetadata } from "../../architects";
 
-export type PartialPlannedCavern<T extends Partial<Plan>> = BaseCavern & {
-  readonly plans: readonly T[];
-};
+export type PartialPlannedCavern<T extends Partial<Plan<AnyMetadata>>> =
+  BaseCavern & {
+    readonly plans: readonly T[];
+  };
 
 export type NegotiatedPlan = {
   /** Unique ID of the Plan, used for RNG and indexing. */
@@ -44,7 +46,7 @@ export default function negotiate(
   cavern: TriangulatedCavern,
 ): PartialPlannedCavern<NegotiatedPlan> {
   const bpIsInBigCave: true[] = [];
-  const queue: Pick<Plan, "kind" | "path">[][] = [[], [], []];
+  const queue: Pick<Plan<any>, "kind" | "path">[][] = [[], [], []];
 
   const paths: Path[] = [
     ...cavern.paths.filter((path) => path.kind === "spanning"),

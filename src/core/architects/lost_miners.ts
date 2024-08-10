@@ -21,7 +21,7 @@ import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
-import { Rough, RoughOyster } from "./utils/oyster";
+import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import {
   escapeString,
@@ -31,11 +31,12 @@ import {
   transformPoint,
 } from "./utils/script";
 
-type Metadata = {
+export type LostMinersMetadata = {
+  readonly tag: "lostMiners";
   readonly minersCount: number;
 };
 
-const g = mkVars("gFoundMiners", [
+export const gLostMiners = mkVars("gLostMiners", [
   "lostMinersCount",
   "onFoundAll",
   "messageFoundAll",
@@ -46,10 +47,9 @@ export function countLostMiners(cavern: PlannedCavern) {
   let lostMiners: number = 0;
   let lostMinerCaves: number = 0;
   cavern.plans.forEach((plan) => {
-    if (plan.architect.isLostMiners) {
-      const metadata = plan.metadata as Metadata;
+    if (plan.metadata?.tag === "lostMiners") {
       lostMinerCaves++;
-      lostMiners += metadata.minersCount;
+      lostMiners += plan.metadata.minersCount;
     }
   });
   return { lostMiners, lostMinerCaves };
@@ -59,7 +59,7 @@ function getBreadcrumbPoint(
   cavern: DiscoveredCavern,
   [minersX, minersY]: Point,
   minersDz: DiscoveryZone,
-  plan: Plan,
+  plan: Plan<any>,
 ): Point {
   if (!plan.hops.length) {
     throw new Error("Reached spawn without a breadcrumb");
@@ -102,7 +102,7 @@ function getBreadcrumbPoint(
 
 function placeBreadcrumbVehicle(
   cavern: StrataformedCavern,
-  plan: Plan,
+  plan: Plan<any>,
   [x, y]: Point,
   vehicles: Vehicle[],
   vehicleFactory: VehicleFactory,
@@ -134,7 +134,7 @@ function placeBreadcrumbVehicle(
 }
 
 const pickMinerPoint = (
-  plan: Plan,
+  plan: Plan<any>,
   {
     tiles,
     discoveryZones,
@@ -148,12 +148,12 @@ const pickMinerPoint = (
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
   });
 
-const BASE: PartialArchitect<Metadata> = {
+const BASE: PartialArchitect<LostMinersMetadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
     const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
-    return { minersCount };
+    return { tag: "lostMiners", minersCount };
   },
   placeEntities: ({
     cavern,
@@ -200,23 +200,23 @@ const BASE: PartialArchitect<Metadata> = {
           ? "Find the cave with the lost Rock Radiers"
           : `Find ${lostMiners} lost Rock Raiders`;
     return {
-      variables: [{ condition: `${g.done}>0`, description }],
+      variables: [{ condition: `${gLostMiners.done}>0`, description }],
       sufficient: true,
     };
   },
   scriptGlobals({ cavern }) {
-    const lostMiners = countLostMiners(cavern);
+    const { lostMiners } = countLostMiners(cavern);
     const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
-      `# Lost Miners Globals`,
-      `int ${g.lostMinersCount}=${lostMiners}`,
-      `int ${g.done}=0`,
-      `string ${g.messageFoundAll}="${escapeString(message)}"`,
+      `# Globals: Lost Miners`,
+      `int ${gLostMiners.lostMinersCount}=${lostMiners}`,
+      `int ${gLostMiners.done}=0`,
+      `string ${gLostMiners.messageFoundAll}="${escapeString(message)}"`,
       eventChain(
-        g.onFoundAll,
-        `msg:${g.messageFoundAll};`,
+        gLostMiners.onFoundAll,
+        `msg:${gLostMiners.messageFoundAll};`,
         `wait:3;`,
-        `${g.done}=1;`,
+        `${gLostMiners.done}=1;`,
       ),
     );
   },
@@ -230,36 +230,35 @@ const BASE: PartialArchitect<Metadata> = {
       rng,
       plan.metadata.minersCount,
     ).text;
-    const v = mkVars(`p${plan.id}FoundMiners`, [
+    const v = mkVars(`p${plan.id}LostMiners`, [
       "messageDiscover",
       "onDiscover",
       "onIncomplete",
     ]);
     return scriptFragment(
-      `# Lost Miners ${plan.id}`,
+      `# P${plan.id}: Lost Miners`,
       `string ${v.messageDiscover}="${escapeString(message)}"`,
       `if(change:${lostMinersPoint})[${v.onDiscover}]`,
       eventChain(
         v.onDiscover,
         `pan:${lostMinersPoint};`,
-        `${g.lostMinersCount}-=${plan.metadata.minersCount};`,
-        `((${g.lostMinersCount}>0))[${v.onIncomplete}][${g.onFoundAll}];`,
+        `${gLostMiners.lostMinersCount}-=${plan.metadata.minersCount};`,
+        `((${gLostMiners.lostMinersCount}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
       ),
       eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
     );
   },
-  isLostMiners: true,
 };
 
 // The L.M.S. Explorer's teleporters just seem to be real lousy in ice
 // caverns for some reason.
 const MULTIPLIERS = { rock: 1.0, ice: 1.4, lava: 0.7 } as const;
 
-const LOST_MINERS: readonly Architect<Metadata>[] = [
+const LOST_MINERS = [
   {
     name: "Lost Miners",
     ...BASE,
-    ...new RoughOyster(
+    ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.ALWAYS_LOOSE_ROCK, grow: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
@@ -271,9 +270,11 @@ const LOST_MINERS: readonly Architect<Metadata>[] = [
       hops.length > 3 &&
       hops.length <= 8 &&
       isDeadEnd(plan) &&
-      plans.reduce((r, p) => (p.architect?.isLostMiners ? r + 1 : r), 0) < 4 &&
+      plans.reduce(
+        (r, p) => (p.metadata?.tag === "lostMiners" ? r + 1 : r),
+        0,
+      ) < 4 &&
       MULTIPLIERS[cavern.context.biome],
   },
-];
-
+] as const satisfies readonly Architect<LostMinersMetadata>[];
 export default LOST_MINERS;

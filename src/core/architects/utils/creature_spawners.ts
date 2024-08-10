@@ -6,31 +6,36 @@ import {
   monsterForBiome,
 } from "../../models/creature";
 import { Plan } from "../../models/plan";
-import { FencedCavern } from "../../transformers/03_plastic/00_fence";
 import { EnscribedCavern } from "../../transformers/04_ephemera/02_enscribe";
 import { getDiscoveryPoint } from "./discovery";
 import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
 
 type CreatureSpawnerArgs = {
-  creature: CreatureTemplate;
-  emerges?: readonly Emerge[];
-  initialCooldown?: { min: number; max: number };
-  maxTriggerCount?: number;
-  meanWaveSize?: number;
-  needCrystals?: { base: number; increment?: number };
-  retriggerMode: RetriggerMode;
-  rng: PseudorandomStream;
-  spawnRate?: number;
-  triggerOnFirstArmed: boolean;
-  triggerPoints?: readonly Point[];
-  waveSize?: number;
+  readonly armEvent?: string;
+  readonly creature: CreatureTemplate;
+  readonly emerges?: readonly Emerge[];
+  readonly initialCooldown?: { min: number; max: number };
+  readonly maxTriggerCount?: number;
+  readonly meanWaveSize?: number;
+  readonly needCrystals?: { base: number; increment?: number };
+  readonly retriggerMode: RetriggerMode;
+  readonly rng: PseudorandomStream;
+  readonly spawnRate?: number;
+  readonly triggerOnFirstArmed: boolean;
+  readonly triggerPoints?: readonly Point[];
+  readonly waveSize?: number;
 };
 
 const STATE = {
+  /** This spawner is deactivated and can't be reactivated. */
   EXHAUSTED: 0,
-  UNDISCOVERED: 1,
+  /** This spawner has not been activated yet. */
+  INITIAL: 1,
+  /** This spawner is waiting to be reactivated by some trigger. */
   AWAITING_REARM: 2,
+  /** This spawner just activated and is waiting for time to pass. */
   COOLDOWN: 3,
+  /** This spawner is ready to activate. */
   ARMED: 4,
 } as const;
 
@@ -47,7 +52,7 @@ type Emerge = {
   readonly radius: number;
 };
 
-function getEmerges(plan: Plan): Emerge[] {
+function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
     const [x, y] = bp.center;
     return { x: Math.floor(x), y: Math.floor(y), radius: bp.pearlRadius };
@@ -67,13 +72,28 @@ function cycleEmerges(
   return result;
 }
 
-function getTriggerPoints(cavern: FencedCavern, plan: Plan): Point[] {
+function getArmTriggers(
+  cavern: EnscribedCavern,
+  plan: Plan<any>,
+  armFn: string,
+) {
+  const discoveryPoint = getDiscoveryPoint(cavern, plan);
+  if (discoveryPoint) {
+    // There is a non-wall tile that starts undiscovered.
+    // Enable when it is discovered.
+    return [`if(change:${transformPoint(cavern, discoveryPoint)})[${armFn}]`];
+  }
+  // Just enable on init.
+  return [`if(time:0)[${armFn}]`];
+}
+
+function getTriggerPoints(cavern: EnscribedCavern, plan: Plan<any>): Point[] {
   // Pick any tile that was set with a value, even if it is solid rock.
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
 }
 
 export function monsterSpawnScript(
-  args: { cavern: EnscribedCavern; plan: Plan },
+  args: { cavern: EnscribedCavern; plan: Plan<any> },
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -86,7 +106,7 @@ export function monsterSpawnScript(
 }
 
 export function slugSpawnScript(
-  args: { cavern: EnscribedCavern; plan: Plan },
+  args: { cavern: EnscribedCavern; plan: Plan<any> },
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -100,9 +120,18 @@ export function slugSpawnScript(
 }
 
 function creatureSpawnScript(
-  { cavern, plan }: { cavern: EnscribedCavern; plan: Plan },
+  { cavern, plan }: { cavern: EnscribedCavern; plan: Plan<any> },
   opts: CreatureSpawnerArgs,
 ) {
+  const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
+    "doArm",
+    "doRetrigger",
+    "doSpawn",
+    "needCrystals",
+    "state",
+    "triggerCount",
+  ]);
+
   const waveSize =
     opts.waveSize ??
     opts.rng.betaInt({
@@ -112,64 +141,56 @@ function creatureSpawnScript(
       max: (opts.meanWaveSize ?? plan.monsterWaveSize) * 1.25,
     });
   const delay = { min: 2 / waveSize, max: 15 / waveSize };
-
   const spawnRate = opts.spawnRate ?? plan.monsterSpawnRate;
   const meanCooldown = (60 * waveSize) / spawnRate;
+
+  const armEvent = opts.armEvent ?? v.doArm;
+  const armTriggers = opts.armEvent
+    ? []
+    : getArmTriggers(cavern, plan, armEvent);
   const cooldownOffset = meanCooldown / 4;
   const cooldown = {
     min: meanCooldown - cooldownOffset,
     max: meanCooldown + cooldownOffset,
   };
-
-  const discoveryPoint = getDiscoveryPoint(cavern, plan);
   const emerges = cycleEmerges(
     opts.emerges ?? getEmerges(plan),
     opts.rng,
     waveSize,
   );
+  const once = opts.maxTriggerCount === 1;
   const triggerPoints = opts.triggerPoints ?? getTriggerPoints(cavern, plan);
 
-  const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Spawner`, [
-    "needCrystals",
-    "state",
-    "triggerCount",
-    "onDiscovered",
-    "doSpawn",
-    "doRetrigger",
-  ]);
+  const needCountTriggerEvents = !once && opts.maxTriggerCount !== undefined;
+  const needTriggerPoints = !(once && opts.triggerOnFirstArmed);
+
   return scriptFragment(
-    `# Spawn ${opts.creature.id} x${waveSize} ${plan.id}`,
+    `# P${plan.id}: Spawn ${opts.creature.name} x${waveSize}`,
 
     // Declare variables
-    `int ${v.state}=${STATE.UNDISCOVERED}`,
-    opts.maxTriggerCount !== undefined && `int ${v.triggerCount}=0`,
+    `int ${v.state}=${STATE.INITIAL}`,
+    needCountTriggerEvents && `int ${v.triggerCount}=0`,
     opts.needCrystals?.increment !== undefined &&
       `int ${v.needCrystals}=${opts.needCrystals.base}`,
 
-    // Discovery
-    discoveryPoint
-      ? /*
-         * If there is a non-wall tile that starts undiscovered, generate an onDiscovered
-         * event chain that triggers when that tile changes (i.e. it becomes
-         * discovered).
-         */
-        `if(change:${transformPoint(cavern, discoveryPoint)})[${v.onDiscovered}]`
-      : // Otherwise, just enable on init.
-        `if(time:0)[${v.onDiscovered}]`,
+    // Enable
+    ...armTriggers,
     eventChain(
-      v.onDiscovered,
+      armEvent,
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
+      armTriggers.length !== 1 && `((${v.state}>${STATE.INITIAL}))return;`,
       `${v.state}=${STATE.ARMED};`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
 
-    // Trigger points
-    ...triggerPoints.map(
-      (point) => `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`,
-    ),
-
-    // Do the actual spawning
+    // Do the actual spawning.
+    ...(needTriggerPoints
+      ? triggerPoints.map(
+          (point) =>
+            `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`,
+        )
+      : []),
     eventChain(
       v.doSpawn,
 
@@ -180,7 +201,7 @@ function creatureSpawnScript(
 
       // Update variables before triggering.
       `${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState};`,
-      opts.maxTriggerCount !== undefined && `${v.triggerCount}+=1;`,
+      needCountTriggerEvents && `${v.triggerCount}+=1;`,
       opts.needCrystals?.increment !== undefined &&
         `${v.needCrystals}=crystals+${opts.needCrystals.increment};`,
 
@@ -191,25 +212,31 @@ function creatureSpawnScript(
       ]) as `${string};`[]),
 
       // Update the counter.
-      opts.maxTriggerCount !== undefined &&
-        `((${v.triggerCount}>=${opts.maxTriggerCount}))${v.state}=${STATE.EXHAUSTED};`,
+      once
+        ? `${v.state}=${STATE.EXHAUSTED};`
+        : opts.maxTriggerCount !== undefined &&
+            `((${v.triggerCount}>=${opts.maxTriggerCount}))${v.state}=${STATE.EXHAUSTED};`,
       // Wait for the cooldown period.
-      `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
+      !once &&
+        `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
       // Re-arm if in cooldown.
-      `((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.ARMED}][${v.state}=${STATE.EXHAUSTED}];`,
+      !once &&
+        `((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.ARMED}][${v.state}=${STATE.EXHAUSTED}];`,
     ),
 
     // Hoard mode must be "manually" re-armed by a monster visiting the hoard
     // within cooldown.
-    ...(opts.retriggerMode === "hoard"
-      ? plan.innerPearl[0].map(
-          (point) =>
-            `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
+    ...(!once && opts.retriggerMode === "hoard"
+      ? [
+          ...plan.innerPearl[0].map(
+            (point) =>
+              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
+          ),
           eventChain(
             v.doRetrigger,
             `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
           ),
-        )
+        ]
       : []),
   );
 }

@@ -25,8 +25,8 @@ export type CavernContext = {
   /** The root seed for the dice box. */
   seed: number;
 
-  /** Indicates this Context is not purely derived from the given seed. */
-  hasOverrides: boolean;
+  /** Any values not infered directly from the seed. */
+  overrides: readonly string[];
   /**
    * Which biome this map is in. Biome affects the default setting for some
    * other context values, such as how much water or lava a map has.
@@ -273,11 +273,11 @@ const STANDARD_DEFAULTS = {
   baseplateMaxOblongness: 3,
   baseplateMaxRatioOfSize: 0.33,
   caveCount: 20,
-  optimalAuxiliaryPathCount: 0,
-  randomAuxiliaryPathCount: 4,
+  optimalAuxiliaryPathCount: 2,
+  randomAuxiliaryPathCount: 3,
   auxiliaryPathMinAngle: Math.PI / 4,
-  caveBaroqueness: 0.14,
-  hallBaroqueness: 0.05,
+  caveBaroqueness: 0.16,
+  hallBaroqueness: 0.07,
   caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
   hallCrystalRichness: { base: 0.07, hops: 0, order: 0 },
   caveOreRichness: { base: 1.19, hops: -0.16, order: -0.08 },
@@ -370,8 +370,7 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 }
 
 export function inferContextDefaults(
-  args: Partial<Omit<CavernContext, "hasOverrides">> &
-    Pick<CavernContext, "seed">,
+  args: Partial<Omit<CavernContext, "overrides">> & Pick<CavernContext, "seed">,
 ): CavernContext {
   const dice = new DiceBox(args.seed);
   const r = {
@@ -382,7 +381,7 @@ export function inferContextDefaults(
     targetSize: dice.init(Die.targetSize).uniformInt({ min: 50, max: 78 }),
     ...args,
   };
-  const hasAirLimit = false; // dice.init(Die.hasAirLimit).chance(0.75);
+  const hasAirLimit = dice.init(Die.hasAirLimit).chance(0.75);
   const hasSlugs = dice.init(Die.hasSlugs).chance(
     {
       rock: 0.25,
@@ -405,6 +404,8 @@ export function inferContextDefaults(
     hasSlugs,
     heightTargetRange,
     ...r,
-    hasOverrides: Object.keys(args).length > 1,
+    overrides: Object.keys(args)
+      .filter((k) => k !== "seed")
+      .sort(),
   };
 }
