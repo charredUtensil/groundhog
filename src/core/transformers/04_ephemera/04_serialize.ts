@@ -31,10 +31,17 @@ https://github.com/charredUtensil/groundhog
 context = ${JSON.stringify(cavern.context, null, 2)}`;
 }
 
-/** Coordinate data for anything that uses 'x,y/' format. */
-function pointSet(points: Point[], [ox, oy]: Point): string {
+/**
+ * Coordinate data for anything that uses 'x,y/' or 'y,x/' format.
+ * Unfortunately, MM is inconsistent and uses both.
+ */
+function pointSet(points: Point[], [ox, oy]: Point, mode: 'xy' | 'yx'): string {
   return points
-    .map(([x, y]) => `${(x + ox).toFixed()},${(y + oy).toFixed()}/`)
+    .map(([x, y]) => {
+      const xs = (x + ox).toFixed();
+      const ys = (y + oy).toFixed();
+      return mode === 'xy' ? `${xs},${ys}/` : `${ys},${xs}/`;
+    })
     .join();
 }
 
@@ -68,7 +75,8 @@ export function serializeHazards(
     }
   });
   return Array.from(out.entries())
-    .map(([key, points]) => `${key}:${pointSet(points, offset)}`)
+    .sort(([a], [b]) => parseInt(b) - parseInt(a))
+    .map(([key, points]) => `${key}:${pointSet(points, offset, 'xy')}`)
     .join("\n");
 }
 
@@ -98,9 +106,9 @@ biome:${cavern.context.biome}
 creator:groundHog
 levelname:${cavern.levelName}
 opencaves:${pointSet(
-    // Open cave flags are in the form 'y,x/' for some reason.
-    cavern.openCaveFlags.map((_, x, y) => [y, x]),
-    [-cavern.top, -cavern.left],
+    cavern.openCaveFlags.map((_, x, y) => [x, y]),
+    offset,
+    'yx',
   )}
 ${cavern.oxygen ? `oxygen:${cavern.oxygen.join("/")}` : ""}
 spiderrate:10
