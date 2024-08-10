@@ -28,6 +28,7 @@ export const NAME = phraseGraph<State>(
       ],
       lava: [
         'Asbestos',
+        'Ashen',
       ],
       last: [
         'Abyss',
@@ -102,7 +103,6 @@ export const NAME = phraseGraph<State>(
     f({
       rock: [
         'Emerald',
-        'Essexite',
         'Evaporite',
       ],
       lava: [
@@ -123,6 +123,7 @@ export const NAME = phraseGraph<State>(
       ],
       ice: [
         'Frostbite',
+        'Frosty',
       ],
       last: [
         'Folly',
@@ -161,7 +162,6 @@ export const NAME = phraseGraph<State>(
       last: [
         'Labyrinth',
         'Lair',
-        'Loop',
         'Lure',
       ],
     });
@@ -249,6 +249,7 @@ export const NAME = phraseGraph<State>(
         'Twilight',
       ],
       ice: [
+        'Taiga',
         'Titanic',
         'Tundra',
       ],
