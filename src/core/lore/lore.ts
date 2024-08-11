@@ -36,6 +36,7 @@ export type State = {
   readonly hqIsRuin: boolean;
   readonly treasureCaveOne: boolean;
   readonly treasureCaveMany: boolean;
+  readonly rockBiome: boolean;
   readonly iceBiome: boolean;
   readonly lavaBiome: boolean;
 };
@@ -211,6 +212,7 @@ export class Lore {
       spawnIsNomadsTogether: nomads > 1,
       treasureCaveOne: treasures === 1,
       treasureCaveMany: treasures > 1,
+      rockBiome: cavern.context.biome === 'rock',
       iceBiome: cavern.context.biome === 'ice',
       lavaBiome: cavern.context.biome === 'lava',
     };

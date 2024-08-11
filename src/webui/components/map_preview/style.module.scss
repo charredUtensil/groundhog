@@ -277,12 +277,17 @@
     bottom: 0;
     color: var(--palette-accent);
     background: var(--palette-bg);
-    font-family: var(--font-tiny);
-    font-size: 8px;
+    font-family: var(--font-body);
+    font-size: 12px;
     max-width: 400px;
     border: 1px solid var(--palette-settings-bg);
     padding: 4px 14px;
     margin: 16px;
+
+    h1 {
+      font-family: var(--font-cyber);
+      font-size: 20px;
+    }
 
     > ul {
       padding: 0;

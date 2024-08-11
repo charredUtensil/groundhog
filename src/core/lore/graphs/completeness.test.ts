@@ -62,7 +62,7 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         state("resourceObjective"),
       ),
     )
-    .then(skip, state('iceBiome', 'lavaBiome'))
+    .then(state('rockBiome', 'iceBiome', 'lavaBiome'))
     .then(end);
 });
 

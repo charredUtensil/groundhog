@@ -4,16 +4,15 @@ import { State } from "../lore";
 export const NAME = phraseGraph<State>(
   ({ pg, state, start, end, cut, skip }) => {
     function f({rock, ice, lava, mid, last}: {rock: string[], ice?: string[], lava?: string[], mid?: string[], last: string[]}) {
-      const a = start.then();
-      const c = pg(...last).then(skip, state('iceBiome', 'lavaBiome')).then(end);
-      const b = mid ? pg(skip, ...mid).then(c) : c;
-      a.then(...rock).then(b);
-      if (ice) {
-        a.then(state('iceBiome')).then(...ice).then(b);
-      }
-      if (lava) {
-        a.then(state('lavaBiome')).then(...lava).then(b);
-      }
+      start
+        .then(
+          state('rockBiome').then(...rock),
+          ice ? state('iceBiome').then(...ice) : cut,
+          lava ? state('lavaBiome').then(...lava) : cut,
+        )
+        .then(skip, ...(mid || []))
+        .then(...last)
+        .then(end);
     }
 
     f({
@@ -112,6 +111,7 @@ export const NAME = phraseGraph<State>(
         'Enigma',
         'Eruption',
         'Excavation',
+        'Express',
       ],
     });
 
@@ -253,11 +253,13 @@ export const NAME = phraseGraph<State>(
         'Titanic',
         'Tundra',
       ],
+      mid: [
+        'Tunnel',
+      ],
       last: [
         'Tempest',
         'Terror',
         'Trouble',
-        'Tunnel',
       ],
     });
   },

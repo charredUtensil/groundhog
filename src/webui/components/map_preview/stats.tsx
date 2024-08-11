@@ -45,7 +45,7 @@ export default function Stats({
         return (
           <>
             {cavern.levelName && (
-              <p>{cavern.levelName}</p>
+              <h1>{cavern.fileName} {cavern.levelName}</h1>
             )}
             {cavern.briefing?.intro && (
               <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
