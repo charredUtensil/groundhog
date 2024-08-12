@@ -37,7 +37,7 @@ export type LostMinersMetadata = {
 };
 
 export const gLostMiners = mkVars("gLostMiners", [
-  "lostMinersCount",
+  "remainingCaves",
   "onFoundAll",
   "messageFoundAll",
   "done",
@@ -205,11 +205,11 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     };
   },
   scriptGlobals({ cavern }) {
-    const { lostMiners } = countLostMiners(cavern);
+    const { lostMinerCaves } = countLostMiners(cavern);
     const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
       `# Globals: Lost Miners`,
-      `int ${gLostMiners.lostMinersCount}=${lostMiners}`,
+      lostMinerCaves > 1 && `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
       `int ${gLostMiners.done}=0`,
       `string ${gLostMiners.messageFoundAll}="${escapeString(message)}"`,
       eventChain(
@@ -225,25 +225,37 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       cavern,
       pickMinerPoint(plan, cavern)!,
     );
-    const rng = cavern.dice.script(plan.id);
-    const message = cavern.lore.foundLostMiners(
-      rng,
-      plan.metadata.minersCount,
-    ).text;
+    const { lostMinerCaves } = countLostMiners(cavern);
     const v = mkVars(`p${plan.id}LostMiners`, [
       "messageDiscover",
       "onDiscover",
       "onIncomplete",
     ]);
+    if (lostMinerCaves === 1) {
+      return scriptFragment(
+        `# P${plan.id}: Lost Miners in One Cave`,
+        `if(change:${lostMinersPoint})[${v.onDiscover}]`,
+        eventChain(
+          v.onDiscover,
+          `pan:${lostMinersPoint};`,
+          `${gLostMiners.onFoundAll};`,
+        ),
+      );
+    }
+    const rng = cavern.dice.script(plan.id);
+    const message = cavern.lore.foundLostMiners(
+      rng,
+      plan.metadata.minersCount,
+    ).text;
     return scriptFragment(
-      `# P${plan.id}: Lost Miners`,
+      `# P${plan.id}: Lost Miners in Multiple Caves`,
       `string ${v.messageDiscover}="${escapeString(message)}"`,
       `if(change:${lostMinersPoint})[${v.onDiscover}]`,
       eventChain(
         v.onDiscover,
         `pan:${lostMinersPoint};`,
-        `${gLostMiners.lostMinersCount}-=${plan.metadata.minersCount};`,
-        `((${gLostMiners.lostMinersCount}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
+        `${gLostMiners.remainingCaves}-=1;`,
+        `((${gLostMiners.remainingCaves}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
       ),
       eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
     );
