@@ -8,15 +8,14 @@ import { ArchitectsInput } from "./architects";
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
 function parseSeed(v: string) {
-  if (v[0] === "#") {
-    v = v.slice(1);
-  }
-  const seed = parseInt(v, 16);
+  const s = v.replace(/[^0-9a-fA-F]+/g, "");
+  const seed = s === "" ? -1 : parseInt(s, 16);
   return seed >= 0 && seed < MAX_PLUS_ONE ? seed : undefined;
 }
 
-function unparseSeed(v: number) {
-  return v.toString(16).padStart(8, "0").toUpperCase();
+function unparseSeed(v: number, split: boolean) {
+  const s = v.toString(16).padStart(8, "0").toUpperCase();
+  return split ? `${s.substring(0, 3)} ${s.substring(3, 6)} ${s.substring(6)}` : s;
 }
 
 const expectedTotalPlans = (contextWithDefaults: CavernContext) => {
@@ -73,7 +72,7 @@ export function CavernContextInput({
   }, []);
 
   useEffect(() => {
-    window.location.hash = unparseSeed(context.seed);
+    window.location.hash = unparseSeed(context.seed, false);
   }, [context.seed]);
 
   useEffect(
@@ -89,7 +88,7 @@ export function CavernContextInput({
         <input
           type="text"
           className={styles.seed}
-          value={unparseSeed(context?.seed)}
+          value={unparseSeed(context?.seed, true)}
           onChange={(ev) => {
             const seed = parseSeed(ev.target.value);
             if (seed !== undefined) {

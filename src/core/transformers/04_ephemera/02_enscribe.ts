@@ -2,6 +2,7 @@ import { Lore } from "../../lore/lore";
 import { AdjuredCavern } from "./01_adjure";
 
 export type EnscribedCavern = AdjuredCavern & {
+  fileName: string;
   lore: Lore;
   levelName: string;
   briefing: {
@@ -12,7 +13,7 @@ export type EnscribedCavern = AdjuredCavern & {
 };
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
-  const levelName = (() => {
+  const fileName = (() => {
     const seed = cavern.context.seed.toString(16).padStart(8, "0");
     return [
       "gh",
@@ -27,11 +28,14 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
   })();
 
   const lore = new Lore(cavern);
-  const { premise, orders, success, failure } = lore.briefings(cavern.dice);
+  const { name, premise, orders, success, failure } = lore.briefings(
+    cavern.dice,
+  );
+  const levelName = name.text;
   const briefing = {
     intro: `${premise.text}\n\n${orders.text}`,
     success: success.text,
     failure: failure.text,
   };
-  return { ...cavern, lore, levelName, briefing };
+  return { ...cavern, fileName, lore, levelName, briefing };
 }

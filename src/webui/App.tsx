@@ -156,15 +156,8 @@ function App() {
           />
         )}
         {mapOverlay === "about" && <About />}
-        {mapOverlay === "lore" && (
-          <LorePreview
-            briefing={state.cavern?.briefing}
-            script={state.cavern?.script}
-          />
-        )}
-        {state.error && (
-          <ErrorPreview error={state.error} context={state.cavern?.context} />
-        )}
+        {mapOverlay === "lore" && <LorePreview {...state.cavern} />}
+        {state.error && <ErrorPreview error={state.error} context={state.cavern?.context}  />}
         {!autoGenerate && state.name && (
           <div className={styles.stepName}>{state.name}</div>
         )}
@@ -183,7 +176,7 @@ function App() {
             <a
               className={styles.button}
               href={getDownloadLink(state.cavern.serialized)}
-              download={`${state.cavern.levelName ?? "groundhog"}.dat`}
+              download={`${state.cavern.fileName ?? state.cavern.levelName ?? "groundhog"}.dat`}
             >
               download
             </a>

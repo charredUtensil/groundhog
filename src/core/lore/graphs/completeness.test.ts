@@ -8,6 +8,7 @@ import {
   FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
 } from "./events";
+import { NAME } from "./names";
 import ORDERS from "./orders";
 import PREMISE from "./premise";
 import { SEISMIC_FORESHADOW } from "./seismic";
@@ -61,8 +62,13 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         state("resourceObjective"),
       ),
     )
+    .then(state('rockBiome', 'iceBiome', 'lavaBiome'))
     .then(end);
 });
+
+test(`Name is complete`, () => {
+  expectCompletion(NAME, EXPECTED);
+})
 
 test(`Premise is complete`, () => {
   expectCompletion(PREMISE, EXPECTED);

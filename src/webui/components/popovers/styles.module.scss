@@ -12,16 +12,28 @@
     background: var(--palette-bg);
     border: 1px solid var(--palette-settings-bg);
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 12px 24px;
     max-width: 500px;
     max-height: calc(100% - 100px);
     overflow-x: hidden;
     overflow-y: scroll;
 
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 4px 0;
+    }
+    
+    h1,
     h2,
     h3,
     a {
       color: var(--palette-accent);
+    }
+
+    .subhead {
+      font-size: 0.5em;
     }
 
     h3::before {
