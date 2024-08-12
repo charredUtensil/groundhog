@@ -32,16 +32,21 @@
 
   display: flex;
 
+  // Blueprints
   --pvw-bpak: #222222;
   --pvw-bpck: #2d004b;
   --pvw-bphk: #166921;
+  // Paths
   --pvw-pathspan: yellow;
   --pvw-pathaux: #24b136;
+  // Entites
   --pvw-entfriend: yellow;
   --pvw-entenemy: red;
+  // Default tile overlays
   --pvw-dfluid: #080022;
   --pvw-dfloor: #180032;
   --pvw-dwall: #2d004b;
+  // Tile overlays indicating numeric qty (ore, ec, landslideness...)
   --pvw-scale0: #555544;
   --pvw-scale1: #777744;
   --pvw-scale2: #999944;
@@ -50,6 +55,7 @@
   --pvw-scale5: #ffff44;
   --pvw-scale6: #ffff66;
   --pvw-scale7: #ffff88;
+  // Specific tile IDs
   --pvw-tile1: #2d004b;
   --pvw-tile2: #180032;
   --pvw-tile3: #180032;
@@ -71,8 +77,10 @@
   --pvw-tile61: #180032;
   --pvw-tile62: #180032;
   --pvw-tile63: #180032;
+  // Cavern Discovery
   --pvw-disco0: #ffff44;
   --pvw-disco1: #882222;
+  // Oxygen
   --pvw-oxex: #555533;
   --pvw-oxhc: var(--pvw-tile42);
 
@@ -279,10 +287,14 @@
     background: var(--palette-bg);
     font-family: var(--font-body);
     font-size: 12px;
-    max-width: 400px;
+    max-width: calc(100% - 200px);
     border: 1px solid var(--palette-settings-bg);
     padding: 4px 14px;
     margin: 16px;
+
+    > * {
+      margin: 4px 0;
+    }
 
     h1 {
       font-family: var(--font-cyber);

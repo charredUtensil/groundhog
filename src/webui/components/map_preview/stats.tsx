@@ -147,6 +147,18 @@ export default function Stats({
               {cavern.height.reduce((r, h) => (h < r ? h : r), 0).toFixed()}
             </li>
             <li>
+              mean:{" "}
+              {(() => {
+                let sum = 0;
+                let count = 0;
+                cavern.height.forEach((h) => {
+                  sum += h;
+                  count += 1;
+                });
+                return (sum / count).toFixed(1);
+              })()}
+            </li>
+            <li>
               max:{" "}
               {cavern.height.reduce((r, h) => (h > r ? h : r), 0).toFixed()}
             </li>
