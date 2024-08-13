@@ -19,23 +19,31 @@ export type PopulatedCavern = StrataformedCavern & {
 
 export default function populate(cavern: StrataformedCavern): PopulatedCavern {
   let cameraPosition: EntityPosition | undefined = cavern.cameraPosition;
-  const setCameraPosition = (pos: EntityPosition) => (cameraPosition = pos);
   const diorama = {
     cavern,
     landslides: new MutableGrid<Landslide>(),
     erosion: new MutableGrid<Erosion>(),
     creatureFactory: new CreatureFactory(),
-    creatures: [] as Creature[],
     minerFactory: new MinerFactory(),
-    miners: [] as Miner[],
     vehicleFactory: new VehicleFactory(),
-    vehicles: [] as Vehicle[],
   };
+  const creatures: Creature[] = [];
+  const miners: Miner[] = [];
+  const vehicles: Vehicle[] = [];
   cavern.plans.forEach(<T extends AnyMetadata>(plan: Plan<T>) => {
-    const args = { ...diorama, setCameraPosition, plan };
+    const args = { ...diorama, plan };
     plan.architect.placeLandslides(args);
     plan.architect.placeErosion(args);
-    plan.architect.placeEntities(args);
+    const r = plan.architect.placeEntities(args);
+    creatures.push(...(r.creatures ?? []));
+    miners.push(...(r.miners ?? []));
+    vehicles.push(...(r.vehicles ?? []));
+    if (r.cameraPosition) {
+      if (cameraPosition) {
+        throw new Error("Attempted to set a camera position twice.");
+      }
+      cameraPosition = r.cameraPosition;
+    }
   });
   if (!cameraPosition) {
     throw new Error(
@@ -43,5 +51,5 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
         "do this during either the populate or fine step.",
     );
   }
-  return { ...cavern, ...diorama, cameraPosition };
+  return { ...cavern, ...diorama, creatures, miners, vehicles, cameraPosition };
 }

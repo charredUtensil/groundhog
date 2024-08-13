@@ -100,14 +100,13 @@ function getBreadcrumbPoint(
   return getBreadcrumbPoint(cavern, [minersX, minersY], minersDz, neighborPlan);
 }
 
-function placeBreadcrumbVehicle(
+function placeBreadcrumbVehicles(
   cavern: StrataformedCavern,
   plan: Plan<any>,
   [x, y]: Point,
-  vehicles: Vehicle[],
   vehicleFactory: VehicleFactory,
   rng: PseudorandomStream,
-) {
+): Vehicle[] {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
   const template = rng.weightedChoice<VehicleTemplate | null>([
@@ -119,18 +118,17 @@ function placeBreadcrumbVehicle(
     { item: null, bid: 0.0025 },
   ]);
   if (template) {
-    vehicles.push(
-      vehicleFactory.create({
-        ...randomlyInTile({
-          x,
-          y,
-          aimedAt: plan.path.baseplates[0].center,
-          rng,
-        }),
-        template,
+    return [vehicleFactory.create({
+      ...randomlyInTile({
+        x,
+        y,
+        aimedAt: plan.path.baseplates[0].center,
+        rng,
       }),
-    );
+      template,
+    })];
   }
+  return [];
 }
 
 const pickMinerPoint = (
@@ -158,9 +156,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
   placeEntities: ({
     cavern,
     plan,
-    miners,
     minerFactory,
-    vehicles,
     vehicleFactory,
   }) => {
     const rng = cavern.dice.placeEntities(plan.id);
@@ -177,19 +173,20 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     if (dz.openOnSpawn) {
       throw new Error("Lost Miners point is discovered on spawn");
     }
+    const miners = [];
     for (let i = 0; i < plan.metadata.minersCount; i++) {
       miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
     }
     // Place a breadcrumb vehicle
     const breadcrumbPoint = getBreadcrumbPoint(cavern, [x, y], dz, plan);
-    placeBreadcrumbVehicle(
+    const vehicles = placeBreadcrumbVehicles(
       cavern,
       plan,
       breadcrumbPoint,
-      vehicles,
       vehicleFactory,
       rng,
     );
+    return {miners, vehicles}
   },
   objectives: ({ cavern }) => {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);

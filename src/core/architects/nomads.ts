@@ -86,11 +86,8 @@ const BASE: PartialArchitect<NomadsMetadata> = {
   placeEntities: ({
     cavern,
     plan,
-    miners,
     minerFactory,
-    vehicles,
     vehicleFactory,
-    setCameraPosition,
   }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     const [x, y] = pickPoint(
@@ -101,7 +98,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
           !cavern.tiles.get(x, y)!.isFluid
         ),
     )!;
-    const placedVehicles = plan.metadata.vehicles.map((template) => {
+    const vehicles = plan.metadata.vehicles.map((template) => {
       if (template.kind === "sea") {
         const p = pickPoint(
           plan,
@@ -124,9 +121,9 @@ const BASE: PartialArchitect<NomadsMetadata> = {
         template,
       });
     });
-    const placedMiners: Miner[] = [];
+    const miners: Miner[] = [];
     for (let i = 0; i < plan.metadata.minersCount; i++) {
-      const driving = placedVehicles[i] as Vehicle | undefined;
+      const driving = vehicles[i] as Vehicle | undefined;
       const pos = driving ? position(driving) : randomlyInTile({ x, y, rng });
       const loadout: Loadout[] = filterTruthy([
         "Drill",
@@ -137,21 +134,21 @@ const BASE: PartialArchitect<NomadsMetadata> = {
         ...pos,
         loadout,
       });
-      if (placedVehicles[i]) {
-        placedVehicles[i] = { ...placedVehicles[i], driverId: miner.id };
+      if (vehicles[i]) {
+        vehicles[i] = { ...vehicles[i], driverId: miner.id };
       }
-      placedMiners.push(miner);
+      miners.push(miner);
     }
-    vehicles.push(...placedVehicles);
-    miners.push(...placedMiners);
-    setCameraPosition(
-      position({
-        x: placedMiners[0].x,
-        y: placedMiners[0].y,
+    return {
+      vehicles,
+      miners,
+      cameraPosition: position({
+        x: miners[0].x,
+        y: miners[0].y,
         aimedAt: plan.path.baseplates[0].center,
         pitch: Math.PI / 4,
       }),
-    );
+    }
   },
   scriptGlobals({ cavern }) {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {

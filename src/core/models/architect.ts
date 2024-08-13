@@ -15,10 +15,10 @@ import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
-import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { CollapseUnion } from "../common/utils";
 import { AnyMetadata } from "../architects";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -115,13 +115,14 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly cavern: StrataformedCavern;
     readonly plan: Plan<T>;
     readonly creatureFactory: CreatureFactory;
-    readonly creatures: Creature[];
     readonly minerFactory: MinerFactory;
-    readonly miners: Miner[];
     readonly vehicleFactory: VehicleFactory;
-    readonly vehicles: Vehicle[];
-    readonly setCameraPosition: (position: EntityPosition) => void;
-  }): void;
+  }): {
+    readonly creatures?: Creature[];
+    readonly miners?: Miner[];
+    readonly vehicles?: Vehicle[];
+    readonly cameraPosition?: EntityPosition;
+  };
 
   objectives(args: {
     cavern: DiscoveredCavern;
@@ -129,14 +130,14 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   readonly maxSlope: number | undefined;
 
-  scriptGlobals(args: { cavern: EnscribedCavern }): string | undefined;
-  script(args: { cavern: EnscribedCavern; plan: Plan<T> }): string | undefined;
+  scriptGlobals(args: { cavern: PreprogrammedCavern }): string | undefined;
+  script(args: { cavern: PreprogrammedCavern; plan: Plan<T> }): string | undefined;
   monsterSpawnScript(args: {
-    cavern: EnscribedCavern;
+    cavern: PreprogrammedCavern;
     plan: Plan<T>;
   }): string | undefined;
   slugSpawnScript(args: {
-    cavern: EnscribedCavern;
+    cavern: PreprogrammedCavern;
     plan: Plan<T>;
   }): string | undefined;
 };
