@@ -21,10 +21,7 @@ import { position } from "../models/position";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
 import {
-  escapeString,
-  eventChain,
   mkVars,
-  scriptFragment,
   transformPoint,
 } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
@@ -239,9 +236,9 @@ const WITH_FIND_OBJECTIVE: Pick<
     ],
     sufficient: false,
   }),
-  scriptGlobals: () =>
-    scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
-  script({ cavern, plan }) {
+  scriptGlobals: ({sb}) =>
+    sb.defineInt(gLostHq.foundHq, 0),
+  script({ sb, cavern, plan }) {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (!discoPoint) {
       throw new Error("Cave has Find HQ objective but no undiscovered points.");
@@ -253,18 +250,14 @@ const WITH_FIND_OBJECTIVE: Pick<
 
     const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
     const message = cavern.lore.foundHq(cavern.dice).text;
-
-    return scriptFragment(
-      `# P${plan.id}: Lost HQ`,
-      `string ${v.messageDiscover}="${escapeString(message)}"`,
-      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
-      eventChain(
-        v.onDiscover,
-        `msg:${v.messageDiscover};`,
-        `pan:${transformPoint(cavern, camPoint)};`,
-        `wait:1;`,
-        `${gLostHq.foundHq}=1;`,
-      ),
+    sb.defineString(v.messageDiscover, message);
+    sb.iif(`change:${transformPoint(cavern, discoPoint)}`, v.onDiscover);
+    sb.eventChain(
+      v.onDiscover,
+      `msg:${v.messageDiscover};`,
+      `pan:${transformPoint(cavern, camPoint)};`,
+      `wait:1;`,
+      `${gLostHq.foundHq}=1;`,
     );
   },
 };

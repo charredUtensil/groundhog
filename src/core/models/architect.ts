@@ -19,6 +19,7 @@ import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { CollapseUnion } from "../common/utils";
 import { AnyMetadata } from "../architects";
+import { ScriptBuilder } from "../architects/utils/script";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -129,16 +130,18 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   readonly maxSlope: number | undefined;
 
-  scriptGlobals(args: { cavern: EnscribedCavern }): string | undefined;
-  script(args: { cavern: EnscribedCavern; plan: Plan<T> }): string | undefined;
+  scriptGlobals(args: { sb: ScriptBuilder, cavern: EnscribedCavern }): void;
+  script(args: { sb: ScriptBuilder, cavern: EnscribedCavern; plan: Plan<T> }): void;
   monsterSpawnScript(args: {
+    sb: ScriptBuilder,
     cavern: EnscribedCavern;
     plan: Plan<T>;
-  }): string | undefined;
+  }): void;
   slugSpawnScript(args: {
+    sb: ScriptBuilder,
     cavern: EnscribedCavern;
     plan: Plan<T>;
-  }): string | undefined;
+  }): void;
 };
 
 export type Architect<T extends BaseMetadata> = BaseArchitect<T> &
