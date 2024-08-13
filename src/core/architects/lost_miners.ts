@@ -209,7 +209,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
       `# Globals: Lost Miners`,
-      lostMinerCaves > 1 && `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
+      lostMinerCaves > 1 &&
+        `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
       `int ${gLostMiners.done}=0`,
       `string ${gLostMiners.messageFoundAll}="${escapeString(message)}"`,
       eventChain(

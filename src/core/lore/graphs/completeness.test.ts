@@ -49,7 +49,7 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(skip, state("spawnHasErosion"))
     .then(skip, state("treasureCaveOne", "treasureCaveMany"))
     .then(
-        skip,
+      skip,
       state("spawnIsNomadOne", "spawnIsNomadsTogether"),
       state("spawnIsHq").then(hasHq).then(cut),
     )
@@ -62,13 +62,13 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         state("resourceObjective"),
       ),
     )
-    .then(state('rockBiome', 'iceBiome', 'lavaBiome'))
+    .then(state("rockBiome", "iceBiome", "lavaBiome"))
     .then(end);
 });
 
 test(`Name is complete`, () => {
   expectCompletion(NAME, EXPECTED);
-})
+});
 
 test(`Premise is complete`, () => {
   expectCompletion(PREMISE, EXPECTED);

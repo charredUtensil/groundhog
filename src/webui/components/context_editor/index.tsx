@@ -15,7 +15,9 @@ function parseSeed(v: string) {
 
 function unparseSeed(v: number, split: boolean) {
   const s = v.toString(16).padStart(8, "0").toUpperCase();
-  return split ? `${s.substring(0, 3)} ${s.substring(3, 6)} ${s.substring(6)}` : s;
+  return split
+    ? `${s.substring(0, 3)} ${s.substring(3, 6)} ${s.substring(6)}`
+    : s;
 }
 
 const expectedTotalPlans = (contextWithDefaults: CavernContext) => {

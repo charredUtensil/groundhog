@@ -212,9 +212,9 @@ export class Lore {
       spawnIsNomadsTogether: nomads > 1,
       treasureCaveOne: treasures === 1,
       treasureCaveMany: treasures > 1,
-      rockBiome: cavern.context.biome === 'rock',
-      iceBiome: cavern.context.biome === 'ice',
-      lavaBiome: cavern.context.biome === 'lava',
+      rockBiome: cavern.context.biome === "rock",
+      iceBiome: cavern.context.biome === "ice",
+      lavaBiome: cavern.context.biome === "lava",
     };
 
     const enemies = filterTruthy([

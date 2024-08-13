@@ -35,12 +35,12 @@ context = ${JSON.stringify(cavern.context, null, 2)}`;
  * Coordinate data for anything that uses 'x,y/' or 'y,x/' format.
  * Unfortunately, MM is inconsistent and uses both.
  */
-function pointSet(points: Point[], [ox, oy]: Point, mode: 'xy' | 'yx'): string {
+function pointSet(points: Point[], [ox, oy]: Point, mode: "xy" | "yx"): string {
   return points
     .map(([x, y]) => {
       const xs = (x + ox).toFixed();
       const ys = (y + oy).toFixed();
-      return mode === 'xy' ? `${xs},${ys}/` : `${ys},${xs}/`;
+      return mode === "xy" ? `${xs},${ys}/` : `${ys},${xs}/`;
     })
     .join();
 }
@@ -76,7 +76,7 @@ export function serializeHazards(
   });
   return Array.from(out.entries())
     .sort(([a], [b]) => parseInt(b) - parseInt(a))
-    .map(([key, points]) => `${key}:${pointSet(points, offset, 'xy')}`)
+    .map(([key, points]) => `${key}:${pointSet(points, offset, "xy")}`)
     .join("\n");
 }
 
@@ -108,7 +108,7 @@ levelname:${cavern.levelName}
 opencaves:${pointSet(
     cavern.openCaveFlags.map((_, x, y) => [x, y]),
     offset,
-    'yx',
+    "yx",
   )}
 ${cavern.oxygen ? `oxygen:${cavern.oxygen.join("/")}` : ""}
 spiderrate:10

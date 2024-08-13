@@ -157,7 +157,9 @@ function App() {
         )}
         {mapOverlay === "about" && <About />}
         {mapOverlay === "lore" && <LorePreview {...state.cavern} />}
-        {state.error && <ErrorPreview error={state.error} context={state.cavern?.context}  />}
+        {state.error && (
+          <ErrorPreview error={state.error} context={state.cavern?.context} />
+        )}
         {!autoGenerate && state.name && (
           <div className={styles.stepName}>{state.name}</div>
         )}
