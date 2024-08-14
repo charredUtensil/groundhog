@@ -102,7 +102,7 @@ function getBreadcrumbPoint(
 
 function placeBreadcrumbVehicles(
   cavern: StrataformedCavern,
-  plan: Plan<any>,
+  plan: Plan<LostMinersMetadata>,
   [x, y]: Point,
   vehicleFactory: VehicleFactory,
   rng: PseudorandomStream,
@@ -125,6 +125,7 @@ function placeBreadcrumbVehicles(
         aimedAt: plan.path.baseplates[0].center,
         rng,
       }),
+      planId: plan.id,
       template,
     })];
   }

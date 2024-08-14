@@ -82,6 +82,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
           }
         });
       });
+    return {};
   },
   placeEntities: ({
     cavern,
@@ -113,11 +114,13 @@ const BASE: PartialArchitect<NomadsMetadata> = {
         }
         return vehicleFactory.create({
           ...randomlyInTile({ x: p[0], y: p[1], rng }),
+          planId: plan.id,
           template,
         });
       }
       return vehicleFactory.create({
         ...randomlyInTile({ x, y, rng }),
+        planId: plan.id,
         template,
       });
     });

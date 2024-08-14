@@ -135,9 +135,7 @@ function getPlaceBuildings({
       } else {
         fTile = Tile.FOUNDATION;
         if (dependencies.has(building.template)) {
-          args.buildings.push({ ...building, level: 2 });
-        } else {
-          args.buildings.push(building);
+          buildings[i] = { ...building, level: 2 };
         }
       }
       building.foundation.forEach(([x, y]) => args.tiles.set(x, y, fTile));
@@ -202,24 +200,27 @@ function getPlaceBuildings({
     }
 
     // Set initial camera if this is spawn.
-    if (asSpawn) {
+    const cameraPosition = asSpawn ? (() => {
       const [xt, yt] = buildings.reduce(
         ([x, y], b) => [x + b.x, y + b.y],
         [0, 0],
       );
-      args.setCameraPosition(
-        position({
-          x: buildings[0].x,
-          y: buildings[0].y,
-          aimedAt: [xt / buildings.length, yt / buildings.length],
-          pitch: Math.PI / 4,
-        }),
-      );
-    }
+      return position({
+        x: buildings[0].x,
+        y: buildings[0].y,
+        aimedAt: [xt / buildings.length, yt / buildings.length],
+        pitch: Math.PI / 4,
+      });
+    })() : undefined;
 
     // Some crystals remain that were not used.
     if (crystalBudget > 0) {
       sprinkleCrystals(args, { count: crystalBudget, seamBias: 0 });
+    }
+
+    return {
+      buildings: buildings.filter(b => !('isRuinAtSpawn' in b)),
+      cameraPosition,
     }
   };
 }

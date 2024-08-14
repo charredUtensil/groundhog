@@ -61,8 +61,9 @@ const HOARD: typeof BASE = {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      placeSleepingMonsters(args, rng, count);
+      return {creatures: placeSleepingMonsters(args, rng, count)};
     }
+    return {};
   },
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
@@ -191,8 +192,9 @@ const TREASURE = [
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
         const count = Math.ceil(args.plan.monsterWaveSize / 2);
-        placeSleepingMonsters(args, rng, count, "inner");
+        return {creatures: placeSleepingMonsters(args, rng, count, "inner")};
       }
+      return {};
     },
   },
   {
