@@ -20,6 +20,7 @@ import { CollapseUnion } from "../common/utils";
 import { AnyMetadata } from "../architects";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
+import { PopulatedCavern } from "../transformers/03_plastic/04_populate";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -81,7 +82,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly crystals: MutableGrid<number>;
     readonly ore: MutableGrid<number>;
     readonly openCaveFlags: MutableGrid<true>;
-  }): {buildings?: Building[], cameraPosition?: EntityPosition};
+  }): {buildings?: Building[]};
   placeCrystals(args: {
     readonly cavern: RoughPlasticCavern;
     readonly plan: Plan<T>;
@@ -120,8 +121,12 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly creatures?: Creature[];
     readonly miners?: Miner[];
     readonly vehicles?: Vehicle[];
-    readonly cameraPosition?: EntityPosition;
   };
+
+  placeCameraPosition?(args: {
+    cavern: PopulatedCavern;
+    plan: Plan<T>;
+  }): EntityPosition;
 
   objectives(args: {
     cavern: DiscoveredCavern;
@@ -142,9 +147,19 @@ export type BaseArchitect<T extends BaseMetadata> = {
   }): string | undefined;
 };
 
-export type Architect<T extends BaseMetadata> = BaseArchitect<T> &
-  (
-    | { caveBid: NonNullable<BaseArchitect<T>["caveBid"]> }
-    | { hallBid: NonNullable<BaseArchitect<T>["hallBid"]> }
-    | { spawnBid: NonNullable<BaseArchitect<T>["spawnBid"]> }
-  );
+export type SpawnArchitect<T extends BaseMetadata> = BaseArchitect<T> & {
+  spawnBid: NonNullable<BaseArchitect<T>["spawnBid"]>;
+  placeCameraPosition: NonNullable<BaseArchitect<T>["placeCameraPosition"]>;
+};
+export type CaveArchitect<T extends BaseMetadata> = BaseArchitect<T> & {
+  caveBid: NonNullable<BaseArchitect<T>["caveBid"]>
+};
+export type HallArchitect<T extends BaseMetadata> = BaseArchitect<T> & {
+  hallBid: NonNullable<BaseArchitect<T>["hallBid"]>
+};
+
+export type Architect<T extends BaseMetadata> = (
+  | SpawnArchitect<T>
+  | CaveArchitect<T>
+  | HallArchitect<T>
+);

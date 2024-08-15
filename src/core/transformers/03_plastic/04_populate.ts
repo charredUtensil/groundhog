@@ -14,7 +14,6 @@ export type PopulatedCavern = StrataformedCavern & {
   readonly creatures: readonly Creature[];
   readonly miners: readonly Miner[];
   readonly vehicles: readonly Vehicle[];
-  readonly cameraPosition: EntityPosition;
 };
 
 export default function populate(cavern: StrataformedCavern): PopulatedCavern {
@@ -38,18 +37,6 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
     creatures.push(...(r.creatures ?? []));
     miners.push(...(r.miners ?? []));
     vehicles.push(...(r.vehicles ?? []));
-    if (r.cameraPosition) {
-      if (cameraPosition) {
-        throw new Error("Attempted to set a camera position twice.");
-      }
-      cameraPosition = r.cameraPosition;
-    }
   });
-  if (!cameraPosition) {
-    throw new Error(
-      "No architect set a camera position! The spawn cave was expected to " +
-        "do this during either the populate or fine step.",
-    );
-  }
   return { ...cavern, ...diorama, creatures, miners, vehicles, cameraPosition };
 }

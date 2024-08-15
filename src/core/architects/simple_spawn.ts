@@ -27,12 +27,6 @@ const BASE: PartialArchitect<undefined> = {
     args.openCaveFlags.set(...toolStore.foundation[0], true);
     return {
       buildings: [toolStore],
-      cameraPosition: position({
-        x: toolStore.x,
-        y: toolStore.y,
-        yaw: toolStore.yaw + Math.PI * 0.75,
-        pitch: Math.PI / 4,
-      }),
     };
   },
   placeSlugHoles: (args) => {
@@ -42,6 +36,15 @@ const BASE: PartialArchitect<undefined> = {
           .betaInt({ a: 1.5, b: 2, min: 1, max: 4 })
       : undefined;
     sprinkleSlugHoles(args, { count });
+  },
+  placeCameraPosition: ({cavern, plan}) => {
+    const toolStore = cavern.buildings.find(b => b.planId === plan.id)!;
+    return position({
+      x: toolStore.x,
+      y: toolStore.y,
+      yaw: toolStore.yaw + Math.PI * 0.75,
+      pitch: Math.PI / 4,
+    });
   },
   slugSpawnScript: (args) =>
     slugSpawnScript(args, {

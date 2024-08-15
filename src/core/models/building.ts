@@ -43,6 +43,7 @@ function rotateFootprint(footprint: Footprint, [ox, oy]: Cardinal4) {
 
 type Level = 0 | 1 | 2 | 3 | 4 | 5;
 export type BuildingExtraArgs = {
+  planId: number;
   level?: Level;
   isEssential?: boolean;
   teleportAtStart?: boolean;
@@ -89,6 +90,7 @@ class BuildingTemplate {
       x + args.x,
       y + args.y,
     ]),
+    planId: args.planId,
     level: args.level ?? 1,
     isEssential: args.isEssential ?? false,
     teleportAtStart: args.teleportAtStart ?? false,
@@ -218,6 +220,7 @@ export const SUPER_TELEPORT = new BuildingTemplate(
 export class BuildingDoesNotFitException extends Error {}
 
 export type Building = EntityPosition & {
+  readonly planId: number;
   readonly template: BuildingTemplate;
   readonly foundation: readonly Point[];
   readonly level: Level;
