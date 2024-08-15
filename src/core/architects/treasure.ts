@@ -4,6 +4,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
+  DzPriorities,
   eventChain,
   mkVars,
   scriptFragment,
@@ -83,22 +84,34 @@ const HOARD: typeof BASE = {
       `int ${g.crystalsAvailable}=0`,
     );
   },
+  claimEventOnDiscover({cavern, plan}) {
+    const result: number[] = [];
+    const discoPoint = plan.innerPearl[0][0];
+    result[cavern.discoveryZones.get(...discoPoint)!.id] = DzPriorities.HINT;
+    return result;
+  },
   script({ cavern, plan }) {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
+
+    const discoPoint = plan.innerPearl[0][0];
+    if (cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...discoPoint)!.id] !== plan.id) {
+      return undefined;
+    }
+
     const hasLostMiners = cavern.plans.some(
       (p) => p.metadata?.tag === "lostMiners",
     );
 
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
+    
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
       `# P${plan.id}: Hoard`,
-      `if(change:${centerPoint})[${v.onDiscovered}]`,
+      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
         `((${g.wasTriggered}))return;`,
@@ -113,7 +126,7 @@ const HOARD: typeof BASE = {
         // If this is enough to win the level, alert the player.
         `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))${v.go};`,
       ),
-      eventChain(v.go, `msg:${g.message};`, `pan:${centerPoint};`),
+      eventChain(v.go, `msg:${g.message};`, `pan:${transformPoint(cavern, discoPoint)};`),
     );
   },
 };

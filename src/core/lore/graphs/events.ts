@@ -90,6 +90,25 @@ export const FOUND_HQ = phraseGraph<State>(
   },
 );
 
+export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(
+        "Look! A ${vehicleName}!",
+        "You found a missing ${vehicleName}!",
+        "Hmm. That doesn't belong there.",
+      )
+      .then(
+        "Look for them near here.",
+        "They must be nearby.",
+        "They must have passed this way.",
+        "They should be close.",
+        "You must be getting warmer.",
+      )
+      .then(end);
+  }
+);
+
 export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(
   ({ pg, state, start, end, cut, skip }) => {
     start

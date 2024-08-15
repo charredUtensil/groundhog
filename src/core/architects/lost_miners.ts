@@ -24,12 +24,15 @@ import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import {
+  DzPriorities,
   escapeString,
   eventChain,
   mkVars,
   scriptFragment,
   transformPoint,
 } from "./utils/script";
+import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 export type LostMinersMetadata = {
   readonly tag: "lostMiners";
@@ -147,6 +150,27 @@ const pickMinerPoint = (
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
   });
 
+function getAbandonedEnts(cavern: EnscribedCavern, plan: Plan<LostMinersMetadata>) {
+  const miner = cavern.miners.find(m => m.planId === plan.id)!;
+  const minersPoint: Point = [Math.floor(miner.x), Math.floor(miner.y)];
+  const minersDz = cavern.discoveryZones.get(...minersPoint)!;
+
+  const breadcrumb = cavern.vehicles.find(v => {
+    if (v.planId !== plan.id) {
+      return false;
+    }
+    const dz = cavern.discoveryZones.get(Math.floor(v.x), Math.floor(v.y));
+    return dz !== minersDz;
+  })
+  const breadcrumbPoint: Point | undefined =
+    breadcrumb ? [Math.floor(breadcrumb.x), Math.floor(breadcrumb.y)] : undefined;
+  return { 
+    minersPoint,
+    breadcrumb,
+    breadcrumbPoint,
+  };
+}
+
 const BASE: PartialArchitect<LostMinersMetadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
@@ -176,7 +200,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     }
     const miners = [];
     for (let i = 0; i < plan.metadata.minersCount; i++) {
-      miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
+      miners.push(minerFactory.create({ planId: plan.id, ...randomlyInTile({ x, y, rng }) }));
     }
     // Place a breadcrumb vehicle
     const breadcrumbPoint = getBreadcrumbPoint(cavern, [x, y], dz, plan);
@@ -202,13 +226,21 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       sufficient: true,
     };
   },
+  claimEventOnDiscover({ cavern, plan }) {
+    const { minersPoint, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
+    const result: number[] = [];
+    if (breadcrumbPoint) {
+      result[cavern.discoveryZones.get(...breadcrumbPoint)!.id] = DzPriorities.HINT;
+    }
+    result[cavern.discoveryZones.get(...minersPoint)!.id] = DzPriorities.OBJECTIVE;
+    return result;
+  },
   scriptGlobals({ cavern }) {
     const { lostMinerCaves } = countLostMiners(cavern);
     const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
       `# Globals: Lost Miners`,
-      lostMinerCaves > 1 &&
-        `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
+      `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
       `int ${gLostMiners.done}=0`,
       `string ${gLostMiners.messageFoundAll}="${escapeString(message)}"`,
       eventChain(
@@ -220,43 +252,52 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     );
   },
   script({ cavern, plan }) {
-    const lostMinersPoint = transformPoint(
-      cavern,
-      pickMinerPoint(plan, cavern)!,
-    );
+    const rng = cavern.dice.script(plan.id);
     const { lostMinerCaves } = countLostMiners(cavern);
     const v = mkVars(`p${plan.id}LostMiners`, [
-      "messageDiscover",
-      "onDiscover",
+      "msgFoundBreadcrumb",
+      "msgFoundMiners",
+      "onFoundBreadcrumb",
+      "onFoundMiners",
       "onIncomplete",
     ]);
-    if (lostMinerCaves === 1) {
-      return scriptFragment(
-        `# P${plan.id}: Lost Miners in One Cave`,
-        `if(change:${lostMinersPoint})[${v.onDiscover}]`,
-        eventChain(
-          v.onDiscover,
-          `pan:${lostMinersPoint};`,
-          `${gLostMiners.onFoundAll};`,
-        ),
-      );
-    }
-    const rng = cavern.dice.script(plan.id);
-    const message = cavern.lore.foundLostMiners(
-      rng,
-      plan.metadata.minersCount,
-    ).text;
+
+    const { minersPoint, breadcrumb, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
+    const shouldPanOnMiners =
+      cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...minersPoint)!.id] === plan.id;
+    const shouldMessageOnMiners = shouldPanOnMiners && lostMinerCaves > 1;
+    const messageFoundMiners = shouldMessageOnMiners ? cavern.lore.foundLostMiners(
+      rng, plan.metadata.minersCount,
+    ).text : 'undefined';
+    const shouldPanMessageOnBreadcrumb = 
+      breadcrumbPoint && cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...breadcrumbPoint)!.id] === plan.id
+    const messageFoundBreadcrumb = shouldPanMessageOnBreadcrumb ? cavern.lore.foundLostMinersBreadcrumb(
+      rng, breadcrumb!
+    ).text : 'undefined';
+
     return scriptFragment(
-      `# P${plan.id}: Lost Miners in Multiple Caves`,
-      `string ${v.messageDiscover}="${escapeString(message)}"`,
-      `if(change:${lostMinersPoint})[${v.onDiscover}]`,
+      `# P${plan.id}: Lost Miners`,
+      shouldMessageOnMiners && `string ${v.msgFoundMiners}="${escapeString(messageFoundMiners)}"`,
+      `if(change:${transformPoint(cavern, minersPoint)})[${v.onFoundMiners}]`,
       eventChain(
-        v.onDiscover,
-        `pan:${lostMinersPoint};`,
+        v.onFoundMiners,
+        shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
         `${gLostMiners.remainingCaves}-=1;`,
         `((${gLostMiners.remainingCaves}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
       ),
-      eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
+      eventChain(
+        v.onIncomplete,
+        shouldMessageOnMiners && `msg:${v.msgFoundMiners};`
+      ),
+      shouldPanMessageOnBreadcrumb && scriptFragment(
+        `string ${v.msgFoundBreadcrumb}="${escapeString(messageFoundBreadcrumb)}"`,
+        `if(change:${transformPoint(cavern, breadcrumbPoint)})[${v.onFoundBreadcrumb}]`,
+        eventChain(
+          v.onFoundBreadcrumb,
+          `pan:${transformPoint(cavern, breadcrumbPoint)};`,
+          `msg:${v.msgFoundBreadcrumb};`,
+        ),
+      ),
     );
   },
 };

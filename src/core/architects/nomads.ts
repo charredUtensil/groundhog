@@ -135,6 +135,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       ]);
       const miner = minerFactory.create({
         ...pos,
+        planId: plan.id,
         loadout,
       });
       if (vehicles[i]) {

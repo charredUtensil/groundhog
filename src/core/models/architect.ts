@@ -19,6 +19,7 @@ import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
 import { CollapseUnion } from "../common/utils";
 import { AnyMetadata } from "../architects";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
+import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 
 type SpawnBidArgs = {
   readonly cavern: PartialPlannedCavern<FloodedPlan>;
@@ -128,6 +129,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   readonly maxSlope: number | undefined;
 
+  claimEventOnDiscover(args: {cavern: EnscribedCavern, plan: Plan<T>}): number[];
   scriptGlobals(args: { cavern: PreprogrammedCavern }): string | undefined;
   script(args: { cavern: PreprogrammedCavern; plan: Plan<T> }): string | undefined;
   monsterSpawnScript(args: {
