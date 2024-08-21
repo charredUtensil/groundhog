@@ -43,9 +43,16 @@ export default function Stats({
     switch (mapOverlay) {
       case "overview":
         return (
-          cavern.briefing?.intro && (
-            <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
-          )
+          <>
+            {cavern.levelName && (
+              <h1>
+                {cavern.fileName} {cavern.levelName}
+              </h1>
+            )}
+            {cavern.briefing?.intro && (
+              <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
+            )}
+          </>
         );
       case "tiles":
         return (
@@ -140,6 +147,18 @@ export default function Stats({
             <li>
               min:{" "}
               {cavern.height.reduce((r, h) => (h < r ? h : r), 0).toFixed()}
+            </li>
+            <li>
+              mean:{" "}
+              {(() => {
+                let sum = 0;
+                let count = 0;
+                cavern.height.forEach((h) => {
+                  sum += h;
+                  count += 1;
+                });
+                return (sum / count).toFixed(1);
+              })()}
             </li>
             <li>
               max:{" "}

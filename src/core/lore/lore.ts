@@ -14,6 +14,7 @@ import {
   FOUND_SLUG_NEST,
   NOMADS_SETTLED,
 } from "./graphs/events";
+import { NAME } from "./graphs/names";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
 import { SEISMIC_FORESHADOW } from "./graphs/seismic";
@@ -35,6 +36,9 @@ export type State = {
   readonly hqIsRuin: boolean;
   readonly treasureCaveOne: boolean;
   readonly treasureCaveMany: boolean;
+  readonly rockBiome: boolean;
+  readonly iceBiome: boolean;
+  readonly lavaBiome: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -60,6 +64,7 @@ enum Die {
   foundAllLostMiners,
   nomadsSettled,
   foundSlugNest,
+  name,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -207,6 +212,9 @@ export class Lore {
       spawnIsNomadsTogether: nomads > 1,
       treasureCaveOne: treasures === 1,
       treasureCaveMany: treasures > 1,
+      rockBiome: cavern.context.biome === "rock",
+      iceBiome: cavern.context.biome === "ice",
+      lavaBiome: cavern.context.biome === "lava",
     };
 
     const enemies = filterTruthy([
@@ -229,6 +237,7 @@ export class Lore {
 
   briefings(dice: DiceBox) {
     return {
+      name: NAME.generate(dice.lore(Die.name), this.state, this.vars),
       premise: PREMISE.generate(dice.lore(Die.premise), this.state, this.vars),
       orders: ORDERS.generate(dice.lore(Die.orders), this.state, this.vars),
       success: SUCCESS.generate(
