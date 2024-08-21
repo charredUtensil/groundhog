@@ -24,16 +24,16 @@ const BASE: PartialArchitect<undefined> = {
     toolStore.foundation.forEach(([x, y]) =>
       args.tiles.set(x, y, Tile.FOUNDATION),
     );
-    args.buildings.push(toolStore);
     args.openCaveFlags.set(...toolStore.foundation[0], true);
-    args.setCameraPosition(
-      position({
+    return {
+      buildings: [toolStore],
+      cameraPosition: position({
         x: toolStore.x,
         y: toolStore.y,
         yaw: toolStore.yaw + Math.PI * 0.75,
         pitch: Math.PI / 4,
       }),
-    );
+    };
   },
   placeSlugHoles: (args) => {
     const count = args.cavern.context.hasSlugs

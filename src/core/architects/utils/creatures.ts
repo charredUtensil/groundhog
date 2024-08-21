@@ -1,7 +1,7 @@
 import { Biome, PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
 import { Architect } from "../../models/architect";
-import { monsterForBiome } from "../../models/creature";
+import { Creature, monsterForBiome } from "../../models/creature";
 import { Tile } from "../../models/tiles";
 import { circumferencePositions, innerPositions } from "./placement";
 
@@ -23,22 +23,21 @@ export function placeSleepingMonsters(
   rng: PseudorandomStream,
   count: number,
   placement: "outer" | "inner" = "outer",
-) {
+): Creature[] {
   if (!args.cavern.context.hasMonsters) {
-    return;
+    return [];
   }
   const template = monsterForBiome(args.cavern.context.biome);
   const filterFn = TILE_CAN_HAVE_MONSTER[args.cavern.context.biome];
-  const r = PLACEMENT_FN[placement](
+  return PLACEMENT_FN[placement](
     args.cavern,
     args.plan,
     count,
     rng,
     filterFn,
   ).map((pos) =>
-    args.creatureFactory.create({ ...pos, template, sleep: true }),
+    args.creatureFactory.create({ ...pos, planId: args.plan.id, template, sleep: true }),
   );
-  args.creatures.push(...r);
 }
 
 export function sprinkleSlugHoles(

@@ -29,7 +29,7 @@ import { atCenterOfTile, position } from "../models/position";
 import { Tile } from "../models/tiles";
 import discover from "../transformers/03_plastic/01_discover";
 import fence from "../transformers/03_plastic/00_fence";
-import serialize from "../transformers/04_ephemera/04_serialize";
+import serialize from "../transformers/04_ephemera/05_serialize";
 import goldenTest from "./golden";
 import strataflux from "../transformers/03_plastic/03_strataflux";
 import {
@@ -211,58 +211,71 @@ goldenTest("entity_zoo", () => {
   const mf = new MinerFactory();
   const miners = [
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 0, y: 0, aimedAt: minersAimedAt }),
       level: 1,
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 1, y: 0, aimedAt: minersAimedAt }),
       level: 2,
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 2, y: 0, aimedAt: minersAimedAt }),
       level: 3,
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 3, y: 0, aimedAt: minersAimedAt }),
       level: 4,
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 4, y: 0, aimedAt: minersAimedAt }),
       level: 5,
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 0, y: 1, aimedAt: minersAimedAt }),
       essential: true,
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 2, y: 1, aimedAt: minersAimedAt }),
       unique: "OFFICER",
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 3, y: 1, aimedAt: minersAimedAt }),
       unique: "Chief",
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 0, y: 2, aimedAt: minersAimedAt }),
       unique: "Axle",
       loadout: ["Drill", "JobDriver"],
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 1, y: 2, aimedAt: minersAimedAt }),
       unique: "Bandit",
       loadout: ["Drill", "JobSailor"],
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 2, y: 2, aimedAt: minersAimedAt }),
       unique: "Docs",
       loadout: ["Drill", "JobGeologist"],
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 3, y: 2, aimedAt: minersAimedAt }),
       unique: "Jet",
       loadout: ["Drill", "JobPilot"],
     }),
     mf.create({
+      planId: 0,
       ...atCenterOfTile({ x: 4, y: 2, aimedAt: minersAimedAt }),
       unique: "Sparks",
       loadout: ["Drill", "JobEngineer"],
@@ -272,49 +285,59 @@ goldenTest("entity_zoo", () => {
   const cf = new CreatureFactory();
   const creatures = [
     cf.create({
+      planId: 0,
       template: ROCK_MONSTER,
       ...atCenterOfTile({ x: 5, y: 0, facing: SOUTH }),
     }),
     cf.create({
+      planId: 0,
       template: ICE_MONSTER,
       ...atCenterOfTile({ x: 6, y: 0, facing: SOUTH }),
     }),
     cf.create({
+      planId: 0,
       template: LAVA_MONSTER,
       ...atCenterOfTile({ x: 7, y: 0, facing: SOUTH }),
     }),
 
     cf.create({
+      planId: 0,
       template: ROCK_MONSTER,
       ...atCenterOfTile({ x: 5, y: 3, facing: NORTH }),
       sleep: true,
     }),
     cf.create({
+      planId: 0,
       template: ICE_MONSTER,
       ...atCenterOfTile({ x: 6, y: 3, facing: NORTH }),
       sleep: true,
     }),
     cf.create({
+      planId: 0,
       template: LAVA_MONSTER,
       ...atCenterOfTile({ x: 7, y: 3, facing: NORTH }),
       sleep: true,
     }),
 
     cf.create({
+      planId: 0,
       template: SLIMY_SLUG,
       ...atCenterOfTile({ x: 0, y: 3, facing: EAST }),
     }),
     cf.create({
+      planId: 0,
       template: SLIMY_SLUG,
       ...atCenterOfTile({ x: 1, y: 3, facing: WEST }),
       sleep: true,
     }),
 
     cf.create({
+      planId: 0,
       template: SMALL_SPIDER,
       ...atCenterOfTile({ x: 3, y: 3, facing: NORTH }),
     }),
     cf.create({
+      planId: 0,
       template: BAT,
       ...atCenterOfTile({ x: 0, y: 5, facing: NORTH }),
     }),
@@ -323,50 +346,62 @@ goldenTest("entity_zoo", () => {
   const vf = new VehicleFactory();
   const vehicles = [
     vf.create({
+      planId: 0,
       template: HOVER_SCOUT,
       ...atCenterOfTile({ x: 0, y: 9, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: TUNNEL_SCOUT,
       ...atCenterOfTile({ x: 1, y: 9, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: SMALL_DIGGER,
       ...atCenterOfTile({ x: 0, y: 10, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: SMALL_TRANSPORT_TRUCK,
       ...atCenterOfTile({ x: 1, y: 10, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: SMLC,
       ...atCenterOfTile({ x: 2, y: 10, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: LOADER_DOZER,
       ...atCenterOfTile({ x: 0, y: 11, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: GRANITE_GRINDER,
       ...atCenterOfTile({ x: 2, y: 11, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: LMLC,
       ...atCenterOfTile({ x: 4, y: 11, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: CHROME_CRUSHER,
       ...atCenterOfTile({ x: 6, y: 11, facing: EAST }),
     }),
     vf.create({
+      planId: 0,
       template: RAPID_RIDER,
       ...atCenterOfTile({ x: 11, y: 9, facing: WEST }),
     }),
     vf.create({
+      planId: 0,
       template: CARGO_CARRIER,
       ...atCenterOfTile({ x: 11, y: 11, facing: WEST }),
     }),
     vf.create({
+      planId: 0,
       template: TUNNEL_TRANSPORT,
       ...atCenterOfTile({ x: 6, y: 9, facing: WEST }),
     }),

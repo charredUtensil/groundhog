@@ -21,6 +21,7 @@ import { position } from "../models/position";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { placeLandslides } from "./utils/hazards";
 import {
+  DzPriorities,
   escapeString,
   eventChain,
   mkVars,
@@ -135,9 +136,7 @@ function getPlaceBuildings({
       } else {
         fTile = Tile.FOUNDATION;
         if (dependencies.has(building.template)) {
-          args.buildings.push({ ...building, level: 2 });
-        } else {
-          args.buildings.push(building);
+          buildings[i] = { ...building, level: 2 };
         }
       }
       building.foundation.forEach(([x, y]) => args.tiles.set(x, y, fTile));
@@ -202,24 +201,27 @@ function getPlaceBuildings({
     }
 
     // Set initial camera if this is spawn.
-    if (asSpawn) {
+    const cameraPosition = asSpawn ? (() => {
       const [xt, yt] = buildings.reduce(
         ([x, y], b) => [x + b.x, y + b.y],
         [0, 0],
       );
-      args.setCameraPosition(
-        position({
-          x: buildings[0].x,
-          y: buildings[0].y,
-          aimedAt: [xt / buildings.length, yt / buildings.length],
-          pitch: Math.PI / 4,
-        }),
-      );
-    }
+      return position({
+        x: buildings[0].x,
+        y: buildings[0].y,
+        aimedAt: [xt / buildings.length, yt / buildings.length],
+        pitch: Math.PI / 4,
+      });
+    })() : undefined;
 
     // Some crystals remain that were not used.
     if (crystalBudget > 0) {
       sprinkleCrystals(args, { count: crystalBudget, seamBias: 0 });
+    }
+
+    return {
+      buildings: buildings.filter(b => !('isRuinAtSpawn' in b)),
+      cameraPosition,
     }
   };
 }
@@ -228,7 +230,7 @@ export const gLostHq = mkVars("gLostHq", ["foundHq"]);
 
 const WITH_FIND_OBJECTIVE: Pick<
   Architect<HqMetadata>,
-  "objectives" | "scriptGlobals" | "script"
+  "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
 > = {
   objectives: () => ({
     variables: [
@@ -239,20 +241,28 @@ const WITH_FIND_OBJECTIVE: Pick<
     ],
     sufficient: false,
   }),
+  claimEventOnDiscover({cavern, plan}) {
+    const discoPoint = getDiscoveryPoint(cavern, plan);
+    if (!discoPoint) {
+      throw new Error("Cave has Find HQ objective but no undiscovered point.");
+    }
+    const result: number[] = [];
+    result[cavern.discoveryZones.get(...discoPoint)!.id] = DzPriorities.OBJECTIVE;
+    return result;
+  },
   scriptGlobals: () =>
     scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
   script({ cavern, plan }) {
-    const discoPoint = getDiscoveryPoint(cavern, plan);
-    if (!discoPoint) {
-      throw new Error("Cave has Find HQ objective but no undiscovered points.");
-    }
+    const discoPoint = getDiscoveryPoint(cavern, plan)!;
+    const shouldPanMessage =
+      cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...discoPoint)!.id] === plan.id;
 
     const camPoint = plan.path.baseplates.reduce((r, p) => {
       return r.pearlRadius > p.pearlRadius ? r : p;
     }).center;
 
     const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
-    const message = cavern.lore.foundHq(cavern.dice).text;
+    const message = shouldPanMessage ? cavern.lore.foundHq(cavern.dice).text : 'undefined';
 
     return scriptFragment(
       `# P${plan.id}: Lost HQ`,
@@ -260,8 +270,8 @@ const WITH_FIND_OBJECTIVE: Pick<
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
       eventChain(
         v.onDiscover,
-        `msg:${v.messageDiscover};`,
-        `pan:${transformPoint(cavern, camPoint)};`,
+        shouldPanMessage && `msg:${v.messageDiscover};`,
+        shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
         `wait:1;`,
         `${gLostHq.foundHq}=1;`,
       ),

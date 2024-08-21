@@ -17,22 +17,28 @@ export type FinePlasticCavern = Omit<RoughPlasticCavern, "tiles"> & {
 
 export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
   let cameraPosition: EntityPosition | undefined = undefined;
-  const setCameraPosition = (pos: EntityPosition) => (cameraPosition = pos);
   const diorama = {
     cavern,
     tiles: cavern.tiles.copy(),
     crystals: new MutableGrid<number>(),
     ore: new MutableGrid<number>(),
-    buildings: [] as Building[],
     openCaveFlags: new MutableGrid<true>(),
   };
+  const buildings: Building[] = [];
   cavern.plans.forEach(<T extends AnyMetadata>(plan: Plan<T>) => {
-    const args = { ...diorama, setCameraPosition, plan };
+    const args = { ...diorama, plan };
     plan.architect.placeRechargeSeam(args);
-    plan.architect.placeBuildings(args);
+    const r = plan.architect.placeBuildings(args);
+    buildings.push(...(r.buildings ?? []));
+    if (r.cameraPosition) {
+      if (cameraPosition) {
+        throw new Error("Attempted to set a camera position twice.");
+      }
+      cameraPosition = r.cameraPosition;
+    }
     plan.architect.placeCrystals(args);
     plan.architect.placeOre(args);
     plan.architect.placeSlugHoles(args);
   });
-  return { ...cavern, ...diorama, cameraPosition };
+  return { ...cavern, ...diorama, buildings, cameraPosition };
 }

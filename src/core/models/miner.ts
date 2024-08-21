@@ -22,6 +22,7 @@ export type Loadout =
 
 export type Miner = EntityPosition & {
   readonly id: number;
+  readonly planId: number;
   readonly essential: boolean;
   readonly level: 1 | 2 | 3 | 4 | 5;
   readonly loadout: readonly Loadout[];
@@ -31,7 +32,7 @@ export type Miner = EntityPosition & {
 export class MinerFactory {
   private id: number = 0;
   create(
-    args: EntityPosition &
+    args: EntityPosition & { planId: number } &
       Partial<Pick<Miner, "essential" | "level" | "loadout" | "unique">>,
   ): Miner {
     return {
