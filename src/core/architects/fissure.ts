@@ -79,7 +79,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         ...plan.innerPearl[0]
           .filter((pos) => cavern.tiles.get(...pos)?.isWall)
           .map(
-            (pos) => `drill:${transformPoint(cavern, pos)};` as `${string};`,
+            (pos) => `drill:${transformPoint(cavern, pos)};` satisfies `${string};`,
           ),
         cavern.context.hasMonsters && `${v.spawn};`,
       ),

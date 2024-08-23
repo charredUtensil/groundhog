@@ -228,12 +228,10 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
   },
   claimEventOnDiscover({ cavern, plan }) {
     const { minersPoint, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
-    const result: number[] = [];
-    if (breadcrumbPoint) {
-      result[cavern.discoveryZones.get(...breadcrumbPoint)!.id] = DzPriorities.HINT;
-    }
-    result[cavern.discoveryZones.get(...minersPoint)!.id] = DzPriorities.OBJECTIVE;
-    return result;
+    return [
+      {pos: breadcrumbPoint, priority: DzPriorities.HINT},
+      {pos: minersPoint, priority: DzPriorities.OBJECTIVE},
+    ];
   },
   scriptGlobals({ cavern }) {
     const { lostMinerCaves } = countLostMiners(cavern);

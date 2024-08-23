@@ -209,7 +209,7 @@ function creatureSpawnScript(
       ...(emerges.flatMap((emerge) => [
         `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
         `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
-      ]) as `${string};`[]),
+      ] satisfies `${string};`[])),
 
       // Update the counter.
       once

@@ -29,6 +29,8 @@ import {
   transformPoint,
 } from "./utils/script";
 import { getDiscoveryPoint } from "./utils/discovery";
+import { sprinkleSlugHoles } from "./utils/creatures";
+import { slugSpawnScript } from "./utils/creature_spawners";
 
 const DESTROY_PATH_CHANCE = 0.62;
 
@@ -242,13 +244,13 @@ const WITH_FIND_OBJECTIVE: Pick<
     sufficient: false,
   }),
   claimEventOnDiscover({cavern, plan}) {
-    const discoPoint = getDiscoveryPoint(cavern, plan);
-    if (!discoPoint) {
+    const pos = getDiscoveryPoint(cavern, plan);
+    if (!pos) {
       throw new Error("Cave has Find HQ objective but no undiscovered point.");
     }
-    const result: number[] = [];
-    result[cavern.discoveryZones.get(...discoPoint)!.id] = DzPriorities.OBJECTIVE;
-    return result;
+    return [
+      {pos, priority: DzPriorities.OBJECTIVE}
+    ];
   },
   scriptGlobals: () =>
     scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
@@ -291,6 +293,15 @@ const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
   ),
   crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
+  placeSlugHoles(args) {
+    if (!args.cavern.context.hasSlugs) {
+      return;
+    }
+    sprinkleSlugHoles(args, {count: 2});
+  },
+  slugSpawnScript(args) {
+    return slugSpawnScript(args, {needCrystals: {base: 5, increment: 10}, waveSize: 2});
+  },
   maxSlope: 15,
 };
 

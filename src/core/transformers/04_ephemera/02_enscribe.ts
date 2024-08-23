@@ -49,6 +49,7 @@ const OVERRIDE_SUFFIXES = [
   "Ungrounded",
   "Unleashed",
   "Unlocked",
+  "Unobtaininum Edition",
   "Unplugged",
   "Uranium Edition",
 ];

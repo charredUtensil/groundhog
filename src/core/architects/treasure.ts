@@ -84,11 +84,9 @@ const HOARD: typeof BASE = {
       `int ${g.crystalsAvailable}=0`,
     );
   },
-  claimEventOnDiscover({cavern, plan}) {
-    const result: number[] = [];
-    const discoPoint = plan.innerPearl[0][0];
-    result[cavern.discoveryZones.get(...discoPoint)!.id] = DzPriorities.HINT;
-    return result;
+  claimEventOnDiscover({plan}) {
+    const pos = plan.innerPearl[0][0];
+    return [{pos, priority: DzPriorities.HINT}];
   },
   script({ cavern, plan }) {
     if (!cavern.objectives.crystals) {

@@ -37,13 +37,13 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
     : [];
   const na = ["# n/a", ""];
   const script = [
-    "# I. Architect Globals",
+    "#> Architect Globals",
     ...(archGlobals.length ? archGlobals : na),
-    "# II. Architect Scripts",
+    "#> Architect Scripts",
     ...(archScripts.length ? archScripts : na),
-    "# III. Spawn Monsters",
+    "#> Spawn Monsters",
     ...(monsters.length ? monsters : na),
-    "# IV. Spawn Slugs",
+    "#> Spawn Slugs",
     ...(slugs.length ? slugs : na),
   ].join("\n");
 

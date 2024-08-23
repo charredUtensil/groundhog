@@ -281,7 +281,7 @@ export class Lore {
       },
       {
         ...this.vars,
-        foundMinersCount: foundMinersCount.toFixed(),
+        foundMinersCount: spellNumber(foundMinersCount),
       },
     );
   }

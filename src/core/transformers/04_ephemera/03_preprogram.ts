@@ -1,3 +1,4 @@
+import { filterTruthy } from "../../common/utils";
 import { EnscribedCavern } from "./02_enscribe";
 
 export type PreprogrammedCavern = EnscribedCavern & {
@@ -7,9 +8,10 @@ export type PreprogrammedCavern = EnscribedCavern & {
 export default function preprogram(cavern: EnscribedCavern): PreprogrammedCavern {
   const claims: { planId: number, priority: number }[] = [];
   cavern.plans.forEach(plan => {
-    plan.architect.claimEventOnDiscover({ cavern, plan }).forEach((priority, dzId) => {
-      if (priority < (claims[dzId]?.priority ?? Infinity)) {
-        claims[dzId] = { priority, planId: plan.id };
+    plan.architect.claimEventOnDiscover({ cavern, plan }).forEach(({pos, dz, priority}) => {
+      dz = dz ?? (pos && cavern.discoveryZones.get(...pos));
+      if (dz && !dz.openOnSpawn && priority < (claims[dz.id]?.priority ?? Infinity)) {
+        claims[dz.id] = { priority, planId: plan.id };
       }
     });
   });

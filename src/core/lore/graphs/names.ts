@@ -10,7 +10,7 @@ export const NAME = phraseGraph<State>(
       mid,
       last,
     }: {
-      rock: string[];
+      rock?: string[];
       ice?: string[];
       lava?: string[];
       mid?: string[];
@@ -18,7 +18,7 @@ export const NAME = phraseGraph<State>(
     }) {
       start
         .then(
-          state("rockBiome").then(...rock),
+          rock ? state("rockBiome").then(...rock) : cut,
           ice ? state("iceBiome").then(...ice) : cut,
           lava ? state("lavaBiome").then(...lava) : cut,
         )
@@ -42,6 +42,7 @@ export const NAME = phraseGraph<State>(
 
     f({
       rock: ["Chalk", "Claystone", "Core", "Crystal"],
+      ice: ["Chilly", "Cold"],
       lava: ["Caldera", "Cinder"],
       last: [
         "Calamity",
@@ -74,7 +75,7 @@ export const NAME = phraseGraph<State>(
 
     f({
       rock: ["Gneiss", "Granite", "Gritstone", "Gypsum"],
-      ice: ["Glacier"],
+      ice: ["Glacial", "Glacier"],
       last: ["Gauntlet", "Getaway"],
     });
 
@@ -93,9 +94,8 @@ export const NAME = phraseGraph<State>(
     });
 
     f({
-      rock: ["Phosphorite", "Pumice"],
       ice: ["Permafrost", "Polar"],
-      lava: ["Pyroclastic", "Pyrolite"],
+      lava: ["Pumice", "Pyroclastic", "Pyrolite"],
       last: ["Passage", "Peril", "Pit", "Plunge", "Puzzle"],
     });
 
@@ -110,7 +110,7 @@ export const NAME = phraseGraph<State>(
         "Slate",
         "Stalactite",
       ],
-      ice: ["Snowdrift", "Subzero"],
+      ice: ["Snowdrift", "Sub-Zero"],
       mid: ["Shaft"],
       last: ["Scramble", "Shock", "Showdown", "Slide"],
     });

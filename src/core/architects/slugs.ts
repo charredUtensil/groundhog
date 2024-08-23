@@ -54,13 +54,8 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
     });
   },
   claimEventOnDiscover: ({cavern, plan}) => {
-    const discoPoint = getDiscoveryPoint(cavern, plan);
-    if (!discoPoint) {
-      return [];
-    }
-    const result: number[] = [];
-    result[cavern.discoveryZones.get(...discoPoint)!.id] = DzPriorities.TRIVIAL;
-    return result;
+    const pos = getDiscoveryPoint(cavern, plan);
+    return [{pos, priority: DzPriorities.TRIVIAL}];
   },
   script: ({ cavern, plan }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
