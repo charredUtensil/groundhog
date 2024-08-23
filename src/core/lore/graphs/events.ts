@@ -105,7 +105,7 @@ export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
         "You must be getting warmer.",
       )
       .then(end);
-  }
+  },
 );
 
 export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(

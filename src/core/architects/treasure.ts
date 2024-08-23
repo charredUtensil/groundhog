@@ -62,7 +62,7 @@ const HOARD: typeof BASE = {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      return {creatures: placeSleepingMonsters(args, rng, count)};
+      return { creatures: placeSleepingMonsters(args, rng, count) };
     }
     return {};
   },
@@ -84,9 +84,9 @@ const HOARD: typeof BASE = {
       `int ${g.crystalsAvailable}=0`,
     );
   },
-  claimEventOnDiscover({plan}) {
+  claimEventOnDiscover({ plan }) {
     const pos = plan.innerPearl[0][0];
-    return [{pos, priority: DzPriorities.HINT}];
+    return [{ pos, priority: DzPriorities.HINT }];
   },
   script({ cavern, plan }) {
     if (!cavern.objectives.crystals) {
@@ -94,7 +94,11 @@ const HOARD: typeof BASE = {
     }
 
     const discoPoint = plan.innerPearl[0][0];
-    if (cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...discoPoint)!.id] !== plan.id) {
+    if (
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...discoPoint)!.id
+      ] !== plan.id
+    ) {
       return undefined;
     }
 
@@ -104,7 +108,7 @@ const HOARD: typeof BASE = {
 
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    
+
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
@@ -124,7 +128,11 @@ const HOARD: typeof BASE = {
         // If this is enough to win the level, alert the player.
         `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))${v.go};`,
       ),
-      eventChain(v.go, `msg:${g.message};`, `pan:${transformPoint(cavern, discoPoint)};`),
+      eventChain(
+        v.go,
+        `msg:${g.message};`,
+        `pan:${transformPoint(cavern, discoPoint)};`,
+      ),
     );
   },
 };
@@ -203,7 +211,7 @@ const TREASURE = [
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
         const count = Math.ceil(args.plan.monsterWaveSize / 2);
-        return {creatures: placeSleepingMonsters(args, rng, count, "inner")};
+        return { creatures: placeSleepingMonsters(args, rng, count, "inner") };
       }
       return {};
     },

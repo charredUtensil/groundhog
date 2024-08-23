@@ -121,16 +121,18 @@ function placeBreadcrumbVehicles(
     { item: null, bid: 0.0025 },
   ]);
   if (template) {
-    return [vehicleFactory.create({
-      ...randomlyInTile({
-        x,
-        y,
-        aimedAt: plan.path.baseplates[0].center,
-        rng,
+    return [
+      vehicleFactory.create({
+        ...randomlyInTile({
+          x,
+          y,
+          aimedAt: plan.path.baseplates[0].center,
+          rng,
+        }),
+        planId: plan.id,
+        template,
       }),
-      planId: plan.id,
-      template,
-    })];
+    ];
   }
   return [];
 }
@@ -150,21 +152,25 @@ const pickMinerPoint = (
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
   });
 
-function getAbandonedEnts(cavern: EnscribedCavern, plan: Plan<LostMinersMetadata>) {
-  const miner = cavern.miners.find(m => m.planId === plan.id)!;
+function getAbandonedEnts(
+  cavern: EnscribedCavern,
+  plan: Plan<LostMinersMetadata>,
+) {
+  const miner = cavern.miners.find((m) => m.planId === plan.id)!;
   const minersPoint: Point = [Math.floor(miner.x), Math.floor(miner.y)];
   const minersDz = cavern.discoveryZones.get(...minersPoint)!;
 
-  const breadcrumb = cavern.vehicles.find(v => {
+  const breadcrumb = cavern.vehicles.find((v) => {
     if (v.planId !== plan.id) {
       return false;
     }
     const dz = cavern.discoveryZones.get(Math.floor(v.x), Math.floor(v.y));
     return dz !== minersDz;
-  })
-  const breadcrumbPoint: Point | undefined =
-    breadcrumb ? [Math.floor(breadcrumb.x), Math.floor(breadcrumb.y)] : undefined;
-  return { 
+  });
+  const breadcrumbPoint: Point | undefined = breadcrumb
+    ? [Math.floor(breadcrumb.x), Math.floor(breadcrumb.y)]
+    : undefined;
+  return {
     minersPoint,
     breadcrumb,
     breadcrumbPoint,
@@ -178,12 +184,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
     return { tag: "lostMiners", minersCount };
   },
-  placeEntities: ({
-    cavern,
-    plan,
-    minerFactory,
-    vehicleFactory,
-  }) => {
+  placeEntities: ({ cavern, plan, minerFactory, vehicleFactory }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     // Place the lost miners
     const [x, y] =
@@ -200,7 +201,12 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     }
     const miners = [];
     for (let i = 0; i < plan.metadata.minersCount; i++) {
-      miners.push(minerFactory.create({ planId: plan.id, ...randomlyInTile({ x, y, rng }) }));
+      miners.push(
+        minerFactory.create({
+          planId: plan.id,
+          ...randomlyInTile({ x, y, rng }),
+        }),
+      );
     }
     // Place a breadcrumb vehicle
     const breadcrumbPoint = getBreadcrumbPoint(cavern, [x, y], dz, plan);
@@ -211,7 +217,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       vehicleFactory,
       rng,
     );
-    return {miners, vehicles}
+    return { miners, vehicles };
   },
   objectives: ({ cavern }) => {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
@@ -229,8 +235,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
   claimEventOnDiscover({ cavern, plan }) {
     const { minersPoint, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
     return [
-      {pos: breadcrumbPoint, priority: DzPriorities.HINT},
-      {pos: minersPoint, priority: DzPriorities.OBJECTIVE},
+      { pos: breadcrumbPoint, priority: DzPriorities.HINT },
+      { pos: minersPoint, priority: DzPriorities.OBJECTIVE },
     ];
   },
   scriptGlobals({ cavern }) {
@@ -260,22 +266,31 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       "onIncomplete",
     ]);
 
-    const { minersPoint, breadcrumb, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
+    const { minersPoint, breadcrumb, breadcrumbPoint } = getAbandonedEnts(
+      cavern,
+      plan,
+    );
     const shouldPanOnMiners =
-      cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...minersPoint)!.id] === plan.id;
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...minersPoint)!.id
+      ] === plan.id;
     const shouldMessageOnMiners = shouldPanOnMiners && lostMinerCaves > 1;
-    const messageFoundMiners = shouldMessageOnMiners ? cavern.lore.foundLostMiners(
-      rng, plan.metadata.minersCount,
-    ).text : 'undefined';
-    const shouldPanMessageOnBreadcrumb = 
-      breadcrumbPoint && cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...breadcrumbPoint)!.id] === plan.id
-    const messageFoundBreadcrumb = shouldPanMessageOnBreadcrumb ? cavern.lore.foundLostMinersBreadcrumb(
-      rng, breadcrumb!
-    ).text : 'undefined';
+    const messageFoundMiners = shouldMessageOnMiners
+      ? cavern.lore.foundLostMiners(rng, plan.metadata.minersCount).text
+      : "undefined";
+    const shouldPanMessageOnBreadcrumb =
+      breadcrumbPoint &&
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...breadcrumbPoint)!.id
+      ] === plan.id;
+    const messageFoundBreadcrumb = shouldPanMessageOnBreadcrumb
+      ? cavern.lore.foundLostMinersBreadcrumb(rng, breadcrumb!).text
+      : "undefined";
 
     return scriptFragment(
       `# P${plan.id}: Lost Miners`,
-      shouldMessageOnMiners && `string ${v.msgFoundMiners}="${escapeString(messageFoundMiners)}"`,
+      shouldMessageOnMiners &&
+        `string ${v.msgFoundMiners}="${escapeString(messageFoundMiners)}"`,
       `if(change:${transformPoint(cavern, minersPoint)})[${v.onFoundMiners}]`,
       eventChain(
         v.onFoundMiners,
@@ -285,17 +300,18 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       ),
       eventChain(
         v.onIncomplete,
-        shouldMessageOnMiners && `msg:${v.msgFoundMiners};`
+        shouldMessageOnMiners && `msg:${v.msgFoundMiners};`,
       ),
-      shouldPanMessageOnBreadcrumb && scriptFragment(
-        `string ${v.msgFoundBreadcrumb}="${escapeString(messageFoundBreadcrumb)}"`,
-        `if(change:${transformPoint(cavern, breadcrumbPoint)})[${v.onFoundBreadcrumb}]`,
-        eventChain(
-          v.onFoundBreadcrumb,
-          `pan:${transformPoint(cavern, breadcrumbPoint)};`,
-          `msg:${v.msgFoundBreadcrumb};`,
+      shouldPanMessageOnBreadcrumb &&
+        scriptFragment(
+          `string ${v.msgFoundBreadcrumb}="${escapeString(messageFoundBreadcrumb)}"`,
+          `if(change:${transformPoint(cavern, breadcrumbPoint)})[${v.onFoundBreadcrumb}]`,
+          eventChain(
+            v.onFoundBreadcrumb,
+            `pan:${transformPoint(cavern, breadcrumbPoint)};`,
+            `msg:${v.msgFoundBreadcrumb};`,
+          ),
         ),
-      ),
     );
   },
 };

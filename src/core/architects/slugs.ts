@@ -53,17 +53,19 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
       waveSize: holeCount,
     });
   },
-  claimEventOnDiscover: ({cavern, plan}) => {
+  claimEventOnDiscover: ({ cavern, plan }) => {
     const pos = getDiscoveryPoint(cavern, plan);
-    return [{pos, priority: DzPriorities.TRIVIAL}];
+    return [{ pos, priority: DzPriorities.TRIVIAL }];
   },
   script: ({ cavern, plan }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
-    if (!discoPoint || cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...discoPoint)!.id] !== plan.id) {
-      return scriptFragment(
-        `# P${plan.id}: Slug Nest`,
-        `# [Skip]`,
-      );
+    if (
+      !discoPoint ||
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...discoPoint)!.id
+      ] !== plan.id
+    ) {
+      return scriptFragment(`# P${plan.id}: Slug Nest`, `# [Skip]`);
     }
 
     const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover", "onDiscover"]);

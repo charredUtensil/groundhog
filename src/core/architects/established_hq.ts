@@ -203,18 +203,20 @@ function getPlaceBuildings({
     }
 
     // Set initial camera if this is spawn.
-    const cameraPosition = asSpawn ? (() => {
-      const [xt, yt] = buildings.reduce(
-        ([x, y], b) => [x + b.x, y + b.y],
-        [0, 0],
-      );
-      return position({
-        x: buildings[0].x,
-        y: buildings[0].y,
-        aimedAt: [xt / buildings.length, yt / buildings.length],
-        pitch: Math.PI / 4,
-      });
-    })() : undefined;
+    const cameraPosition = asSpawn
+      ? (() => {
+          const [xt, yt] = buildings.reduce(
+            ([x, y], b) => [x + b.x, y + b.y],
+            [0, 0],
+          );
+          return position({
+            x: buildings[0].x,
+            y: buildings[0].y,
+            aimedAt: [xt / buildings.length, yt / buildings.length],
+            pitch: Math.PI / 4,
+          });
+        })()
+      : undefined;
 
     // Some crystals remain that were not used.
     if (crystalBudget > 0) {
@@ -222,9 +224,9 @@ function getPlaceBuildings({
     }
 
     return {
-      buildings: buildings.filter(b => !('isRuinAtSpawn' in b)),
+      buildings: buildings.filter((b) => !("isRuinAtSpawn" in b)),
       cameraPosition,
-    }
+    };
   };
 }
 
@@ -243,28 +245,30 @@ const WITH_FIND_OBJECTIVE: Pick<
     ],
     sufficient: false,
   }),
-  claimEventOnDiscover({cavern, plan}) {
+  claimEventOnDiscover({ cavern, plan }) {
     const pos = getDiscoveryPoint(cavern, plan);
     if (!pos) {
       throw new Error("Cave has Find HQ objective but no undiscovered point.");
     }
-    return [
-      {pos, priority: DzPriorities.OBJECTIVE}
-    ];
+    return [{ pos, priority: DzPriorities.OBJECTIVE }];
   },
   scriptGlobals: () =>
     scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
   script({ cavern, plan }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
-      cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...discoPoint)!.id] === plan.id;
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...discoPoint)!.id
+      ] === plan.id;
 
     const camPoint = plan.path.baseplates.reduce((r, p) => {
       return r.pearlRadius > p.pearlRadius ? r : p;
     }).center;
 
     const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
-    const message = shouldPanMessage ? cavern.lore.foundHq(cavern.dice).text : 'undefined';
+    const message = shouldPanMessage
+      ? cavern.lore.foundHq(cavern.dice).text
+      : "undefined";
 
     return scriptFragment(
       `# P${plan.id}: Lost HQ`,
@@ -297,10 +301,13 @@ const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
     if (!args.cavern.context.hasSlugs) {
       return;
     }
-    sprinkleSlugHoles(args, {count: 2});
+    sprinkleSlugHoles(args, { count: 2 });
   },
   slugSpawnScript(args) {
-    return slugSpawnScript(args, {needCrystals: {base: 5, increment: 10}, waveSize: 2});
+    return slugSpawnScript(args, {
+      needCrystals: { base: 5, increment: 10 },
+      waveSize: 2,
+    });
   },
   maxSlope: 15,
 };

@@ -84,12 +84,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       });
     return {};
   },
-  placeEntities: ({
-    cavern,
-    plan,
-    minerFactory,
-    vehicleFactory,
-  }) => {
+  placeEntities: ({ cavern, plan, minerFactory, vehicleFactory }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     const [x, y] = pickPoint(
       plan,
@@ -152,7 +147,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
         aimedAt: plan.path.baseplates[0].center,
         pitch: Math.PI / 4,
       }),
-    }
+    };
   },
   scriptGlobals({ cavern }) {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {

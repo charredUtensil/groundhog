@@ -62,7 +62,11 @@ export type Creature = EntityPosition & {
 export class CreatureFactory {
   private id: number = 0;
   create(
-    args: EntityPosition & { planId: number; template: CreatureTemplate; sleep?: boolean },
+    args: EntityPosition & {
+      planId: number;
+      template: CreatureTemplate;
+      sleep?: boolean;
+    },
   ): Creature {
     return { sleep: false, ...args, id: this.id++ };
   }

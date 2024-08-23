@@ -264,11 +264,10 @@ export class Lore {
   }
 
   foundLostMinersBreadcrumb(rng: PseudorandomStream, vehicle: Vehicle) {
-    return FOUND_LM_BREADCRUMB.generate(
-      rng,
-      this.state,
-      {...this.vars, vehicleName: vehicle.template.name},
-    )
+    return FOUND_LM_BREADCRUMB.generate(rng, this.state, {
+      ...this.vars,
+      vehicleName: vehicle.template.name,
+    });
   }
 
   foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {

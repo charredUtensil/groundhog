@@ -32,8 +32,9 @@ export type Miner = EntityPosition & {
 export class MinerFactory {
   private id: number = 0;
   create(
-    args: EntityPosition & { planId: number } &
-      Partial<Pick<Miner, "essential" | "level" | "loadout" | "unique">>,
+    args: EntityPosition & { planId: number } & Partial<
+        Pick<Miner, "essential" | "level" | "loadout" | "unique">
+      >,
   ): Miner {
     return {
       essential: false,

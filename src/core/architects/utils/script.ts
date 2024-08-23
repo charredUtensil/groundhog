@@ -40,4 +40,4 @@ export enum DzPriorities {
   OBJECTIVE,
   HINT,
   TRIVIAL,
-};
+}

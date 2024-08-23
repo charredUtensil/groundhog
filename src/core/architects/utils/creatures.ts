@@ -36,7 +36,12 @@ export function placeSleepingMonsters(
     rng,
     filterFn,
   ).map((pos) =>
-    args.creatureFactory.create({ ...pos, planId: args.plan.id, template, sleep: true }),
+    args.creatureFactory.create({
+      ...pos,
+      planId: args.plan.id,
+      template,
+      sleep: true,
+    }),
   );
 }
 

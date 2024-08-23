@@ -83,7 +83,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly crystals: MutableGrid<number>;
     readonly ore: MutableGrid<number>;
     readonly openCaveFlags: MutableGrid<true>;
-  }): {buildings?: Building[], cameraPosition?: EntityPosition};
+  }): { buildings?: Building[]; cameraPosition?: EntityPosition };
   placeCrystals(args: {
     readonly cavern: RoughPlasticCavern;
     readonly plan: Plan<T>;
@@ -131,10 +131,15 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   readonly maxSlope: number | undefined;
 
-  claimEventOnDiscover(args: {cavern: EnscribedCavern, plan: Plan<T>}):
-    ({priority: number, dz?: DiscoveryZone, pos?: Point})[];
+  claimEventOnDiscover(args: {
+    cavern: EnscribedCavern;
+    plan: Plan<T>;
+  }): { priority: number; dz?: DiscoveryZone; pos?: Point }[];
   scriptGlobals(args: { cavern: PreprogrammedCavern }): string | undefined;
-  script(args: { cavern: PreprogrammedCavern; plan: Plan<T> }): string | undefined;
+  script(args: {
+    cavern: PreprogrammedCavern;
+    plan: Plan<T>;
+  }): string | undefined;
   monsterSpawnScript(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;

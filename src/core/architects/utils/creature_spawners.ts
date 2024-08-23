@@ -87,7 +87,10 @@ function getArmTriggers(
   return [`if(time:0)[${armFn}]`];
 }
 
-function getTriggerPoints(cavern: PreprogrammedCavern, plan: Plan<any>): Point[] {
+function getTriggerPoints(
+  cavern: PreprogrammedCavern,
+  plan: Plan<any>,
+): Point[] {
   // Pick any tile that was set with a value, even if it is solid rock.
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
 }
@@ -206,10 +209,13 @@ function creatureSpawnScript(
         `${v.needCrystals}=crystals+${opts.needCrystals.increment};`,
 
       // Trigger all the spawns.
-      ...(emerges.flatMap((emerge) => [
-        `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
-        `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
-      ] satisfies `${string};`[])),
+      ...emerges.flatMap(
+        (emerge) =>
+          [
+            `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
+            `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
+          ] satisfies `${string};`[],
+      ),
 
       // Update the counter.
       once
