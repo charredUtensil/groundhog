@@ -264,6 +264,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       "onFoundBreadcrumb",
       "onFoundMiners",
       "onIncomplete",
+      "wasFound",
     ]);
 
     const { minersPoint, breadcrumb, breadcrumbPoint } = getAbandonedEnts(
@@ -291,10 +292,12 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       `# P${plan.id}: Lost Miners`,
       shouldMessageOnMiners &&
         `string ${v.msgFoundMiners}="${escapeString(messageFoundMiners)}"`,
+      `int ${v.wasFound}=0`,
       `if(change:${transformPoint(cavern, minersPoint)})[${v.onFoundMiners}]`,
       eventChain(
         v.onFoundMiners,
         shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
+        `${v.wasFound}=1;`,
         `${gLostMiners.remainingCaves}-=1;`,
         `((${gLostMiners.remainingCaves}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
       ),
@@ -308,6 +311,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
           `if(change:${transformPoint(cavern, breadcrumbPoint)})[${v.onFoundBreadcrumb}]`,
           eventChain(
             v.onFoundBreadcrumb,
+            `((${v.wasFound}>0))return;`,
             `pan:${transformPoint(cavern, breadcrumbPoint)};`,
             `msg:${v.msgFoundBreadcrumb};`,
           ),
