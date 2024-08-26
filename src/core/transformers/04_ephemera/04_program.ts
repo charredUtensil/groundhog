@@ -1,12 +1,12 @@
 import { filterTruthy } from "../../common/utils";
 import { Architect } from "../../models/architect";
-import { EnscribedCavern } from "./02_enscribe";
+import { PreprogrammedCavern } from "./03_preprogram";
 
-export type ProgrammedCavern = EnscribedCavern & {
+export type ProgrammedCavern = PreprogrammedCavern & {
   readonly script: string;
 };
 
-export default function program(cavern: EnscribedCavern): ProgrammedCavern {
+export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
   // All unique globals function objects
   const globalsFns = Array.from(
     cavern.plans.reduce((r: Architect<any>["scriptGlobals"][], plan) => {
@@ -37,13 +37,13 @@ export default function program(cavern: EnscribedCavern): ProgrammedCavern {
     : [];
   const na = ["# n/a", ""];
   const script = [
-    "# I. Architect Globals",
+    "#> Architect Globals",
     ...(archGlobals.length ? archGlobals : na),
-    "# II. Architect Scripts",
+    "#> Architect Scripts",
     ...(archScripts.length ? archScripts : na),
-    "# III. Spawn Monsters",
+    "#> Spawn Monsters",
     ...(monsters.length ? monsters : na),
-    "# IV. Spawn Slugs",
+    "#> Spawn Slugs",
     ...(slugs.length ? slugs : na),
   ].join("\n");
 

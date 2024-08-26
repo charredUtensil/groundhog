@@ -4,16 +4,19 @@ import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
+import { Vehicle } from "../models/vehicle";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
+  FOUND_LM_BREADCRUMB,
   FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
   NOMADS_SETTLED,
 } from "./graphs/events";
+import { NAME } from "./graphs/names";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
 import { SEISMIC_FORESHADOW } from "./graphs/seismic";
@@ -36,6 +39,9 @@ export type State = {
   readonly hqIsRuin: boolean;
   readonly treasureCaveOne: boolean;
   readonly treasureCaveMany: boolean;
+  readonly rockBiome: boolean;
+  readonly iceBiome: boolean;
+  readonly lavaBiome: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -61,6 +67,7 @@ enum Die {
   foundAllLostMiners,
   nomadsSettled,
   foundSlugNest,
+  name,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -210,6 +217,9 @@ export class Lore {
       spawnIsNomadsTogether: nomads > 1,
       treasureCaveOne: treasures === 1,
       treasureCaveMany: treasures > 1,
+      rockBiome: cavern.context.biome === "rock",
+      iceBiome: cavern.context.biome === "ice",
+      lavaBiome: cavern.context.biome === "lava",
     };
 
     const enemies = filterTruthy([
@@ -232,6 +242,7 @@ export class Lore {
 
   briefings(dice: DiceBox) {
     return {
+      name: NAME.generate(dice.lore(Die.name), this.state, this.vars),
       premise: PREMISE.generate(dice.lore(Die.premise), this.state, this.vars),
       orders: ORDERS.generate(dice.lore(Die.orders), this.state, this.vars),
       success: SUCCESS.generate(
@@ -255,6 +266,13 @@ export class Lore {
     return FOUND_HQ.generate(dice.lore(Die.foundHq), this.state, this.vars);
   }
 
+  foundLostMinersBreadcrumb(rng: PseudorandomStream, vehicle: Vehicle) {
+    return FOUND_LM_BREADCRUMB.generate(rng, this.state, {
+      ...this.vars,
+      vehicleName: vehicle.template.name,
+    });
+  }
+
   foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {
     return FOUND_LOST_MINERS.generate(
       rng,
@@ -265,7 +283,7 @@ export class Lore {
       },
       {
         ...this.vars,
-        foundMinersCount: foundMinersCount.toFixed(),
+        foundMinersCount: spellNumber(foundMinersCount),
       },
     );
   }

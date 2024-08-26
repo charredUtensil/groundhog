@@ -32,13 +32,13 @@ function getLakes(
     lakeCount: number,
     skipChance: number,
   ) => {
-    const stops =
-      planCount > 1
-        ? rng
-            .shuffle(new Array(planCount - 1).fill(0).map((_, i) => i + 1))
-            .filter((_, i) => i < lakeCount - 1)
-            .sort()
-        : [];
+    if (planCount < 1) {
+      return [];
+    }
+    const stops = rng
+      .shuffle(new Array(planCount - 1).fill(0).map((_, i) => i + 1))
+      .filter((_, i) => i < lakeCount - 1)
+      .sort();
     return pairMap([0, ...stops, planCount], (a, b) => ({
       fluid,
       remaining: b - a,

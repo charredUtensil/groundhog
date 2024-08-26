@@ -24,12 +24,15 @@ import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import {
+  DzPriorities,
   escapeString,
   eventChain,
   mkVars,
   scriptFragment,
   transformPoint,
 } from "./utils/script";
+import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 export type LostMinersMetadata = {
   readonly tag: "lostMiners";
@@ -37,7 +40,7 @@ export type LostMinersMetadata = {
 };
 
 export const gLostMiners = mkVars("gLostMiners", [
-  "lostMinersCount",
+  "remainingCaves",
   "onFoundAll",
   "messageFoundAll",
   "done",
@@ -100,14 +103,13 @@ function getBreadcrumbPoint(
   return getBreadcrumbPoint(cavern, [minersX, minersY], minersDz, neighborPlan);
 }
 
-function placeBreadcrumbVehicle(
+function placeBreadcrumbVehicles(
   cavern: StrataformedCavern,
-  plan: Plan<any>,
+  plan: Plan<LostMinersMetadata>,
   [x, y]: Point,
-  vehicles: Vehicle[],
   vehicleFactory: VehicleFactory,
   rng: PseudorandomStream,
-) {
+): Vehicle[] {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
   const template = rng.weightedChoice<VehicleTemplate | null>([
@@ -119,7 +121,7 @@ function placeBreadcrumbVehicle(
     { item: null, bid: 0.0025 },
   ]);
   if (template) {
-    vehicles.push(
+    return [
       vehicleFactory.create({
         ...randomlyInTile({
           x,
@@ -127,10 +129,12 @@ function placeBreadcrumbVehicle(
           aimedAt: plan.path.baseplates[0].center,
           rng,
         }),
+        planId: plan.id,
         template,
       }),
-    );
+    ];
   }
+  return [];
 }
 
 const pickMinerPoint = (
@@ -148,6 +152,31 @@ const pickMinerPoint = (
     return !t?.isWall && !t?.isFluid && !discoveryZones.get(x, y)?.openOnSpawn;
   });
 
+function getAbandonedEnts(
+  cavern: EnscribedCavern,
+  plan: Plan<LostMinersMetadata>,
+) {
+  const miner = cavern.miners.find((m) => m.planId === plan.id)!;
+  const minersPoint: Point = [Math.floor(miner.x), Math.floor(miner.y)];
+  const minersDz = cavern.discoveryZones.get(...minersPoint)!;
+
+  const breadcrumb = cavern.vehicles.find((v) => {
+    if (v.planId !== plan.id) {
+      return false;
+    }
+    const dz = cavern.discoveryZones.get(Math.floor(v.x), Math.floor(v.y));
+    return dz !== minersDz;
+  });
+  const breadcrumbPoint: Point | undefined = breadcrumb
+    ? [Math.floor(breadcrumb.x), Math.floor(breadcrumb.y)]
+    : undefined;
+  return {
+    minersPoint,
+    breadcrumb,
+    breadcrumbPoint,
+  };
+}
+
 const BASE: PartialArchitect<LostMinersMetadata> = {
   ...DefaultCaveArchitect,
   prime: ({ cavern, plan }) => {
@@ -155,14 +184,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     const minersCount = rng.betaInt({ a: 1, b: 2, min: 1, max: 5 });
     return { tag: "lostMiners", minersCount };
   },
-  placeEntities: ({
-    cavern,
-    plan,
-    miners,
-    minerFactory,
-    vehicles,
-    vehicleFactory,
-  }) => {
+  placeEntities: ({ cavern, plan, minerFactory, vehicleFactory }) => {
     const rng = cavern.dice.placeEntities(plan.id);
     // Place the lost miners
     const [x, y] =
@@ -177,19 +199,25 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     if (dz.openOnSpawn) {
       throw new Error("Lost Miners point is discovered on spawn");
     }
+    const miners = [];
     for (let i = 0; i < plan.metadata.minersCount; i++) {
-      miners.push(minerFactory.create({ ...randomlyInTile({ x, y, rng }) }));
+      miners.push(
+        minerFactory.create({
+          planId: plan.id,
+          ...randomlyInTile({ x, y, rng }),
+        }),
+      );
     }
     // Place a breadcrumb vehicle
     const breadcrumbPoint = getBreadcrumbPoint(cavern, [x, y], dz, plan);
-    placeBreadcrumbVehicle(
+    const vehicles = placeBreadcrumbVehicles(
       cavern,
       plan,
       breadcrumbPoint,
-      vehicles,
       vehicleFactory,
       rng,
     );
+    return { miners, vehicles };
   },
   objectives: ({ cavern }) => {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
@@ -204,12 +232,19 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       sufficient: true,
     };
   },
+  claimEventOnDiscover({ cavern, plan }) {
+    const { minersPoint, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
+    return [
+      { pos: breadcrumbPoint, priority: DzPriorities.HINT },
+      { pos: minersPoint, priority: DzPriorities.OBJECTIVE },
+    ];
+  },
   scriptGlobals({ cavern }) {
-    const { lostMiners } = countLostMiners(cavern);
+    const { lostMinerCaves } = countLostMiners(cavern);
     const message = cavern.lore.foundAllLostMiners(cavern.dice).text;
     return scriptFragment(
       `# Globals: Lost Miners`,
-      `int ${gLostMiners.lostMinersCount}=${lostMiners}`,
+      `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
       `int ${gLostMiners.done}=0`,
       `string ${gLostMiners.messageFoundAll}="${escapeString(message)}"`,
       eventChain(
@@ -221,31 +256,66 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     );
   },
   script({ cavern, plan }) {
-    const lostMinersPoint = transformPoint(
-      cavern,
-      pickMinerPoint(plan, cavern)!,
-    );
     const rng = cavern.dice.script(plan.id);
-    const message = cavern.lore.foundLostMiners(
-      rng,
-      plan.metadata.minersCount,
-    ).text;
+    const { lostMinerCaves } = countLostMiners(cavern);
     const v = mkVars(`p${plan.id}LostMiners`, [
-      "messageDiscover",
-      "onDiscover",
+      "msgFoundBreadcrumb",
+      "msgFoundMiners",
+      "onFoundBreadcrumb",
+      "onFoundMiners",
       "onIncomplete",
+      "wasFound",
     ]);
+
+    const { minersPoint, breadcrumb, breadcrumbPoint } = getAbandonedEnts(
+      cavern,
+      plan,
+    );
+    const shouldPanOnMiners =
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...minersPoint)!.id
+      ] === plan.id;
+    const shouldMessageOnMiners = shouldPanOnMiners && lostMinerCaves > 1;
+    const messageFoundMiners = shouldMessageOnMiners
+      ? cavern.lore.foundLostMiners(rng, plan.metadata.minersCount).text
+      : "undefined";
+    const shouldPanMessageOnBreadcrumb =
+      breadcrumbPoint &&
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...breadcrumbPoint)!.id
+      ] === plan.id;
+    const messageFoundBreadcrumb = shouldPanMessageOnBreadcrumb
+      ? cavern.lore.foundLostMinersBreadcrumb(rng, breadcrumb!).text
+      : "undefined";
+
     return scriptFragment(
       `# P${plan.id}: Lost Miners`,
-      `string ${v.messageDiscover}="${escapeString(message)}"`,
-      `if(change:${lostMinersPoint})[${v.onDiscover}]`,
+      shouldMessageOnMiners &&
+        `string ${v.msgFoundMiners}="${escapeString(messageFoundMiners)}"`,
+      `int ${v.wasFound}=0`,
+      `if(change:${transformPoint(cavern, minersPoint)})[${v.onFoundMiners}]`,
       eventChain(
-        v.onDiscover,
-        `pan:${lostMinersPoint};`,
-        `${gLostMiners.lostMinersCount}-=${plan.metadata.minersCount};`,
-        `((${gLostMiners.lostMinersCount}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
+        v.onFoundMiners,
+        shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
+        `${v.wasFound}=1;`,
+        `${gLostMiners.remainingCaves}-=1;`,
+        `((${gLostMiners.remainingCaves}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
       ),
-      eventChain(v.onIncomplete, `msg:${v.messageDiscover};`),
+      eventChain(
+        v.onIncomplete,
+        shouldMessageOnMiners && `msg:${v.msgFoundMiners};`,
+      ),
+      shouldPanMessageOnBreadcrumb &&
+        scriptFragment(
+          `string ${v.msgFoundBreadcrumb}="${escapeString(messageFoundBreadcrumb)}"`,
+          `if(change:${transformPoint(cavern, breadcrumbPoint)})[${v.onFoundBreadcrumb}]`,
+          eventChain(
+            v.onFoundBreadcrumb,
+            `((${v.wasFound}>0))return;`,
+            `pan:${transformPoint(cavern, breadcrumbPoint)};`,
+            `msg:${v.msgFoundBreadcrumb};`,
+          ),
+        ),
     );
   },
 };

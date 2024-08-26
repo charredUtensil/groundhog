@@ -137,7 +137,7 @@ function App() {
             state.error && styles.hasError,
           ]).join(" ")}
         />
-        {state.cavern && !state.error && (
+        {state.cavern && (
           <CavernPreview
             cavern={state.cavern}
             mapOverlay={mapOverlay}
@@ -156,12 +156,7 @@ function App() {
           />
         )}
         {mapOverlay === "about" && <About />}
-        {mapOverlay === "lore" && (
-          <LorePreview
-            briefing={state.cavern?.briefing}
-            script={state.cavern?.script}
-          />
-        )}
+        {mapOverlay === "lore" && <LorePreview {...state.cavern} />}
         {state.error && (
           <ErrorPreview error={state.error} context={state.cavern?.context} />
         )}
@@ -183,7 +178,7 @@ function App() {
             <a
               className={styles.button}
               href={getDownloadLink(state.cavern.serialized)}
-              download={`${state.cavern.levelName ?? "groundhog"}.dat`}
+              download={`${state.cavern.fileName ?? state.cavern.levelName ?? "groundhog"}.dat`}
             >
               download
             </a>

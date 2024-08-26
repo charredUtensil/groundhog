@@ -159,6 +159,7 @@ export const TUNNEL_TRANSPORT = new VehicleTemplate(
 
 export type Vehicle = EntityPosition & {
   readonly id: number;
+  readonly planId: number;
   readonly template: VehicleTemplate;
   readonly essential: boolean;
   readonly driverId: number | null;
@@ -169,6 +170,7 @@ export class VehicleFactory {
   private id: number = 0;
   create<T extends VehicleTemplate>(
     args: EntityPosition & {
+      planId: number;
       template: T;
       upgrades?: T["upgrades"][number][];
     } & Partial<Pick<Vehicle, "essential" | "driverId">>,

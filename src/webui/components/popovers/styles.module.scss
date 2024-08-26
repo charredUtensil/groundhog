@@ -12,16 +12,43 @@
     background: var(--palette-bg);
     border: 1px solid var(--palette-settings-bg);
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 12px 24px;
     max-width: 500px;
     max-height: calc(100% - 100px);
     overflow-x: hidden;
     overflow-y: scroll;
 
+    h1,
     h2,
     h3,
-    a {
+    p {
+      margin: 4px 0;
+    }
+
+    h1,
+    h2,
+    h3 {
       color: var(--palette-accent);
+    }
+
+    a,
+    button {
+      border: none;
+      padding: 0;
+      font-size: 1em;
+      background: none;
+      color: var(--palette-accent);
+      cursor: pointer;
+      font-family: var(--font-body);
+      text-decoration: underline;
+    }
+
+    > ul {
+      padding-left: 0;
+    }
+
+    .subhead {
+      font-size: 0.5em;
     }
 
     h3::before {
@@ -29,25 +56,27 @@
       content: "subdirectory_arrow_right";
     }
 
+    &.lore {
+      p {
+        white-space-collapse: preserve-breaks;
+      }
+    }
+
     &.error {
       --palette-settings-bg: yellow;
       --palette-accent: yellow;
 
-      .info {
-        padding-left: 0;
-        font-size: 8px;
-        font-family: var(--font-tiny);
+      .message {
+        white-space: pre;
       }
 
       .stack {
         font-size: 8px;
-        font-family: var(--font-tiny);
         white-space: pre;
       }
 
       .context {
         font-size: 8px;
-        font-family: var(--font-tiny);
         line-break: anywhere;
       }
     }

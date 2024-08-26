@@ -26,7 +26,7 @@ export type CavernContext = {
   seed: number;
 
   /** Any values not infered directly from the seed. */
-  overrides: readonly string[];
+  overrides: readonly (keyof CavernContext)[];
   /**
    * Which biome this map is in. Biome affects the default setting for some
    * other context values, such as how much water or lava a map has.
@@ -406,6 +406,6 @@ export function inferContextDefaults(
     ...r,
     overrides: Object.keys(args)
       .filter((k) => k !== "seed")
-      .sort(),
+      .sort() as (keyof CavernContext)[],
   };
 }

@@ -54,6 +54,7 @@ export function monsterForBiome(biome: Biome): CreatureTemplate {
 
 export type Creature = EntityPosition & {
   readonly id: number;
+  readonly planId: number;
   readonly template: CreatureTemplate;
   readonly sleep: boolean;
 };
@@ -61,7 +62,11 @@ export type Creature = EntityPosition & {
 export class CreatureFactory {
   private id: number = 0;
   create(
-    args: EntityPosition & { template: CreatureTemplate; sleep?: boolean },
+    args: EntityPosition & {
+      planId: number;
+      template: CreatureTemplate;
+      sleep?: boolean;
+    },
   ): Creature {
     return { sleep: false, ...args, id: this.id++ };
   }

@@ -12,6 +12,7 @@ import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import {
+  DzPriorities,
   escapeString,
   eventChain,
   mkVars,
@@ -52,10 +53,19 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
       waveSize: holeCount,
     });
   },
+  claimEventOnDiscover: ({ cavern, plan }) => {
+    const pos = getDiscoveryPoint(cavern, plan);
+    return [{ pos, priority: DzPriorities.TRIVIAL }];
+  },
   script: ({ cavern, plan }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
-    if (!discoPoint) {
-      return undefined;
+    if (
+      !discoPoint ||
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...discoPoint)!.id
+      ] !== plan.id
+    ) {
+      return scriptFragment(`# P${plan.id}: Slug Nest`, `# [Skip]`);
     }
 
     const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover", "onDiscover"]);
