@@ -9,7 +9,7 @@ import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
 import PearlPreview from "./pearl";
-import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
+import { PearledPlan } from "../../../core/transformers/01_planning/06_pearl";
 import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
 import OpenCaveFlagPreview from "./open_cave_flag";

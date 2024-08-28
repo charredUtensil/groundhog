@@ -1,8 +1,8 @@
-import { PartialPlannedCavern } from "./00_negotiate";
 import { FluidType, Tile } from "../../models/tiles";
-import { MeasuredPlan } from "./01_measure";
+import { MeasuredCavern, MeasuredPlan } from "./01_measure";
 import { PseudorandomStream } from "../../common";
 import { pairMap } from "../../common/utils";
+import { WithPlanType } from "./utils";
 
 export type FloodedPlan = MeasuredPlan & {
   /** What kind of fluid is present in this plan. */
@@ -10,6 +10,8 @@ export type FloodedPlan = MeasuredPlan & {
   /** Should this plan contain erosion? */
   readonly hasErosion: boolean;
 };
+
+export type FloodedCavern = WithPlanType<MeasuredCavern, FloodedPlan>;
 
 type Lake = {
   readonly fluid: FluidType;
@@ -19,7 +21,7 @@ type Lake = {
 };
 
 function getLakes(
-  cavern: PartialPlannedCavern<MeasuredPlan>,
+  cavern: MeasuredCavern,
   rng: PseudorandomStream,
 ): readonly Lake[] {
   const plans = rng.shuffle(
@@ -53,9 +55,7 @@ function getLakes(
   ];
 }
 
-export default function flood(
-  cavern: PartialPlannedCavern<MeasuredPlan>,
-): PartialPlannedCavern<FloodedPlan> {
+export default function flood(cavern: MeasuredCavern): FloodedCavern {
   const rng = cavern.dice.flood;
   const lakes = getLakes(cavern, rng);
   const fluids: (FluidType | undefined)[] = [];

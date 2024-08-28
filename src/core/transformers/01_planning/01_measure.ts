@@ -1,5 +1,5 @@
-import { PartialPlannedCavern } from "./00_negotiate";
-import { NegotiatedPlan } from "./00_negotiate";
+import { NegotiatedCavern, NegotiatedPlan } from "./00_negotiate";
+import { WithPlanType } from "./utils";
 
 export type MeasuredPlan = NegotiatedPlan & {
   /**
@@ -12,9 +12,9 @@ export type MeasuredPlan = NegotiatedPlan & {
   readonly perimeter: number;
 };
 
-export default function measure(
-  cavern: PartialPlannedCavern<NegotiatedPlan>,
-): PartialPlannedCavern<MeasuredPlan> {
+export type MeasuredCavern = WithPlanType<NegotiatedCavern, MeasuredPlan>
+
+export default function measure(cavern: NegotiatedCavern): MeasuredCavern {
   const planIdsByBp: number[][] = [];
   cavern.plans.forEach((plan) => {
     plan.path.baseplates.forEach((bp) =>
