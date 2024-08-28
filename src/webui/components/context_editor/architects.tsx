@@ -26,7 +26,6 @@ export const ArchitectsInput = ({ update, context }: UpdateData) => {
   }
 
   return [...ARCHITECTS]
-    .sort((a, b) => a.name.localeCompare(b.name))
     .map((a) => {
       const state = context.architects?.[a.name];
       return (

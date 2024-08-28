@@ -33,6 +33,7 @@ function getGraph(paths: readonly Path[]): GraphNode[] {
   return result;
 }
 
+// Returns the total distance 
 function getAllDistances(graph: GraphNode[], paths: Path[], src: Baseplate) {
   const distances: number[] = [];
   const queue: Baseplate[] = [];
@@ -63,7 +64,7 @@ function getAllDistances(graph: GraphNode[], paths: Path[], src: Baseplate) {
   return result;
 }
 
-/** Returns the angle between two absolute angles. */
+// Returns the angle between two absolute angles.
 function getOffset(t1: number, t2: number): number {
   const r = Math.abs(t1 - t2);
   // Invert reflex angles
@@ -92,7 +93,8 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
     }, Infinity);
   }
 
-  // Delete any paths that don't form a minimum angle
+  // Delete any paths that don't form a minimum angle.
+  // Returns true if there's at least one path left in the queue.
   function pruneByAngle() {
     let ok = false;
     paths

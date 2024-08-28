@@ -1,4 +1,4 @@
-import { HqMetadata } from "../architects/established_hq";
+import { HqMetadata } from "../architects/established_hq/base";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";

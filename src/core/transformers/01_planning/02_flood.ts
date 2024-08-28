@@ -7,6 +7,11 @@ import { pairMap } from "../../common/utils";
 export type FloodedPlan = MeasuredPlan & {
   /** What kind of fluid is present in this plan. */
   readonly fluid: FluidType;
+  /**
+   * How many contiguous plans have the same fluid?
+   * For plans without fluid, how many contiguous plans have no fluid?
+   */
+  readonly lakeSize: number;
   /** Should this plan contain erosion? */
   readonly hasErosion: boolean;
 };
@@ -51,6 +56,29 @@ function getLakes(
     ...h(Tile.WATER, cavern.context.waterPlans, cavern.context.waterLakes, 0.2),
     ...h(Tile.LAVA, cavern.context.lavaPlans, cavern.context.lavaLakes, 0.2),
   ];
+}
+
+// Measures the final size of all lakes.
+function measureLakes(cavern: PartialPlannedCavern<MeasuredPlan>, fluids: (FluidType | undefined)[]) {
+  const results: number[] = [];
+  for (let i = 0; i < cavern.plans.length; i++) {
+    if (results[i]) {
+      continue;
+    }
+    const queue = [i];
+    const out = [];
+    while (queue.length) {
+      const j = queue.shift()!;
+      if (results[j]) {
+        continue;
+      }
+      results[j] = Infinity;
+      out.push(j);
+      queue.push(...cavern.plans[j].intersects.map((_, k) => k).filter(k => fluids[k] === fluids[i]));
+    }
+    out.forEach(j => results[j] = out.length);
+  }
+  return results;
 }
 
 export default function flood(
@@ -122,10 +150,14 @@ export default function flood(
       });
   }
 
+  const lakeSizes = measureLakes(cavern, fluids);
+
   const plans = cavern.plans.map((plan) => ({
     ...plan,
     fluid: fluids[plan.id] ?? null,
+    lakeSize: lakeSizes[plan.id],
     hasErosion: !!erosion[plan.id],
   }));
   return { ...cavern, plans };
 }
+

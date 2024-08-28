@@ -26,7 +26,7 @@ import {
 import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
-import { gLostHq } from "./established_hq";
+import { gLostHq } from "./established_hq/lost";
 
 export type NomadsMetadata = {
   readonly tag: "nomads";
