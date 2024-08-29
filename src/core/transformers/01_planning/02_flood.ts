@@ -1,8 +1,8 @@
-import { PartialPlannedCavern } from "./00_negotiate";
 import { FluidType, Tile } from "../../models/tiles";
-import { MeasuredPlan } from "./01_measure";
+import { MeasuredCavern, MeasuredPlan } from "./01_measure";
 import { PseudorandomStream } from "../../common";
 import { pairMap } from "../../common/utils";
+import { WithPlanType } from "./utils";
 
 export type FloodedPlan = MeasuredPlan & {
   /** What kind of fluid is present in this plan. */
@@ -16,6 +16,8 @@ export type FloodedPlan = MeasuredPlan & {
   readonly hasErosion: boolean;
 };
 
+export type FloodedCavern = WithPlanType<MeasuredCavern, FloodedPlan>;
+
 type Lake = {
   readonly fluid: FluidType;
   readonly skipChance: number;
@@ -24,7 +26,7 @@ type Lake = {
 };
 
 function getLakes(
-  cavern: PartialPlannedCavern<MeasuredPlan>,
+  cavern: MeasuredCavern,
   rng: PseudorandomStream,
 ): readonly Lake[] {
   const plans = rng.shuffle(
@@ -59,7 +61,7 @@ function getLakes(
 }
 
 // Measures the final size of all lakes.
-function measureLakes(cavern: PartialPlannedCavern<MeasuredPlan>, fluids: (FluidType | undefined)[]) {
+function measureLakes(cavern: MeasuredCavern, fluids: (FluidType | undefined)[]) {
   const results: number[] = [];
   for (let i = 0; i < cavern.plans.length; i++) {
     if (results[i]) {
@@ -81,9 +83,7 @@ function measureLakes(cavern: PartialPlannedCavern<MeasuredPlan>, fluids: (Fluid
   return results;
 }
 
-export default function flood(
-  cavern: PartialPlannedCavern<MeasuredPlan>,
-): PartialPlannedCavern<FloodedPlan> {
+export default function flood(cavern: MeasuredCavern): FloodedCavern {
   const rng = cavern.dice.flood;
   const lakes = getLakes(cavern, rng);
   const fluids: (FluidType | undefined)[] = [];

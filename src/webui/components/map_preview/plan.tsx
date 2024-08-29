@@ -172,7 +172,7 @@ export default function PlansPreview({
               className={`${styles.inline} ${getGClassName(plan)}`}
             >
               <text className={styles.label} x={x * SCALE} y={y * SCALE}>
-                {"architect" in plan && plan.architect.name} {plan.id}
+                {"architect" in plan && plan.architect?.name} {plan.id}
               </text>
             </g>
           );
@@ -191,7 +191,7 @@ export default function PlansPreview({
             <path id={`planLabel${plan.id}`} d={d} fill="none" />
             <text className={styles.label}>
               <textPath href={`#planLabel${plan.id}`} startOffset="50%">
-                {"architect" in plan && plan.architect.name} {plan.id}
+                {"architect" in plan && plan.architect?.name} {plan.id}
               </textPath>
             </text>
           </g>
@@ -216,7 +216,7 @@ export default function PlansPreview({
         <g key={plan.id} className={`${className} ${getGClassName(plan)}`}>
           <path className={styles.pointer} d={d} />
           <text className={styles.label} x={lx + 25 * sign} y={ly}>
-            {"architect" in plan ? (
+            {"architect" in plan && plan.architect?.name ? (
               <>
                 {plan.architect.name}
                 {!plan.hops.length && "*"} {plan.id}
