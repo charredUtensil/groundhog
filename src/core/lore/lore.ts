@@ -4,12 +4,14 @@ import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
+import { Vehicle } from "../models/vehicle";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
+  FOUND_LM_BREADCRUMB,
   FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
   NOMADS_SETTLED,
@@ -261,6 +263,13 @@ export class Lore {
     return FOUND_HQ.generate(dice.lore(Die.foundHq), this.state, this.vars);
   }
 
+  foundLostMinersBreadcrumb(rng: PseudorandomStream, vehicle: Vehicle) {
+    return FOUND_LM_BREADCRUMB.generate(rng, this.state, {
+      ...this.vars,
+      vehicleName: vehicle.template.name,
+    });
+  }
+
   foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {
     return FOUND_LOST_MINERS.generate(
       rng,
@@ -271,7 +280,7 @@ export class Lore {
       },
       {
         ...this.vars,
-        foundMinersCount: foundMinersCount.toFixed(),
+        foundMinersCount: spellNumber(foundMinersCount),
       },
     );
   }

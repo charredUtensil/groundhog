@@ -1,4 +1,4 @@
-import { EnscribedCavern } from "../04_ephemera/02_enscribe";
+import { FinePlasticCavern } from "../02_masonry/05_fine";
 import fence, { FencedCavern } from "./00_fence";
 
 function bounds({ left, right, bottom, top }: FencedCavern) {
@@ -15,7 +15,7 @@ test("fence keeps a square square", () => {
         bottom: 3,
       },
     },
-  } as EnscribedCavern);
+  } as FinePlasticCavern);
 
   expect(bounds(r)).toEqual({ left: -3, top: -4, right: 5, bottom: 4 });
 });
@@ -30,7 +30,7 @@ test("fence makes a wide rectangle square", () => {
         bottom: 0,
       },
     },
-  } as EnscribedCavern);
+  } as FinePlasticCavern);
 
   expect(bounds(r)).toEqual({ left: -8, top: -10, right: 5, bottom: 3 });
 });

@@ -34,7 +34,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       ore: ({ plan }) => plan.oreRichness * plan.perimeter,
       prime: () => undefined,
       placeRechargeSeam: getPlaceRechargeSeams(),
-      placeBuildings: () => {},
+      placeBuildings: () => ({}),
       placeCrystals: (args) => {
         return sprinkleCrystals(args);
       },
@@ -54,9 +54,10 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
         }
       },
       placeErosion: (args) => placeErosion(30, 10, args),
-      placeEntities: () => {},
+      placeEntities: () => ({}),
       objectives: () => undefined,
       maxSlope: undefined,
+      claimEventOnDiscover: () => [],
       scriptGlobals: () => undefined,
       script: () => undefined,
       monsterSpawnScript: () => undefined,

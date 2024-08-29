@@ -4,6 +4,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
+  DzPriorities,
   eventChain,
   mkVars,
   scriptFragment,
@@ -61,8 +62,9 @@ const HOARD: typeof BASE = {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      placeSleepingMonsters(args, rng, count);
+      return { creatures: placeSleepingMonsters(args, rng, count) };
     }
+    return {};
   },
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
@@ -82,22 +84,36 @@ const HOARD: typeof BASE = {
       `int ${g.crystalsAvailable}=0`,
     );
   },
+  claimEventOnDiscover({ plan }) {
+    const pos = plan.innerPearl[0][0];
+    return [{ pos, priority: DzPriorities.HINT }];
+  },
   script({ cavern, plan }) {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
+
+    const discoPoint = plan.innerPearl[0][0];
+    if (
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...discoPoint)!.id
+      ] !== plan.id
+    ) {
+      return undefined;
+    }
+
     const hasLostMiners = cavern.plans.some(
       (p) => p.metadata?.tag === "lostMiners",
     );
 
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    const centerPoint = transformPoint(cavern, plan.innerPearl[0][0]);
+
     const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
 
     return scriptFragment(
       `# P${plan.id}: Hoard`,
-      `if(change:${centerPoint})[${v.onDiscovered}]`,
+      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
         `((${g.wasTriggered}))return;`,
@@ -112,7 +128,11 @@ const HOARD: typeof BASE = {
         // If this is enough to win the level, alert the player.
         `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))${v.go};`,
       ),
-      eventChain(v.go, `msg:${g.message};`, `pan:${centerPoint};`),
+      eventChain(
+        v.go,
+        `msg:${g.message};`,
+        `pan:${transformPoint(cavern, discoPoint)};`,
+      ),
     );
   },
 };
@@ -191,8 +211,9 @@ const TREASURE = [
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
         const count = Math.ceil(args.plan.monsterWaveSize / 2);
-        placeSleepingMonsters(args, rng, count, "inner");
+        return { creatures: placeSleepingMonsters(args, rng, count, "inner") };
       }
+      return {};
     },
   },
   {

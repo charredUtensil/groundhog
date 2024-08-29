@@ -12,9 +12,17 @@ type Statement = {
 
 const SCALE = 6;
 
+const H4_RE = /^# (P\d+|Globals):/;
+
 function parse(script: string): Statement[] {
   return script.split("\n").map((line) => {
+    if (line.startsWith("#>")) {
+      return { kind: "h3", code: line };
+    }
     if (line.startsWith("#")) {
+      if (H4_RE.test(line)) {
+        return { kind: "h4", code: line };
+      }
       return { kind: "misc", code: line };
     }
     if (!line) {

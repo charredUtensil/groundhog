@@ -6,7 +6,7 @@ import {
   monsterForBiome,
 } from "../../models/creature";
 import { Plan } from "../../models/plan";
-import { EnscribedCavern } from "../../transformers/04_ephemera/02_enscribe";
+import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
 import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
 
@@ -73,7 +73,7 @@ function cycleEmerges(
 }
 
 function getArmTriggers(
-  cavern: EnscribedCavern,
+  cavern: PreprogrammedCavern,
   plan: Plan<any>,
   armFn: string,
 ) {
@@ -87,13 +87,16 @@ function getArmTriggers(
   return [`if(time:0)[${armFn}]`];
 }
 
-function getTriggerPoints(cavern: EnscribedCavern, plan: Plan<any>): Point[] {
+function getTriggerPoints(
+  cavern: PreprogrammedCavern,
+  plan: Plan<any>,
+): Point[] {
   // Pick any tile that was set with a value, even if it is solid rock.
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
 }
 
 export function monsterSpawnScript(
-  args: { cavern: EnscribedCavern; plan: Plan<any> },
+  args: { cavern: PreprogrammedCavern; plan: Plan<any> },
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -106,7 +109,7 @@ export function monsterSpawnScript(
 }
 
 export function slugSpawnScript(
-  args: { cavern: EnscribedCavern; plan: Plan<any> },
+  args: { cavern: PreprogrammedCavern; plan: Plan<any> },
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -120,7 +123,7 @@ export function slugSpawnScript(
 }
 
 function creatureSpawnScript(
-  { cavern, plan }: { cavern: EnscribedCavern; plan: Plan<any> },
+  { cavern, plan }: { cavern: PreprogrammedCavern; plan: Plan<any> },
   opts: CreatureSpawnerArgs,
 ) {
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
@@ -206,10 +209,13 @@ function creatureSpawnScript(
         `${v.needCrystals}=crystals+${opts.needCrystals.increment};`,
 
       // Trigger all the spawns.
-      ...(emerges.flatMap((emerge) => [
-        `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
-        `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
-      ]) as `${string};`[]),
+      ...emerges.flatMap(
+        (emerge) =>
+          [
+            `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
+            `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
+          ] satisfies `${string};`[],
+      ),
 
       // Update the counter.
       once
