@@ -19,7 +19,7 @@ export default function encourageDisable<T extends Architect<any>>(
         const r = { ...a };
         r.caveBid = (args) => !!a.caveBid?.(args) && 999999;
         r.hallBid = (args) => !!a.hallBid?.(args) && 999999;
-        r.spawnBid = (args) => !!a.spawnBid?.(args) && 999999;
+        r.anchorBid = (args) => !!a.anchorBid?.(args) && 999999;
         return r;
       }
       return a;

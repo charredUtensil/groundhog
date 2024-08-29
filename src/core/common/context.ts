@@ -3,15 +3,15 @@ import { DiceBox } from "./prng";
 export type Biome = "rock" | "ice" | "lava";
 
 /**
- * Some values are "curved" so they change based on distance from spawn.
- * These values can be negative to decrease a value away from spawn.
+ * Some values are "curved" so they change based on distance from the anchor.
+ * These values can be negative to decrease a value away from the anchor.
  */
 export type Curve = {
-  /** The base value at spawn. */
+  /** The base value at the anchor. */
   readonly base: number;
   /**
    * This value is multiplied by a number from 0 to 1 depending on the ratio
-   * of the maximum possible distance away from spawn.
+   * of the maximum possible distance away from the anchor.
    */
   readonly hops: number;
   /**
@@ -155,8 +155,8 @@ export type CavernContext = {
    */
   architects: { [key: string]: "encourage" | "disable" };
   /**
-   * The chance each cave will have a recharge seam. Some caves (such as spawn)
-   * will always have a recharge seam.
+   * The chance each cave will have a recharge seam. Some caves (like most
+   * spawns) will always have a recharge seam.
    */
   caveHasRechargeSeamChance: number;
   /** The chance each hall will have a recharge seam. */

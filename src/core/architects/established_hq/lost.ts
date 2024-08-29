@@ -58,7 +58,7 @@ const LOST_BASE: Pick<
 
 const LOST = [
   {
-    name: "Lost Established HQ",
+    name: "Hq.Lost.Established",
     ...BASE,
     ...LOST_BASE,
     prime: getPrime(15, false),
@@ -72,7 +72,7 @@ const LOST = [
       0.5,
   },
   {
-    name: "Lost Ruined HQ",
+    name: "Hq.Lost.Ruins",
     ...BASE,
     ...LOST_BASE,
     prime: getPrime(15, true),

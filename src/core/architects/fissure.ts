@@ -103,7 +103,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
 
 const FISSURE = [
   {
-    name: "Fissure Hall",
+    name: "Fissure",
     ...BASE,
     ...mkRough({ of: Rough.SOLID_ROCK }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan, plans }) =>

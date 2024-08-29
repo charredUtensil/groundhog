@@ -63,10 +63,10 @@ export const FC_BASE: Pick<
 
 const FIXED_COMPLETE = [
   {
-    name: "Fixed Complete HQ Spawn",
+    name: "Hq.FixedComplete",
     ...BASE,
     ...FC_BASE,
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.1,
+    anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.1,
   },
 ] as const satisfies readonly Architect<HqMetadata>[];
 

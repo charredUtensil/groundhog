@@ -176,19 +176,19 @@ export class Lore {
 
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
-    const spawn = cavern.plans.find((p) => !p.hops.length)!;
+    const anchor = cavern.plans[cavern.anchor];
 
     const hq = cavern.plans.find(
       (p) => p.metadata?.tag === "hq",
     ) as Plan<HqMetadata>;
-    const spawnIsHq = spawn === hq;
+    const spawnIsHq = anchor === hq;
     const hqIsFixedComplete = hq?.metadata.fixedComplete;
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
     const nomads =
-      spawn.metadata?.tag === "nomads"
-        ? (spawn.metadata.minersCount as number)
+      anchor.metadata?.tag === "nomads"
+        ? (anchor.metadata.minersCount as number)
         : 0;
 
     const treasures = cavern.plans.reduce(
@@ -208,7 +208,7 @@ export class Lore {
         cavern.objectives.studs > 0,
       hasMonsters: cavern.context.hasMonsters,
       hasSlugs: cavern.context.hasSlugs,
-      spawnHasErosion: spawn.hasErosion,
+      spawnHasErosion: anchor.hasErosion,
       spawnIsHq,
       findHq,
       hqIsFixedComplete,

@@ -4,10 +4,10 @@ This directory contains the definitions of individual architects, which are resp
 
 ## Bidding
 
-Architects must implement at least one of the `caveBid`, `hallBid`, or `spawnBid` methods, which return a number or a falsy value representing the "bid" to use this architect for a given plan. These methods must ensure the plan is suitable for the architect. Consider checking any of these which apply:
+Architects must implement at least one of the `caveBid`, `hallBid`, or `anchorBid` methods, which return a number or a falsy value representing the "bid" to use this architect for a given plan. These methods must ensure the plan is suitable for the architect. Consider checking any of these which apply:
 
 - The fluid type, and the fluid types of any intersecting plans.
-- The distance from spawn.
+- The distance from the anchor.
 - The biome.
 - If the architect relies on the presence of monsters or slugs, that those are enabled.
 - Whether the architect has been used in the level already.
@@ -36,7 +36,7 @@ These should perform the task listed in the name.
 
 ### Buildings
 
-This step is nominally for adding buildings but may also be used to set up other miscellaneous fixed position items such as open cave flags or the camera position, since those tend to be linked with buildings. Note the camera position must only be set once, and it should be the spawn cave that does this. When buildings are placed, the architect should also set the building's foundation - it will not happen automatically.
+This step is nominally for adding buildings but may also be used to set up other miscellaneous fixed position items such as open cave flags or the camera position, since those tend to be linked with buildings. Note the camera position must only be set once, and it should be the anchor cave that does this. When buildings are placed, the architect should also set the building's foundation - it will not happen automatically.
 
 ### Crystals & Ore
 
@@ -70,9 +70,9 @@ This stage adds scripted events using Manic Miners' scripting language.
 
 If an architect will perform some "cinematic" (i.e. a pan + message) immediately after a zone is discovered, it must claim that zone in the pre-program stage. This is to avoid a situation where two different plans try to trigger events at the same time, causing undesired behavior. If the needed zone is not assigned to the plan ID, it must not perform the cinematic. This does not prevent non-blocking events such as monster spawns or scheduling some event to occur after a random delay.
 
-### The Spawn Cave is Special
+### The Anchor Cave is Special
 
-Generally speaking, to avoid any conflicting logic or strange behaviors, the spawn cave's script should be solely responsible for manipulating any global state. If there is some special logic that occurs when a specific spawn architect is used in combination with another architect, that logic should be owned by the spawn. For example, when a "Find HQ" is present the Nomads Spawn disables buildings until the HQ is found. This logic exists entirely within the Nomads Spawn.
+Generally speaking, to avoid any conflicting logic or strange behaviors, the anchor cave's script should be solely responsible for manipulating any global state. If there is some special logic that occurs when a specific anchor architect is used in combination with another architect, that logic should be owned by the anchor. For example, when a "Find HQ" is present the Nomads Spawn disables buildings until the HQ is found. This logic exists entirely within the Nomads Spawn.
 
 ### Script Globals
 

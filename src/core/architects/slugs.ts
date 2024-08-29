@@ -125,7 +125,7 @@ const SLUG_HALL: PartialArchitect<undefined> = {
 
 const SLUGS = [
   {
-    name: "Slug Nest",
+    name: "Slugs.Nest",
     ...SLUG_NEST,
     ...mkRough(
       { of: Rough.FLOOR, width: 3, grow: 1 },
@@ -150,7 +150,7 @@ const SLUGS = [
       0.25,
   },
   {
-    name: "Slug Hall",
+    name: "Slugs.Hall",
     ...SLUG_HALL,
     ...mkRough(
       { of: Rough.FLOOR },

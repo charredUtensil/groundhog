@@ -22,14 +22,14 @@ import { Point } from "../common/geometry";
 import { ModdedCavern } from "../transformers/01_planning/04_mod";
 import { OrderedPlan } from "../transformers/01_planning/03_anchor";
 
-type SpawnBidArgs = {
+type anchorBidArgs = {
   readonly cavern: FloodedCavern;
   readonly plan: FloodedPlan;
 };
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
-type BidArgs = SpawnBidArgs & {
+type BidArgs = anchorBidArgs & {
   readonly plans: readonly OrderedOrEstablishedPlan[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
@@ -51,7 +51,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   caveBid?(args: BidArgs): number | false;
   hallBid?(args: BidArgs): number | false;
-  spawnBid?(args: SpawnBidArgs): number | false;
+  anchorBid?(args: anchorBidArgs): number | false;
 
   prime(args: PrimeArgs): T;
 
@@ -151,5 +151,5 @@ export type Architect<T extends BaseMetadata> = BaseArchitect<T> &
   (
     | { caveBid: NonNullable<BaseArchitect<T>["caveBid"]> }
     | { hallBid: NonNullable<BaseArchitect<T>["hallBid"]> }
-    | { spawnBid: NonNullable<BaseArchitect<T>["spawnBid"]> }
+    | { anchorBid: NonNullable<BaseArchitect<T>["anchorBid"]> }
   );

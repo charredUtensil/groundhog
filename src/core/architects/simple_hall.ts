@@ -12,7 +12,7 @@ const BASE: PartialArchitect<undefined> = {
 
 const SIMPLE_HALL = [
   {
-    name: "Open Hall",
+    name: "SimpleHall.Open",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
@@ -23,7 +23,7 @@ const SIMPLE_HALL = [
     hallBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 0 && 1,
   },
   {
-    name: "Wide Hall With Monsters",
+    name: "SimpleHall.WideWithMonsters",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, grow: 1 },
@@ -43,7 +43,7 @@ const SIMPLE_HALL = [
     },
   },
   {
-    name: "Filled Hall",
+    name: "SimpleHall.Filled",
     ...BASE,
     ...mkRough(
       {
@@ -59,7 +59,7 @@ const SIMPLE_HALL = [
     hallBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 0 && 1,
   },
   {
-    name: "River",
+    name: "SimpleHall.Water.River",
     ...BASE,
     crystalsToPlace: ({ plan }) => 3 * plan.crystalRichness * plan.perimeter,
     ...mkRough(
@@ -80,7 +80,7 @@ const SIMPLE_HALL = [
     hallBid: ({ plan }) => plan.fluid === Tile.WATER && 1,
   },
   {
-    name: "Stream",
+    name: "SimpleHall.Water.Stream",
     ...BASE,
     ...mkRough(
       { of: Rough.WATER, grow: 0.5 },
@@ -92,7 +92,7 @@ const SIMPLE_HALL = [
       plan.fluid === Tile.WATER && intersectsOnly(plans, plan, Tile.WATER) && 1,
   },
   {
-    name: "Lava River",
+    name: "SimpleHall.Lava.River",
     ...BASE,
     ...mkRough(
       { of: Rough.LAVA, width: 2, grow: 1 },
@@ -102,7 +102,7 @@ const SIMPLE_HALL = [
     hallBid: ({ plan }) => plan.fluid === Tile.LAVA && 1,
   },
   {
-    name: "Wide Lava River with Monsters",
+    name: "SimpleHall.Lava.WideWithMonsters",
     ...BASE,
     ...mkRough(
       { of: Rough.LAVA, width: 2, grow: 1 },

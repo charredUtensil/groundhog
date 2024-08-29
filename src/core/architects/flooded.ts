@@ -23,7 +23,7 @@ const BASE: PartialArchitect<undefined> = {
 
 const FLOODED = [
   {
-    name: "Lake",
+    name: "Flooded.Water.Lake",
     ...BASE,
     ...mkRough(
       { of: Rough.WATER, grow: 2 },
@@ -40,7 +40,7 @@ const FLOODED = [
       plan.fluid === Tile.WATER && plan.pearlRadius < 10 && 1,
   },
   {
-    name: "Lake With Sleeping Monsters",
+    name: "Flooded.Water.LakeWithMonsters",
     ...BASE,
     ...mkRough(
       { of: Rough.WATER, grow: 2 },
@@ -63,7 +63,7 @@ const FLOODED = [
     },
   },
   {
-    name: "Island",
+    name: "Flooded.Water.Island",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
@@ -80,7 +80,7 @@ const FLOODED = [
       plan.fluid === Tile.WATER && plan.pearlRadius > 5 && 2,
   },
   {
-    name: "Lava Lake",
+    name: "Flooded.Lava.Lake",
     ...BASE,
     ...mkRough(
       { of: Rough.LAVA, grow: 2 },
@@ -92,7 +92,7 @@ const FLOODED = [
       plan.fluid === Tile.LAVA && plan.pearlRadius < 10 && 1,
   },
   {
-    name: "Lava Island",
+    name: "Flooded.Lava.Island",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
@@ -108,7 +108,7 @@ const FLOODED = [
       plan.fluid === Tile.LAVA && plan.pearlRadius > 5 && 1,
   },
   {
-    name: "Peninsula",
+    name: "Flooded.Water.Peninsula",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
@@ -128,7 +128,7 @@ const FLOODED = [
       1,
   },
   {
-    name: "Lava Peninsula",
+    name: "Flooded.Lava.Peninsula",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 0.7 },
@@ -146,7 +146,7 @@ const FLOODED = [
       1,
   },
   {
-    name: "Lava Stalagmite Cave",
+    name: "Flooded.Lava.Stalagmites",
     ...BASE,
     crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
     ...mkRough(

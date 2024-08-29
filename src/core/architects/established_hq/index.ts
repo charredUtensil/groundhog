@@ -11,14 +11,14 @@ import LOST from "./lost";
 
 export const ESTABLISHED_HQ = [
   {
-    name: "Established HQ Spawn",
+    name: "Hq.Spawn.Established",
     ...BASE,
     prime: getPrime(10, false),
     placeBuildings: getPlaceBuildings({ discovered: true }),
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
+    anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
   },
   {
-    name: "Ruined HQ Spawn",
+    name: "Hq.Spawn.Ruins",
     ...BASE,
     prime: getPrime(12, true),
     placeBuildings: getPlaceBuildings({
@@ -26,7 +26,7 @@ export const ESTABLISHED_HQ = [
       from: 3,
     }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 60 }, args),
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
+    anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
   },
   ...FIXED_COMPLETE,
   ...ISLAND,

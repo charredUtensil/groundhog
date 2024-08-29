@@ -21,7 +21,7 @@ const HARD_ROCK_MIN_CRYSTALS =
 
 const THIN_HALL = [
   {
-    name: "Thin Open Hall",
+    name: "ThinHall.Open",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR },
@@ -36,7 +36,7 @@ const THIN_HALL = [
     hallBid: ({ plan }) => !plan.fluid && 0.2,
   },
   {
-    name: "Thin Filled Hall",
+    name: "ThinHall.Filled",
     ...BASE,
     ...mkRough(
       {
@@ -50,7 +50,7 @@ const THIN_HALL = [
     hallBid: ({ plan }) => !plan.fluid && 0.1,
   },
   {
-    name: "Thin Hard Rock Hall",
+    name: "ThinHall.HardRock",
     ...BASE,
     ...mkRough({ of: Rough.HARD_ROCK }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan, totalCrystals }) =>

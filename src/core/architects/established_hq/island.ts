@@ -104,7 +104,7 @@ export const ISLAND_BASE: Pick<
 
 const ISLAND = [
   {
-    name: "Island Established HQ Spawn",
+    name: "Hq.Island",
     ...BASE,
     ...ISLAND_BASE,
     ...mkRough(
@@ -113,7 +113,7 @@ const ISLAND = [
       { of: Rough.WATER, width: 2, grow: 2 },
       { of: Rough.MIX_FRINGE }
     ),
-    spawnBid: ({ plan }) => (
+    anchorBid: ({ plan }) => (
       plan.fluid === Tile.WATER &&
       plan.lakeSize > 3 &&
       plan.path.baseplates.length === 1 &&
