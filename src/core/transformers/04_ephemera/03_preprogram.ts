@@ -1,4 +1,3 @@
-import { filterTruthy } from "../../common/utils";
 import { EnscribedCavern } from "./02_enscribe";
 
 export type PreprogrammedCavern = EnscribedCavern & {
