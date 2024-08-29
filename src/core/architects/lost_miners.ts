@@ -32,7 +32,6 @@ import {
   transformPoint,
 } from "./utils/script";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
-import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 export type LostMinersMetadata = {
   readonly tag: "lostMiners";
