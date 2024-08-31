@@ -8,6 +8,7 @@ import { Vehicle } from "../models/vehicle";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {
+  FAILURE_BASE_DESTROYED,
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
@@ -68,6 +69,7 @@ enum Die {
   nomadsSettled,
   foundSlugNest,
   name,
+  failureBaseDestroyed,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -314,5 +316,13 @@ export class Lore {
 
   generateSeismicForeshadow(rng: PseudorandomStream) {
     return SEISMIC_FORESHADOW.generate(rng, this.state, this.vars);
+  }
+
+  generateFailureBaseDestroyed(dice: DiceBox) {
+    return FAILURE_BASE_DESTROYED.generate(
+      dice.lore(Die.failureBaseDestroyed),
+      this.state,
+      this.vars,
+    );
   }
 }

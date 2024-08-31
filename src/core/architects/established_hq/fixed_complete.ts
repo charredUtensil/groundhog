@@ -1,7 +1,7 @@
 import { Architect } from "../../models/architect";
 import { TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION, DOCKS, SUPER_TELEPORT, UPGRADE_STATION, GEOLOGICAL_CENTER, ALL_BUILDINGS } from "../../models/building";
 import { getTotalCrystals } from "../utils/resources";
-import { eventChain, mkVars, scriptFragment } from "../utils/script";
+import { escapeString, eventChain, mkVars, scriptFragment } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 
@@ -23,7 +23,7 @@ const T0_CRYSTALS = T0_BUILDINGS.reduce(
   0
 );
 
-const gFixedCompleteHq = mkVars("gFCHQ", ["onInit"]);
+const gFixedCompleteHq = mkVars("gFCHQ", ["onInit", "onBaseDestroyed", "msgBaseDestroyed"]);
 
 export const FC_BASE: Pick<
   Architect<HqMetadata>, "prime" | "placeBuildings" | "objectives" | "scriptGlobals"
@@ -45,9 +45,9 @@ export const FC_BASE: Pick<
     };
   },
   scriptGlobals: ({ cavern }) => {
-    const startBuildings = cavern.buildings.length;
     return scriptFragment(
       `# Globals: Fixed Complete HQ`,
+      `string ${gFixedCompleteHq.msgBaseDestroyed}="${escapeString(cavern.lore.generateFailureBaseDestroyed(cavern.dice).text)}"`,
       `if(time:0)[${gFixedCompleteHq.onInit}]`,
       eventChain(
         gFixedCompleteHq.onInit,
@@ -56,7 +56,16 @@ export const FC_BASE: Pick<
         ...ALL_BUILDINGS.map(
           (bt) => `disable:${bt.id};` as `${string};`
         )
-      )
+      ),
+      `if(toolstore<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      `if(powerstation<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      `if(supportstation<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      eventChain(
+        gFixedCompleteHq.onBaseDestroyed,
+        `msg:${gFixedCompleteHq.msgBaseDestroyed};`,
+        `wait:5;`,
+        `lose;`,
+      ),  
     );
   },
 };

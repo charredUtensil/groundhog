@@ -2,6 +2,7 @@ import phraseGraph, { PhraseGraph } from "../builder";
 import { State } from "../lore";
 import { FAILURE, SUCCESS } from "./conclusions";
 import {
+  FAILURE_BASE_DESTROYED,
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
@@ -110,4 +111,8 @@ test(`Found Slug Nest is complete`, () => {
 
 test(`Seismic Foreshadow is complete`, () => {
   expectCompletion(SEISMIC_FORESHADOW, EXPECTED);
+});
+
+test(`Failure: Base Destroyed is complete`, () => {
+  expectCompletion(FAILURE_BASE_DESTROYED, EXPECTED);
 });
