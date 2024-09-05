@@ -10,7 +10,7 @@ import { position } from "../models/position";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { slugSpawnScript } from "./utils/creature_spawners";
 
-const BASE: PartialArchitect<undefined> = {
+export const SIMPLE_SPAWN_BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   crystalsToPlace: () => 5,
   placeRechargeSeam: getPlaceRechargeSeams(1),
@@ -62,7 +62,7 @@ const OPEN = mkRough(
 const SIMPLE_SPAWN = [
   {
     name: "SimpleSpawn.Open",
-    ...BASE,
+    ...SIMPLE_SPAWN_BASE,
     ...OPEN,
     anchorBid: ({ plan }) =>
       !plan.fluid &&
@@ -72,7 +72,7 @@ const SIMPLE_SPAWN = [
   },
   {
     name: "SimpleSpawn.Empty",
-    ...BASE,
+    ...SIMPLE_SPAWN_BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.LOOSE_ROCK, grow: 1 },
@@ -88,7 +88,7 @@ const SIMPLE_SPAWN = [
     // This is mostly a fallback in case there's no other viable cave.
     // 9 crystals should be enough to ensure an escape route.
     name: "SimpleSpawn.Fallback",
-    ...BASE,
+    ...SIMPLE_SPAWN_BASE,
     ...OPEN,
     crystalsToPlace: () => 9,
     anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius >= 2 && 0.0001,
