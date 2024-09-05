@@ -96,7 +96,7 @@ const HOARD: typeof BASE = {
     const discoPoint = plan.innerPearl[0][0];
     if (
       cavern.ownsScriptOnDiscover[
-        cavern.discoveryZones.get(...discoPoint)!.id
+        cavern.discoveryZones.get(...discoPoint)?.id ?? -1
       ] !== plan.id
     ) {
       return undefined;

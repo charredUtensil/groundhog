@@ -121,8 +121,12 @@ export default function CavernPreview({
     default:
   }
 
-  const height = cavern.context.targetSize * 2 * 6;
-  const width = Math.max(height, cavern.context.targetSize * 6 + 600);
+  const targetSize = cavern.context?.targetSize
+  if (!targetSize) {
+    return null;
+  }
+  const height = targetSize * 2 * 6;
+  const width = Math.max(height, targetSize * 6 + 600);
 
   return (
     <div

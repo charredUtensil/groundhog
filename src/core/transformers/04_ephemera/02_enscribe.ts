@@ -1,4 +1,5 @@
 import { CavernContext } from "../../common";
+import { PartialCavernContext } from "../../common/context";
 import { Lore } from "../../lore/lore";
 import { AdjuredCavern } from "./01_adjure";
 
@@ -54,10 +55,12 @@ const OVERRIDE_SUFFIXES = [
   "Uranium Edition",
 ];
 
-function overrideSuffix(context: CavernContext) {
-  const s = [...context.overrides]
+function overrideSuffix(initialContext: PartialCavernContext) {
+  const overrides: Partial<CavernContext> = {...initialContext};
+  delete overrides.seed;
+  const s = Object.keys(overrides)
     .sort()
-    .map((k) => `${k}:${JSON.stringify(context[k])}`)
+    .map((k) => `${k}:${JSON.stringify(overrides[k as keyof CavernContext])}`)
     .join(",");
   // https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
   let v = 0;
@@ -70,7 +73,7 @@ function overrideSuffix(context: CavernContext) {
 }
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
-  const hasOverrides = cavern.context.overrides.length;
+  const hasOverrides = Object.keys(cavern.initialContext).length > 1;
 
   const fileName = (() => {
     const seed = cavern.context.seed.toString(16).padStart(8, "0");
@@ -91,7 +94,7 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
     cavern.dice,
   );
   const levelName = hasOverrides
-    ? `${name.text} (${overrideSuffix(cavern.context)})`
+    ? `${name.text} (${overrideSuffix(cavern.initialContext)})`
     : name.text;
   const briefing = {
     intro: `${premise.text}\n\n${orders.text}`,
