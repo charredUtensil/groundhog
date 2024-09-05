@@ -20,7 +20,7 @@ import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { DiscoveryZone } from "./discovery_zone";
 import { Point } from "../common/geometry";
 import { ModdedCavern } from "../transformers/01_planning/04_mod";
-import { OrderedPlan } from "../transformers/01_planning/03_anchor";
+import { AnchoredCavern, OrderedPlan } from "../transformers/01_planning/03_anchor";
 
 type anchorBidArgs = {
   readonly cavern: FloodedCavern;
@@ -52,6 +52,8 @@ export type BaseArchitect<T extends BaseMetadata> = {
   caveBid?(args: BidArgs): number | false;
   hallBid?(args: BidArgs): number | false;
   anchorBid?(args: anchorBidArgs): number | false;
+
+  mod?(args: AnchoredCavern): ModdedCavern;
 
   prime(args: PrimeArgs): T;
 
