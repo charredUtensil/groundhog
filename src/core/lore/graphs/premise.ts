@@ -279,9 +279,9 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(
       state("hqIsFixedComplete")
         .then(
-          "While the teleporters have been repaired, they are operating in" +
+          "While the teleporters have been repaired, they are operating in " +
             "a low-power mode and cannot send down any buildings.",
-          "We cannot risk running the teleporters at full power, so you will" +
+          "We cannot risk running the teleporters at full power, so you will " +
             "have to make do with the buildings that are already there.",
         )
         .then(alsoAdditionalHardship),

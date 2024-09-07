@@ -1,5 +1,6 @@
 import { CavernContext } from "../../common";
 import { PartialCavernContext } from "../../common/context";
+import { OVERRIDE_SUFFIXES } from "../../lore/graphs/names";
 import { Lore } from "../../lore/lore";
 import { AdjuredCavern } from "./01_adjure";
 
@@ -13,47 +14,6 @@ export type EnscribedCavern = AdjuredCavern & {
     failure: string;
   };
 };
-
-const OVERRIDE_SUFFIXES = [
-  "Ablated",
-  "Boosted",
-  "Chief's Version",
-  "Chrome Edition",
-  "Diamond Edition",
-  "Director's Cut",
-  "Emerald Edition",
-  "Enhanced",
-  "Extended",
-  "Gold Edition",
-  "HD",
-  "HD 1.5 Remix",
-  "Millenium Edition",
-  "Planet U Remix",
-  "Platinum Edition",
-  "Rebirthed",
-  "Reborn",
-  "Recoded",
-  "Rectified",
-  "Recycled",
-  "Redux",
-  "Reimagined",
-  "Reloaded",
-  "Remixed",
-  "Ressurection",
-  "Retooled",
-  "Revenant",
-  "Revolutions",
-  "Ruby Edition",
-  "Sapphire Edition",
-  "Silver Edition",
-  "Special Edition",
-  "Ungrounded",
-  "Unleashed",
-  "Unlocked",
-  "Unobtaininum Edition",
-  "Unplugged",
-  "Uranium Edition",
-];
 
 function overrideSuffix(initialContext: PartialCavernContext) {
   const overrides: Partial<CavernContext> = {...initialContext};

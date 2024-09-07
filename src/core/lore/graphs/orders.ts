@@ -64,6 +64,7 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
               ),
           ),
           state("findHq")
+            .then(skip, state("spawnHasErosion"))
             .then("reach the Rock Raider HQ", "locate the base")
             .then(
               skip,

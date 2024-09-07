@@ -24,7 +24,7 @@ const T0_CRYSTALS = T0_BUILDINGS.reduce(
   0
 );
 
-const gFixedCompleteHq = mkVars("gFCHQ", ["onInit", "onBaseDestroyed", "msgBaseDestroyed"]);
+const gFixedCompleteHq = mkVars("gFCHQ", ["onInit", "onBaseDestroyed", "msgBaseDestroyed", "wasBaseDestroyed"]);
 
 export const FC_BASE: Pick<
   Architect<HqMetadata>, "mod" | "prime" | "placeBuildings" | "scriptGlobals"
@@ -34,7 +34,7 @@ export const FC_BASE: Pick<
       crystalGoalRatio: 0.3,
       ...cavern.initialContext
     });
-    return {...cavern, context};
+    return { ...cavern, context };
   },
   prime: () => ({
     crystalsInBuildings: T0_CRYSTALS,
@@ -49,7 +49,6 @@ export const FC_BASE: Pick<
   scriptGlobals: ({ cavern }) => {
     return scriptFragment(
       `# Globals: Fixed Complete HQ`,
-      `string ${gFixedCompleteHq.msgBaseDestroyed}="${escapeString(cavern.lore.generateFailureBaseDestroyed(cavern.dice).text)}"`,
       `if(time:0)[${gFixedCompleteHq.onInit}]`,
       eventChain(
         gFixedCompleteHq.onInit,
@@ -59,15 +58,19 @@ export const FC_BASE: Pick<
           (bt) => `disable:${bt.id};` as `${string};`
         )
       ),
-      `if(toolstore<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
-      `if(powerstation<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
-      `if(supportstation<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      `string ${gFixedCompleteHq.msgBaseDestroyed}="${escapeString(cavern.lore.generateFailureBaseDestroyed(cavern.dice).text)}"`,
+      `int ${gFixedCompleteHq.wasBaseDestroyed}=0`,
+      `if(${TOOL_STORE.id}<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      `if(${POWER_STATION.id}<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      `if(${SUPPORT_STATION.id}<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
       eventChain(
         gFixedCompleteHq.onBaseDestroyed,
+        `((${gFixedCompleteHq.wasBaseDestroyed}>0))return;`,
+        `${gFixedCompleteHq.wasBaseDestroyed}=1;`,
         `msg:${gFixedCompleteHq.msgBaseDestroyed};`,
         `wait:5;`,
         `lose;`,
-      ),  
+      ),
     );
   },
 };

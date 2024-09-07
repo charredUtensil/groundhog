@@ -220,5 +220,6 @@ export const FAILURE_BASE_DESTROYED = phraseGraph<State>(
       .then("With your base destroyed,", "Oh no! The Rock Raider HQ is in ruins, and")
       .then("I don't think you can complete our mission.", "That doesn't bode well for our mission.")
       .then("I'm pulling you out.", "We're teleporting everyone out.", "I'm ordering you to evacuate immedately!")
+      .then(end);
   }
 );
