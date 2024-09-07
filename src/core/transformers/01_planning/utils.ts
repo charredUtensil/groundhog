@@ -3,14 +3,16 @@ import { Architect } from "../../models/architect";
 import { BaseCavern } from "../../models/cavern";
 import { Plan } from "../../models/plan";
 
-export type WithPlanType<CavernT extends BaseCavern, PlanT extends Partial<Plan<AnyMetadata>>> =
-  Omit<CavernT, "plans"> & {
-    readonly plans: readonly PlanT[];
-  };
+export type WithPlanType<
+  CavernT extends BaseCavern,
+  PlanT extends Partial<Plan<AnyMetadata>>,
+> = Omit<CavernT, "plans"> & {
+  readonly plans: readonly PlanT[];
+};
 
 export default function encourageDisable<T extends Architect<any>>(
   architects: readonly T[],
-  cavern: BaseCavern
+  cavern: BaseCavern,
 ): T[] {
   return architects
     .filter((a) => cavern.context.architects?.[a.name] !== "disable")

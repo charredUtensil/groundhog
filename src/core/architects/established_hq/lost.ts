@@ -1,7 +1,14 @@
 import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
-import { DzPriorities, scriptFragment, mkVars, escapeString, transformPoint, eventChain } from "../utils/script";
+import {
+  DzPriorities,
+  scriptFragment,
+  mkVars,
+  escapeString,
+  transformPoint,
+  eventChain,
+} from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
 
 const MAX_HOPS = 3;
@@ -9,7 +16,8 @@ const MAX_HOPS = 3;
 export const gLostHq = mkVars("gLostHq", ["foundHq"]);
 
 const LOST_BASE: Pick<
-  Architect<HqMetadata>, "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
+  Architect<HqMetadata>,
+  "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
 > = {
   objectives: () => ({
     variables: [
@@ -27,10 +35,14 @@ const LOST_BASE: Pick<
     }
     return [{ pos, priority: DzPriorities.OBJECTIVE }];
   },
-  scriptGlobals: () => scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
+  scriptGlobals: () =>
+    scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
   script({ cavern, plan }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
-    const shouldPanMessage = cavern.ownsScriptOnDiscover[cavern.discoveryZones.get(...discoPoint)!.id] === plan.id;
+    const shouldPanMessage =
+      cavern.ownsScriptOnDiscover[
+        cavern.discoveryZones.get(...discoPoint)!.id
+      ] === plan.id;
 
     const camPoint = plan.path.baseplates.reduce((r, p) => {
       return r.pearlRadius > p.pearlRadius ? r : p;
@@ -50,8 +62,8 @@ const LOST_BASE: Pick<
         shouldPanMessage && `msg:${v.messageDiscover};`,
         shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
         `wait:1;`,
-        `${gLostHq.foundHq}=1;`
-      )
+        `${gLostHq.foundHq}=1;`,
+      ),
     );
   },
 };

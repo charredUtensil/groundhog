@@ -193,7 +193,8 @@ export function serializeVehicle(
   return [
     vehicle.template.id,
     serializePosition(vehicle, offset, heightMap, 0, "entity"),
-    vehicle.upgrades.length && `upgrades=${vehicle.upgrades.map((u) => `${u}/`).join("")}`,
+    vehicle.upgrades.length &&
+      `upgrades=${vehicle.upgrades.map((u) => `${u}/`).join("")}`,
     vehicle.driverId !== null && `driver=${vehicle.driverId.toFixed()}`,
     vehicle.essential && "Essential=true",
     `ID=${vehicle.id.toFixed()}`,

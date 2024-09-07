@@ -4,7 +4,6 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { getBuildings } from "./utils/buildings";
-import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { position } from "../models/position";
 import { sprinkleSlugHoles } from "./utils/creatures";
@@ -65,10 +64,7 @@ const SIMPLE_SPAWN = [
     ...BASE,
     ...OPEN,
     anchorBid: ({ plan }) =>
-      !plan.fluid &&
-      plan.lakeSize >= 3 &&
-      plan.pearlRadius > 0 &&
-      1,
+      !plan.fluid && plan.lakeSize >= 3 && plan.pearlRadius > 0 && 1,
   },
   {
     name: "SimpleSpawn.Empty",
@@ -79,10 +75,7 @@ const SIMPLE_SPAWN = [
       { of: Rough.MIX_FRINGE },
     ),
     anchorBid: ({ plan }) =>
-      !plan.fluid &&
-      plan.lakeSize >= 3 &&
-      plan.pearlRadius > 0 &&
-      1,
+      !plan.fluid && plan.lakeSize >= 3 && plan.pearlRadius > 0 && 1,
   },
   {
     // This is mostly a fallback in case there's no other viable cave.

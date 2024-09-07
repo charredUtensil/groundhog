@@ -1,7 +1,18 @@
 import Delaunator from "delaunator";
 import { Point, plotLine } from "../../common/geometry";
 import { Architect } from "../../models/architect";
-import { Building, CANTEEN, DOCKS, GEOLOGICAL_CENTER, MINING_LASER, POWER_STATION, SUPPORT_STATION, TELEPORT_PAD, TOOL_STORE, UPGRADE_STATION } from "../../models/building";
+import {
+  Building,
+  CANTEEN,
+  DOCKS,
+  GEOLOGICAL_CENTER,
+  MINING_LASER,
+  POWER_STATION,
+  SUPPORT_STATION,
+  TELEPORT_PAD,
+  TOOL_STORE,
+  UPGRADE_STATION,
+} from "../../models/building";
 import { position } from "../../models/position";
 import { Tile } from "../../models/tiles";
 import { MakeBuildingFn, getBuildings } from "../utils/buildings";
@@ -23,7 +34,7 @@ const DESTROY_PATH_CHANCE = 0.62;
 
 export function getPrime(
   maxCrystals: number,
-  ruin: boolean
+  ruin: boolean,
 ): Architect<HqMetadata>["prime"] {
   return ({ cavern, plan }) => {
     const rng = cavern.dice.prime(plan.id);
@@ -47,7 +58,11 @@ const T3_BUILDINGS = [
   MINING_LASER,
 ] as const;
 
-function getDefaultTemplates(rng: PseudorandomStream, asSpawn: boolean, asRuin: boolean) {
+function getDefaultTemplates(
+  rng: PseudorandomStream,
+  asSpawn: boolean,
+  asRuin: boolean,
+) {
   return [
     ...T0_BUILDINGS,
     ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
@@ -58,7 +73,10 @@ function getDefaultTemplates(rng: PseudorandomStream, asSpawn: boolean, asRuin: 
 
 // Here be spaghetti
 export function getPlaceBuildings({
-  discovered = false, from = 2, templates, omit
+  discovered = false,
+  from = 2,
+  templates,
+  omit,
 }: {
   discovered?: boolean;
   from?: number;
@@ -71,7 +89,9 @@ export function getPlaceBuildings({
 
     // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
-    const tq = templates ? templates(rng) : getDefaultTemplates(rng, asSpawn, asRuin);
+    const tq = templates
+      ? templates(rng)
+      : getDefaultTemplates(rng, asSpawn, asRuin);
 
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
@@ -84,13 +104,17 @@ export function getPlaceBuildings({
         if (crystalBudget < bt.crystals) {
           return false;
         }
-        if (bt === DOCKS &&
+        if (
+          bt === DOCKS &&
           !args.plan.intersects.some(
-            (_, i) => args.cavern.plans[i].fluid === Tile.WATER
-          )) {
+            (_, i) => args.cavern.plans[i].fluid === Tile.WATER,
+          )
+        ) {
           return false;
         }
-        if (omit ? omit(bt, i) : !templates && asRuin && i === T0_BUILDINGS.length) {
+        if (
+          omit ? omit(bt, i) : !templates && asRuin && i === T0_BUILDINGS.length
+        ) {
           return false;
         }
         return true;
@@ -111,7 +135,7 @@ export function getPlaceBuildings({
     const buildings = getBuildings({ from, queue: bq }, args);
 
     const dependencies = new Set(
-      buildings.flatMap((b) => b.template.dependencies)
+      buildings.flatMap((b) => b.template.dependencies),
     );
 
     // Place the buildings.
@@ -130,7 +154,8 @@ export function getPlaceBuildings({
     }
 
     // Place power path trails between the buildings.
-    const getPorch: (b: Building) => Point = (b) => b.foundation[b.foundation.length - 1];
+    const getPorch: (b: Building) => Point = (b) =>
+      b.foundation[b.foundation.length - 1];
     const addPath = (source: Building, dest: Building) => {
       for (const point of plotLine(getPorch(source), getPorch(dest))) {
         if (args.tiles.get(...point) === Tile.FLOOR) {
@@ -138,7 +163,7 @@ export function getPlaceBuildings({
             ...point,
             asRuin && rng.chance(DESTROY_PATH_CHANCE)
               ? Tile.LANDSLIDE_RUBBLE_4
-              : Tile.POWER_PATH
+              : Tile.POWER_PATH,
           );
         }
       }
@@ -149,7 +174,8 @@ export function getPlaceBuildings({
       for (let i = 0; i < delaunay.triangles.length; i++) {
         if (i > delaunay.halfedges[i]) {
           const source = buildings[delaunay.triangles[i]];
-          const dest = buildings[delaunay.triangles[i + (i % 3 === 2 ? -2 : 1)]];
+          const dest =
+            buildings[delaunay.triangles[i + (i % 3 === 2 ? -2 : 1)]];
           addPath(source, dest);
         }
       }
@@ -159,23 +185,24 @@ export function getPlaceBuildings({
 
     // Place more rubble if this is ruin.
     if (asRuin) {
-      args.plan.innerPearl.forEach((layer) => layer.forEach((point) => {
-        if (args.tiles.get(...point) === Tile.FLOOR) {
-          args.tiles.set(
-            ...point,
-            rng.betaChoice(
-              [
-                Tile.FLOOR,
-                Tile.LANDSLIDE_RUBBLE_1,
-                Tile.LANDSLIDE_RUBBLE_2,
-                Tile.LANDSLIDE_RUBBLE_3,
-                Tile.LANDSLIDE_RUBBLE_4,
-              ],
-              { a: 1, b: 4 }
-            )
-          );
-        }
-      })
+      args.plan.innerPearl.forEach((layer) =>
+        layer.forEach((point) => {
+          if (args.tiles.get(...point) === Tile.FLOOR) {
+            args.tiles.set(
+              ...point,
+              rng.betaChoice(
+                [
+                  Tile.FLOOR,
+                  Tile.LANDSLIDE_RUBBLE_1,
+                  Tile.LANDSLIDE_RUBBLE_2,
+                  Tile.LANDSLIDE_RUBBLE_3,
+                  Tile.LANDSLIDE_RUBBLE_4,
+                ],
+                { a: 1, b: 4 },
+              ),
+            );
+          }
+        }),
       );
     }
 
@@ -187,17 +214,17 @@ export function getPlaceBuildings({
     // Set initial camera if this is spawn.
     const cameraPosition = asSpawn
       ? (() => {
-        const [xt, yt] = buildings.reduce(
-          ([x, y], b) => [x + b.x, y + b.y],
-          [0, 0]
-        );
-        return position({
-          x: buildings[0].x,
-          y: buildings[0].y,
-          aimedAt: [xt / buildings.length, yt / buildings.length],
-          pitch: Math.PI / 4,
-        });
-      })()
+          const [xt, yt] = buildings.reduce(
+            ([x, y], b) => [x + b.x, y + b.y],
+            [0, 0],
+          );
+          return position({
+            x: buildings[0].x,
+            y: buildings[0].y,
+            aimedAt: [xt / buildings.length, yt / buildings.length],
+            pitch: Math.PI / 4,
+          });
+        })()
       : undefined;
 
     // Some crystals remain that were not used.
@@ -220,7 +247,7 @@ export const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
     { of: Rough.FLOOR, width: 0, grow: 2 },
     { of: Rough.DIRT, width: 0, grow: 0.5 },
     { of: Rough.DIRT_OR_LOOSE_ROCK, grow: 0.25 },
-    { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.25 }
+    { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.25 },
   ),
   crystalsFromMetadata: (metadata) => metadata.crystalsInBuildings,
   placeRechargeSeam: getPlaceRechargeSeams(1),
@@ -238,4 +265,3 @@ export const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
   },
   maxSlope: 15,
 };
-

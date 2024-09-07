@@ -79,6 +79,6 @@ export default function negotiate(
     initialContext: cavern.initialContext,
     context: cavern.context,
     dice: cavern.dice,
-    plans
+    plans,
   };
 }

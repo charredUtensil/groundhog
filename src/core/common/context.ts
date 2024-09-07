@@ -257,7 +257,8 @@ export type CavernContext = {
   airSafetyFactor: number;
 };
 
-export type PartialCavernContext = Partial<CavernContext> & Pick<CavernContext, "seed">;
+export type PartialCavernContext = Partial<CavernContext> &
+  Pick<CavernContext, "seed">;
 
 enum Die {
   biome = 0,
@@ -369,7 +370,9 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
   return { waterPlans, waterLakes, lavaPlans, lavaLakes, erosionPlans };
 }
 
-export function inferContextDefaults(args: PartialCavernContext): CavernContext {
+export function inferContextDefaults(
+  args: PartialCavernContext,
+): CavernContext {
   const dice = new DiceBox(args.seed);
   const r = {
     biome: dice

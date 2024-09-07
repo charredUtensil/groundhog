@@ -16,7 +16,7 @@ export type EnscribedCavern = AdjuredCavern & {
 };
 
 function overrideSuffix(initialContext: PartialCavernContext) {
-  const overrides: Partial<CavernContext> = {...initialContext};
+  const overrides: Partial<CavernContext> = { ...initialContext };
   delete overrides.seed;
   const s = Object.keys(overrides)
     .sort()

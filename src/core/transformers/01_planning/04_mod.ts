@@ -13,4 +13,4 @@ export type ModdedCavern = AnchoredCavern;
 export default function mod(cavern: AnchoredCavern): ModdedCavern {
   const architect = (cavern.plans[cavern.anchor] as OrderedPlan).architect!;
   return architect.mod ? architect.mod(cavern) : cavern;
-} 
+}

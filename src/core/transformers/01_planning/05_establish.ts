@@ -25,16 +25,20 @@ export type EstablishedPlan<T extends BaseMetadata> = ArchitectedPlan<T> & {
   readonly ore: number;
 };
 
-export type OrderedOrEstablishedPlan = CollapseUnion<OrderedPlan | EstablishedPlan<AnyMetadata>>;
+export type OrderedOrEstablishedPlan = CollapseUnion<
+  OrderedPlan | EstablishedPlan<AnyMetadata>
+>;
 
-export type EstablishedCavern = WithPlanType<ModdedCavern, EstablishedPlan<AnyMetadata>>;
-
+export type EstablishedCavern = WithPlanType<
+  ModdedCavern,
+  EstablishedPlan<AnyMetadata>
+>;
 
 // Sort the plans in a breadth-first search order and log the hops they take.
 function orderPlans(cavern: ModdedCavern): OrderedPlan[] {
-  const queue = cavern.plans.filter(plan => "hops" in plan) as OrderedPlan[];
+  const queue = cavern.plans.filter((plan) => "hops" in plan) as OrderedPlan[];
   const isQueued: true[] = [];
-  queue.forEach(plan => isQueued[plan.id] = true);
+  queue.forEach((plan) => (isQueued[plan.id] = true));
 
   for (let i = 0; i < cavern.plans.length; i++) {
     const plan = queue[i];
@@ -45,8 +49,7 @@ function orderPlans(cavern: ModdedCavern): OrderedPlan[] {
     const neighbors = plan.intersects
       .map((b, id) => (b ? id : -1))
       .filter(
-        (id) =>
-          id >= 0 && !isQueued[id] && cavern.plans[id].kind !== plan.kind,
+        (id) => id >= 0 && !isQueued[id] && cavern.plans[id].kind !== plan.kind,
       );
     neighbors.forEach((id) => (isQueued[id] = true));
     queue.push(
@@ -69,7 +72,7 @@ export default function establish(cavern: AnchoredCavern): EstablishedCavern {
   const architects = encourageDisable(ARCHITECTS, cavern);
   const inOrder = orderPlans(cavern);
   const plans: OrderedOrEstablishedPlan[] = [];
-  inOrder.forEach(plan => plans[plan.id] = plan);
+  inOrder.forEach((plan) => (plans[plan.id] = plan));
 
   let totalCrystals = 0;
   const maxIndex = inOrder.length - 1;
@@ -85,7 +88,9 @@ export default function establish(cavern: AnchoredCavern): EstablishedCavern {
             plan.kind === "cave" ? architect.caveBid : architect.hallBid;
           return {
             item: architect,
-            bid: bid?.({ cavern, plan, plans, hops: plan.hops, totalCrystals }) || 0,
+            bid:
+              bid?.({ cavern, plan, plans, hops: plan.hops, totalCrystals }) ||
+              0,
           };
         }),
       );

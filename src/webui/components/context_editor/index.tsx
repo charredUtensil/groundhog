@@ -43,11 +43,13 @@ export function CavernContextInput({
   context: CavernContext | undefined;
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
-  return (<CavernContextInput__
-    initialContext={initialContext}
-    context={context ?? inferContextDefaults(initialContext)}
-    setInitialContext={setInitialContext}
-  />);
+  return (
+    <CavernContextInput__
+      initialContext={initialContext}
+      context={context ?? inferContextDefaults(initialContext)}
+      setInitialContext={setInitialContext}
+    />
+  );
 }
 
 function CavernContextInput__({
@@ -60,18 +62,25 @@ function CavernContextInput__({
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const resetContext = useCallback(() => setInitialContext(was => ({seed: was.seed})), [setInitialContext]);
-  const update = useCallback((args: Partial<CavernContext>) => setInitialContext((was: PartialCavernContext) => {
-    const r = { ...was, ...args };
-    for (const key of Object.keys(r) as (keyof typeof r)[]) {
-      if (r[key] === undefined) {
-        if (key in r) {
-          delete r[key];
+  const resetContext = useCallback(
+    () => setInitialContext((was) => ({ seed: was.seed })),
+    [setInitialContext],
+  );
+  const update = useCallback(
+    (args: Partial<CavernContext>) =>
+      setInitialContext((was: PartialCavernContext) => {
+        const r = { ...was, ...args };
+        for (const key of Object.keys(r) as (keyof typeof r)[]) {
+          if (r[key] === undefined) {
+            if (key in r) {
+              delete r[key];
+            }
+          }
         }
-      }
-    }
-    return r;
-  }), [setInitialContext]);
+        return r;
+      }),
+    [setInitialContext],
+  );
 
   useEffect(() => {
     const fn = () => {
@@ -133,10 +142,7 @@ function CavernContextInput__({
             <div className={styles.subsection}>
               <div className={styles.inputRow}>
                 {Object.keys(initialContext).length > 1 ? (
-                  <button
-                    className={styles.override}
-                    onClick={resetContext}
-                  >
+                  <button className={styles.override} onClick={resetContext}>
                     Clear All Overrides
                   </button>
                 ) : (

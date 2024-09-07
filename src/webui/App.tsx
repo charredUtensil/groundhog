@@ -1,11 +1,9 @@
-import React, {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { CSSProperties, useCallback, useEffect, useState } from "react";
 
-import { CavernContextInput, getInitialSeed } from "./components/context_editor";
+import {
+  CavernContextInput,
+  getInitialSeed,
+} from "./components/context_editor";
 import { Cavern } from "../core/models/cavern";
 import CavernPreview, { MapOverlay } from "./components/map_preview";
 import { CAVERN_TF } from "../core/transformers";
@@ -42,7 +40,7 @@ function getDownloadLink(serializedData: string) {
 }
 
 function getStateForInitialContext(initialContext: PartialCavernContext) {
-  return CAVERN_TF.first({initialContext})
+  return CAVERN_TF.first({ initialContext });
 }
 
 type State = TfResult<Cavern, Cavern> & {
@@ -50,15 +48,22 @@ type State = TfResult<Cavern, Cavern> & {
 };
 
 function App() {
-  const [state, setState] = useState<State>(() => getStateForInitialContext({
-    seed: getInitialSeed()
-  }));
+  const [state, setState] = useState<State>(() =>
+    getStateForInitialContext({
+      seed: getInitialSeed(),
+    }),
+  );
 
-  const setInitialContext = useCallback((arg: React.SetStateAction<PartialCavernContext>) => {
-    setState(was => getStateForInitialContext(
-      (typeof arg === 'function') ? arg(was.result.initialContext) : arg
-    ));
-  }, []);
+  const setInitialContext = useCallback(
+    (arg: React.SetStateAction<PartialCavernContext>) => {
+      setState((was) =>
+        getStateForInitialContext(
+          typeof arg === "function" ? arg(was.result.initialContext) : arg,
+        ),
+      );
+    },
+    [],
+  );
 
   const [autoGenerate, setAutoGenerate] = useState(true);
   const [mapOverlay, setMapOverlay] = useState<MapOverlay>("overview");
@@ -80,14 +85,14 @@ function App() {
       setState(state.next!());
     } catch (e: unknown) {
       console.error(e);
-      const error = e instanceof Error ? e : new Error('unknown error');
-      setState({...state, next: null, progress: 0, error});
+      const error = e instanceof Error ? e : new Error("unknown error");
+      setState({ ...state, next: null, progress: 0, error });
     }
   }, [state]);
 
   const reset = () => {
     setAutoGenerate(false);
-    setState(was => getStateForInitialContext(was.result.initialContext));
+    setState((was) => getStateForInitialContext(was.result.initialContext));
   };
 
   useEffect(() => {
@@ -141,7 +146,11 @@ function App() {
         {mapOverlay === "about" && <About />}
         {mapOverlay === "lore" && <LorePreview {...state.result} />}
         {state.error && (
-          <ErrorPreview error={state.error} initialContext={state.result.initialContext} context={state.result?.context} />
+          <ErrorPreview
+            error={state.error}
+            initialContext={state.result.initialContext}
+            context={state.result?.context}
+          />
         )}
         {!autoGenerate && state.name && (
           <div className={styles.stepName}>{state.name}</div>

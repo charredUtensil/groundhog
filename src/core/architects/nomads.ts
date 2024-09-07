@@ -76,7 +76,10 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       ?.hops.forEach((hopId) => {
         pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
           for (const pos of plotLine(a.center, b.center)) {
-            if (tiles.get(...pos)?.hardness ?? Hardness.SOLID >= Hardness.HARD) {
+            if (
+              tiles.get(...pos)?.hardness ??
+              Hardness.SOLID >= Hardness.HARD
+            ) {
               tiles.set(...pos, Tile.LOOSE_ROCK);
             }
           }

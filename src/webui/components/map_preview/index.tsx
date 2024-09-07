@@ -121,7 +121,7 @@ export default function CavernPreview({
     default:
   }
 
-  const targetSize = cavern.context?.targetSize
+  const targetSize = cavern.context?.targetSize;
   if (!targetSize) {
     return null;
   }

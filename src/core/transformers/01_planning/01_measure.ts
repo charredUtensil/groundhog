@@ -12,7 +12,7 @@ export type MeasuredPlan = NegotiatedPlan & {
   readonly perimeter: number;
 };
 
-export type MeasuredCavern = WithPlanType<NegotiatedCavern, MeasuredPlan>
+export type MeasuredCavern = WithPlanType<NegotiatedCavern, MeasuredPlan>;
 
 export default function measure(cavern: NegotiatedCavern): MeasuredCavern {
   const planIdsByBp: number[][] = [];

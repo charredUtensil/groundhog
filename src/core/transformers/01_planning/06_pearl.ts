@@ -20,7 +20,10 @@ export type PearledPlan<T extends BaseMetadata> = EstablishedPlan<T> & {
   readonly outerPearl: Pearl;
 };
 
-export type PearledCavern = WithPlanType<EstablishedCavern, PearledPlan<AnyMetadata>>;
+export type PearledCavern = WithPlanType<
+  EstablishedCavern,
+  PearledPlan<AnyMetadata>
+>;
 
 export class LayerGrid extends MutableGrid<number> {
   atLayer(layer: number): Point[] {
@@ -171,7 +174,7 @@ export default function pearl(cavern: EstablishedCavern): PearledCavern {
     const pearlRadius = plan.architect.roughExtent(plan);
     for (let i = 1; i < pearlRadius + 4; i++) {
       (i <= pearlRadius ? innerPearl : outerPearl).push(
-        addLayer(grid, rng, i < pearlRadius ? plan.baroqueness : 0, i)
+        addLayer(grid, rng, i < pearlRadius ? plan.baroqueness : 0, i),
       );
     }
     return { ...plan, innerPearl, outerPearl };

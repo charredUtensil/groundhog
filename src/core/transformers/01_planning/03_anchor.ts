@@ -9,7 +9,10 @@ export type OrderedPlan = FloodedPlan & {
   hops: readonly number[];
 };
 
-export type AnchoredCavern = WithPlanType<FloodedCavern, FloodedPlan | OrderedPlan> & {anchor: number}
+export type AnchoredCavern = WithPlanType<
+  FloodedCavern,
+  FloodedPlan | OrderedPlan
+> & { anchor: number };
 
 export default function anchor(cavern: FloodedCavern): AnchoredCavern {
   const architects = encourageDisable(ARCHITECTS, cavern);
@@ -31,5 +34,5 @@ export default function anchor(cavern: FloodedCavern): AnchoredCavern {
   const plans: (FloodedPlan | OrderedPlan)[] = [...cavern.plans];
   plans[anchor.id] = anchor;
 
-  return {...cavern, anchor: anchor.id, plans};
+  return { ...cavern, anchor: anchor.id, plans };
 }

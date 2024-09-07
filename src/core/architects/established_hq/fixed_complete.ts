@@ -1,10 +1,23 @@
 import { inferContextDefaults } from "../../common";
 import { Architect } from "../../models/architect";
-import { TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION, DOCKS, SUPER_TELEPORT, UPGRADE_STATION, GEOLOGICAL_CENTER, ALL_BUILDINGS } from "../../models/building";
-import { getTotalCrystals } from "../utils/resources";
-import { escapeString, eventChain, mkVars, scriptFragment } from "../utils/script";
+import {
+  TOOL_STORE,
+  TELEPORT_PAD,
+  POWER_STATION,
+  SUPPORT_STATION,
+  DOCKS,
+  SUPER_TELEPORT,
+  UPGRADE_STATION,
+  GEOLOGICAL_CENTER,
+  ALL_BUILDINGS,
+} from "../../models/building";
+import {
+  escapeString,
+  eventChain,
+  mkVars,
+  scriptFragment,
+} from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
-
 
 const T0_BUILDINGS = [
   TOOL_STORE,
@@ -19,20 +32,23 @@ const T0_BUILDINGS = [
   SUPPORT_STATION,
 ] as const;
 
-const T0_CRYSTALS = T0_BUILDINGS.reduce(
-  (r, bt) => r + bt.crystals,
-  0
-);
+const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 
-const gFixedCompleteHq = mkVars("gFCHQ", ["onInit", "onBaseDestroyed", "msgBaseDestroyed", "wasBaseDestroyed"]);
+const gFixedCompleteHq = mkVars("gFCHQ", [
+  "onInit",
+  "onBaseDestroyed",
+  "msgBaseDestroyed",
+  "wasBaseDestroyed",
+]);
 
 export const FC_BASE: Pick<
-  Architect<HqMetadata>, "mod" | "prime" | "placeBuildings" | "scriptGlobals"
+  Architect<HqMetadata>,
+  "mod" | "prime" | "placeBuildings" | "scriptGlobals"
 > = {
   mod: (cavern) => {
     const context = inferContextDefaults({
       crystalGoalRatio: 0.3,
-      ...cavern.initialContext
+      ...cavern.initialContext,
     });
     return { ...cavern, context };
   },
@@ -54,9 +70,7 @@ export const FC_BASE: Pick<
         gFixedCompleteHq.onInit,
         // Can't just disable buildings because that disables fences - and
         // nobody wants that.
-        ...ALL_BUILDINGS.map(
-          (bt) => `disable:${bt.id};` as `${string};`
-        )
+        ...ALL_BUILDINGS.map((bt) => `disable:${bt.id};` as `${string};`),
       ),
       `string ${gFixedCompleteHq.msgBaseDestroyed}="${escapeString(cavern.lore.generateFailureBaseDestroyed(cavern.dice).text)}"`,
       `int ${gFixedCompleteHq.wasBaseDestroyed}=0`,

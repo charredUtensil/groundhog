@@ -33,7 +33,7 @@ function getGraph(paths: readonly Path[]): GraphNode[] {
   return result;
 }
 
-// Returns the total distance 
+// Returns the total distance
 function getAllDistances(graph: GraphNode[], paths: Path[], src: Baseplate) {
   const distances: number[] = [];
   const queue: Baseplate[] = [];

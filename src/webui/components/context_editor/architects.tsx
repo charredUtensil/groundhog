@@ -25,37 +25,36 @@ export const ArchitectsInput = ({ update, initialContext }: UpdateData) => {
     update({ architects: r });
   }
 
-  return [...ARCHITECTS]
-    .map((a) => {
-      const state = initialContext.architects?.[a.name];
-      return (
-        <React.Fragment key={a.name}>
-          <p>{a.name}</p>
-          <div className={styles.inputRow}>
-            <button
-              className={`${styles.choice} ${state === "encourage" ? styles.override : styles.inactive}`}
-              onClick={() =>
-                updateArchitects(
-                  a.name,
-                  state === "encourage" ? undefined : "encourage",
-                )
-              }
-            >
-              Encourage
-            </button>
-            <button
-              className={`${styles.choice} ${state === "disable" ? styles.override : styles.inactive}`}
-              onClick={() =>
-                updateArchitects(
-                  a.name,
-                  state === "disable" ? undefined : "disable",
-                )
-              }
-            >
-              Disable
-            </button>
-          </div>
-        </React.Fragment>
-      );
-    });
+  return [...ARCHITECTS].map((a) => {
+    const state = initialContext.architects?.[a.name];
+    return (
+      <React.Fragment key={a.name}>
+        <p>{a.name}</p>
+        <div className={styles.inputRow}>
+          <button
+            className={`${styles.choice} ${state === "encourage" ? styles.override : styles.inactive}`}
+            onClick={() =>
+              updateArchitects(
+                a.name,
+                state === "encourage" ? undefined : "encourage",
+              )
+            }
+          >
+            Encourage
+          </button>
+          <button
+            className={`${styles.choice} ${state === "disable" ? styles.override : styles.inactive}`}
+            onClick={() =>
+              updateArchitects(
+                a.name,
+                state === "disable" ? undefined : "disable",
+              )
+            }
+          >
+            Disable
+          </button>
+        </div>
+      </React.Fragment>
+    );
+  });
 };

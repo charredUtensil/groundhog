@@ -61,7 +61,10 @@ function getLakes(
 }
 
 // Measures the final size of all lakes.
-function measureLakes(cavern: MeasuredCavern, fluids: (FluidType | undefined)[]) {
+function measureLakes(
+  cavern: MeasuredCavern,
+  fluids: (FluidType | undefined)[],
+) {
   const results: number[] = [];
   for (let i = 0; i < cavern.plans.length; i++) {
     if (results[i]) {
@@ -76,9 +79,13 @@ function measureLakes(cavern: MeasuredCavern, fluids: (FluidType | undefined)[])
       }
       results[j] = Infinity;
       out.push(j);
-      queue.push(...cavern.plans[j].intersects.map((_, k) => k).filter(k => fluids[k] === fluids[i]));
+      queue.push(
+        ...cavern.plans[j].intersects
+          .map((_, k) => k)
+          .filter((k) => fluids[k] === fluids[i]),
+      );
     }
-    out.forEach(j => results[j] = out.length);
+    out.forEach((j) => (results[j] = out.length));
   }
   return results;
 }
@@ -160,4 +167,3 @@ export default function flood(cavern: MeasuredCavern): FloodedCavern {
   }));
   return { ...cavern, plans };
 }
-

@@ -32,7 +32,7 @@ function sprinkle(
 ) {
   for (let remaining = count; remaining > 0; remaining--) {
     const [x, y] = getRandomTile();
-    const t = tiles.get(x, y)
+    const t = tiles.get(x, y);
     if (
       remaining >= 4 &&
       (!t || (seamable(t) && seamBias > 0 && rng.chance(seamBias)))

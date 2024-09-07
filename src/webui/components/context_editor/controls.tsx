@@ -75,8 +75,7 @@ export const CurveSliders = ({
     <>
       <p>{of}:</p>
       <p>
-        {context[of].base.toFixed(2)},{" "}
-        {context[of].hops.toFixed(2)},{" "}
+        {context[of].base.toFixed(2)}, {context[of].hops.toFixed(2)},{" "}
         {context[of].order.toFixed(2)}
       </p>
       <div className={styles.inputRow}>
