@@ -36,13 +36,17 @@ const TILES = {
   SLUG_HOLE:          {id: 12, name: "Slimy Slug Hole",     canLandslide: false, crystalYield: 0, hardness:   Hardness.NONE, isFluid: false, isWall: false, maxSlope:        15, oreYield: 0},
   FOUNDATION:         {id: 14, name: "Foundation",          canLandslide: false, crystalYield: 0, hardness:   Hardness.NONE, isFluid: false, isWall: false, maxSlope:        15, oreYield: 0},
   POWER_PATH:         {id: 24, name: "Power Path",          canLandslide: false, crystalYield: 0, hardness:   Hardness.NONE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
-  LANDSLIDE_RUBBLE_4: {id: 60, name: "Rubble",              canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
-  LANDSLIDE_RUBBLE_3: {id: 61, name: "Rubble",              canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
-  LANDSLIDE_RUBBLE_2: {id: 62, name: "Rubble",              canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
-  LANDSLIDE_RUBBLE_1: {id: 63, name: "Rubble",              canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
   CRYSTAL_SEAM:       {id: 42, name: "Energy Crystal Seam", canLandslide: false, crystalYield: 4, hardness:   Hardness.SEAM, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 4},
   ORE_SEAM:           {id: 46, name: "Ore Seam",            canLandslide: false, crystalYield: 0, hardness:   Hardness.SEAM, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 8},
   RECHARGE_SEAM:      {id: 50, name: "Recharge Seam",       canLandslide: false, crystalYield: 0, hardness:  Hardness.SOLID, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 0},
+  WASTE_DIRT:         {id: 26, name: "Dirt (Waste)",        canLandslide:  true, crystalYield: 0, hardness:   Hardness.DIRT, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 0},
+  WASTE_LOOSE_ROCK:   {id: 30, name: "Loose Rock (Waste)",  canLandslide:  true, crystalYield: 0, hardness:  Hardness.LOOSE, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 0},
+  WASTE_HARD_ROCK:    {id: 34, name: "Hard Rock (Waste)",   canLandslide:  true, crystalYield: 0, hardness:   Hardness.HARD, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 0},
+  WASTE_SOLID_ROCK:   {id: 38, name: "Solid Rock (Waste)",  canLandslide: false, crystalYield: 0, hardness:  Hardness.SOLID, isFluid: false, isWall:  true, maxSlope: undefined, oreYield: 0},
+  WASTE_RUBBLE_4:     {id: 60, name: "Rubble (Waste)",      canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
+  WASTE_RUBBLE_3:     {id: 61, name: "Rubble (Waste)",      canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
+  WASTE_RUBBLE_2:     {id: 62, name: "Rubble (Waste)",      canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
+  WASTE_RUBBLE_1:     {id: 63, name: "Rubble (Waste)",      canLandslide: false, crystalYield: 0, hardness: Hardness.RUBBLE, isFluid: false, isWall: false, maxSlope: undefined, oreYield: 0},
 } as const satisfies { [K in any]: BaseTile };
 
 export const Tile = TILES;

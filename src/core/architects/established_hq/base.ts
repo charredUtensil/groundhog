@@ -137,7 +137,7 @@ export function getPlaceBuildings({
           args.tiles.set(
             ...point,
             asRuin && rng.chance(DESTROY_PATH_CHANCE)
-              ? Tile.LANDSLIDE_RUBBLE_4
+              ? Tile.WASTE_RUBBLE_4
               : Tile.POWER_PATH
           );
         }
@@ -166,10 +166,10 @@ export function getPlaceBuildings({
             rng.betaChoice(
               [
                 Tile.FLOOR,
-                Tile.LANDSLIDE_RUBBLE_1,
-                Tile.LANDSLIDE_RUBBLE_2,
-                Tile.LANDSLIDE_RUBBLE_3,
-                Tile.LANDSLIDE_RUBBLE_4,
+                Tile.WASTE_RUBBLE_1,
+                Tile.WASTE_RUBBLE_2,
+                Tile.WASTE_RUBBLE_3,
+                Tile.WASTE_RUBBLE_4,
               ],
               { a: 1, b: 4 }
             )
