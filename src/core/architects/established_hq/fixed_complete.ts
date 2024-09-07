@@ -1,3 +1,4 @@
+import { inferContextDefaults } from "../../common";
 import { Architect } from "../../models/architect";
 import { TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION, DOCKS, SUPER_TELEPORT, UPGRADE_STATION, GEOLOGICAL_CENTER, ALL_BUILDINGS } from "../../models/building";
 import { getTotalCrystals } from "../utils/resources";
@@ -26,8 +27,15 @@ const T0_CRYSTALS = T0_BUILDINGS.reduce(
 const gFixedCompleteHq = mkVars("gFCHQ", ["onInit", "onBaseDestroyed", "msgBaseDestroyed"]);
 
 export const FC_BASE: Pick<
-  Architect<HqMetadata>, "prime" | "placeBuildings" | "objectives" | "scriptGlobals"
+  Architect<HqMetadata>, "mod" | "prime" | "placeBuildings" | "scriptGlobals"
 > = {
+  mod: (cavern) => {
+    const context = inferContextDefaults({
+      crystalGoalRatio: 0.3,
+      ...cavern.initialContext
+    });
+    return {...cavern, context};
+  },
   prime: () => ({
     crystalsInBuildings: T0_CRYSTALS,
     ruin: false,
@@ -38,12 +46,6 @@ export const FC_BASE: Pick<
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),
-  objectives: ({ cavern }) => {
-    return {
-      crystals: Math.floor((getTotalCrystals(cavern) * 0.3) / 5) * 5,
-      sufficient: false,
-    };
-  },
   scriptGlobals: ({ cavern }) => {
     return scriptFragment(
       `# Globals: Fixed Complete HQ`,

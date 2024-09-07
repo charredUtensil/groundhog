@@ -1,16 +1,7 @@
 import { MutableGrid } from "../../common/grid";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Plan } from "../../models/plan";
-import { Tile } from "../../models/tiles";
 import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
-
-const LANDSLIDABLE_TILES: readonly true[] = (() => {
-  const r: true[] = [];
-  r[Tile.DIRT.id] = true;
-  r[Tile.LOOSE_ROCK.id] = true;
-  r[Tile.HARD_ROCK.id] = true;
-  return r;
-})();
 
 const BETA_SUM = 10;
 
@@ -37,7 +28,7 @@ export function placeLandslides(
     .filter(
       (point) =>
         !landslides.get(...point) &&
-        LANDSLIDABLE_TILES[cavern.tiles.get(...point)?.id ?? -1] &&
+        cavern.tiles.get(...point)?.canLandslide &&
         rng.chance(spread),
     )
     .forEach((point) => {

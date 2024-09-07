@@ -1,5 +1,5 @@
 import { NSEW } from "../../common/geometry";
-import { Tile } from "../../models/tiles";
+import { Hardness, Tile } from "../../models/tiles";
 import { RoughPlasticCavern } from "./01_rough";
 
 export default function sand(cavern: RoughPlasticCavern): RoughPlasticCavern {
@@ -10,7 +10,7 @@ export default function sand(cavern: RoughPlasticCavern): RoughPlasticCavern {
       t === Tile.HARD_ROCK &&
       !NSEW.some(([ox, oy]) => {
         const ot = tiles.get(x + ox, y + oy);
-        return !ot || ot === Tile.HARD_ROCK || ot === Tile.SOLID_ROCK;
+        return !ot || ot.hardness >= Hardness.HARD;
       })
     ) {
       tiles.set(x, y, Tile.LOOSE_ROCK);
