@@ -12,7 +12,7 @@ import {
   scriptFragment,
 } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
-import { Tile } from "../models/tiles";
+import { Hardness, Tile } from "../models/tiles";
 import {
   VehicleTemplate,
   HOVER_SCOUT,
@@ -76,7 +76,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       ?.hops.forEach((hopId) => {
         pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
           for (const pos of plotLine(a.center, b.center)) {
-            if (tiles.get(...pos) === Tile.HARD_ROCK) {
+            if (tiles.get(...pos)?.hardness ?? Hardness.SOLID >= Hardness.HARD) {
               tiles.set(...pos, Tile.LOOSE_ROCK);
             }
           }
