@@ -233,7 +233,7 @@ export function getPlaceBuildings({
     }
 
     return {
-      buildings: buildings.filter((b) => !("isRuinAtSpawn" in b)),
+      buildings: buildings.filter((b) => !("placeRubbleInstead" in b)),
       cameraPosition,
     };
   };
