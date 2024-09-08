@@ -19,7 +19,9 @@ Create "plans" for the baseplates and paths that will determine how the space wi
 1. _Negotiate_: Assign baseplates and paths to new plans. Some paths connecting two adjacent baseplates will become caves. All remaining paths become halls and all remaining baseplates become caves.
 1. _Measure_: Determine size information for the plans.
 1. _Flood_: Choose which plans will have water, lava, and erosion.
-1. _Establish_: Choose which plan will be the spawn, walk through adjacent plans, assign architects, and determine other information based on distance from spawn.
+1. _Anchor_: Choose which plan will be the anchor and assign an architect to it.
+1. _Mod_: The anchor architect has a chance to modify the cavern in any way.
+1. _Establish_: Perform a breadth-first search of all plans, starting with the anchor. Assign architects and and determine other information based on distance from spawn.
 1. _Pearl_: Create "pearls" that determine exactly where plans will go. This is the step that ensures the caves and halls will be more "natural" shapes.
 
 # III. Masonry
