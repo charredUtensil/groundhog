@@ -23,7 +23,8 @@
     "predeploy": "react-scripts build",
     "deploy": "gh-pages -d build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "gen": "npx ts-node bin/groundhog-gen"
   },
   "eslintConfig": {
     "extends": [
