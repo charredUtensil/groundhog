@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { CavernContext, inferContextDefaults } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
 import styles from "./style.module.scss";
@@ -44,7 +44,7 @@ export function CavernContextInput({
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   return (
-    <CavernContextInput__
+    <CavernContextInputInner
       initialContext={initialContext}
       context={context ?? inferContextDefaults(initialContext)}
       setInitialContext={setInitialContext}
@@ -52,7 +52,7 @@ export function CavernContextInput({
   );
 }
 
-function CavernContextInput__({
+function CavernContextInputInner({
   initialContext,
   context,
   setInitialContext,
@@ -93,7 +93,7 @@ function CavernContextInput__({
     return () => {
       window.removeEventListener("hashchange", fn);
     };
-  }, []);
+  }, [update]);
 
   useEffect(() => {
     window.location.hash = unparseSeed(initialContext.seed, false);
