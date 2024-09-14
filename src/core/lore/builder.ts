@@ -1,54 +1,40 @@
 import { Mutable, PseudorandomStream } from "../common";
 
-type State = { [key: string]: boolean };
-type FormatVars = { [key: string]: string };
-
-export type Phrase<T extends State> = {
+export type Phrase = {
   readonly id: number;
   readonly text: readonly string[];
-  readonly after: Phrase<T>[];
-  readonly before: Phrase<T>[];
-  readonly requires: (string & keyof T) | "start" | "end" | null;
-  readonly reachableStates: { [key: string]: boolean };
-  readonly lane: number;
+  readonly after: Phrase[];
+  readonly before: Phrase[];
 };
 
-type PgNodeArgs<T extends State> = (PgNode<T> | string)[];
+type PgNodeArgs = (PgNode | string)[];
 
-class PgBuilder<T extends State> {
-  readonly phrases: Phrase<T>[] = [];
-  readonly states = new Set<string & keyof T>();
+class PgBuilder {
+  readonly phrases: Phrase[] = [];
 
   phrase(
     text: readonly string[],
-    requires?: (string & keyof T) | "start" | "end",
-  ): Phrase<T> {
-    const phrase = {
+  ): Phrase {
+    const phrase: Phrase = {
       id: this.phrases.length,
       text: text,
-      requires: requires ?? null,
       after: [],
       before: [],
-      reachableStates: {},
-      lane: -1,
     };
     this.phrases.push(phrase);
-    if (requires && requires !== "start" && requires !== "end") {
-      this.states.add(requires);
-    }
     return phrase;
   }
 }
 
-function join<T extends State>(a: Phrase<T>, b: Phrase<T>) {
+function join(a: Phrase, b: Phrase) {
   a.after.push(b);
   b.before.push(a);
 }
 
-function merge<T extends State>(
-  a: readonly Phrase<T>[],
-  b: readonly Phrase<T>[],
-): Phrase<T>[] {
+function merge(
+  a: readonly Phrase[],
+  b: readonly Phrase[],
+): Phrase[] {
   let i = 0;
   let j = 0;
   let r = [];
@@ -69,16 +55,16 @@ function merge<T extends State>(
   }
 }
 
-class PgNode<T extends State> {
-  private readonly v: PgBuilder<T>;
-  private readonly heads: readonly Phrase<T>[];
-  private readonly tails: readonly Phrase<T>[];
+class PgNode {
+  private readonly v: PgBuilder;
+  private readonly heads: readonly Phrase[];
+  private readonly tails: readonly Phrase[];
   private readonly skip: boolean;
 
   constructor(
-    v: PgBuilder<T>,
-    heads: readonly Phrase<T>[],
-    tails: readonly Phrase<T>[],
+    v: PgBuilder,
+    heads: readonly Phrase[],
+    tails: readonly Phrase[],
     skip: boolean,
   ) {
     this.v = v;
@@ -87,12 +73,12 @@ class PgNode<T extends State> {
     this.skip = skip;
   }
 
-  static coerce<T extends State>(
-    pgBuilder: PgBuilder<T>,
-    args: PgNodeArgs<T>,
-  ): PgNode<T> {
+  static coerce(
+    pgBuilder: PgBuilder,
+    args: PgNodeArgs,
+  ): PgNode {
     const text: string[] = [];
-    const nodes: PgNode<T>[] = [];
+    const nodes: PgNode[] = [];
     for (const arg of args) {
       (arg instanceof PgNode ? nodes : text).push(arg as any);
     }
@@ -111,7 +97,7 @@ class PgNode<T extends State> {
     return new PgNode(pgBuilder, heads, tails, skip);
   }
 
-  then(...args: PgNodeArgs<T>): PgNode<T> {
+  then(...args: PgNodeArgs): PgNode {
     const that = PgNode.coerce(this.v, args);
     for (const t of this.tails) {
       for (const h of that.heads) {
@@ -124,85 +110,6 @@ class PgNode<T extends State> {
       that.skip ? merge(this.tails, that.tails) : that.tails,
       this.skip && that.skip,
     );
-  }
-}
-
-/** Assuming the input is a DAG, returns new phrases in a topological order. */
-function sort<T extends State>(
-  phrases: readonly Phrase<T>[],
-): readonly Phrase<T>[] {
-  const newIndex: (number | undefined)[] = [];
-  const stack = phrases.filter((phrase) => phrase.before.length === 0);
-  const inOrder: Mutable<Phrase<T>>[] = [];
-
-  while (stack.length > 0) {
-    const phrase = stack.shift()!;
-    if (newIndex[phrase.id] !== undefined) {
-      continue;
-    }
-    const before = phrase.before.filter((b) => !(newIndex[b.id] !== undefined));
-    if (before.length > 0) {
-      stack.unshift(...before, phrase);
-    } else {
-      newIndex[phrase.id] = inOrder.length;
-      inOrder.push({ ...phrase, id: inOrder.length });
-      stack.unshift(...phrase.after);
-    }
-  }
-
-  // inOrder now contains new Phrases with new ids that are copies of the existing
-  // phrases, but their after and before values are still pointing to the old ones.
-
-  inOrder.forEach((phrase) => {
-    phrase.after = phrase.after
-      .map((a) => inOrder[newIndex[a.id]!])
-      .sort((a, b) => a.id - b.id);
-    phrase.before = phrase.before
-      .map((b) => inOrder[newIndex[b.id]!])
-      .sort((a, b) => a.id - b.id);
-  });
-
-  return inOrder;
-}
-
-/** Assign phrases to lanes. This serves no purpose other than display. */
-function align<T extends State>(phrases: readonly Phrase<T>[]) {
-  const stack: Mutable<Phrase<T>>[] = phrases.filter(
-    (node) => node.before.length === 0,
-  );
-  const occupiedLanes: true[][] = [];
-  for (let i = 0; i < phrases.length; i++) {
-    occupiedLanes[i] = [];
-  }
-
-  function findLane(phrase: Phrase<T>): number {
-    lane: for (let lane = 0; ; lane++) {
-      if (phrase.before.length > 0) {
-        for (let i = phrase.before[0].id + 1; i <= phrase.id; i++) {
-          if (occupiedLanes[i][lane]) {
-            continue lane;
-          }
-        }
-      }
-      return lane;
-    }
-  }
-
-  while (stack.length > 0) {
-    const phrase = stack.shift()!;
-    if (phrase.lane >= 0) {
-      continue;
-    }
-    const lane = findLane(phrase);
-    if (phrase.before.length > 0) {
-      for (let i = phrase.before[0].id + 1; i < phrase.id; i++) {
-        occupiedLanes[i][lane] = true;
-      }
-      stack.unshift(...phrase.before);
-    }
-    occupiedLanes[phrase.id][lane] = true;
-    phrase.lane = lane;
-    stack.unshift(...phrase.after);
   }
 }
 
@@ -294,17 +201,17 @@ function joinTexts<T extends State>(
 }
 
 const format = (text: string, formatVars: FormatVars) =>
-  text.replace(/\$\{([a-zA-Z0-9_]+)\}/g, (_, key) => formatVars[key]);
+  text.replace(/\@([a-zA-Z0-9_]+)\@/g, (_, key) => formatVars[key]);
 
-export class PhraseGraph<T extends State> {
-  private start: Phrase<T>;
-  readonly phrases: readonly Phrase<T>[];
-  readonly states: readonly (string & keyof T)[];
+export class PhraseGraph<StateT extends State, FVK extends string> {
+  private start: Phrase<StateT>;
+  readonly phrases: readonly Phrase<StateT>[];
+  readonly states: readonly (string & keyof StateT)[];
 
   constructor(
-    start: Phrase<T>,
-    phrases: readonly Phrase<T>[],
-    states: readonly (string & keyof T)[],
+    start: Phrase<StateT>,
+    phrases: readonly Phrase<StateT>[],
+    states: readonly (string & keyof StateT)[],
   ) {
     this.start = start;
     this.phrases = phrases;
@@ -313,9 +220,9 @@ export class PhraseGraph<T extends State> {
 
   generate(
     rng: PseudorandomStream,
-    requireState: T,
-    formatVars: FormatVars,
-  ): GenerateResult<T> {
+    requireState: StateT,
+    formatVars: {[K in FVK]: string},
+  ): GenerateResult<StateT> {
     const states = [...this.states, "start", "end"];
     const stateRemaining: { [key: string]: boolean } = {
       start: true,
@@ -326,7 +233,7 @@ export class PhraseGraph<T extends State> {
         stateRemaining[s] = true;
       }
     }
-    const chosenPhrases: Phrase<T>[] = [this.start];
+    const chosenPhrases: Phrase<StateT>[] = [this.start];
     while (true) {
       const phrase = chosenPhrases[chosenPhrases.length - 1];
       if (phrase.requires === "end") {
@@ -365,23 +272,23 @@ export class PhraseGraph<T extends State> {
   }
 }
 
-export type PgArgs<T extends State> = {
-  pg: (...args: PgNodeArgs<T>) => PgNode<T>;
-  state: (...args: (string & keyof T)[]) => PgNode<T>;
-  start: PgNode<T>;
-  end: PgNode<T>;
-  cut: PgNode<T>;
-  skip: PgNode<T>;
+export type PgArgs<T> = {
+  pg: (...args: PgNodeArgs) => PgNode;
+  state: T;
+  start: PgNode;
+  end: PgNode;
+  cut: PgNode;
+  skip: PgNode;
 };
 
-export default function phraseGraph<T extends State>(
+export default function phraseGraph<T>(
   fn: (args: PgArgs<T>) => void,
 ): PhraseGraph<T> {
-  const pgBuilder = new PgBuilder<T>();
+  const pgBuilder = new PgBuilder();
 
-  const pg = (...args: PgNodeArgs<T>): PgNode<T> =>
+  const pg = (...args: PgNodeArgs): PgNode =>
     PgNode.coerce(pgBuilder, args);
-  const state = (...args: (string & keyof T)[]): PgNode<T> => {
+  const state = (...args: SK[]): PgNode<{[K in SK]: boolean}> => {
     const phrases = args.map((arg) => pgBuilder.phrase([], arg));
     return new PgNode(pgBuilder, phrases, phrases, false);
   };
@@ -394,8 +301,13 @@ export default function phraseGraph<T extends State>(
   const end = new PgNode(pgBuilder, [pgBuilder.phrase([], "end")], [], false);
   const cut = new PgNode(pgBuilder, [], [], false);
   const skip = new PgNode(pgBuilder, [], [], true);
+  const fv = (() => {
+    const r: {[K in FVK]?: string} = {};
+    formatVarNames?.forEach((k) => (r[k] = `@${k}@`));
+    return r as {[K in FVK]: string};
+  })();
 
-  fn({ pg, state, start, end, cut, skip });
+  fn({ pg, state, start, end, cut, skip, fv });
 
   const phrases = sort(pgBuilder.phrases);
   align(phrases);

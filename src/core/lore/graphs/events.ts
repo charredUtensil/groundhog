@@ -1,9 +1,6 @@
-/* eslint-disable no-template-curly-in-string */
-
-import { FoundLostMinersState, State } from "../lore";
 import phraseGraph from "../builder";
 
-export const FOUND_HOARD = phraseGraph<State>(
+export const FOUND_HOARD = phraseGraph(
   ({ pg, state, start, end, cut, skip }) => {
     // Assume there is a collect_resources goal, and assume that goal requires
     // collecting crystals. This event will only be triggered if there are enough
@@ -36,8 +33,8 @@ export const FOUND_HOARD = phraseGraph<State>(
   },
 );
 
-export const FOUND_HQ = phraseGraph<State>(
-  ({ pg, state, start, end, cut, skip }) => {
+export const FOUND_HQ = phraseGraph(
+  ({ pg, state, start, end, cut, skip, fv }) => {
     const positive_greeting = start.then(
       "Our Rock Raider HQ is safe and sound!",
       "Way to go, Cadet!",
@@ -67,7 +64,7 @@ export const FOUND_HQ = phraseGraph<State>(
           ". Once the base is safe,",
           pg(
             "before the monsters find it too!",
-            "and keep it safe from those ${enemies}!",
+            `and keep it safe from those ${fv.enemies}!`,
             "and hope those monsters don't cause any more damage!",
           )
             .then(
@@ -84,18 +81,18 @@ export const FOUND_HQ = phraseGraph<State>(
         ),
       ).then(tail),
       state("resourceObjective")
-        .then("collect ${resourceGoal}.", "get those ${resourceGoalNamesOnly}.")
+        .then(`collect ${fv.resourceGoal}.`, `get those ${fv.resourceGoalNamesOnly}.`)
         .then(end),
     );
   },
 );
 
-export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
-  ({ pg, state, start, end, cut, skip }) => {
+export const FOUND_LM_BREADCRUMB = phraseGraph(
+  ({ pg, state, start, end, cut, skip, fv }) => {
     start
       .then(
-        "Look! A ${vehicleName}!",
-        "You found a missing ${vehicleName}!",
+        `Look! A ${fv.vehicleName}!`,
+        `You found a missing ${fv.vehicleName}!`,
         "Hmm. That doesn't belong there.",
       )
       .then(
@@ -106,10 +103,12 @@ export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
       )
       .then(end);
   },
+  ['vehicleName'],
 );
 
-export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(
-  ({ pg, state, start, end, cut, skip }) => {
+// FoundLostMinersState
+export const FOUND_LOST_MINERS = phraseGraph(
+  ({ pg, state, start, end, cut, skip, fv }) => {
     start
       .then(
         state("foundMinersOne").then(
@@ -118,13 +117,13 @@ export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(
           "You found one of the lost Rock Raiders!",
         ),
         state("foundMinersTogether").then(
-          "Look at that! ${foundMinersCount} of the lost Rock Raiders are here, safely together.",
-          "That's ${foundMinersCount} Rock Raiders found!",
-          "You found ${foundMinersCount} of them here!",
+          `Look at that! ${fv.foundMinersCount} of the lost Rock Raiders are here, safely together.`,
+          `That's ${fv.foundMinersCount} Rock Raiders found!`,
+          `You found ${fv.foundMinersCount} of them here!`,
         ),
       )
       .then(skip, "Keep going!", "Keep searching, Cadet.")
-      .then("We need to find all ${lostMinersCount} before we can leave.")
+      .then(`We need to find all ${fv.lostMinersCount} before we can leave.`)
       .then(end);
   },
 );

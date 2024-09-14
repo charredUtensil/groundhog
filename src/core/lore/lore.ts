@@ -50,13 +50,13 @@ export type FoundLostMinersState = State & {
   readonly foundMinersTogether: boolean;
 };
 
-type ReplaceStrings = {
-  readonly lostMinersCount: string;
-  readonly lostMinerCavesCount: string;
-  readonly enemies: string;
-  readonly resourceGoal: string;
-  readonly resourceGoalNamesOnly: string;
-};
+export const FORMAT_VAR_KEYS = [
+  'lostMinersCount',
+  'lostMinerCavesCount',
+  'enemies',
+  'resourceGoal',
+  'resourceGoalNamesOnly',
+] as const;
 
 enum Die {
   premise = 0,
@@ -171,8 +171,8 @@ function spellResourceGoal(cavern: AdjuredCavern) {
 }
 
 export class Lore {
-  readonly state: State;
-  readonly vars: ReplaceStrings;
+  readonly state: {[K in typeof STATE_KEYS[number]]: boolean};
+  readonly vars: {[K in typeof FORMAT_VAR_KEYS[number]]: string};
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
 

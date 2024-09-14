@@ -1,9 +1,8 @@
-/* eslint-disable no-template-curly-in-string */
-
-import { State } from "../lore";
 import phraseGraph from "../builder";
+import { FORMAT_VAR_KEYS, STATE_KEYS } from "../lore";
 
-const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
+const PREMISE = phraseGraph(
+  ({ pg, state, start, end, cut, skip }) => {
   // Complete, fully-constructed premises in one line.
   start
     .then(
@@ -14,24 +13,30 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     )
     .then(end);
 
-  const greeting = start.then(
-    pg(
-      "Are you ready for the next mission?",
-      "Welcome back, Cadet.",
-      "I hope you're prepared for this one, Cadet.",
-      "Up and at 'em, Cadet!",
-      "Cadet, are you up for some more action?",
-      state("floodedWithWater").then(
+  const greeting = start.then(() => {
+    if (state.floodedWithWater) {
+      return pg(
         "Are you ready to set sail?",
         "I hope you packed your lifejacket, Cadet.",
-      ),
-      state("floodedWithLava").then(
+      );
+    }
+    if (state.floodedWithLava) {
+      return pg(
         "I hope you're not afraid of a little heat!",
         "You'd better keep your cool with this one!",
-      ),
-    ).then("\n\n"),
-    skip,
-  );
+      );
+    }
+    return pg(
+      pg(
+        "Are you ready for the next mission?",
+        "Welcome back, Cadet.",
+        "I hope you're prepared for this one, Cadet.",
+        "Up and at 'em, Cadet!",
+        "Cadet, are you up for some more action?",
+      ).then("\n\n"),
+      skip,
+    ),
+  });
 
   const additionalHardship = (() => {
     const spawnHasErosion = state("spawnHasErosion").then(
@@ -46,8 +51,8 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     ).then(
       "the tunnels here are full of large creatures that threaten our operations",
       "we are picking up signs of large creatures in the area",
-      "this cavern is inhabited by nests of ${enemies}",
-      "we have reason to believe there are dozens of ${enemies} just out of sight",
+      `this cavern is inhabited by nests of ${fv.enemies}`,
+      `we have reason to believe there are dozens of ${fv.enemies} just out of sight`,
     );
 
     const hqIsFixedComplete = state("hqIsFixedComplete")
@@ -68,42 +73,29 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
 
   // Weird case to explain: Find HQ, but the HQ is intact and there are no lost miners.
   // Blame Canada... or bureaucracy.
-  greeting
-    .then(state("findHq"))
-    .then(skip, state("spawnHasErosion"))
-    .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-    .then(skip, state("spawnIsNomadOne", "spawnIsNomadsTogether"))
-    .then(
-      "A forward team has established Rock Raider HQ in the viscinity, but " +
-        "we haven't had the means to use it yet.",
-      "There should be a base near here primed and ready for our mining " +
-        "operations, but our teleporters are unable to get a lock on it for " +
-        "some reason.",
-      "We've had our eyes on this region and were all set to mine here. " +
-        "Unfortunately, the signed copy of Form 27b-6 went missing below a " +
-        "desk, we forgot about it, and now we aren't exactly sure where that " +
-        "base is.",
-      state("hasMonsters")
-        .then(skip, state("hasSlugs"))
-        .then(
+  if (state.findHq) {
+    greeting
+      .then(
+        "A forward team has established Rock Raider HQ in the viscinity, but " +
+          "we haven't had the means to use it yet.",
+        "There should be a base near here primed and ready for our mining " +
+          "operations, but our teleporters are unable to get a lock on it for " +
+          "some reason.",
+        "We've had our eyes on this region and were all set to mine here. " +
+          "Unfortunately, the signed copy of Form 27b-6 went missing below a " +
+          "desk, we forgot about it, and now we aren't exactly sure where that " +
+          "base is.",
+        state.enemies && [
           "We were all set to mine this cavern, but the team was scared off " +
-            "by readings of ${enemies} in the area. They left in such a hurry " +
+            `by readings of ${state.enemies} in the area. They left in such a hurry ` +
             "that they forgot to record where exactly the Rock Raider HQ is.",
           "There should be a base near here, but it's not showing up on our " +
-            "scanners. We hope it hasn't been destroyed by ${enemies}, but to " +
+            `scanners. We hope it hasn't been destroyed by ${state.enemies}, but to ` +
             "be safe, we're sending you to a nearby cavern instead.",
-        ),
-      state("hasSlugs").then(
-        "We were all set to mine this cavern, but the team was scared off " +
-          "by a Slimy Slug that suddenly appeared in the middle of our HQ. " +
-          "They even left without recording their location properly.",
-        "There should be a base near here, but it's not showing up on our " +
-          "scanners. Some interference from ${enemies} must have shut off " +
-          "its location beacon! To be safe, we're sending you to a nearby " +
-          "cavern instead.",
-      ),
-    )
-    .then(end);
+        ],
+      )
+      .then(end);
+  }
 
   // Maybe treasure, maybe spawn is HQ.
   greeting
@@ -174,9 +166,9 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
             state("hasMonsters").then(skip, state("hasSlugs")),
             state("hasSlugs"),
           ).then(
-            "\n\nBe on the lookout for ${enemies}, especially once you start " +
+            `\n\nBe on the lookout for ${fv.enemies}, especially once you start ` +
               "construction.",
-            "Use caution! There may be ${enemies} afoot and I don't want you " +
+            `Use caution! There may be ${fv.enemies} afoot and I don't want you ` +
               "taking any unnecessary risk.",
           ),
         )
