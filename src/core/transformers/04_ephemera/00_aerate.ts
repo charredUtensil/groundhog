@@ -7,7 +7,7 @@ import {
   TOOL_STORE,
 } from "../../models/building";
 import { EntityPosition } from "../../models/position";
-import { Tile } from "../../models/tiles";
+import { Hardness, Tile } from "../../models/tiles";
 import { PopulatedCavern } from "../03_plastic/04_populate";
 
 export type AeratedCavern = PopulatedCavern & {
@@ -118,16 +118,16 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
   const origin = getOrigin(cavern);
 
   function drillTiming(t: Tile) {
-    if (t === Tile.DIRT) {
-      return TIMING.DRILL_DIRT;
+    switch (t.hardness) {
+      case Hardness.DIRT:
+        return TIMING.DRILL_DIRT;
+      case Hardness.LOOSE:
+        return TIMING.DRILL_LOOSE_ROCK;
+      case Hardness.SEAM:
+        return TIMING.DRILL_SEAM;
+      default:
+        return undefined;
     }
-    if (t === Tile.LOOSE_ROCK) {
-      return TIMING.DRILL_LOOSE_ROCK;
-    }
-    if (t === Tile.CRYSTAL_SEAM || t === Tile.ORE_SEAM) {
-      return TIMING.DRILL_SEAM;
-    }
-    return undefined;
   }
 
   {
@@ -147,7 +147,7 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
             walkQueue.push([x, y]);
           } else if (drillTiming(t)) {
             drillQueue.push([x, y]);
-          } else if (t === Tile.HARD_ROCK) {
+          } else if (t.hardness === Hardness.HARD) {
             dynamiteQueue.push([x, y]);
           }
         }

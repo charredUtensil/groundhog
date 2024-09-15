@@ -12,7 +12,7 @@ import {
   scriptFragment,
 } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
-import { Tile } from "../models/tiles";
+import { Hardness, Tile } from "../models/tiles";
 import {
   VehicleTemplate,
   HOVER_SCOUT,
@@ -26,7 +26,7 @@ import {
 import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
-import { gLostHq } from "./established_hq";
+import { gLostHq } from "./established_hq/lost";
 
 export type NomadsMetadata = {
   readonly tag: "nomads";
@@ -76,7 +76,10 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       ?.hops.forEach((hopId) => {
         pairEach(cavern.plans[hopId].path.baseplates, (a, b) => {
           for (const pos of plotLine(a.center, b.center)) {
-            if (tiles.get(...pos) === Tile.HARD_ROCK) {
+            if (
+              tiles.get(...pos)?.hardness ??
+              Hardness.SOLID >= Hardness.HARD
+            ) {
               tiles.set(...pos, Tile.LOOSE_ROCK);
             }
           }
@@ -185,7 +188,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
 
 const NOMAD_SPAWN = [
   {
-    name: "Nomad Spawn",
+    name: "Nomads",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
@@ -198,14 +201,14 @@ const NOMAD_SPAWN = [
     placeOre: (args) => {
       return sprinkleOre(args, { seamBias: 1 });
     },
-    spawnBid: ({ cavern, plan }) =>
+    anchorBid: ({ cavern, plan }) =>
       !plan.fluid &&
       plan.pearlRadius > 0 &&
       intersectsOnly(cavern.plans, plan, null) &&
       (isDeadEnd(plan) ? 1 : 0.1),
   },
   {
-    name: "Nomad Spawn Peninsula",
+    name: "Nomads.WaterPeninsula",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
@@ -215,14 +218,14 @@ const NOMAD_SPAWN = [
       { of: Rough.MIX_FRINGE },
     ),
     prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [RAPID_RIDER] }),
-    spawnBid: ({ cavern, plan }) =>
+    anchorBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 4 &&
       intersectsAny(cavern.plans, plan, null) &&
       0.5,
   },
   {
-    name: "Nomad Spawn Lava Peninsula",
+    name: "Nomads.LavaPeninsula",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
@@ -232,7 +235,7 @@ const NOMAD_SPAWN = [
       { of: Rough.AT_MOST_HARD_ROCK },
     ),
     prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
-    spawnBid: ({ cavern, plan }) =>
+    anchorBid: ({ cavern, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 4 &&
       intersectsAny(cavern.plans, plan, null) &&

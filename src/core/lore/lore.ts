@@ -1,4 +1,4 @@
-import { HqMetadata } from "../architects/established_hq";
+import { HqMetadata } from "../architects/established_hq/base";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox, PseudorandomStream } from "../common";
 import { filterTruthy } from "../common/utils";
@@ -8,6 +8,7 @@ import { Vehicle } from "../models/vehicle";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import {
+  FAILURE_BASE_DESTROYED,
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
@@ -32,6 +33,7 @@ export type State = {
   readonly hasSlugs: boolean;
   readonly spawnHasErosion: boolean;
   readonly spawnIsHq: boolean;
+  readonly hqIsFixedComplete: boolean;
   readonly spawnIsNomadOne: boolean;
   readonly spawnIsNomadsTogether: boolean;
   readonly findHq: boolean;
@@ -67,6 +69,7 @@ enum Die {
   nomadsSettled,
   foundSlugNest,
   name,
+  failureBaseDestroyed,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -175,18 +178,19 @@ export class Lore {
 
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
-    const spawn = cavern.plans.find((p) => !p.hops.length)!;
+    const anchor = cavern.plans[cavern.anchor];
 
     const hq = cavern.plans.find(
       (p) => p.metadata?.tag === "hq",
     ) as Plan<HqMetadata>;
-    const spawnIsHq = spawn === hq;
+    const spawnIsHq = anchor === hq;
+    const hqIsFixedComplete = hq?.metadata.fixedComplete;
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
     const nomads =
-      spawn.metadata?.tag === "nomads"
-        ? (spawn.metadata.minersCount as number)
+      anchor.metadata?.tag === "nomads"
+        ? (anchor.metadata.minersCount as number)
         : 0;
 
     const treasures = cavern.plans.reduce(
@@ -206,9 +210,10 @@ export class Lore {
         cavern.objectives.studs > 0,
       hasMonsters: cavern.context.hasMonsters,
       hasSlugs: cavern.context.hasSlugs,
-      spawnHasErosion: spawn.hasErosion,
+      spawnHasErosion: anchor.hasErosion,
       spawnIsHq,
       findHq,
+      hqIsFixedComplete,
       hqIsRuin,
       spawnIsNomadOne: nomads === 1,
       spawnIsNomadsTogether: nomads > 1,
@@ -311,5 +316,13 @@ export class Lore {
 
   generateSeismicForeshadow(rng: PseudorandomStream) {
     return SEISMIC_FORESHADOW.generate(rng, this.state, this.vars);
+  }
+
+  generateFailureBaseDestroyed(dice: DiceBox) {
+    return FAILURE_BASE_DESTROYED.generate(
+      dice.lore(Die.failureBaseDestroyed),
+      this.state,
+      this.vars,
+    );
   }
 }

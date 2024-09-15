@@ -3,12 +3,7 @@ import { BaseCavern } from "../../models/cavern";
 import { TriangulatedCavern } from "../00_outlines/02_triangulate";
 import { Path } from "../../models/path";
 import { Plan } from "../../models/plan";
-import { AnyMetadata } from "../../architects";
-
-export type PartialPlannedCavern<T extends Partial<Plan<AnyMetadata>>> =
-  BaseCavern & {
-    readonly plans: readonly T[];
-  };
+import { WithPlanType } from "./utils";
 
 export type NegotiatedPlan = {
   /** Unique ID of the Plan, used for RNG and indexing. */
@@ -18,6 +13,8 @@ export type NegotiatedPlan = {
   /** The Path this Plan is built on. */
   readonly path: Path;
 };
+
+export type NegotiatedCavern = WithPlanType<BaseCavern, NegotiatedPlan>;
 
 /*
  * Returns whether these Baseplates can be combined into one big Cave.
@@ -44,7 +41,7 @@ function isMergeable(a: Baseplate, b: Baseplate): boolean {
  */
 export default function negotiate(
   cavern: TriangulatedCavern,
-): PartialPlannedCavern<NegotiatedPlan> {
+): NegotiatedCavern {
   const bpIsInBigCave: true[] = [];
   const queue: Pick<Plan<any>, "kind" | "path">[][] = [[], [], []];
 
@@ -78,5 +75,10 @@ export default function negotiate(
     .flatMap((a) => a)
     .map((plan, id) => ({ ...plan, id }));
 
-  return { context: cavern.context, dice: cavern.dice, plans };
+  return {
+    initialContext: cavern.initialContext,
+    context: cavern.context,
+    dice: cavern.dice,
+    plans,
+  };
 }

@@ -96,7 +96,7 @@ const HOARD: typeof BASE = {
     const discoPoint = plan.innerPearl[0][0];
     if (
       cavern.ownsScriptOnDiscover[
-        cavern.discoveryZones.get(...discoPoint)!.id
+        cavern.discoveryZones.get(...discoPoint)?.id ?? -1
       ] !== plan.id
     ) {
       return undefined;
@@ -148,7 +148,7 @@ const RICH: typeof BASE = {
 
 const TREASURE = [
   {
-    name: "Open Hoard",
+    name: "Treasure.Hoard.Open",
     ...HOARD,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 3 },
@@ -163,7 +163,7 @@ const TREASURE = [
       0.5,
   },
   {
-    name: "Sealed Hoard",
+    name: "Treasure.Hoard.Sealed",
     ...HOARD,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 1, grow: 3 },
@@ -177,7 +177,7 @@ const TREASURE = [
       0.5,
   },
   {
-    name: "Open Rich Cave",
+    name: "Treasure.Rich.Open",
     ...RICH,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
@@ -191,7 +191,7 @@ const TREASURE = [
       !plan.fluid && plan.path.baseplates.length >= 1 && isDeadEnd(plan) && 1,
   },
   {
-    name: "Rich Island",
+    name: "Treasure.Rich.Water.Island",
     ...RICH,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
@@ -217,7 +217,7 @@ const TREASURE = [
     },
   },
   {
-    name: "Peninsula Hoard",
+    name: "Treasure.Hoard.Water.Peninsula",
     ...HOARD,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
@@ -234,7 +234,7 @@ const TREASURE = [
       0.5,
   },
   {
-    name: "Rich Lava Island",
+    name: "Treasure.Rich.Lava.Island",
     ...RICH,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, width: 0, grow: 1 },
@@ -251,7 +251,7 @@ const TREASURE = [
       0.5,
   },
   {
-    name: "Lava Peninsula Hoard",
+    name: "Treasure.Hoard.Lava.Peninsula",
     ...HOARD,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },

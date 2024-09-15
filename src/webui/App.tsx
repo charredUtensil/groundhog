@@ -1,22 +1,19 @@
-import React, {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
+import React, { CSSProperties, useCallback, useEffect, useState } from "react";
 
-import { CavernContext, DiceBox } from "../core/common";
-import { CavernContextInput } from "./components/context_editor";
+import {
+  CavernContextInput,
+  getInitialSeed,
+} from "./components/context_editor";
 import { Cavern } from "../core/models/cavern";
 import CavernPreview, { MapOverlay } from "./components/map_preview";
 import { CAVERN_TF } from "../core/transformers";
-import { TransformResult } from "../core/common/transform";
 import LorePreview from "./components/popovers/lore";
 import About from "./components/popovers/about";
 import styles from "./App.module.scss";
 import ErrorPreview from "./components/popovers/error";
 import { filterTruthy } from "../core/common/utils";
+import { PartialCavernContext } from "../core/common/context";
+import { TfResult } from "../core/common/transform";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -42,34 +39,30 @@ function getDownloadLink(serializedData: string) {
   return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
 }
 
-type State = {
-  cavern?: Cavern;
-  name?: string;
-  progress?: number;
-  next?: () => TransformResult<Cavern>;
+function getStateForInitialContext(initialContext: PartialCavernContext) {
+  return CAVERN_TF.first({ initialContext });
+}
+
+type State = TfResult<Cavern, Cavern> & {
   error?: Error;
 };
 
 function App() {
-  const [state, dispatchState] = useReducer(
-    (was: State, action: State | { context: CavernContext }) => {
-      if ("context" in action) {
-        const cavern = {
-          context: action.context,
-          dice: new DiceBox(action.context.seed),
-        };
-        const r = CAVERN_TF.first(cavern);
-        return {
-          cavern: r.result,
-          name: r.name,
-          next: r.next || undefined,
-        } as State;
-      } else if ("error" in action) {
-        return { cavern: was.cavern, ...action };
-      }
-      return action;
+  const [state, setState] = useState<State>(() =>
+    getStateForInitialContext({
+      seed: getInitialSeed(),
+    }),
+  );
+
+  const setInitialContext = useCallback(
+    (arg: React.SetStateAction<PartialCavernContext>) => {
+      setState((was) =>
+        getStateForInitialContext(
+          typeof arg === "function" ? arg(was.result.initialContext) : arg,
+        ),
+      );
     },
-    {},
+    [],
   );
 
   const [autoGenerate, setAutoGenerate] = useState(true);
@@ -77,7 +70,7 @@ function App() {
   const [showOutlines, setShowOutlines] = useState(false);
   const [showPearls, setShowPearls] = useState(false);
 
-  const biome = state?.cavern?.context.biome;
+  const biome = state.result.context?.biome;
 
   function playPause() {
     if (autoGenerate) {
@@ -89,27 +82,18 @@ function App() {
 
   const step = useCallback(() => {
     try {
-      const r = state.next!();
-      dispatchState({
-        cavern: r.result,
-        name: r.name,
-        progress: r.progress,
-        next: r.next || undefined,
-      });
-    } catch (error: unknown) {
-      console.error(error);
-      if (error instanceof Error) {
-        dispatchState({ error });
-      }
+      setState(state.next!());
+    } catch (e: unknown) {
+      console.error(e);
+      const error = e instanceof Error ? e : new Error("unknown error");
+      setState({ ...state, next: null, progress: 0, error });
     }
   }, [state]);
 
-  const reset = useCallback(() => {
+  const reset = () => {
     setAutoGenerate(false);
-    if (state.cavern) {
-      dispatchState({ context: state.cavern.context });
-    }
-  }, [state]);
+    setState((was) => getStateForInitialContext(was.result.initialContext));
+  };
 
   useEffect(() => {
     if (state.next && autoGenerate) {
@@ -118,16 +102,20 @@ function App() {
   }, [autoGenerate, state, step]);
 
   useEffect(() => {
-    (window as any).cavern = state.cavern;
+    (window as any).cavern = state.result;
   }, [state]);
 
   const isLoading =
-    (autoGenerate && !state.cavern?.serialized) || mapOverlay === "about";
+    (autoGenerate && !state.result.serialized) || mapOverlay === "about";
 
   return (
     <div className={`${styles.App} ${styles[`${biome}Biome`]}`}>
       <div className={styles.settingsPanel}>
-        <CavernContextInput dispatchState={dispatchState} />
+        <CavernContextInput
+          initialContext={state.result.initialContext}
+          context={state.result.context}
+          setInitialContext={setInitialContext}
+        />
       </div>
       <div className={styles.mainPanel}>
         <div
@@ -137,9 +125,9 @@ function App() {
             state.error && styles.hasError,
           ]).join(" ")}
         />
-        {state.cavern && (
+        {state.result && (
           <CavernPreview
-            cavern={state.cavern}
+            cavern={state.result}
             mapOverlay={mapOverlay}
             showOutlines={showOutlines}
             showPearls={showPearls}
@@ -156,9 +144,13 @@ function App() {
           />
         )}
         {mapOverlay === "about" && <About />}
-        {mapOverlay === "lore" && <LorePreview {...state.cavern} />}
+        {mapOverlay === "lore" && <LorePreview {...state.result} />}
         {state.error && (
-          <ErrorPreview error={state.error} context={state.cavern?.context} />
+          <ErrorPreview
+            error={state.error}
+            initialContext={state.result.initialContext}
+            context={state.result?.context}
+          />
         )}
         {!autoGenerate && state.name && (
           <div className={styles.stepName}>{state.name}</div>
@@ -174,11 +166,11 @@ function App() {
           ) : (
             <button onClick={reset}>restart_alt</button>
           )}
-          {state.cavern?.serialized ? (
+          {state.result.serialized ? (
             <a
               className={styles.button}
-              href={getDownloadLink(state.cavern.serialized)}
-              download={`${state.cavern.fileName ?? state.cavern.levelName ?? "groundhog"}.dat`}
+              href={getDownloadLink(state.result.serialized)}
+              download={`${state.result.fileName ?? state.result.levelName ?? "groundhog"}.dat`}
             >
               download
             </a>
@@ -209,7 +201,7 @@ function App() {
             className={
               mapOverlay === of
                 ? styles.active
-                : enabled(state.cavern)
+                : enabled(state.result)
                   ? styles.inactive
                   : styles.disabled
             }

@@ -1,11 +1,16 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { CavernContext, inferContextDefaults } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
 import styles from "./style.module.scss";
 import { Choice, CurveSliders, Slider } from "./controls";
 import { ArchitectsInput } from "./architects";
+import { PartialCavernContext } from "../../../core/common/context";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
+
+export function getInitialSeed() {
+  return parseSeed(window.location.hash) ?? INITIAL_SEED;
+}
 
 function parseSeed(v: string) {
   const s = v.replace(/[^0-9a-fA-F]+/g, "");
@@ -29,35 +34,52 @@ const expectedTotalPlans = (contextWithDefaults: CavernContext) => {
   return caves + spanHalls + auxHalls;
 };
 
-type PartialContext = Partial<CavernContext> & Pick<CavernContext, "seed">;
-
 export function CavernContextInput({
-  dispatchState,
+  initialContext,
+  context,
+  setInitialContext,
 }: {
-  dispatchState: (args: { context: CavernContext }) => void;
+  initialContext: PartialCavernContext;
+  context: CavernContext | undefined;
+  setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
+}) {
+  return (
+    <CavernContextInputInner
+      initialContext={initialContext}
+      context={context ?? inferContextDefaults(initialContext)}
+      setInitialContext={setInitialContext}
+    />
+  );
+}
+
+function CavernContextInputInner({
+  initialContext,
+  context,
+  setInitialContext,
+}: {
+  initialContext: PartialCavernContext;
+  context: CavernContext;
+  setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [context, update] = useReducer(
-    (
-      was: PartialContext,
-      args:
-        | { [K in keyof CavernContext]?: CavernContext[K] | undefined }
-        | "reset",
-    ): PartialContext => {
-      if (args === "reset") {
-        return { seed: was.seed };
-      }
-      const r = { ...was, ...args };
-      for (const key of Object.keys(r) as (keyof typeof r)[]) {
-        if (r[key] === undefined) {
-          if (key in r) {
-            delete r[key];
+  const resetContext = useCallback(
+    () => setInitialContext((was) => ({ seed: was.seed })),
+    [setInitialContext],
+  );
+  const update = useCallback(
+    (args: Partial<CavernContext>) =>
+      setInitialContext((was: PartialCavernContext) => {
+        const r = { ...was, ...args };
+        for (const key of Object.keys(r) as (keyof typeof r)[]) {
+          if (r[key] === undefined) {
+            if (key in r) {
+              delete r[key];
+            }
           }
         }
-      }
-      return r;
-    },
-    { seed: parseSeed(window.location.hash) ?? INITIAL_SEED },
+        return r;
+      }),
+    [setInitialContext],
   );
 
   useEffect(() => {
@@ -71,18 +93,13 @@ export function CavernContextInput({
     return () => {
       window.removeEventListener("hashchange", fn);
     };
-  }, []);
+  }, [update]);
 
   useEffect(() => {
-    window.location.hash = unparseSeed(context.seed, false);
-  }, [context.seed]);
+    window.location.hash = unparseSeed(initialContext.seed, false);
+  }, [initialContext.seed]);
 
-  useEffect(
-    () => dispatchState({ context: inferContextDefaults(context) }),
-    [context, dispatchState],
-  );
-  const contextWithDefaults = inferContextDefaults(context);
-  const rest = { update, context, contextWithDefaults };
+  const rest = { update, initialContext, context };
 
   return (
     <div className={styles.contextInput}>
@@ -90,7 +107,7 @@ export function CavernContextInput({
         <input
           type="text"
           className={styles.seed}
-          value={unparseSeed(context?.seed, true)}
+          value={unparseSeed(initialContext.seed, true)}
           onChange={(ev) => {
             const seed = parseSeed(ev.target.value);
             if (seed !== undefined) {
@@ -110,7 +127,7 @@ export function CavernContextInput({
       </div>
       <div className={styles.inputRow}>
         <button
-          className={`${styles.showAdvanced} ${Object.keys(context).length > 1 && !showAdvanced ? styles.override : ""}`}
+          className={`${styles.showAdvanced} ${Object.keys(initialContext).length > 1 && !showAdvanced ? styles.override : ""}`}
           onClick={() => setShowAdvanced((v) => !v)}
         >
           <span>Advanced</span>
@@ -124,11 +141,8 @@ export function CavernContextInput({
           <div className={styles.section}>
             <div className={styles.subsection}>
               <div className={styles.inputRow}>
-                {contextWithDefaults.overrides.length ? (
-                  <button
-                    className={styles.override}
-                    onClick={() => update("reset")}
-                  >
+                {Object.keys(initialContext).length > 1 ? (
+                  <button className={styles.override} onClick={resetContext}>
                     Clear All Overrides
                   </button>
                 ) : (
@@ -164,13 +178,13 @@ export function CavernContextInput({
               <Slider
                 of="optimalAuxiliaryPathCount"
                 min={0}
-                max={contextWithDefaults.caveCount}
+                max={context.caveCount}
                 {...rest}
               />
               <Slider
                 of="randomAuxiliaryPathCount"
                 min={0}
-                max={contextWithDefaults.caveCount}
+                max={context.caveCount}
                 {...rest}
               />
               <Slider
@@ -189,31 +203,31 @@ export function CavernContextInput({
               <Slider
                 of="waterPlans"
                 min={0}
-                max={expectedTotalPlans(contextWithDefaults)}
+                max={expectedTotalPlans(context)}
                 {...rest}
               />
               <Slider
                 of="lavaPlans"
                 min={0}
-                max={expectedTotalPlans(contextWithDefaults)}
+                max={expectedTotalPlans(context)}
                 {...rest}
               />
               <Slider
                 of="waterLakes"
                 min={1}
-                max={contextWithDefaults.caveCount}
+                max={context.caveCount}
                 {...rest}
               />
               <Slider
                 of="lavaLakes"
                 min={1}
-                max={contextWithDefaults.caveCount}
+                max={context.caveCount}
                 {...rest}
               />
               <Slider
                 of="erosionPlans"
                 min={0}
-                max={expectedTotalPlans(contextWithDefaults)}
+                max={expectedTotalPlans(context)}
                 {...rest}
               />
             </div>
@@ -275,8 +289,8 @@ export function CavernContextInput({
                   max={1}
                   percent
                   update={update}
+                  initialContext={initialContext}
                   context={context}
-                  contextWithDefaults={contextWithDefaults}
                 />
               ))}
             </div>
@@ -320,8 +334,8 @@ export function CavernContextInput({
                   max={1}
                   percent
                   update={update}
+                  initialContext={initialContext}
                   context={context}
-                  contextWithDefaults={contextWithDefaults}
                 />
               ))}
             </div>

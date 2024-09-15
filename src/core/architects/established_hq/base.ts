@@ -1,6 +1,6 @@
 import Delaunator from "delaunator";
-import { Point, plotLine } from "../common/geometry";
-import { Architect } from "../models/architect";
+import { Point, plotLine } from "../../common/geometry";
+import { Architect } from "../../models/architect";
 import {
   Building,
   CANTEEN,
@@ -12,48 +12,27 @@ import {
   TELEPORT_PAD,
   TOOL_STORE,
   UPGRADE_STATION,
-} from "../models/building";
-import { Tile } from "../models/tiles";
-import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { MakeBuildingFn, getBuildings } from "./utils/buildings";
-import { mkRough, Rough } from "./utils/rough";
-import { position } from "../models/position";
-import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
-import { placeLandslides } from "./utils/hazards";
-import {
-  DzPriorities,
-  escapeString,
-  eventChain,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "./utils/script";
-import { getDiscoveryPoint } from "./utils/discovery";
-import { sprinkleSlugHoles } from "./utils/creatures";
-import { slugSpawnScript } from "./utils/creature_spawners";
-
-const DESTROY_PATH_CHANCE = 0.62;
-
-const T0_BUILDINGS = [TOOL_STORE] as const;
-const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
-const T2_BUILDINGS = [UPGRADE_STATION, GEOLOGICAL_CENTER, DOCKS] as const;
-const T3_BUILDINGS = [
-  CANTEEN,
-  MINING_LASER,
-  MINING_LASER,
-  MINING_LASER,
-] as const;
-
-const OMIT_T1 = T0_BUILDINGS.length;
-const MAX_HOPS = 3;
+} from "../../models/building";
+import { position } from "../../models/position";
+import { Tile } from "../../models/tiles";
+import { MakeBuildingFn, getBuildings } from "../utils/buildings";
+import { getPlaceRechargeSeams, sprinkleCrystals } from "../utils/resources";
+import { PseudorandomStream } from "../../common";
+import { PartialArchitect, DefaultCaveArchitect } from "../default";
+import { slugSpawnScript } from "../utils/creature_spawners";
+import { sprinkleSlugHoles } from "../utils/creatures";
+import { mkRough, Rough } from "../utils/rough";
 
 export type HqMetadata = {
   readonly tag: "hq";
   readonly ruin: boolean;
+  readonly fixedComplete: boolean;
   readonly crystalsInBuildings: number;
 };
 
-function getPrime(
+const DESTROY_PATH_CHANCE = 0.62;
+
+export function getPrime(
   maxCrystals: number,
   ruin: boolean,
 ): Architect<HqMetadata>["prime"] {
@@ -65,13 +44,44 @@ function getPrime(
       min: 3,
       max: maxCrystals,
     });
-    return { crystalsInBuildings, ruin, tag: "hq" };
+    return { crystalsInBuildings, ruin, fixedComplete: false, tag: "hq" };
   };
 }
 
-function getPlaceBuildings({
+const T0_BUILDINGS = [TOOL_STORE] as const;
+const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
+const T2_BUILDINGS = [UPGRADE_STATION, GEOLOGICAL_CENTER, DOCKS] as const;
+const T3_BUILDINGS = [
+  CANTEEN,
+  MINING_LASER,
+  MINING_LASER,
+  MINING_LASER,
+] as const;
+
+function getDefaultTemplates(
+  rng: PseudorandomStream,
+  asSpawn: boolean,
+  asRuin: boolean,
+) {
+  return [
+    ...T0_BUILDINGS,
+    ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
+    ...rng.shuffle(T2_BUILDINGS),
+    ...rng.shuffle(T3_BUILDINGS),
+  ];
+}
+
+// Here be spaghetti
+export function getPlaceBuildings({
   discovered = false,
   from = 2,
+  templates,
+  omit,
+}: {
+  discovered?: boolean;
+  from?: number;
+  templates?: (rng: PseudorandomStream) => readonly Building["template"][];
+  omit?: (bt: Building["template"], i: number) => boolean;
 }): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
     const asRuin = args.plan.metadata.ruin;
@@ -79,12 +89,9 @@ function getPlaceBuildings({
 
     // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
-    const tq = [
-      ...T0_BUILDINGS,
-      ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
-      ...rng.shuffle(T2_BUILDINGS),
-      ...rng.shuffle(T3_BUILDINGS),
-    ];
+    const tq = templates
+      ? templates(rng)
+      : getDefaultTemplates(rng, asSpawn, asRuin);
 
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
@@ -105,7 +112,9 @@ function getPlaceBuildings({
         ) {
           return false;
         }
-        if (asRuin && i === OMIT_T1) {
+        if (
+          omit ? omit(bt, i) : !templates && asRuin && i === T0_BUILDINGS.length
+        ) {
           return false;
         }
         return true;
@@ -117,7 +126,7 @@ function getPlaceBuildings({
           return true;
         }
       } else if (asRuin) {
-        bq.push((pos) => ({ ...bt.atTile(pos), isRuinAtSpawn: true }));
+        bq.push((pos) => ({ ...bt.atTile(pos), placeRubbleInstead: true }));
       }
       return false;
     });
@@ -133,7 +142,7 @@ function getPlaceBuildings({
     for (let i = 0; i < buildings.length; i++) {
       const building = buildings[i];
       let fTile: Tile;
-      if ("isRuinAtSpawn" in building) {
+      if ("placeRubbleInstead" in building) {
         fTile = Tile.RUBBLE_4;
       } else {
         fTile = Tile.FOUNDATION;
@@ -224,68 +233,13 @@ function getPlaceBuildings({
     }
 
     return {
-      buildings: buildings.filter((b) => !("isRuinAtSpawn" in b)),
+      buildings: buildings.filter((b) => !("placeRubbleInstead" in b)),
       cameraPosition,
     };
   };
 }
 
-export const gLostHq = mkVars("gLostHq", ["foundHq"]);
-
-const WITH_FIND_OBJECTIVE: Pick<
-  Architect<HqMetadata>,
-  "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
-> = {
-  objectives: () => ({
-    variables: [
-      {
-        condition: `${gLostHq.foundHq}>0`,
-        description: "Find the lost Rock Raider HQ",
-      },
-    ],
-    sufficient: false,
-  }),
-  claimEventOnDiscover({ cavern, plan }) {
-    const pos = getDiscoveryPoint(cavern, plan);
-    if (!pos) {
-      throw new Error("Cave has Find HQ objective but no undiscovered point.");
-    }
-    return [{ pos, priority: DzPriorities.OBJECTIVE }];
-  },
-  scriptGlobals: () =>
-    scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
-  script({ cavern, plan }) {
-    const discoPoint = getDiscoveryPoint(cavern, plan)!;
-    const shouldPanMessage =
-      cavern.ownsScriptOnDiscover[
-        cavern.discoveryZones.get(...discoPoint)!.id
-      ] === plan.id;
-
-    const camPoint = plan.path.baseplates.reduce((r, p) => {
-      return r.pearlRadius > p.pearlRadius ? r : p;
-    }).center;
-
-    const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
-    const message = shouldPanMessage
-      ? cavern.lore.foundHq(cavern.dice).text
-      : "undefined";
-
-    return scriptFragment(
-      `# P${plan.id}: Lost HQ`,
-      `string ${v.messageDiscover}="${escapeString(message)}"`,
-      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
-      eventChain(
-        v.onDiscover,
-        shouldPanMessage && `msg:${v.messageDiscover};`,
-        shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
-        `wait:1;`,
-        `${gLostHq.foundHq}=1;`,
-      ),
-    );
-  },
-};
-
-const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
+export const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
   Pick<Architect<HqMetadata>, "rough" | "roughExtent"> = {
   ...DefaultCaveArchitect,
   ...mkRough(
@@ -311,54 +265,3 @@ const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
   },
   maxSlope: 15,
 };
-
-export const ESTABLISHED_HQ = [
-  {
-    name: "Established HQ Spawn",
-    ...BASE,
-    prime: getPrime(10, false),
-    placeBuildings: getPlaceBuildings({ discovered: true }),
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
-  },
-  {
-    name: "Ruined HQ Spawn",
-    ...BASE,
-    prime: getPrime(12, true),
-    placeBuildings: getPlaceBuildings({
-      discovered: true,
-      from: 3,
-    }),
-    placeLandslides: (args) => placeLandslides({ min: 15, max: 60 }, args),
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
-  },
-  {
-    name: "Find Established HQ",
-    ...BASE,
-    prime: getPrime(15, false),
-    placeBuildings: getPlaceBuildings({}),
-    caveBid: ({ plan, hops, plans }) =>
-      !plan.fluid &&
-      plan.pearlRadius > 5 &&
-      hops.length <= MAX_HOPS &&
-      !hops.some((id) => plans[id].fluid) &&
-      !plans.some((p) => p.metadata?.tag === "hq") &&
-      0.5,
-    ...WITH_FIND_OBJECTIVE,
-  },
-  {
-    name: "Find Ruined HQ",
-    ...BASE,
-    prime: getPrime(15, true),
-    placeBuildings: getPlaceBuildings({ from: 3 }),
-    placeLandslides: (args) => placeLandslides({ min: 15, max: 100 }, args),
-    caveBid: ({ plan, hops, plans }) =>
-      !plan.fluid &&
-      plan.pearlRadius > 6 &&
-      hops.length <= MAX_HOPS &&
-      !plans.some((p) => p.metadata?.tag === "hq") &&
-      (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
-    ...WITH_FIND_OBJECTIVE,
-  },
-] as const satisfies readonly Architect<HqMetadata>[];
-
-export default ESTABLISHED_HQ;

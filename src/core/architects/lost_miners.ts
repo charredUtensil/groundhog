@@ -325,7 +325,7 @@ const MULTIPLIERS = { rock: 1.0, ice: 1.4, lava: 0.7 } as const;
 
 const LOST_MINERS = [
   {
-    name: "Lost Miners",
+    name: "LostMiners",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },

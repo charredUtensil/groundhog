@@ -4,7 +4,6 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { getBuildings } from "./utils/buildings";
-import { intersectsOnly } from "./utils/intersects";
 import { getPlaceRechargeSeams } from "./utils/resources";
 import { position } from "../models/position";
 import { sprinkleSlugHoles } from "./utils/creatures";
@@ -61,38 +60,31 @@ const OPEN = mkRough(
 
 const SIMPLE_SPAWN = [
   {
-    name: "Open Spawn",
+    name: "SimpleSpawn.Open",
     ...BASE,
     ...OPEN,
-    spawnBid: ({ cavern, plan }) =>
-      !plan.fluid &&
-      plan.pearlRadius > 0 &&
-      intersectsOnly(cavern.plans, plan, null) &&
-      1,
+    anchorBid: ({ plan }) =>
+      !plan.fluid && plan.lakeSize >= 3 && plan.pearlRadius > 0 && 1,
   },
   {
-    name: "Spawn",
+    name: "SimpleSpawn.Empty",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 2 },
       { of: Rough.LOOSE_ROCK, grow: 1 },
       { of: Rough.MIX_FRINGE },
     ),
-    spawnBid: ({ cavern, plan }) =>
-      !plan.fluid &&
-      plan.pearlRadius > 0 &&
-      intersectsOnly(cavern.plans, plan, null) &&
-      1,
+    anchorBid: ({ plan }) =>
+      !plan.fluid && plan.lakeSize >= 3 && plan.pearlRadius > 0 && 1,
   },
   {
-    // This is mostly a fallback in case there's no other viable spawn cave
-    // that isn't entirely surrounded by fluid. 9 crystals should be enough to
-    // ensure an escape route.
-    name: "Open Spawn with Bonus Crystals",
+    // This is mostly a fallback in case there's no other viable cave.
+    // 9 crystals should be enough to ensure an escape route.
+    name: "SimpleSpawn.Fallback",
     ...BASE,
     ...OPEN,
     crystalsToPlace: () => 9,
-    spawnBid: ({ plan }) => !plan.fluid && plan.pearlRadius >= 2 && 0.01,
+    anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius >= 2 && 0.0001,
   },
 ] as const satisfies readonly Architect<undefined>[];
 export default SIMPLE_SPAWN;

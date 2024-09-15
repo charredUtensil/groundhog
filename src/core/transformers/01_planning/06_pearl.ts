@@ -4,8 +4,8 @@ import { NSEW, Point, plotLine } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { pairEach } from "../../common/utils";
 import { BaseMetadata } from "../../models/architect";
-import { PartialPlannedCavern } from "./00_negotiate";
-import { EstablishedPlan } from "./03_establish";
+import { EstablishedCavern, EstablishedPlan } from "./05_establish";
+import { WithPlanType } from "./utils";
 
 type Layer = readonly Point[];
 export type Pearl = readonly Layer[];
@@ -19,6 +19,11 @@ export type PearledPlan<T extends BaseMetadata> = EstablishedPlan<T> & {
   readonly innerPearl: Pearl;
   readonly outerPearl: Pearl;
 };
+
+export type PearledCavern = WithPlanType<
+  EstablishedCavern,
+  PearledPlan<AnyMetadata>
+>;
 
 export class LayerGrid extends MutableGrid<number> {
   atLayer(layer: number): Point[] {
@@ -159,9 +164,7 @@ function addLayer(
   );
 }
 
-export default function pearl(
-  cavern: PartialPlannedCavern<EstablishedPlan<AnyMetadata>>,
-): PartialPlannedCavern<PearledPlan<AnyMetadata>> {
+export default function pearl(cavern: EstablishedCavern): PearledCavern {
   const plans = cavern.plans.map((plan) => {
     const rng = cavern.dice.pearl(plan.id);
     const grid: LayerGrid = new LayerGrid();
@@ -169,14 +172,10 @@ export default function pearl(
     const innerPearl: Point[][] = [grid.map((_, x, y) => [x, y])];
     const outerPearl: Point[][] = [];
     const pearlRadius = plan.architect.roughExtent(plan);
-    for (let i = 1; i < pearlRadius; i++) {
-      innerPearl.push(addLayer(grid, rng, plan.baroqueness, i));
-    }
-    if (pearlRadius > 0) {
-      innerPearl.push(addLayer(grid, rng, 0, pearlRadius));
-    }
-    for (let i = 1; i < 4; i++) {
-      outerPearl.push(addLayer(grid, rng, 0, i + pearlRadius));
+    for (let i = 1; i < pearlRadius + 4; i++) {
+      (i <= pearlRadius ? innerPearl : outerPearl).push(
+        addLayer(grid, rng, i < pearlRadius ? plan.baroqueness : 0, i),
+      );
     }
     return { ...plan, innerPearl, outerPearl };
   });

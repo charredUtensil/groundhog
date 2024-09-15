@@ -2,11 +2,12 @@ import React, { CSSProperties } from "react";
 import styles from "./style.module.scss";
 import { CavernContext, Curve } from "../../../core/common";
 import { radsToDegrees } from "../../../core/common/geometry";
+import { PartialCavernContext } from "../../../core/common/context";
 
 export type UpdateData = {
   update: React.Dispatch<Partial<CavernContext>>;
-  context: Partial<CavernContext>;
-  contextWithDefaults: CavernContext | undefined;
+  initialContext: PartialCavernContext;
+  context: CavernContext;
 };
 type KeysMatching<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
@@ -16,8 +17,8 @@ export const Choice = <K extends keyof CavernContext>({
   of,
   choices,
   update,
+  initialContext,
   context,
-  contextWithDefaults,
 }: {
   of: K;
   choices: CavernContext[K][];
@@ -27,11 +28,11 @@ export const Choice = <K extends keyof CavernContext>({
     <div className={styles.inputRow}>
       {choices.map((choice) => {
         const classes = [styles.choice];
-        const selected = context[of] === choice;
+        const selected = initialContext[of] === choice;
         if (selected) {
           classes.push(styles.override);
         }
-        const active = contextWithDefaults?.[of] === choice;
+        const active = context?.[of] === choice;
         classes.push(active ? styles.active : styles.inactive);
 
         return (
@@ -56,8 +57,8 @@ export const CurveSliders = ({
   max,
   step,
   update,
+  initialContext,
   context,
-  contextWithDefaults,
 }: {
   of: KeysMatching<CavernContext, Curve>;
   min: number;
@@ -66,7 +67,7 @@ export const CurveSliders = ({
 } & UpdateData) => {
   function updateCurve(key: "base" | "hops" | "order", value: number) {
     update({
-      [of]: { ...contextWithDefaults?.[of], ...context?.[of], [key]: value },
+      [of]: { ...context[of], [key]: value },
     });
   }
 
@@ -74,14 +75,13 @@ export const CurveSliders = ({
     <>
       <p>{of}:</p>
       <p>
-        {contextWithDefaults?.[of]?.base?.toFixed(2)},{" "}
-        {contextWithDefaults?.[of]?.hops?.toFixed(2)},{" "}
-        {contextWithDefaults?.[of]?.order?.toFixed(2)}
+        {context[of].base.toFixed(2)}, {context[of].hops.toFixed(2)},{" "}
+        {context[of].order.toFixed(2)}
       </p>
       <div className={styles.inputRow}>
         <div className={styles.curve}>
           {(["base", "hops", "order"] as const).map((key) => {
-            const value = contextWithDefaults?.[of]?.[key] ?? min;
+            const value = context[of][key];
             return (
               <input
                 key={key}
@@ -101,7 +101,7 @@ export const CurveSliders = ({
             );
           })}
         </div>
-        {of in context ? (
+        {of in initialContext ? (
           <button
             className={`${styles.icon} ${styles.override}`}
             onClick={() => update({ [of]: undefined })}
@@ -124,8 +124,8 @@ export const Slider = ({
   angle,
   step,
   update,
+  initialContext,
   context,
-  contextWithDefaults,
 }: {
   of: KeysMatching<CavernContext, number>;
   min: number;
@@ -134,7 +134,7 @@ export const Slider = ({
   angle?: boolean;
   step?: number;
 } & UpdateData) => {
-  const value = context[of] ?? contextWithDefaults?.[of] ?? min;
+  const value = context[of];
   return (
     <>
       <p>
@@ -162,15 +162,15 @@ export const Slider = ({
           }
           onChange={(ev) => update({ [of]: ev.target.valueAsNumber })}
         />
-        {context[of] === undefined ? (
-          <div className={`${styles.icon} ${styles.invisible}`} />
-        ) : (
+        {of in initialContext ? (
           <button
             className={`${styles.icon} ${styles.override}`}
             onClick={() => update({ [of]: undefined })}
           >
             undo
           </button>
+        ) : (
+          <div className={`${styles.icon} ${styles.invisible}`} />
         )}
       </div>
     </>

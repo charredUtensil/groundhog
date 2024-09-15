@@ -215,6 +215,19 @@ export const SUPER_TELEPORT = new BuildingTemplate(
   [TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION],
 );
 
+export const ALL_BUILDINGS = [
+  TOOL_STORE,
+  TELEPORT_PAD,
+  CANTEEN,
+  POWER_STATION,
+  SUPPORT_STATION,
+  UPGRADE_STATION,
+  GEOLOGICAL_CENTER,
+  ORE_REFINERY,
+  MINING_LASER,
+  SUPER_TELEPORT,
+] as const;
+
 export class BuildingDoesNotFitException extends Error {}
 
 export type Building = EntityPosition & {

@@ -1,15 +1,22 @@
-import { PartialPlannedCavern } from "./00_negotiate";
 import { FluidType, Tile } from "../../models/tiles";
-import { MeasuredPlan } from "./01_measure";
+import { MeasuredCavern, MeasuredPlan } from "./01_measure";
 import { PseudorandomStream } from "../../common";
 import { pairMap } from "../../common/utils";
+import { WithPlanType } from "./utils";
 
 export type FloodedPlan = MeasuredPlan & {
   /** What kind of fluid is present in this plan. */
   readonly fluid: FluidType;
+  /**
+   * How many contiguous plans have the same fluid?
+   * For plans without fluid, how many contiguous plans have no fluid?
+   */
+  readonly lakeSize: number;
   /** Should this plan contain erosion? */
   readonly hasErosion: boolean;
 };
+
+export type FloodedCavern = WithPlanType<MeasuredCavern, FloodedPlan>;
 
 type Lake = {
   readonly fluid: FluidType;
@@ -19,7 +26,7 @@ type Lake = {
 };
 
 function getLakes(
-  cavern: PartialPlannedCavern<MeasuredPlan>,
+  cavern: MeasuredCavern,
   rng: PseudorandomStream,
 ): readonly Lake[] {
   const plans = rng.shuffle(
@@ -53,9 +60,37 @@ function getLakes(
   ];
 }
 
-export default function flood(
-  cavern: PartialPlannedCavern<MeasuredPlan>,
-): PartialPlannedCavern<FloodedPlan> {
+// Measures the final size of all lakes.
+function measureLakes(
+  cavern: MeasuredCavern,
+  fluids: (FluidType | undefined)[],
+) {
+  const results: number[] = [];
+  for (let i = 0; i < cavern.plans.length; i++) {
+    if (results[i]) {
+      continue;
+    }
+    const queue = [i];
+    const out = [];
+    while (queue.length) {
+      const j = queue.shift()!;
+      if (results[j]) {
+        continue;
+      }
+      results[j] = Infinity;
+      out.push(j);
+      queue.push(
+        ...cavern.plans[j].intersects
+          .map((_, k) => k)
+          .filter((k) => fluids[k] === fluids[i]),
+      );
+    }
+    out.forEach((j) => (results[j] = out.length));
+  }
+  return results;
+}
+
+export default function flood(cavern: MeasuredCavern): FloodedCavern {
   const rng = cavern.dice.flood;
   const lakes = getLakes(cavern, rng);
   const fluids: (FluidType | undefined)[] = [];
@@ -122,9 +157,12 @@ export default function flood(
       });
   }
 
+  const lakeSizes = measureLakes(cavern, fluids);
+
   const plans = cavern.plans.map((plan) => ({
     ...plan,
     fluid: fluids[plan.id] ?? null,
+    lakeSize: lakeSizes[plan.id],
     hasErosion: !!erosion[plan.id],
   }));
   return { ...cavern, plans };

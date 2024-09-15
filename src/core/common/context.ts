@@ -3,15 +3,15 @@ import { DiceBox } from "./prng";
 export type Biome = "rock" | "ice" | "lava";
 
 /**
- * Some values are "curved" so they change based on distance from spawn.
- * These values can be negative to decrease a value away from spawn.
+ * Some values are "curved" so they change based on distance from the anchor.
+ * These values can be negative to decrease a value away from the anchor.
  */
 export type Curve = {
-  /** The base value at spawn. */
+  /** The base value at the anchor. */
   readonly base: number;
   /**
    * This value is multiplied by a number from 0 to 1 depending on the ratio
-   * of the maximum possible distance away from spawn.
+   * of the maximum possible distance away from the anchor.
    */
   readonly hops: number;
   /**
@@ -25,8 +25,6 @@ export type CavernContext = {
   /** The root seed for the dice box. */
   seed: number;
 
-  /** Any values not infered directly from the seed. */
-  overrides: readonly (keyof CavernContext)[];
   /**
    * Which biome this map is in. Biome affects the default setting for some
    * other context values, such as how much water or lava a map has.
@@ -155,8 +153,8 @@ export type CavernContext = {
    */
   architects: { [key: string]: "encourage" | "disable" };
   /**
-   * The chance each cave will have a recharge seam. Some caves (such as spawn)
-   * will always have a recharge seam.
+   * The chance each cave will have a recharge seam. Some caves (like most
+   * spawns) will always have a recharge seam.
    */
   caveHasRechargeSeamChance: number;
   /** The chance each hall will have a recharge seam. */
@@ -258,6 +256,9 @@ export type CavernContext = {
    */
   airSafetyFactor: number;
 };
+
+export type PartialCavernContext = Partial<CavernContext> &
+  Pick<CavernContext, "seed">;
 
 enum Die {
   biome = 0,
@@ -370,7 +371,7 @@ function getDefaultFlooding(dice: DiceBox, biome: Biome) {
 }
 
 export function inferContextDefaults(
-  args: Partial<Omit<CavernContext, "overrides">> & Pick<CavernContext, "seed">,
+  args: PartialCavernContext,
 ): CavernContext {
   const dice = new DiceBox(args.seed);
   const r = {
@@ -404,8 +405,5 @@ export function inferContextDefaults(
     hasSlugs,
     heightTargetRange,
     ...r,
-    overrides: Object.keys(args)
-      .filter((k) => k !== "seed")
-      .sort() as (keyof CavernContext)[],
   };
 }
