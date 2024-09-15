@@ -8,12 +8,17 @@ import { NSEW, Point, offsetBy } from "../../common/geometry";
 import { Vehicle } from "../../models/vehicle";
 import { Building } from "../../models/building";
 
-const SEAMABLE = {
-  [Tile.SOLID_ROCK.id]: true,
-  [Tile.HARD_ROCK.id]: true,
-  [Tile.LOOSE_ROCK.id]: true,
-  [Tile.DIRT.id]: true,
-} as const;
+function seamable(tile: Tile) {
+  switch (tile) {
+    case Tile.SOLID_ROCK:
+    case Tile.HARD_ROCK:
+    case Tile.LOOSE_ROCK:
+    case Tile.DIRT:
+      return true;
+    default:
+      return false;
+  }
+}
 
 /** Sprinkles resources throughout the tiles given by getRandomTile. */
 function sprinkle(
@@ -27,21 +32,20 @@ function sprinkle(
 ) {
   for (let remaining = count; remaining > 0; remaining--) {
     const [x, y] = getRandomTile();
-    const t = tiles.get(x, y) ?? Tile.SOLID_ROCK;
+    const t = tiles.get(x, y);
     if (
       remaining >= 4 &&
-      (t === Tile.SOLID_ROCK ||
-        (t.id in SEAMABLE && seamBias > 0 && rng.chance(seamBias)))
+      (!t || (seamable(t) && seamBias > 0 && rng.chance(seamBias)))
     ) {
       tiles.set(x, y, seam);
       remaining -= 3;
       continue;
     }
-    if (t === Tile.SOLID_ROCK) {
+    if (!t) {
       tiles.set(x, y, Tile.LOOSE_ROCK);
     }
     const r = resource.get(x, y) ?? 0;
-    if (r >= 3 && t.id in SEAMABLE) {
+    if (r >= 3 && seamable(t ?? Tile.LOOSE_ROCK)) {
       tiles.set(x, y, seam);
       resource.set(x, y, r - 3);
     } else {

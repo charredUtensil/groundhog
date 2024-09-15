@@ -11,7 +11,7 @@ const BASE: PartialArchitect<undefined> = {
 
 const SIMPLE_CAVE = [
   {
-    name: "Filled Cave",
+    name: "SimpleCave.Filled",
     ...BASE,
     ...mkRough(
       { of: Rough.DIRT, width: 0, grow: 0.25 },
@@ -28,7 +28,7 @@ const SIMPLE_CAVE = [
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius < 4 && 0.04,
   },
   {
-    name: "Open Cave",
+    name: "SimpleCave.Open",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
@@ -50,7 +50,7 @@ const SIMPLE_CAVE = [
       2,
   },
   {
-    name: "Empty Cave",
+    name: "SimpleCave.Empty",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
@@ -68,7 +68,7 @@ const SIMPLE_CAVE = [
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius < 10 && 1,
   },
   {
-    name: "Filled Cave with Paths",
+    name: "SimpleCave.FilledWithPaths",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, width: 0, grow: 0.5 },
@@ -86,7 +86,7 @@ const SIMPLE_CAVE = [
       1,
   },
   {
-    name: "Doughnut Cave",
+    name: "SimpleCave.Doughnut",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_SOLID_ROCK, grow: 0.2 },
@@ -100,7 +100,7 @@ const SIMPLE_CAVE = [
     caveBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 5 && 0.5,
   },
   {
-    name: "Stalagmite Cave",
+    name: "SimpleCave.Stalagmites",
     ...BASE,
     ...mkRough(
       {

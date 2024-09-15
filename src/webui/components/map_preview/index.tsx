@@ -9,7 +9,7 @@ import { Cavern } from "../../../core/models/cavern";
 import BaseplatePreview from "./baseplate";
 import PathPreview from "./path";
 import PearlPreview from "./pearl";
-import { PearledPlan } from "../../../core/transformers/01_planning/04_pearl";
+import { PearledPlan } from "../../../core/transformers/01_planning/06_pearl";
 import TilesPreview from "./tiles";
 import EntityPreview from "./entity";
 import OpenCaveFlagPreview from "./open_cave_flag";
@@ -121,8 +121,12 @@ export default function CavernPreview({
     default:
   }
 
-  const height = cavern.context.targetSize * 2 * 6;
-  const width = Math.max(height, cavern.context.targetSize * 6 + 600);
+  const targetSize = cavern.context?.targetSize;
+  if (!targetSize) {
+    return null;
+  }
+  const height = targetSize * 2 * 6;
+  const width = Math.max(height, targetSize * 6 + 600);
 
   return (
     <div

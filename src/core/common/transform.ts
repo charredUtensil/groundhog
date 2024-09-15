@@ -1,11 +1,9 @@
-type TfResult<T, Current extends T> = {
+export type TfResult<T, Current extends T> = {
   result: Current;
   name: string;
   progress: number;
   next: (() => TfResult<T, any>) | null;
 };
-
-export type TransformResult<T> = TfResult<T, any>;
 
 export type AnyTfResultOf<BT extends TfBuilder<any, any, any>> =
   BT extends TfBuilder<infer T, any, any> ? T : unknown;

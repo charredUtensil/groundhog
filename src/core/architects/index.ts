@@ -1,5 +1,6 @@
 import { Architect } from "../models/architect";
-import ESTABLISHED_HQ, { HqMetadata } from "./established_hq";
+import ESTABLISHED_HQ from "./established_hq";
+import { HqMetadata } from "./established_hq/base";
 import FISSURE from "./fissure";
 import FLOODED from "./flooded";
 import LOOPBACK from "./loopback";

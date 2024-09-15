@@ -1,10 +1,15 @@
-import { PartialPlannedCavern } from "../transformers/01_planning/00_negotiate";
 import { FoundationPlasticCavern } from "../transformers/02_masonry/00_foundation";
 import { RoughPlasticCavern } from "../transformers/02_masonry/01_rough";
 import { Plan } from "./plan";
-import { EstablishedPlan } from "../transformers/01_planning/03_establish";
-import { ArchitectedPlan } from "../transformers/01_planning/03_establish";
-import { FloodedPlan } from "../transformers/01_planning/02_flood";
+import {
+  EstablishedPlan,
+  OrderedOrEstablishedPlan,
+} from "../transformers/01_planning/05_establish";
+import { ArchitectedPlan } from "../transformers/01_planning/05_establish";
+import {
+  FloodedCavern,
+  FloodedPlan,
+} from "../transformers/01_planning/02_flood";
 import { RoughTile, Tile } from "./tiles";
 import { MutableGrid } from "../common/grid";
 import { Building } from "./building";
@@ -16,37 +21,38 @@ import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
-import { CollapseUnion } from "../common/utils";
-import { AnyMetadata } from "../architects";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { DiscoveryZone } from "./discovery_zone";
 import { Point } from "../common/geometry";
+import { ModdedCavern } from "../transformers/01_planning/04_mod";
+import {
+  AnchoredCavern,
+  OrderedPlan,
+} from "../transformers/01_planning/03_anchor";
 
-type SpawnBidArgs = {
-  readonly cavern: PartialPlannedCavern<FloodedPlan>;
+type anchorBidArgs = {
+  readonly cavern: FloodedCavern;
   readonly plan: FloodedPlan;
 };
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
-type BidArgs = SpawnBidArgs & {
-  readonly plans: readonly CollapseUnion<
-    FloodedPlan | EstablishedPlan<AnyMetadata>
-  >[];
+type BidArgs = anchorBidArgs & {
+  readonly plans: readonly OrderedOrEstablishedPlan[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
 };
 
 type EstablishArgs<T extends BaseMetadata> = {
-  readonly cavern: PartialPlannedCavern<FloodedPlan>;
+  readonly cavern: ModdedCavern;
   readonly plan: ArchitectedPlan<T>;
   readonly totalCrystals: number;
 };
 
 type PrimeArgs = {
-  readonly cavern: PartialPlannedCavern<FloodedPlan>;
-  readonly plan: FloodedPlan;
+  readonly cavern: ModdedCavern;
+  readonly plan: OrderedPlan;
 };
 
 export type BaseArchitect<T extends BaseMetadata> = {
@@ -54,7 +60,9 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   caveBid?(args: BidArgs): number | false;
   hallBid?(args: BidArgs): number | false;
-  spawnBid?(args: SpawnBidArgs): number | false;
+  anchorBid?(args: anchorBidArgs): number | false;
+
+  mod?(args: AnchoredCavern): ModdedCavern;
 
   prime(args: PrimeArgs): T;
 
@@ -154,5 +162,5 @@ export type Architect<T extends BaseMetadata> = BaseArchitect<T> &
   (
     | { caveBid: NonNullable<BaseArchitect<T>["caveBid"]> }
     | { hallBid: NonNullable<BaseArchitect<T>["hallBid"]> }
-    | { spawnBid: NonNullable<BaseArchitect<T>["spawnBid"]> }
+    | { anchorBid: NonNullable<BaseArchitect<T>["anchorBid"]> }
   );

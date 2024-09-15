@@ -10,7 +10,7 @@ import {
   WEST,
 } from "../../common/geometry";
 import { Grid } from "../../common/grid";
-import { Tile } from "../../models/tiles";
+import { Hardness, Tile } from "../../models/tiles";
 import { RoughPlasticCavern } from "./01_rough";
 
 const HOLE_MAP = [
@@ -43,10 +43,10 @@ export default function grout(cavern: RoughPlasticCavern): RoughPlasticCavern {
   cavern.tiles.forEach((t, x, y) => {
     if (
       // If the point is surrounded by hard or solid rock, make it hard rock
-      t !== Tile.SOLID_ROCK &&
+      t.hardness < Hardness.SOLID &&
       !NSEW.some(([ox, oy]) => {
         const ot = tiles.get(x + ox, y + oy);
-        return ot && ot !== Tile.HARD_ROCK && ot !== Tile.SOLID_ROCK;
+        return ot && ot.hardness < Hardness.HARD;
       })
     ) {
       tiles.set(x, y, Tile.HARD_ROCK);

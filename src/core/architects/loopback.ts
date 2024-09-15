@@ -72,7 +72,7 @@ function withBarrier({
 
 const LOOPBACK = [
   {
-    name: "Loopback Hall",
+    name: "Loopback",
     ...BASE,
     ...withBarrier(
       mkRough(

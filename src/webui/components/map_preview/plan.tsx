@@ -172,7 +172,7 @@ export default function PlansPreview({
               className={`${styles.inline} ${getGClassName(plan)}`}
             >
               <text className={styles.label} x={x * SCALE} y={y * SCALE}>
-                {"architect" in plan && plan.architect.name} {plan.id}
+                {"architect" in plan && plan.architect?.name} {plan.id}
               </text>
             </g>
           );
@@ -191,7 +191,7 @@ export default function PlansPreview({
             <path id={`planLabel${plan.id}`} d={d} fill="none" />
             <text className={styles.label}>
               <textPath href={`#planLabel${plan.id}`} startOffset="50%">
-                {"architect" in plan && plan.architect.name} {plan.id}
+                {"architect" in plan && plan.architect?.name} {plan.id}
               </textPath>
             </text>
           </g>
@@ -199,12 +199,12 @@ export default function PlansPreview({
       });
     }
     let py = -Infinity;
+    const targetSize = cavern.context?.targetSize ?? 0;
     return plans.map((plan, i) => {
       const px = SCALE * planCoords[plan.id][0];
       py = Math.max(SCALE * planCoords[plan.id][1], py + 4);
-      const lx = ((SCALE * cavern.context.targetSize) / 2 + 50) * sign;
-      const ly =
-        SCALE * cavern.context.targetSize * ((i + 1) / plans.length - 0.5);
+      const lx = ((SCALE * targetSize) / 2 + 50) * sign;
+      const ly = SCALE * targetSize * ((i + 1) / plans.length - 0.5);
       const bx = lx - Math.abs(py - ly) * 0.56 * sign;
       const d = filterTruthy([
         `M ${lx + 25 * sign} ${ly}`,
@@ -216,7 +216,7 @@ export default function PlansPreview({
         <g key={plan.id} className={`${className} ${getGClassName(plan)}`}>
           <path className={styles.pointer} d={d} />
           <text className={styles.label} x={lx + 25 * sign} y={ly}>
-            {"architect" in plan ? (
+            {"architect" in plan && plan.architect?.name ? (
               <>
                 {plan.architect.name}
                 {!plan.hops.length && "*"} {plan.id}
