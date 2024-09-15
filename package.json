@@ -20,11 +20,11 @@
   "scripts": {
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
+    "test": "react-scripts test",
     "predeploy": "react-scripts build",
     "deploy": "gh-pages -d build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "gen": "npx ts-node bin/groundhog-gen"
+    "gen": "tsx bin/groundhog-gen"
   },
   "eslintConfig": {
     "extends": [
@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
-    "@types/delaunator": "^5.0.2"
+    "@types/delaunator": "^5.0.2",
+    "tsx": "^4.19.1"
   }
 }
