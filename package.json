@@ -1,6 +1,6 @@
 {
   "name": "groundhog",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "homepage": "https://charredutensil.github.io/groundhog",
   "private": true,
   "dependencies": {
@@ -24,7 +24,8 @@
     "predeploy": "react-scripts build",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject",
-    "gen": "tsx bin/groundhog-gen"
+    "gen": "tsx bin/groundhog-gen",
+    "architect-stats": "tsx bin/architect-stats"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@types/delaunator": "^5.0.2",
+    "dotenv": "^16.4.5",
     "tsx": "^4.19.1"
   }
 }

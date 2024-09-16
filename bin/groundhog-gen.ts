@@ -1,17 +1,23 @@
 #!/usr/bin/env node
+import 'dotenv/config';
 import { inferContextDefaults } from "../src/core/common";
 import { CAVERN_TF } from "../src/core/transformers";
+import { SerializedCavern } from '../src/core/transformers/04_ephemera/05_serialize';
 
 function generate() {
-  const seed = 0xEFE63E54;
+  const seed = parseInt(process.env.SEED ?? '0', 16);
+  if (!seed) {
+    throw new Error('Usage:\n  SEED=... yarn gen');
+  }
   let state = CAVERN_TF.first({
     initialContext: inferContextDefaults({seed}),
   });
   
   while (state.next) {
-    console.log(`${(state.progress * 100).toFixed()}% ${state.name}`);
     state = state.next();
   }
+
+  console.log((state.result as SerializedCavern).serialized);
 }
 
 generate();
