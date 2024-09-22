@@ -66,6 +66,7 @@ const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     )
     .then(state("rockBiome", "iceBiome", "lavaBiome"))
     .then(skip, state("hasGiantCave"))
+    .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
     .then(end);
 });
 

@@ -31,7 +31,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       ),
     ).then("\n\n"),
     skip,
-  );
+  ).then(skip, state("hasGiantCave"));
 
   const additionalHardship = (() => {
     const spawnHasErosion = state("spawnHasErosion").then(
@@ -51,6 +51,9 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     );
 
     const hqIsFixedComplete = state("hqIsFixedComplete")
+      // Buildandpower objectives shouldn't be possible, so trigger a failure
+      // when it gets serialized.
+      .then(state("buildAndPowerGcOne", "buildAndPowerGcMultiple").then("FAIL!!"), skip)
       .then(
         "the teleporters are operating in a low-power mode, so",
         "our engineers tell me that",
@@ -73,6 +76,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(skip, state("spawnHasErosion"))
     .then(skip, state("treasureCaveOne", "treasureCaveMany"))
     .then(skip, state("spawnIsNomadOne", "spawnIsNomadsTogether"))
+    .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
     .then(
       "A forward team has established Rock Raider HQ in the viscinity, but " +
         "we haven't had the means to use it yet.",
@@ -105,9 +109,25 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     )
     .then(end);
 
-  // Maybe treasure, maybe spawn is HQ.
-  greeting
+    greeting
     .then(
+      // Need to build Geological Centers in specific places. Blame "interference"
+      pg(state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
+      .then(skip, state("treasureCaveOne", "treasureCaveMany"))
+      .then(skip, "We're sending you to a cavern deep within the planet.")
+      .then("Our long-range scanners", "The scanners up on the L.M.S. Explorer")
+      .then(
+        "are unable to penetrate the geology in this area",
+        "have been unreliable at this depth",
+      )
+      .then(
+        "and we need some way to amplify them.",
+        "and we'd like to understand the area better.",
+      )
+      .then(skip, "That's where you come in -")
+      .then("We need a team to scan the area"),
+    // Maybe treasure, maybe spawn is HQ.
+    pg(
       pg("A recent scan", "Our most recent geological survey").then(
         "found",
         "has discovered",
@@ -129,6 +149,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         "a cave system with an abundance of Energy Crystals",
       ),
       "another cavern where we can continue our mining operations",
+    )
     )
     .then(
       pg(".").then(end),
@@ -202,6 +223,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     "It gets worse:",
   ).then(additionalHardship);
 
+
   const findThem = pg(
     "we're counting on you to find them!",
     "we don't know how long they'll last out there.",
@@ -210,8 +232,6 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       "I hope they don't meet any of the ${enemies} roaming this cavern.",
     ),
   )
-    .then(state("spawnHasErosion"), skip)
-    .then(end);
 
   const findTheOthers = pg(
     "we're counting on you to find the others!",
@@ -219,8 +239,18 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
       "you need to find the others before the ${enemies} do.",
     ),
   )
-    .then(state("spawnHasErosion"), skip)
-    .then(end);
+  
+  pg(findThem, findTheOthers).then(state("spawnHasErosion"), skip)
+  .then(state("hasSlugs"), skip)
+    .then(
+      end,
+      state("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(
+        "\n\nWhile you're down there, we need you to extend the range of our scanners.",
+      ),
+    ).then(
+      end
+    );
+
 
   // A teleporter accident caused lost miners or nomad spawn.
   // Maybe treasure, maybe find spawn or spawn is HQ.
@@ -298,6 +328,7 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
   negativeGreeting
     .then(state("hqIsRuin"))
     .then(state("treasureCaveOne", "treasureCaveMany"), skip)
+    .then(state("buildAndPowerGcOne", "buildAndPowerGcMultiple"), skip)
     .then(state("hasSlugs"), skip)
     .then(
       "Recent seismic activity has damaged our Rock Raider HQ",
@@ -373,23 +404,6 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
     .then(skip, state("hasSlugs"))
     .then(skip, state("spawnHasErosion"))
     .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-    .then(end);
-
-  // Need to build Geological Centers in specific places. Blame "interference"
-  greeting
-    .then(state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
-    .then(skip, "We're sending you to a cavern deep within the planet.")
-    .then("Our long-range scanners", "The scanners up on the L.M.S. Explorer")
-    .then(
-      "are unable to penetrate the geology in this area",
-      "have been unreliable at this depth",
-    )
-    .then(
-      "and we need some way to amplify them.",
-      "and we'd like to understand the area better.",
-    )
-    .then(skip, "That's where you come in -")
-    .then("We need a team to scan the area.")
     .then(end);
 });
 export default PREMISE;

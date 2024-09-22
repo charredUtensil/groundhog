@@ -16,7 +16,7 @@ export type SerializedCavern = ProgrammedCavern & {
 
 // If any of these are found in the level output, assume JavaScript did
 // something stupid and throw an error.
-const RESTRICTED_STRINGS = ["[object Object]", "undefined", "NaN"] as const;
+const RESTRICTED_STRINGS = ["[object Object]", "undefined", "NaN", "FAIL!!"] as const;
 
 function indent(it: string, prefix: string) {
   return it
