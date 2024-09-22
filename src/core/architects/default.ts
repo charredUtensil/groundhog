@@ -58,9 +58,5 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       objectives: () => undefined,
       maxSlope: undefined,
       claimEventOnDiscover: () => [],
-      scriptGlobals: () => undefined,
-      script: () => undefined,
-      monsterSpawnScript: () => undefined,
-      slugSpawnScript: () => undefined,
     }) as PartialArchitect<any>,
 );

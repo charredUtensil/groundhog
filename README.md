@@ -11,14 +11,14 @@ If you have a clever idea for getting the files from the Downloads folder
 to the Manic Miners level folder, please let me know.
 
 To run locally, run `yarn install` and `yarn start`, which will launch the
-React application at `localhost:3000`. My dev machine is Linux so I have
-no idea if this works on Windows.
+React application at `localhost:3000`. I use Linux for my dev machine and have
+no desire to test this setup on Windows, so your results may vary.
 
 # Testing
 
-Run Jest tests with `npx yarn test`. Some of the tests are "goldens" that
+Run Jest tests with `yarn test`. Some of the tests are "goldens" that
 test what a cavern serializes to. These can be automatically updated by
-running `UPDATE_GOLDENS=1 npx yarn test`.
+running `UPDATE_GOLDENS=1 yarn test`.
 
 # Deploying
 
@@ -29,8 +29,8 @@ as long as all tests are passing.
 # Contributing
 
 I am on the Manic Miners Discord. Ping me if you're interested in contributing
-and I can offer advice and/or suggestions. PRs are welcomed, but please run
-`prettier` and ensure tests pass before submitting them.
+and I can offer advice and/or suggestions. PRs are welcomed. Please run
+`yarn presubmit` on your PR and commit any changes before submitting it.
 
 # FAQ
 
@@ -106,4 +106,4 @@ this project hits a 1.0 release.
 
 ## Were any of these Qs actually FA'ed?
 
-No.
+[No.](https://www.youtube.com/watch?v=UUlcFEDkhsE)

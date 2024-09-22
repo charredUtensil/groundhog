@@ -1,6 +1,6 @@
 {
   "name": "groundhog",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "homepage": "https://charredutensil.github.io/groundhog",
   "private": true,
   "dependencies": {
@@ -23,6 +23,7 @@
     "test": "react-scripts test",
     "predeploy": "react-scripts build",
     "deploy": "gh-pages -d build",
+    "presubmit": "prettier --write src && eslint --fix src --max-warnings=0 && react-scripts test --all",
     "eject": "react-scripts eject",
     "gen": "tsx bin/groundhog-gen",
     "architect-stats": "tsx bin/architect-stats"
@@ -48,6 +49,7 @@
   "devDependencies": {
     "@types/delaunator": "^5.0.2",
     "dotenv": "^16.4.5",
+    "prettier": "^3.3.3",
     "tsx": "^4.19.1"
   }
 }
