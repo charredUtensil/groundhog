@@ -22,7 +22,9 @@ import {
 import { LoreDie } from "../lore/lore";
 import { FOUND_SLUG_NEST } from "../lore/graphs/events";
 
-const getSlugHoles = (args: Parameters<Architect<any>["slugSpawnScript"]>[0]) =>
+const getSlugHoles = (
+  args: Parameters<NonNullable<Architect<any>["slugSpawnScript"]>>[0],
+) =>
   args.plan.innerPearl.flatMap((layer) =>
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
   );
