@@ -6,7 +6,6 @@ import {
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
-  FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
 } from "./events";
 import { NAME } from "./names";

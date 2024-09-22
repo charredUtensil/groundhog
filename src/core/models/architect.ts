@@ -143,16 +143,16 @@ export type BaseArchitect<T extends BaseMetadata> = {
     cavern: EnscribedCavern;
     plan: Plan<T>;
   }): { priority: number; dz?: DiscoveryZone; pos?: Point }[];
-  scriptGlobals(args: { cavern: PreprogrammedCavern }): string | undefined;
-  script(args: {
+  scriptGlobals?(args: { cavern: PreprogrammedCavern }): string | undefined;
+  script?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
   }): string | undefined;
-  monsterSpawnScript(args: {
+  monsterSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
   }): string | undefined;
-  slugSpawnScript(args: {
+  slugSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
   }): string | undefined;
