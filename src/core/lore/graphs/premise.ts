@@ -361,5 +361,35 @@ const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         )
         .then(additionalHardship, end),
     );
+
+  // A joke from early in development of Hognose, here as an easter egg.
+  start
+    .then(state("hasGiantCave"))
+    .then(
+      "We've got news for you, Rock Raider! Our geological scanners have " +
+        'discovered a nearby cave approximately the size of "yes".',
+    )
+    .then(skip, state("hasMonsters"))
+    .then(skip, state("hasSlugs"))
+    .then(skip, state("spawnHasErosion"))
+    .then(skip, state("treasureCaveOne", "treasureCaveMany"))
+    .then(end);
+
+  // Need to build Geological Centers in specific places. Blame "interference"
+  greeting
+    .then(state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
+    .then(skip, "We're sending you to a cavern deep within the planet.")
+    .then("Our long-range scanners", "The scanners up on the L.M.S. Explorer")
+    .then(
+      "are unable to penetrate the geology in this area",
+      "have been unreliable at this depth",
+    )
+    .then(
+      "and we need some way to amplify them.",
+      "and we'd like to understand the area better.",
+    )
+    .then(skip, "That's where you come in -")
+    .then("We need a team to scan the area.")
+    .then(end);
 });
 export default PREMISE;

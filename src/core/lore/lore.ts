@@ -1,26 +1,15 @@
 import { HqMetadata } from "../architects/established_hq/base";
 import { countLostMiners } from "../architects/lost_miners";
-import { DiceBox, PseudorandomStream } from "../common";
+import { DiceBox } from "../common";
 import { filterTruthy } from "../common/utils";
+import { GEOLOGICAL_CENTER } from "../models/building";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
-import { Vehicle } from "../models/vehicle";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
 import { FAILURE, SUCCESS } from "./graphs/conclusions";
-import {
-  FAILURE_BASE_DESTROYED,
-  FOUND_ALL_LOST_MINERS,
-  FOUND_HOARD,
-  FOUND_HQ,
-  FOUND_LM_BREADCRUMB,
-  FOUND_LOST_MINERS,
-  FOUND_SLUG_NEST,
-  NOMADS_SETTLED,
-} from "./graphs/events";
 import { NAME } from "./graphs/names";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
-import { SEISMIC_FORESHADOW } from "./graphs/seismic";
 
 export type State = {
   readonly floodedWithWater: boolean;
@@ -43,6 +32,9 @@ export type State = {
   readonly rockBiome: boolean;
   readonly iceBiome: boolean;
   readonly lavaBiome: boolean;
+  readonly hasGiantCave: boolean;
+  readonly buildAndPowerGcOne: boolean;
+  readonly buildAndPowerGcMultiple: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -50,15 +42,16 @@ export type FoundLostMinersState = State & {
   readonly foundMinersTogether: boolean;
 };
 
-type ReplaceStrings = {
+type FormatVars = {
+  readonly buildAndPowerGcCount: string;
+  readonly enemies: string;
   readonly lostMinersCount: string;
   readonly lostMinerCavesCount: string;
-  readonly enemies: string;
   readonly resourceGoal: string;
   readonly resourceGoalNamesOnly: string;
 };
 
-enum Die {
+export enum LoreDie {
   premise = 0,
   orders,
   success,
@@ -70,6 +63,7 @@ enum Die {
   foundSlugNest,
   name,
   failureBaseDestroyed,
+  buildAndPower,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
@@ -133,7 +127,7 @@ const TENS = [
   "ninety",
 ];
 
-function spellNumber(n: number): string {
+export function spellNumber(n: number): string {
   if (n > 999 || n < 0) {
     return n.toString();
   }
@@ -172,7 +166,7 @@ function spellResourceGoal(cavern: AdjuredCavern) {
 
 export class Lore {
   readonly state: State;
-  readonly vars: ReplaceStrings;
+  readonly formatVars: FormatVars;
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
 
@@ -188,6 +182,15 @@ export class Lore {
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
+    const buildAndPowerGcCount = cavern.plans.reduce(
+      (r, p) =>
+        p.metadata?.tag === "buildAndPower" &&
+        p.metadata.template === GEOLOGICAL_CENTER
+          ? r + 1
+          : r,
+      0,
+    );
+
     const nomads =
       anchor.metadata?.tag === "nomads"
         ? (anchor.metadata.minersCount as number)
@@ -196,6 +199,14 @@ export class Lore {
     const treasures = cavern.plans.reduce(
       (r, plan) => (plan.metadata?.tag === "treasure" ? r + 1 : r),
       0,
+    );
+
+    const hasGiantCave = cavern.plans.some(
+      (plan) =>
+        plan.pearlRadius > 20 &&
+        // The actual diameter of the cave is almost definitely at least 60% the
+        // total size of the map. This can only happen with context overrides.
+        plan.pearlRadius * 3 > cavern.context.targetSize,
     );
 
     this.state = {
@@ -222,6 +233,9 @@ export class Lore {
       rockBiome: cavern.context.biome === "rock",
       iceBiome: cavern.context.biome === "ice",
       lavaBiome: cavern.context.biome === "lava",
+      hasGiantCave,
+      buildAndPowerGcOne: buildAndPowerGcCount === 1,
+      buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
     };
 
     const enemies = filterTruthy([
@@ -234,95 +248,38 @@ export class Lore {
       cavern.context.hasSlugs && "Slimy Slugs",
     ]).join(" and ");
 
-    this.vars = {
+    this.formatVars = {
       enemies,
       lostMinersCount: spellNumber(lostMiners),
       lostMinerCavesCount: spellNumber(lostMinerCaves),
+      buildAndPowerGcCount: spellNumber(buildAndPowerGcCount),
       ...spellResourceGoal(cavern),
     };
   }
 
   briefings(dice: DiceBox) {
     return {
-      name: NAME.generate(dice.lore(Die.name), this.state, this.vars),
-      premise: PREMISE.generate(dice.lore(Die.premise), this.state, this.vars),
-      orders: ORDERS.generate(dice.lore(Die.orders), this.state, this.vars),
-      success: SUCCESS.generate(
-        dice.lore(Die.success),
-        { ...this.state, commend: true },
-        this.vars,
+      name: NAME.generate(dice.lore(LoreDie.name), this.state, this.formatVars),
+      premise: PREMISE.generate(
+        dice.lore(LoreDie.premise),
+        this.state,
+        this.formatVars,
       ),
-      failure: FAILURE.generate(dice.lore(Die.failure), this.state, this.vars),
+      orders: ORDERS.generate(
+        dice.lore(LoreDie.orders),
+        this.state,
+        this.formatVars,
+      ),
+      success: SUCCESS.generate(
+        dice.lore(LoreDie.success),
+        { ...this.state, commend: true },
+        this.formatVars,
+      ),
+      failure: FAILURE.generate(
+        dice.lore(LoreDie.failure),
+        this.state,
+        this.formatVars,
+      ),
     };
-  }
-
-  foundHoard(dice: DiceBox) {
-    return FOUND_HOARD.generate(
-      dice.lore(Die.foundHoard),
-      this.state,
-      this.vars,
-    );
-  }
-
-  foundHq(dice: DiceBox) {
-    return FOUND_HQ.generate(dice.lore(Die.foundHq), this.state, this.vars);
-  }
-
-  foundLostMinersBreadcrumb(rng: PseudorandomStream, vehicle: Vehicle) {
-    return FOUND_LM_BREADCRUMB.generate(rng, this.state, {
-      ...this.vars,
-      vehicleName: vehicle.template.name,
-    });
-  }
-
-  foundLostMiners(rng: PseudorandomStream, foundMinersCount: number) {
-    return FOUND_LOST_MINERS.generate(
-      rng,
-      {
-        ...this.state,
-        foundMinersOne: foundMinersCount <= 1,
-        foundMinersTogether: foundMinersCount > 1,
-      },
-      {
-        ...this.vars,
-        foundMinersCount: spellNumber(foundMinersCount),
-      },
-    );
-  }
-
-  foundAllLostMiners(dice: DiceBox) {
-    return FOUND_ALL_LOST_MINERS.generate(
-      dice.lore(Die.foundAllLostMiners),
-      this.state,
-      this.vars,
-    );
-  }
-
-  nomadsSettled(dice: DiceBox) {
-    return NOMADS_SETTLED.generate(
-      dice.lore(Die.nomadsSettled),
-      this.state,
-      this.vars,
-    );
-  }
-
-  generateFoundSlugNest(dice: DiceBox) {
-    return FOUND_SLUG_NEST.generate(
-      dice.lore(Die.foundSlugNest),
-      this.state,
-      this.vars,
-    );
-  }
-
-  generateSeismicForeshadow(rng: PseudorandomStream) {
-    return SEISMIC_FORESHADOW.generate(rng, this.state, this.vars);
-  }
-
-  generateFailureBaseDestroyed(dice: DiceBox) {
-    return FAILURE_BASE_DESTROYED.generate(
-      dice.lore(Die.failureBaseDestroyed),
-      this.state,
-      this.vars,
-    );
   }
 }

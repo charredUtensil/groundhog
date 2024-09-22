@@ -88,15 +88,34 @@ const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
         ),
     )
     .then(
-      collect_resources,
-      pg(
-        "continue mining operations.",
-        "explore the cavern.",
-        "resume our mining operation.",
-        "search the cavern.",
-      )
-        .then(we_need)
-        .then(cut),
+      skip,
+      collect_resources.then(cut),
+      state("buildAndPowerGcOne")
+        .then("construct a Geological Center in the marked cavern")
+        .then(
+          pg(", upgrade it to Level 5, and keep it powered on.").then(
+            end,
+            pg("Finally, ").then(collect_resources).then(cut),
+            pg("Then,"),
+          ),
+        ),
+      state("buildAndPowerGcMultiple")
+        .then(
+          "construct a Geological Center in each of the marked caverns",
+          "build a Geological Center in each of the ${buildAndPowerGcCount} marked caverns",
+        )
+        .then(
+          pg(
+            ", upgrade them to Level 5, and keep them powered on.",
+            "and upgrade them all to Level 5. They must all be powered at the same time for the scans to work properly.",
+          ).then(
+            end,
+            pg("Finally,").then(collect_resources).then(cut),
+            pg("Then,"),
+          ),
+        ),
+    )
+    .then(
       pg("find", "locate", "search the cavern for")
         .then(
           state("lostMinersOne")

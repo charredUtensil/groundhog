@@ -31,14 +31,11 @@ import {
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
 
-type anchorBidArgs = {
-  readonly cavern: FloodedCavern;
-  readonly plan: FloodedPlan;
-};
-
 export type BaseMetadata = { readonly tag: string } | undefined;
 
-type BidArgs = anchorBidArgs & {
+type BidArgs = {
+  readonly cavern: ModdedCavern;
+  readonly plan: FloodedPlan;
   readonly plans: readonly OrderedOrEstablishedPlan[];
   readonly hops: readonly number[];
   readonly totalCrystals: number;
@@ -60,7 +57,10 @@ export type BaseArchitect<T extends BaseMetadata> = {
 
   caveBid?(args: BidArgs): number | false;
   hallBid?(args: BidArgs): number | false;
-  anchorBid?(args: anchorBidArgs): number | false;
+  anchorBid?(args: {
+    readonly cavern: FloodedCavern;
+    readonly plan: FloodedPlan;
+  }): number | false;
 
   mod?(args: AnchoredCavern): ModdedCavern;
 

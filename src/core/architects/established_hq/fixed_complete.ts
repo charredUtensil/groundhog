@@ -1,4 +1,6 @@
 import { inferContextDefaults } from "../../common";
+import { FAILURE_BASE_DESTROYED } from "../../lore/graphs/events";
+import { LoreDie } from "../../lore/lore";
 import { Architect } from "../../models/architect";
 import {
   TOOL_STORE,
@@ -12,7 +14,7 @@ import {
   ALL_BUILDINGS,
 } from "../../models/building";
 import {
-  escapeString,
+  declareStringFromLore,
   eventChain,
   mkVars,
   scriptFragment,
@@ -34,7 +36,7 @@ const T0_BUILDINGS = [
 
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 
-const gFixedCompleteHq = mkVars("gFCHQ", [
+const gFCHQ = mkVars("gFCHQ", [
   "onInit",
   "onBaseDestroyed",
   "msgBaseDestroyed",
@@ -65,23 +67,30 @@ export const FC_BASE: Pick<
   scriptGlobals: ({ cavern }) => {
     return scriptFragment(
       `# Globals: Fixed Complete HQ`,
-      `if(time:0)[${gFixedCompleteHq.onInit}]`,
+      `if(time:0)[${gFCHQ.onInit}]`,
       eventChain(
-        gFixedCompleteHq.onInit,
+        gFCHQ.onInit,
         // Can't just disable buildings because that disables fences - and
         // nobody wants that.
         ...ALL_BUILDINGS.map((bt) => `disable:${bt.id};` as `${string};`),
       ),
-      `string ${gFixedCompleteHq.msgBaseDestroyed}="${escapeString(cavern.lore.generateFailureBaseDestroyed(cavern.dice).text)}"`,
-      `int ${gFixedCompleteHq.wasBaseDestroyed}=0`,
-      `if(${TOOL_STORE.id}<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
-      `if(${POWER_STATION.id}<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
-      `if(${SUPPORT_STATION.id}<=0)[${gFixedCompleteHq.onBaseDestroyed}]`,
+      declareStringFromLore(
+        cavern,
+        LoreDie.failureBaseDestroyed,
+        gFCHQ.msgBaseDestroyed,
+        FAILURE_BASE_DESTROYED,
+        {},
+        {},
+      ),
+      `int ${gFCHQ.wasBaseDestroyed}=0`,
+      `if(${TOOL_STORE.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
+      `if(${POWER_STATION.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
+      `if(${SUPPORT_STATION.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
       eventChain(
-        gFixedCompleteHq.onBaseDestroyed,
-        `((${gFixedCompleteHq.wasBaseDestroyed}>0))return;`,
-        `${gFixedCompleteHq.wasBaseDestroyed}=1;`,
-        `msg:${gFixedCompleteHq.msgBaseDestroyed};`,
+        gFCHQ.onBaseDestroyed,
+        `((${gFCHQ.wasBaseDestroyed}>0))return;`,
+        `${gFCHQ.wasBaseDestroyed}=1;`,
+        `msg:${gFCHQ.msgBaseDestroyed};`,
         `wait:5;`,
         `lose;`,
       ),

@@ -4,6 +4,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
+  declareStringFromLore,
   DzPriorities,
   eventChain,
   mkVars,
@@ -14,6 +15,8 @@ import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 import { gLostMiners } from "./lost_miners";
+import { LoreDie } from "../lore/lore";
+import { FOUND_HOARD } from "../lore/graphs/events";
 
 const METADATA = {
   tag: "treasure",
@@ -80,7 +83,14 @@ const HOARD: typeof BASE = {
     return scriptFragment(
       "# Globals: Hoard",
       `bool ${g.wasTriggered}=false`,
-      `string ${g.message}="${cavern.lore.foundHoard(cavern.dice).text}"`,
+      declareStringFromLore(
+        cavern,
+        LoreDie.foundHoard,
+        g.message,
+        FOUND_HOARD,
+        {},
+        {},
+      ),
       `int ${g.crystalsAvailable}=0`,
     );
   },
@@ -116,8 +126,7 @@ const HOARD: typeof BASE = {
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
-        `((${g.wasTriggered}))return;`,
-        `${g.wasTriggered}=true;`,
+        `((${g.wasTriggered}))[return][${g.wasTriggered}=true];`,
         `wait:1;`,
         `${g.wasTriggered}=false;`,
         // If there's a lost miners objective that isn't fulfilled, don't

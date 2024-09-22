@@ -12,13 +12,15 @@ import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import {
+  declareStringFromLore,
   DzPriorities,
-  escapeString,
   eventChain,
   mkVars,
   scriptFragment,
   transformPoint,
 } from "./utils/script";
+import { LoreDie } from "../lore/lore";
+import { FOUND_SLUG_NEST } from "../lore/graphs/events";
 
 const getSlugHoles = (args: Parameters<Architect<any>["slugSpawnScript"]>[0]) =>
   args.plan.innerPearl.flatMap((layer) =>
@@ -69,11 +71,17 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
     }
 
     const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover", "onDiscover"]);
-    const message = cavern.lore.generateFoundSlugNest(cavern.dice).text;
 
     return scriptFragment(
       `# P${plan.id}: Slug Nest`,
-      `string ${v.messageDiscover}="${escapeString(message)}"`,
+      declareStringFromLore(
+        cavern,
+        LoreDie.foundSlugNest,
+        v.messageDiscover,
+        FOUND_SLUG_NEST,
+        {},
+        {},
+      ),
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
       eventChain(
         v.onDiscover,

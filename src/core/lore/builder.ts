@@ -1,7 +1,7 @@
 import { Mutable, PseudorandomStream } from "../common";
 
 type State = { [key: string]: boolean };
-type FormatVars = { [key: string]: string };
+export type FormatVars = { [key: string]: string };
 
 export type Phrase<T extends State> = {
   readonly id: number;
