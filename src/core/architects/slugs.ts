@@ -20,7 +20,9 @@ import {
   transformPoint,
 } from "./utils/script";
 
-const getSlugHoles = (args: Parameters<Architect<any>["slugSpawnScript"]>[0]) =>
+const getSlugHoles = (
+  args: Parameters<NonNullable<Architect<any>["slugSpawnScript"]>>[0],
+) =>
   args.plan.innerPearl.flatMap((layer) =>
     layer.filter((pos) => args.cavern.tiles.get(...pos) === Tile.SLUG_HOLE),
   );
