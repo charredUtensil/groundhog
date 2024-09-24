@@ -1,11 +1,14 @@
+import { BUILD_AND_POWER } from "../../architects/build_and_power";
 import phraseGraph, { PhraseGraph } from "../builder";
-import { State } from "../lore";
+import { FoundLostMinersState, State } from "../lore";
+import { BUILD_POWER_GC_FIRST, BUILD_POWER_GC_LAST, BUILD_POWER_GC_PENULTIMATE } from "./build_and_power";
 import { FAILURE, SUCCESS } from "./conclusions";
 import {
   FAILURE_BASE_DESTROYED,
   FOUND_ALL_LOST_MINERS,
   FOUND_HOARD,
   FOUND_HQ,
+  FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
 } from "./events";
 import { NAME } from "./names";
@@ -13,107 +16,80 @@ import ORDERS from "./orders";
 import PREMISE from "./premise";
 import { SEISMIC_FORESHADOW } from "./seismic";
 
-function expectCompletion(
-  actual: PhraseGraph<any>,
-  expected: PhraseGraph<any>,
-) {
+type CombinedState = State & FoundLostMinersState & { readonly commend: true }
+
+function expectCompletion(actual: PhraseGraph<any>) {
   const keep: { [key: string]: true } = { start: true, end: true };
   actual.states.forEach((s) => (keep[s] = true));
-  const es: { [key: string]: true } = {};
-  Object.keys(expected.phrases[0].reachableStates).forEach((reachable) => {
-    es[
-      reachable
-        .split(",")
-        .filter((s) => keep[s])
-        .join(",")
-    ] = true;
-  });
-
-  const as: { [key: string]: true } = {};
-  Object.keys(actual.phrases[0].reachableStates).forEach((reachable) => {
-    if (es[reachable]) {
-      as[reachable] = true;
+  const expected = phraseGraph<CombinedState>("Expected", ({ pg, state, start, end, cut, skip }) => {
+    // Only define states if they exist in actual
+    function st(...args: Parameters<typeof state>) {
+      const presentArgs = args.filter(arg => keep[arg]);
+      if (!presentArgs.length) {
+        return skip;
+      } else if (presentArgs.length < args.length) {
+        return pg(skip, state(...presentArgs));
+      }
+      return state(...presentArgs);
     }
+    
+    const hasAnyObjective = pg();
+    start
+      .then(skip, st("floodedWithLava", "floodedWithWater"))
+      .then(skip, st("hasMonsters"))
+      .then(skip, st("hasSlugs"))
+      .then(skip, st("spawnHasErosion"))
+      .then(skip, st("treasureCaveOne", "treasureCaveMany"))
+      .then(
+        pg(skip, st("spawnIsNomadOne", "spawnIsNomadsTogether")).then(
+          skip,
+          st("findHq").then(skip, st("hqIsRuin")),
+        ),
+        st("spawnIsHq").then(
+          skip,
+          st("hqIsFixedComplete"),
+          st("hqIsRuin"),
+        ),
+      )
+      .then(skip, st("lostMinersOne", "lostMinersTogether", "lostMinersApart").then(skip, hasAnyObjective.then(cut)))
+      .then(skip, st("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(skip, hasAnyObjective.then(cut)))
+      .then(st("resourceObjective")).then(hasAnyObjective)
+      .then(st("rockBiome", "iceBiome", "lavaBiome"))
+      .then(skip, st("hasGiantCave"))
+      .then(st("foundMinersOne", "foundMinersTogether"))
+      .then(st("commend"))
+      .then(end);
   });
+  expect(actual.states).toEqual(expected.states);
 
-  expect(as).toEqual(es);
+  // Actual can sometimes contain states that are impossible, so it's ok if
+  // there are reachable states in actual not in expected.
+  expect(actual.phrases[0].reachableStates).toEqual(
+    expect.objectContaining(expected.phrases[0].reachableStates));
 }
 
-const EXPECTED = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
-  start
-    .then(skip, state("floodedWithLava", "floodedWithWater"))
-    .then(skip, state("hasMonsters"))
-    .then(skip, state("hasSlugs"))
-    .then(skip, state("spawnHasErosion"))
-    .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-    .then(
-      pg(skip, state("spawnIsNomadOne", "spawnIsNomadsTogether")).then(
-        skip,
-        state("findHq").then(skip, state("hqIsRuin")),
-      ),
-      state("spawnIsHq").then(
-        skip,
-        state("hqIsFixedComplete"),
-        state("hqIsRuin"),
-      ),
-    )
-    .then(
-      state("resourceObjective"),
-      state("lostMinersOne", "lostMinersTogether", "lostMinersApart").then(
-        skip,
-        state("resourceObjective"),
-      ),
-    )
-    .then(state("rockBiome", "iceBiome", "lavaBiome"))
-    .then(skip, state("hasGiantCave"))
-    .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
-    .then(end);
-});
+const GRAPHS_TO_TEST = [
+  BUILD_POWER_GC_FIRST,
+  BUILD_POWER_GC_PENULTIMATE,
+  BUILD_POWER_GC_LAST,
+  SUCCESS,
+  FAILURE,
+  FOUND_LOST_MINERS,
+  FOUND_ALL_LOST_MINERS,
+  FOUND_HOARD,
+  FOUND_HQ,
+  FOUND_SLUG_NEST,
+  FAILURE_BASE_DESTROYED,
+  NAME,
+  ORDERS,
+  PREMISE,
+  SEISMIC_FORESHADOW,
+] as const;
 
-test(`Name is complete`, () => {
-  expectCompletion(NAME, EXPECTED);
-});
-
-test(`Premise is complete`, () => {
-  expectCompletion(PREMISE, EXPECTED);
-});
-
-test(`Orders is complete`, () => {
-  expectCompletion(ORDERS, EXPECTED);
-});
-
-test(`Success is complete`, () => {
-  expectCompletion(SUCCESS, EXPECTED);
-});
-
-test(`Failure is complete`, () => {
-  expectCompletion(FAILURE, EXPECTED);
-});
-
-test(`Found all lost miners is complete`, () => {
-  expectCompletion(FOUND_ALL_LOST_MINERS, EXPECTED);
-});
-
-test(`Found hoard is complete`, () => {
-  expectCompletion(FOUND_HOARD, EXPECTED);
-});
-
-// test(`Found lost miners is complete`, () => {
-//   expectCompletion(FOUND_LOST_MINERS, EXPECTED);
-// })
-
-test(`Found HQ is complete`, () => {
-  expectCompletion(FOUND_HQ, EXPECTED);
-});
-
-test(`Found Slug Nest is complete`, () => {
-  expectCompletion(FOUND_SLUG_NEST, EXPECTED);
-});
-
-test(`Seismic Foreshadow is complete`, () => {
-  expectCompletion(SEISMIC_FORESHADOW, EXPECTED);
-});
-
-test(`Failure: Base Destroyed is complete`, () => {
-  expectCompletion(FAILURE_BASE_DESTROYED, EXPECTED);
-});
+describe(`Graph is complete`, () => {
+  GRAPHS_TO_TEST.forEach((pg) => {
+    test(`for ${pg.name}`, () => {
+      expectCompletion(pg);
+    })
+  })
+})

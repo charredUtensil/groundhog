@@ -3,7 +3,9 @@
 import { State } from "../lore";
 import phraseGraph from "../builder";
 
-const PREMISE = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
+const PREMISE = phraseGraph<State>(
+  "Briefing - Premise",
+  ({ pg, state, start, end, cut, skip }) => {
   // Complete, fully-constructed premises in one line.
   start
     .then(

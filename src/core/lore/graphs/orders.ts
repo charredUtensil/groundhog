@@ -3,7 +3,9 @@
 import { State } from "../lore";
 import phraseGraph from "../builder";
 
-const ORDERS = phraseGraph<State>(({ pg, state, start, end, cut, skip }) => {
+const ORDERS = phraseGraph<State>(
+  "Briefing - Orders",
+  ({ pg, state, start, end, cut, skip }) => {
   const collect_resources = pg(
     "collect ${resourceGoal}.",
     "continue our mining operation by collecting ${resourceGoal}.",

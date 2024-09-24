@@ -7,21 +7,38 @@ function objectives<T extends State>({
   pg,
   state,
 }: Pick<PgArgs<T>, "pg" | "state">) {
-  const find_lost_miners = pg(
+  const end = pg();
+
+  const buildGcs = pg(
+    state("buildAndPowerGcOne").then("build the Geological Center"),
+    state("buildAndPowerGcMultiple").then(
+      "build ${buildAndPowerGcCount} Geological Centers",
+    ),
+  );
+
+  const findLostMiners1 = pg(
     state("lostMinersOne").then("find the lost Rock Raider"),
     state("lostMinersTogether", "lostMinersApart").then(
       "find the lost Rock Raiders",
     ),
   );
 
-  const get_resources = state("resourceObjective").then(
+  const findLostMiners2 = pg(
+    state("lostMinersOne").then("find the lost Rock Raider"),
+    state("lostMinersTogether", "lostMinersApart").then(
+      "find the lost Rock Raiders",
+    ),
+  );
+
+  const getResources = state("resourceObjective").then(
     "collect all ${resourceGoal}",
     "get the ${resourceGoal} we needed",
   );
 
-  find_lost_miners.then("and").then(get_resources);
-
-  return pg(find_lost_miners, get_resources).then();
+  buildGcs.then(",").then(findLostMiners1)
+  buildGcs.then("and").then(findLostMiners2).then(end);
+  pg(buildGcs, findLostMiners1).then("and").then(getResources);
+  return pg(buildGcs, findLostMiners1, getResources).then(end);
 }
 
 const COMMENDATIONS = [
@@ -35,6 +52,7 @@ const COMMENDATIONS = [
 ] as const;
 
 export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
+  "Conclusion - Success",
   ({ pg, state, start, end, cut, skip }) => {
     (() => {
       const commend = state("commend").then("Wow!", ...COMMENDATIONS);
@@ -70,8 +88,20 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
             "restored our mining operations",
           );
           foundTheBase.then(hqIsRuin);
+          const coda = pg();
           return pg()
             .then(foundTheBase, hqIsRuin)
+            .then(
+              skip,
+              state("buildAndPowerGcOne").then(
+                ", constructed the Geological Center",
+                pg("and built the Geological Center where we needed it.").then(coda).then(cut),
+              ),
+              state("buildAndPowerGcMultiple").then(
+                ", built ${buildAndPowerGcCount} Geological Centers",
+                pg("and built ${buildAndPowerGcCount} Geological Centers.").then(coda).then(cut),
+              ),
+            )
             .then("and")
             .then(
               pg(
@@ -97,7 +127,7 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
                 "collected all ${resourceGoal}.",
                 "got all ${resourceGoal}.",
               ),
-            );
+            ).then(coda);
         })(),
       )
       .then("\n\n")
@@ -117,6 +147,7 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
 );
 
 export const FAILURE = phraseGraph<State>(
+  "Conclusion - Mission Failed",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(skip, "Oh, dear.", "Bad luck!")

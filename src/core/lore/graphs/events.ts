@@ -4,6 +4,7 @@ import { FoundLostMinersState, State } from "../lore";
 import phraseGraph from "../builder";
 
 export const FOUND_HOARD = phraseGraph<State>(
+  "Found Crystal Hoard",
   ({ pg, state, start, end, cut, skip }) => {
     // Assume there is a collect_resources goal, and assume that goal requires
     // collecting crystals. This event will only be triggered if there are enough
@@ -37,6 +38,7 @@ export const FOUND_HOARD = phraseGraph<State>(
 );
 
 export const FOUND_HQ = phraseGraph<State>(
+  "Found HQ",
   ({ pg, state, start, end, cut, skip }) => {
     const positive_greeting = start.then(
       "Our Rock Raider HQ is safe and sound!",
@@ -77,6 +79,17 @@ export const FOUND_HQ = phraseGraph<State>(
             .then(tail),
         ),
     ).then(
+      skip,
+      pg(
+        state("buildAndPowerGcOne").then("build that Geological Center"),
+        state("buildAndPowerGcMultiple").then(
+          "build the Geological Centers",
+        ),
+      ).then(
+        pg("and"),
+        pg("!").then(tail),
+      ),
+    ).then(
       pg(
         state("lostMinersOne").then("find the lost Rock Raider!"),
         state("lostMinersTogether", "lostMinersApart").then(
@@ -91,6 +104,7 @@ export const FOUND_HQ = phraseGraph<State>(
 );
 
 export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
+  "Found Vehicle left by Lost Miners",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
@@ -109,6 +123,7 @@ export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
 );
 
 export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(
+  "Found Lost Miners",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
@@ -130,6 +145,7 @@ export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(
 );
 
 export const FOUND_ALL_LOST_MINERS = phraseGraph<State>(
+  "Found All Lost Miners",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
@@ -155,6 +171,7 @@ export const FOUND_ALL_LOST_MINERS = phraseGraph<State>(
 );
 
 export const NOMADS_SETTLED = phraseGraph<State>(
+  "Nomads have settled",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then("This seems like as good a place as any.", "Well done, Cadet.")
@@ -198,6 +215,7 @@ export const NOMADS_SETTLED = phraseGraph<State>(
 );
 
 export const FOUND_SLUG_NEST = phraseGraph<State>(
+  "Found Slimy Slug Nest",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
@@ -215,6 +233,7 @@ export const FOUND_SLUG_NEST = phraseGraph<State>(
 );
 
 export const FAILURE_BASE_DESTROYED = phraseGraph<State>(
+  "Base Destroyed - Mission Failure",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
