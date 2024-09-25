@@ -35,6 +35,7 @@ const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}Fissure`, [
     "onDiscover",
     `onTrip`,
+    `onFissure`,
     `msgForeshadow`,
     `spawn`,
     "tripCount",
@@ -74,7 +75,10 @@ const BASE: PartialArchitect<typeof METADATA> = {
       ),
       eventChain(
         v.onTrip,
-        `((${v.tripCount}==${trips - 1}))[${v.tripCount}+=1][return];`,
+        `((${v.tripCount}==${trips}))[${v.onFissure}][${v.tripCount}+=1];`,
+      ),
+      eventChain(
+        v.onFissure,
         `wait:random(5)(30);`,
         `shake:1;`,
         `msg:${v.msgForeshadow};`,

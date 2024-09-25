@@ -182,7 +182,7 @@ function creatureSpawnScript(
       armEvent,
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-      armTriggers.length !== 1 &&
+      armTriggers.length === 1 ? `${v.state}=${STATE.ARMED};`:
         `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED}];`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
@@ -200,7 +200,7 @@ function creatureSpawnScript(
       // Check conditions to reject.
       opts.needCrystals &&
         `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
-      `((${v.state}<${STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState};`,
+      `((${v.state}<${STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
 
       needCountTriggerEvents && `${v.triggerCount}+=1;`,
       opts.needCrystals?.increment !== undefined &&
