@@ -6,22 +6,23 @@ import phraseGraph from "../builder";
 const ORDERS = phraseGraph<State>(
   "Briefing - Orders",
   ({ pg, state, start, end, cut, skip }) => {
-  const collect_resources = pg(
+  const collectResources = pg(
     "collect ${resourceGoal}.",
     "continue our mining operation by collecting ${resourceGoal}.",
   );
 
-  const we_need = pg(
+  const weNeed = pg(
     "we need ${resourceGoal}.",
     "you need to collect ${resourceGoal}.",
   );
 
   const tail = pg(
-    skip,
     "Best of luck!",
     "Good luck out there!",
     "We're counting on you!",
   ).then(end);
+
+  const tailOptional = pg(tail, end);
 
   start
     .then(
@@ -52,7 +53,7 @@ const ORDERS = phraseGraph<State>(
           state("spawnIsHq").then(
             "send some Rock Raiders down to this base",
             pg("resume mining operations and")
-              .then(collect_resources)
+              .then(collectResources)
               .then(cut),
             state("hqIsRuin").then(
               "clean up this mess",
@@ -86,18 +87,18 @@ const ORDERS = phraseGraph<State>(
             state("hasSlugs"),
           )
             .then("and keep it safe.", "and make sure it is heavily defended.")
-            .then("Then,", we_need.then(cut)),
+            .then("Then,", weNeed.then(cut)),
         ),
     )
     .then(
       skip,
-      collect_resources.then(cut),
+      collectResources.then(cut),
       state("buildAndPowerGcOne")
         .then("construct a Geological Center in the marked cavern")
         .then(
           pg(", upgrade it to Level 5, and keep it powered on.").then(
-            end,
-            pg("Finally, ").then(collect_resources).then(cut),
+            tail,
+            pg("Finally, ").then(collectResources).then(cut),
             pg("Then,"),
           ),
         ),
@@ -111,8 +112,8 @@ const ORDERS = phraseGraph<State>(
             ", upgrade them to Level 5, and keep them powered on.",
             "and upgrade them all to Level 5. They must all be powered at the same time for the scans to work properly.",
           ).then(
-            end,
-            pg("Finally,").then(collect_resources).then(cut),
+            tail,
+            pg("Finally,").then(collectResources).then(cut),
             pg("Then,"),
           ),
         ),
@@ -135,16 +136,16 @@ const ORDERS = phraseGraph<State>(
         )
         .then(".", state("hasMonsters").then("before the ${enemies} do!"))
         .then(
-          tail,
+          tailOptional,
           pg(
             "Once you've found them,",
             "With them safe,",
             "When they are safe,",
-          ).then(we_need, collect_resources),
+          ).then(weNeed, collectResources),
         ),
     );
 
-  pg(we_need, collect_resources).then(state("resourceObjective")).then(tail);
+  pg(weNeed, collectResources).then(state("resourceObjective")).then(tailOptional);
 });
 
 export default ORDERS;
