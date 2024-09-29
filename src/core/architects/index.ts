@@ -1,4 +1,5 @@
 import { Architect } from "../models/architect";
+import ERUPTION from "./eruption";
 import ESTABLISHED_HQ from "./established_hq";
 import { HqMetadata } from "./established_hq/base";
 import FISSURE from "./fissure";
@@ -21,6 +22,7 @@ export type AnyMetadata =
   | { tag: "fissure" | "slugNest" | "treasure" };
 
 export const ARCHITECTS = [
+  ...ERUPTION,
   ...ESTABLISHED_HQ,
   ...FISSURE,
   ...FLOODED,
