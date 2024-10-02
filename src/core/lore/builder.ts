@@ -1,7 +1,7 @@
 import { Mutable, PseudorandomStream } from "../common";
 
 type State = { [key: string]: boolean };
-type FormatVars = { [key: string]: string };
+export type FormatVars = { [key: string]: string };
 
 export type Phrase<T extends State> = {
   readonly id: number;
@@ -297,15 +297,18 @@ const format = (text: string, formatVars: FormatVars) =>
   text.replace(/\$\{([a-zA-Z0-9_]+)\}/g, (_, key) => formatVars[key]);
 
 export class PhraseGraph<T extends State> {
-  private start: Phrase<T>;
+  readonly name: string;
+  private readonly start: Phrase<T>;
   readonly phrases: readonly Phrase<T>[];
   readonly states: readonly (string & keyof T)[];
 
   constructor(
+    name: string,
     start: Phrase<T>,
     phrases: readonly Phrase<T>[],
     states: readonly (string & keyof T)[],
   ) {
+    this.name = name;
     this.start = start;
     this.phrases = phrases;
     this.states = states;
@@ -343,12 +346,13 @@ export class PhraseGraph<T extends State> {
       );
       if (continuations.length === 0) {
         console.log(
-          "No continutation has %s at phrase %o",
+          "%o: No continutation has %s at phrase %o",
+          this,
           reachedState,
           phrase,
         );
         throw new Error(
-          `No continuation has ${reachedState} at phrase ${phrase.id}`,
+          `${this.name}: No continuation has ${reachedState} at phrase ${phrase.id}`,
         );
       }
       chosenPhrases.push(rng.uniformChoice(continuations));
@@ -375,6 +379,7 @@ export type PgArgs<T extends State> = {
 };
 
 export default function phraseGraph<T extends State>(
+  name: string,
   fn: (args: PgArgs<T>) => void,
 ): PhraseGraph<T> {
   const pgBuilder = new PgBuilder<T>();
@@ -403,7 +408,7 @@ export default function phraseGraph<T extends State>(
   const newStart = phrases.find((phrase) => phrase.requires === "start")!;
   const states = Array.from(pgBuilder.states.values()).sort();
 
-  return new PhraseGraph(newStart, phrases, states);
+  return new PhraseGraph(name, newStart, phrases, states);
 }
 
 export const _forTests = { merge };

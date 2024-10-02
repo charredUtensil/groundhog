@@ -6,7 +6,7 @@ import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
 import {
-  escapeString,
+  declareStringFromLore,
   eventChain,
   mkVars,
   scriptFragment,
@@ -27,6 +27,8 @@ import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
 import { gLostHq } from "./established_hq/lost";
+import { LoreDie } from "../lore/lore";
+import { NOMADS_SETTLED } from "../lore/graphs/events";
 
 export type NomadsMetadata = {
   readonly tag: "nomads";
@@ -175,11 +177,16 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     }
 
     // Acknowledge the construction of a Support Station.
-    const msg = escapeString(cavern.lore.nomadsSettled(cavern.dice).text);
-
     return scriptFragment(
       "# Globals: Nomads, no HQ",
-      `string ${gNomads.messageBuiltBase}="${msg}"`,
+      declareStringFromLore(
+        cavern,
+        LoreDie.nomadsSettled,
+        gNomads.messageBuiltBase,
+        NOMADS_SETTLED,
+        {},
+        {},
+      ),
       `if(${SUPPORT_STATION.id}.new)[${gNomads.onBuiltBase}]`,
       eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
     );

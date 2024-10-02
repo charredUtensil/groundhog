@@ -2,7 +2,7 @@ import { Architect, BaseMetadata } from "../models/architect";
 import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import {
-  escapeString,
+  declareStringFromLore,
   eventChain,
   mkVars,
   scriptFragment,
@@ -12,6 +12,7 @@ import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Plan } from "../models/plan";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { Hardness, Tile } from "../models/tiles";
+import { SEISMIC_FORESHADOW } from "../lore/graphs/seismic";
 
 // Fissure halls are not drillable, but suddenly crack open without any player
 // involvement after being discovered.
@@ -34,6 +35,7 @@ const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}Fissure`, [
     "onDiscover",
     `onTrip`,
+    `onFissure`,
     `msgForeshadow`,
     `spawn`,
     "tripCount",
@@ -57,7 +59,14 @@ const BASE: PartialArchitect<typeof METADATA> = {
     return scriptFragment(
       `# P${plan.id}: Fissure`,
       `int ${v.tripCount}=0`,
-      `string ${v.msgForeshadow}="${escapeString(cavern.lore.generateSeismicForeshadow(rng).text)}"`,
+      declareStringFromLore(
+        cavern,
+        rng,
+        v.msgForeshadow,
+        SEISMIC_FORESHADOW,
+        {},
+        {},
+      ),
       ...discoveryPoints.map(
         (pos) => `if(change:${transformPoint(cavern, pos)})[${v.onTrip}]`,
       ),
@@ -66,8 +75,10 @@ const BASE: PartialArchitect<typeof METADATA> = {
       ),
       eventChain(
         v.onTrip,
-        `${v.tripCount}+=1;`,
-        `((${v.tripCount}!=${trips}))return;`,
+        `((${v.tripCount}==${trips}))[${v.onFissure}][${v.tripCount}+=1];`,
+      ),
+      eventChain(
+        v.onFissure,
         `wait:random(5)(30);`,
         `shake:1;`,
         `msg:${v.msgForeshadow};`,

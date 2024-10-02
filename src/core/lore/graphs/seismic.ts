@@ -2,6 +2,7 @@ import phraseGraph from "../builder";
 import { State } from "../lore";
 
 export const SEISMIC_FORESHADOW = phraseGraph<State>(
+  "Foreshadow Seismic Event",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then("I don't like the look of this.", "This could be a problem.", skip)

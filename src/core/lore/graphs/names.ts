@@ -2,6 +2,7 @@ import phraseGraph from "../builder";
 import { State } from "../lore";
 
 export const NAME = phraseGraph<State>(
+  "Mission Name",
   ({ pg, state, start, end, cut, skip }) => {
     function f({
       rock,

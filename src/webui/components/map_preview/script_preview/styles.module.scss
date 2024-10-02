@@ -7,7 +7,8 @@
   overflow-y: scroll;
   z-index: 1;
 
-  > h2 {
+  > h2,
+  > p {
     padding: 0 12px;
   }
 
@@ -18,7 +19,8 @@
 
     .line {
       color: var(--color-codehlt);
-      padding: 0 12px;
+      padding: 0 12px 0 26px;
+      text-indent: -14px;
 
       &.hovered {
         color: black;

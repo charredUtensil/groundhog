@@ -182,8 +182,9 @@ function creatureSpawnScript(
       armEvent,
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-      armTriggers.length !== 1 && `((${v.state}>${STATE.INITIAL}))return;`,
-      `${v.state}=${STATE.ARMED};`,
+      armTriggers.length === 1
+        ? `${v.state}=${STATE.ARMED};`
+        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED}];`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
 
@@ -198,12 +199,10 @@ function creatureSpawnScript(
       v.doSpawn,
 
       // Check conditions to reject.
-      `((${v.state}<${STATE.ARMED}))return;`,
       opts.needCrystals &&
         `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
+      `((${v.state}<${STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
 
-      // Update variables before triggering.
-      `${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState};`,
       needCountTriggerEvents && `${v.triggerCount}+=1;`,
       opts.needCrystals?.increment !== undefined &&
         `${v.needCrystals}=crystals+${opts.needCrystals.increment};`,
@@ -232,17 +231,17 @@ function creatureSpawnScript(
 
     // Hoard mode must be "manually" re-armed by a monster visiting the hoard
     // within cooldown.
-    ...(!once && opts.retriggerMode === "hoard"
-      ? [
-          ...plan.innerPearl[0].map(
-            (point) =>
-              `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
-          ),
-          eventChain(
-            v.doRetrigger,
-            `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
-          ),
-        ]
-      : []),
+    !once &&
+      opts.retriggerMode === "hoard" &&
+      scriptFragment(
+        ...plan.innerPearl[0].map(
+          (point) =>
+            `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
+        ),
+        eventChain(
+          v.doRetrigger,
+          `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
+        ),
+      ),
   );
 }
