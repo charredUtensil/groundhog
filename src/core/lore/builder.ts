@@ -346,7 +346,7 @@ export class PhraseGraph<T extends State> {
       );
       if (continuations.length === 0) {
         console.log(
-          "%s: No continutation has %s at phrase %o",
+          "%o: No continutation has %s at phrase %o",
           this,
           reachedState,
           phrase,

@@ -206,7 +206,7 @@ export class Lore {
         plan.pearlRadius > 20 &&
         // The actual diameter of the cave is almost definitely at least 60% the
         // total size of the map. This can only happen with context overrides.
-        plan.pearlRadius * 3 > cavern.context.targetSize,
+        plan.pearlRadius * 4 > cavern.context.targetSize,
     );
 
     this.state = {

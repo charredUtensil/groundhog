@@ -78,28 +78,28 @@ export const FOUND_HQ = phraseGraph<State>(
             )
             .then(tail),
         ),
-    ).then(
-      skip,
-      pg(
-        state("buildAndPowerGcOne").then("build that Geological Center"),
-        state("buildAndPowerGcMultiple").then(
-          "build the Geological Centers",
-        ),
-      ).then(
-        pg("and"),
-        pg("!").then(tail),
-      ),
-    ).then(
-      pg(
-        state("lostMinersOne").then("find the lost Rock Raider!"),
-        state("lostMinersTogether", "lostMinersApart").then(
-          "find those lost Rock Raiders!",
-        ),
-      ).then(tail),
-      state("resourceObjective")
-        .then("collect ${resourceGoal}.", "get those ${resourceGoalNamesOnly}.")
-        .then(end),
-    );
+    )
+      .then(
+        skip,
+        pg(
+          state("buildAndPowerGcOne").then("build that Geological Center"),
+          state("buildAndPowerGcMultiple").then("build the Geological Centers"),
+        ).then(pg("and"), pg("!").then(tail)),
+      )
+      .then(
+        pg(
+          state("lostMinersOne").then("find the lost Rock Raider!"),
+          state("lostMinersTogether", "lostMinersApart").then(
+            "find those lost Rock Raiders!",
+          ),
+        ).then(tail),
+        state("resourceObjective")
+          .then(
+            "collect ${resourceGoal}.",
+            "get those ${resourceGoalNamesOnly}.",
+          )
+          .then(end),
+      );
   },
 );
 
@@ -210,6 +210,23 @@ export const NOMADS_SETTLED = phraseGraph<State>(
           "Just keep an eye out for those ${enemies}.",
         ),
       )
+      .then(end);
+
+    start
+      .then("With your Support Station built, you can move on to building")
+      .then(
+        state("buildAndPowerGcOne").then(
+          "that Geological Center! Be sure to place it in the cavern marked " +
+            "with an arrow.",
+        ),
+        state("buildAndPowerGcMultiple").then("those Geological Centers!"),
+      )
+      .then(skip, state("resourceObjective"))
+      .then(
+        skip,
+        state("lostMinersOne", "lostMinersTogether", "lostMinersApart"),
+      )
+      .then(skip, state("hasMonsters"))
       .then(end);
   },
 );

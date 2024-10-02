@@ -1,5 +1,6 @@
 import { CavernContext } from "../../common";
 import { PartialCavernContext } from "../../common/context";
+import { filterTruthy } from "../../common/utils";
 import { OVERRIDE_SUFFIXES } from "../../lore/graphs/names";
 import { Lore } from "../../lore/lore";
 import { AdjuredCavern } from "./01_adjure";
@@ -33,11 +34,16 @@ function overrideSuffix(initialContext: PartialCavernContext) {
 }
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
+  const lore = new Lore(cavern);
+  const { name, premise, orders, success, failure } = lore.briefings(
+    cavern.dice,
+  );
   const hasOverrides = Object.keys(cavern.initialContext).length > 1;
+  const suffix = hasOverrides ? overrideSuffix(cavern.initialContext) : null;
 
   const fileName = (() => {
     const seed = cavern.context.seed.toString(16).padStart(8, "0");
-    return [
+    return filterTruthy([
       "gh",
       seed.substring(0, 3),
       seed.substring(3, 6),
@@ -46,16 +52,11 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
         { rock: "k", ice: "e", lava: "a" }[cavern.context.biome],
         hasOverrides ? "x" : "",
       ].join(""),
-    ].join("-");
+      name.text.toLowerCase().replace(/[^a-z0-9]+/g,''),
+      suffix?.toLowerCase().replace(/[^a-z0-9]+/g,''),
+    ]).join("-");
   })();
-
-  const lore = new Lore(cavern);
-  const { name, premise, orders, success, failure } = lore.briefings(
-    cavern.dice,
-  );
-  const levelName = hasOverrides
-    ? `${name.text} (${overrideSuffix(cavern.initialContext)})`
-    : name.text;
+  const levelName = hasOverrides ? `${name.text} (${suffix})` : name.text;
   const briefing = {
     intro: `${premise.text}\n\n${orders.text}`,
     success: success.text,

@@ -35,7 +35,7 @@ function objectives<T extends State>({
     "get the ${resourceGoal} we needed",
   );
 
-  buildGcs.then(",").then(findLostMiners1)
+  buildGcs.then(",").then(findLostMiners1);
   buildGcs.then("and").then(findLostMiners2).then(end);
   pg(buildGcs, findLostMiners1).then("and").then(getResources);
   return pg(buildGcs, findLostMiners1, getResources).then(end);
@@ -95,11 +95,15 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
               skip,
               state("buildAndPowerGcOne").then(
                 ", constructed the Geological Center",
-                pg("and built the Geological Center where we needed it.").then(coda).then(cut),
+                pg("and built the Geological Center where we needed it.")
+                  .then(coda)
+                  .then(cut),
               ),
               state("buildAndPowerGcMultiple").then(
                 ", built ${buildAndPowerGcCount} Geological Centers",
-                pg("and built ${buildAndPowerGcCount} Geological Centers.").then(coda).then(cut),
+                pg("and built ${buildAndPowerGcCount} Geological Centers.")
+                  .then(coda)
+                  .then(cut),
               ),
             )
             .then("and")
@@ -127,7 +131,8 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
                 "collected all ${resourceGoal}.",
                 "got all ${resourceGoal}.",
               ),
-            ).then(coda);
+            )
+            .then(coda);
         })(),
       )
       .then("\n\n")

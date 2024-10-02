@@ -182,8 +182,9 @@ function creatureSpawnScript(
       armEvent,
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-      armTriggers.length === 1 ? `${v.state}=${STATE.ARMED};`:
-        `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED}];`,
+      armTriggers.length === 1
+        ? `${v.state}=${STATE.ARMED};`
+        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED}];`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
 

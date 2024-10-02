@@ -46,7 +46,7 @@ export default function Stats({
           <>
             {cavern.levelName && (
               <h1>
-                {cavern.fileName} {cavern.levelName}
+                {cavern.levelName}
               </h1>
             )}
             {cavern.briefing?.intro && (
