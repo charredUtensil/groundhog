@@ -34,8 +34,7 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}Fissure`, [
     "onDiscover",
-    `onTrip`,
-    `onFissure`,
+    `onTrigger`,
     `msgForeshadow`,
     `spawn`,
     "tripCount",
@@ -54,7 +53,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       const t = cavern.tiles.get(...pos) ?? Tile.SOLID_ROCK;
       return t.isWall && t.hardness < Hardness.SOLID;
     });
-    const trips = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
+    const tripCount = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
 
     return scriptFragment(
       `# P${plan.id}: Fissure`,
@@ -68,17 +67,14 @@ const BASE: PartialArchitect<typeof METADATA> = {
         {},
       ),
       ...discoveryPoints.map(
-        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.onTrip}]`,
+        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
       ...drillPoints.map(
-        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.onTrip}]`,
+        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
+      `if(${v.tripCount}>=${tripCount})[${v.onTrigger}]`,
       eventChain(
-        v.onTrip,
-        `((${v.tripCount}==${trips}))[${v.onFissure}][${v.tripCount}+=1];`,
-      ),
-      eventChain(
-        v.onFissure,
+        v.onTrigger,
         `wait:random(5)(30);`,
         `shake:1;`,
         `msg:${v.msgForeshadow};`,
