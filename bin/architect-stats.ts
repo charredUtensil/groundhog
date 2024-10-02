@@ -61,7 +61,7 @@ function fgColor(a: Architect<any>) {
 
 type Stats = { [K: string]: number[] };
 
-function draw(stats: Stats, count: number) {
+function draw(stats: Stats, count: number, totalCount: number) {
   const width = 50;
   const columnCount = 4;
   const nameWidth = width - columnCount * 5;
@@ -98,7 +98,7 @@ function draw(stats: Stats, count: number) {
     .fill(0)
     .map((_, i) => `${chartLines[i]} | ${chartLines[i + mid] ?? ""}`)
     .join("\n");
-  const footer = `Maps tested: ${count}`;
+  const footer = `Maps tested: ${count}/${totalCount}`;
   console.clear();
   console.log(
     `${header1} | ${header1}\n${header2} + ${header2}\n${chart}\n${footer}`,
@@ -106,10 +106,10 @@ function draw(stats: Stats, count: number) {
 }
 
 function main() {
-  const firstSeed = 0xefe63e54;
-  const mapsToTest = 10000;
+  const firstSeed = parseInt(process.env.FIRST_SEED ?? 'EFE63E54', 16);
+  const totalCount = parseInt(process.env.TOTAL_COUNT ?? '10000', 10);
   const stats: Stats = {};
-  for (var i = 0; i < mapsToTest; i++) {
+  for (var i = 0; i < totalCount; i++) {
     const m = gen((firstSeed + i) % MAX_PLUS_ONE);
     for (const k of Object.keys(m)) {
       const v = m[k];
@@ -119,10 +119,10 @@ function main() {
       }
     }
     if (i % 32 === 0) {
-      draw(stats, i + 1);
+      draw(stats, i + 1, totalCount);
     }
   }
-  draw(stats, mapsToTest);
+  draw(stats, totalCount, totalCount);
 }
 
 main();

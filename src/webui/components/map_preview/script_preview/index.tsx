@@ -95,6 +95,7 @@ export default function ScriptPreview({
       onScroll={() => setScriptLineOffsets(getLineOffsets(ref.current!))}
     >
       <h2>Script</h2>
+      <p>{statements?.length ?? 0} lines</p>
       <div className={styles.src}>
         {statements?.map(({ code, pos, kind }, i) => {
           const className = filterTruthy([

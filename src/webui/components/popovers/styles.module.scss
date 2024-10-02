@@ -67,7 +67,7 @@
       --palette-accent: yellow;
 
       .message {
-        white-space: pre;
+        white-space-collapse: preserve;
       }
 
       .stack {

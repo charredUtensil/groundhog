@@ -1,3 +1,5 @@
+import { FOUND_HQ } from "../../lore/graphs/events";
+import { LoreDie } from "../../lore/lore";
 import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
@@ -5,9 +7,9 @@ import {
   DzPriorities,
   scriptFragment,
   mkVars,
-  escapeString,
   transformPoint,
   eventChain,
+  declareStringFromLore,
 } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
 
@@ -49,13 +51,18 @@ const LOST_BASE: Pick<
     }).center;
 
     const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
-    const message = shouldPanMessage
-      ? cavern.lore.foundHq(cavern.dice).text
-      : "undefined";
 
     return scriptFragment(
       `# P${plan.id}: Lost HQ`,
-      `string ${v.messageDiscover}="${escapeString(message)}"`,
+      shouldPanMessage &&
+        declareStringFromLore(
+          cavern,
+          LoreDie.foundHq,
+          v.messageDiscover,
+          FOUND_HQ,
+          {},
+          {},
+        ),
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
       eventChain(
         v.onDiscover,
