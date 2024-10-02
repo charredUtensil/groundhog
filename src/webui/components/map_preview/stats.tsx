@@ -44,11 +44,7 @@ export default function Stats({
       case "overview":
         return (
           <>
-            {cavern.levelName && (
-              <h1>
-                {cavern.levelName}
-              </h1>
-            )}
+            {cavern.levelName && <h1>{cavern.levelName}</h1>}
             {cavern.briefing?.intro && (
               <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
             )}

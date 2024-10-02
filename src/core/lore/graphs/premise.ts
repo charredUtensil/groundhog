@@ -156,7 +156,7 @@ const PREMISE = phraseGraph<State>(
             "a cave system with an abundance of Energy Crystals",
           ),
           state("hasGiantCave").then(
-            "a nearby cavern approximately the size of \"yes\"",
+            'a nearby cavern approximately the size of "yes"',
           ),
           "another cavern where we can continue our mining operations",
         ),
