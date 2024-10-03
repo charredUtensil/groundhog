@@ -356,6 +356,10 @@ function CavernContextInputInner({
               <h3>Adjure</h3>
               <Slider of="crystalGoalRatio" min={0} max={1} percent {...rest} />
             </div>
+            <div className={styles.subsection}>
+              <h3>Enscribe</h3>
+              <Slider of="globalCreatureDelay" min={0} max={20} {...rest} />
+            </div>
           </div>
         </>
       )}

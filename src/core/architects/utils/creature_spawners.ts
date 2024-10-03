@@ -37,6 +37,8 @@ const STATE = {
   COOLDOWN: 3,
   /** This spawner is ready to activate. */
   ARMED: 4,
+  /** This spawner is ready to activate, ignoring global cooldown. */
+  ARMED_PRIORITY: 5,
 } as const;
 
 const RETRIGGER_MODES = {
@@ -51,6 +53,8 @@ type Emerge = {
   readonly y: number;
   readonly radius: number;
 };
+
+const g = mkVars("gCreatures", ["armThreshold", "onRetrigger"]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
@@ -93,6 +97,22 @@ function getTriggerPoints(
 ): Point[] {
   // Pick any tile that was set with a value, even if it is solid rock.
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
+}
+
+export function creatureSpawnGlobals({ cavern: {context} }: { cavern: PreprogrammedCavern }) {
+  if (!(context.hasMonsters || context.hasSlugs || context.globalCreatureDelay <= 0)) {
+    return undefined;
+  }
+  return scriptFragment(
+    '# Globals: Creatures',
+    `int ${g.armThreshold}=${STATE.ARMED}`,
+    `when(${g.armThreshold}>${STATE.ARMED})[${g.onRetrigger}]`,
+    eventChain(
+      g.onRetrigger,
+      `wait:${context.globalCreatureDelay};`,
+      `${g.armThreshold}=${STATE.ARMED};`,
+    ),
+  );
 }
 
 export function monsterSpawnScript(
@@ -183,8 +203,8 @@ function creatureSpawnScript(
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
       armTriggers.length === 1
-        ? `${v.state}=${STATE.ARMED};`
-        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED}];`,
+        ? `${v.state}=${STATE.ARMED_PRIORITY};`
+        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED_PRIORITY}];`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
 
@@ -201,7 +221,8 @@ function creatureSpawnScript(
       // Check conditions to reject.
       opts.needCrystals &&
         `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
-      `((${v.state}<${STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
+      `((${v.state}<${cavern.context.globalCreatureDelay > 0 ? g.armThreshold : STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
+      cavern.context.globalCreatureDelay > 0 && `${g.armThreshold}=${STATE.ARMED_PRIORITY};`,
 
       needCountTriggerEvents && `${v.triggerCount}+=1;`,
       opts.needCrystals?.increment !== undefined &&
