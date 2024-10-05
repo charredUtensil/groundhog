@@ -1,5 +1,6 @@
 import { PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
+import { filterTruthy } from "../../common/utils";
 import {
   CreatureTemplate,
   SLIMY_SLUG,
@@ -31,9 +32,12 @@ const STATE = {
   EXHAUSTED: 0,
   /** This spawner has not been activated yet. */
   INITIAL: 1,
-  /** This spawner is waiting to be reactivated by some trigger. */
+  /**
+   * When the cooldown time ends, this spawner will be exhausted.
+   * The spawner may be promoted back to COOLDOWN before this time is up.
+   */
   AWAITING_REARM: 2,
-  /** This spawner just activated and is waiting for time to pass. */
+  /** When the cooldown time ends, this spawner will be re-armed. */
   COOLDOWN: 3,
   /** This spawner is ready to activate. */
   ARMED: 4,
@@ -188,7 +192,12 @@ function creatureSpawnScript(
   const needTriggerPoints = !(once && opts.triggerOnFirstArmed);
 
   return scriptFragment(
-    `# P${plan.id}: Spawn ${opts.creature.name} x${waveSize}`,
+    `# P${plan.id}: Spawn ${opts.creature.name}`,
+    filterTruthy([
+      `# x${waveSize}`,
+      once ? 'once' : `/${meanCooldown.toFixed()}s`,
+      !once && opts.needCrystals?.increment && `/${opts.needCrystals.increment}EC`,
+    ]).join(' '),
 
     // Declare variables
     `int ${v.state}=${STATE.INITIAL}`,
