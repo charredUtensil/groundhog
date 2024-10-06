@@ -38,6 +38,7 @@ import {
   FOUND_LM_BREADCRUMB,
   FOUND_LOST_MINERS,
 } from "../lore/graphs/events";
+import { gObjectives } from "./utils/objectives";
 
 export type LostMinersMetadata = {
   readonly tag: "lostMiners";
@@ -260,6 +261,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       ),
       eventChain(
         gLostMiners.onFoundAll,
+        `${gObjectives.met}+=1;`,
         `msg:${gLostMiners.messageFoundAll};`,
         `wait:3;`,
         `${gLostMiners.done}=1;`,

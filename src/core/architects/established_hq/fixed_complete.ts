@@ -13,6 +13,7 @@ import {
   GEOLOGICAL_CENTER,
   ALL_BUILDINGS,
 } from "../../models/building";
+import { gObjectives } from "../utils/objectives";
 import {
   declareStringFromLore,
   eventChain,
@@ -88,8 +89,8 @@ export const FC_BASE: Pick<
       `if(${SUPPORT_STATION.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
       eventChain(
         gFCHQ.onBaseDestroyed,
-        `((${gFCHQ.wasBaseDestroyed}>0))return;`,
-        `${gFCHQ.wasBaseDestroyed}=1;`,
+        `((${gFCHQ.wasBaseDestroyed}>0))[return][${gFCHQ.wasBaseDestroyed}=1];`,
+        `((${gObjectives.won}>0))return;`,
         `msg:${gFCHQ.msgBaseDestroyed};`,
         `wait:5;`,
         `lose;`,

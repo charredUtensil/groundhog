@@ -1,7 +1,8 @@
 import { creatureSpawnGlobals } from "../../architects/utils/creature_spawners";
-import { scriptFragment } from "../../architects/utils/script";
+import { eventChain, scriptFragment } from "../../architects/utils/script";
 import { Architect } from "../../models/architect";
 import { PreprogrammedCavern } from "./03_preprogram";
+import { objectiveGlobals } from "../../architects/utils/objectives";
 
 export type ProgrammedCavern = PreprogrammedCavern & {
   readonly script: string;
@@ -24,8 +25,9 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
   const na = "# n/a\n";
   const script = scriptFragment(
     "#> Globals",
-    creatureSpawnGlobals({ cavern }) || na,
-    scriptFragment(...globalsFns.map((fn) => fn({ cavern }))) || na,
+    objectiveGlobals({ cavern }),
+    creatureSpawnGlobals({ cavern }),
+    scriptFragment(...globalsFns.map((fn) => fn({ cavern }))),
     "#> Architect Scripts",
     scriptFragment(...cavern.plans.map((plan) => plan.architect.script?.({ cavern, plan }))) || na,
     "#> Spawn Monsters",

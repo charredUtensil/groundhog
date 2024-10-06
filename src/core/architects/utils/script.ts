@@ -35,20 +35,6 @@ export function eventChain(name: string, ...rest: (`${string};` | Falsy)[]) {
   return `${name}::;\n${scriptFragment(...rest)}\n`;
 }
 
-export function eventChainSynchronized(
-  name: string,
-  ...rest: (`${string};` | Falsy)[]
-) {
-  const semaphore = `${name}_lock`;
-  return scriptFragment(
-    `int ${semaphore}=0`,
-    eventChain(name, `((${semaphore}==0))[${semaphore}=1][${name}_wait];`),
-    `when(${semaphore}==1)[${name}_syn]`,
-    eventChain(`${name}_syn`, ...rest, `${semaphore}=0;`),
-    eventChain(`${name}_wait`, "wait:1;", `${name};`),
-  );
-}
-
 export function escapeString(s: string) {
   return s.replace(/\\/g, "").replace(/"/g, '\\"');
 }

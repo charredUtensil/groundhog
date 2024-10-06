@@ -68,15 +68,12 @@ const BASE: PartialArchitect<typeof METADATA> = {
         {},
       ),
       ...discoveryPoints.map(
-        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.onTrip}]`,
+        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
       ...drillPoints.map(
-        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.onTrip}]`,
+        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
-      eventChain(
-        v.onTrip,
-        `((${v.tripCount}==${trips}))[${v.onFissure}][${v.tripCount}+=1];`,
-      ),
+      `if(${v.tripCount}>=${trips})[${v.onFissure}]`,
       eventChain(
         v.onFissure,
         `wait:random(5)(30);`,

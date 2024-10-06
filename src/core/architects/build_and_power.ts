@@ -10,11 +10,11 @@ import { Plan } from "../models/plan";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { intersectsOnly } from "./utils/intersects";
+import { gObjectives } from "./utils/objectives";
 import { Rough, mkRough } from "./utils/rough";
 import {
   declareStringFromLore,
   eventChain,
-  eventChainSynchronized,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -41,6 +41,7 @@ function buildAndPower(
   const g = mkVars(`gBp${template.inspectAbbrev}`, [
     "onBuild",
     "built",
+    "checkPower",
     "onPower",
     "doneCount",
     "done",
@@ -105,12 +106,14 @@ function buildAndPower(
         ),
 
         // Second trigger: power state changes.
+        `int ${g.checkPower}=0`,
         `int ${g.doneCount}=0`,
         ...pvs.map((v) => `arrow ${v.arrow}`),
         ...pvs.map((v) => `building ${v.building}`),
-        `when(${template.id}.poweron)[${g.onPower}]`,
-        `when(${template.id}.poweroff)[${g.onPower}]`,
-        eventChainSynchronized(
+        `when(${template.id}.poweron)[${g.checkPower}+=1]`,
+        `when(${template.id}.poweroff)[${g.checkPower}+=1]`,
+        `when(${g.checkPower}==1)[${g.onPower}]`,
+        eventChain(
           g.onPower,
           `${g.doneCount}=0;`,
           ...pvs.flatMap(
@@ -120,6 +123,7 @@ function buildAndPower(
                 `((${v.building}.powered>0))${g.doneCount}+=1;`,
               ] satisfies `${string};`[],
           ),
+          `((${g.checkPower}>1))[${g.checkPower}=1][${g.checkPower}=0];`,
         ),
 
         // Messages & done trigger
@@ -164,7 +168,13 @@ function buildAndPower(
           },
         ),
         `if(${g.doneCount}>=${pvs.length})[${g.onComplete}]`,
-        eventChain(g.onComplete, `msg:${g.msgC};`, "wait:2;", `${g.done}=1;`),
+        eventChain(
+          g.onComplete,
+          `${gObjectives.met}+=1;`,
+          `msg:${g.msgC};`,
+          "wait:2;",
+          `${g.done}=1;`,
+        ),
       );
     },
     script({ cavern, plan }) {
@@ -194,7 +204,7 @@ function buildAndPower(
           `((${g.built}.row<${bp.top - cavern.top}))return;`,
           `((${g.built}.row>=${bp.bottom - cavern.top}))return;`,
           `savebuilding:${v.building};`,
-          `${g.onPower};`,
+          `${g.checkPower}+=1;`,
         ),
       );
     },

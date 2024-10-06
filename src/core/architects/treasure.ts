@@ -17,6 +17,7 @@ import { placeSleepingMonsters } from "./utils/creatures";
 import { gLostMiners } from "./lost_miners";
 import { LoreDie } from "../lore/lore";
 import { FOUND_HOARD } from "../lore/graphs/events";
+import { gObjectives } from "./utils/objectives";
 
 const METADATA = {
   tag: "treasure",
@@ -36,7 +37,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
   },
 };
 
-const g = mkVars("gHoard", ["wasTriggered", "message", "crystalsAvailable"]);
+const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
 
 const HOARD: typeof BASE = {
   ...BASE,
@@ -82,7 +83,7 @@ const HOARD: typeof BASE = {
     }
     return scriptFragment(
       "# Globals: Hoard",
-      `bool ${g.wasTriggered}=false`,
+      `int ${g.lock}=0`,
       declareStringFromLore(
         cavern,
         LoreDie.foundHoard,
@@ -126,9 +127,9 @@ const HOARD: typeof BASE = {
       `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscovered}]`,
       eventChain(
         v.onDiscovered,
-        `((${g.wasTriggered}))[return][${g.wasTriggered}=true];`,
+        `((${g.lock}))[return][${g.lock}=true];`,
         `wait:1;`,
-        `${g.wasTriggered}=false;`,
+        `${g.lock}=false;`,
         // If there's a lost miners objective that isn't fulfilled, don't
         // act like the level is done.
         hasLostMiners && `((${gLostMiners.done}<1))return;`,
@@ -139,6 +140,7 @@ const HOARD: typeof BASE = {
       ),
       eventChain(
         v.go,
+        `((${gObjectives.won}>0))return;`,
         `msg:${g.message};`,
         `pan:${transformPoint(cavern, discoPoint)};`,
       ),
