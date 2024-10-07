@@ -8,7 +8,6 @@ import {
   scriptFragment,
   mkVars,
   transformPoint,
-  eventChain,
   declareStringFromLore,
 } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
@@ -39,7 +38,7 @@ const LOST_BASE: Pick<
   },
   scriptGlobals: () =>
     scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
-  script({ cavern, plan }) {
+  script({ cavern, plan, sh }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
       cavern.ownsScriptOnDiscover[
@@ -50,7 +49,7 @@ const LOST_BASE: Pick<
       return r.pearlRadius > p.pearlRadius ? r : p;
     }).center;
 
-    const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover", "onDiscover"]);
+    const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover"]);
 
     return scriptFragment(
       `# P${plan.id}: Lost HQ`,
@@ -63,9 +62,8 @@ const LOST_BASE: Pick<
           {},
           {},
         ),
-      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
-      eventChain(
-        v.onDiscover,
+      sh.trigger(
+        `if(change:${transformPoint(cavern, discoPoint)})`,
         shouldPanMessage && `msg:${v.messageDiscover};`,
         shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
         `wait:1;`,

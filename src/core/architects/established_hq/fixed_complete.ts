@@ -13,9 +13,10 @@ import {
   GEOLOGICAL_CENTER,
   ALL_BUILDINGS,
 } from "../../models/building";
+import { gObjectives } from "../utils/objectives";
 import {
   declareStringFromLore,
-  eventChain,
+  EventChainLine,
   mkVars,
   scriptFragment,
 } from "../utils/script";
@@ -36,12 +37,7 @@ const T0_BUILDINGS = [
 
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 
-const gFCHQ = mkVars("gFCHQ", [
-  "onInit",
-  "onBaseDestroyed",
-  "msgBaseDestroyed",
-  "wasBaseDestroyed",
-]);
+const gFCHQ = mkVars("gFCHQ", ["msgLose", "wasBaseDestroyed"]);
 
 export const FC_BASE: Pick<
   Architect<HqMetadata>,
@@ -64,33 +60,33 @@ export const FC_BASE: Pick<
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),
-  scriptGlobals: ({ cavern }) => {
+  scriptGlobals: ({ cavern, sh }) => {
     return scriptFragment(
       `# Globals: Fixed Complete HQ`,
-      `if(time:0)[${gFCHQ.onInit}]`,
-      eventChain(
-        gFCHQ.onInit,
+      sh.trigger(
+        "if(time:0)",
         // Can't just disable buildings because that disables fences - and
         // nobody wants that.
-        ...ALL_BUILDINGS.map((bt) => `disable:${bt.id};` as `${string};`),
+        ...ALL_BUILDINGS.map(
+          (bt) => `disable:${bt.id};` satisfies EventChainLine,
+        ),
       ),
       declareStringFromLore(
         cavern,
         LoreDie.failureBaseDestroyed,
-        gFCHQ.msgBaseDestroyed,
+        gFCHQ.msgLose,
         FAILURE_BASE_DESTROYED,
         {},
         {},
       ),
       `int ${gFCHQ.wasBaseDestroyed}=0`,
-      `if(${TOOL_STORE.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
-      `if(${POWER_STATION.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
-      `if(${SUPPORT_STATION.id}<=0)[${gFCHQ.onBaseDestroyed}]`,
-      eventChain(
-        gFCHQ.onBaseDestroyed,
-        `((${gFCHQ.wasBaseDestroyed}>0))return;`,
-        `${gFCHQ.wasBaseDestroyed}=1;`,
-        `msg:${gFCHQ.msgBaseDestroyed};`,
+      `if(${TOOL_STORE.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
+      `if(${POWER_STATION.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
+      `if(${SUPPORT_STATION.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
+      sh.trigger(
+        `if(${gFCHQ.wasBaseDestroyed}>=1)`,
+        `((${gObjectives.won}>0))return;`,
+        `msg:${gFCHQ.msgLose};`,
         `wait:5;`,
         `lose;`,
       ),

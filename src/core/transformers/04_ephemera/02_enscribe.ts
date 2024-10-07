@@ -52,8 +52,8 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
         { rock: "k", ice: "e", lava: "a" }[cavern.context.biome],
         hasOverrides ? "x" : "",
       ].join(""),
-      name.text.toLowerCase().replace(/[^a-z0-9]+/g, ""),
-      suffix?.toLowerCase().replace(/[^a-z0-9]+/g, ""),
+      name.text.replace(/[^A-Z0-9]+/g, "").toLowerCase(),
+      suffix?.replace(/[^A-Z0-9]+/g, "").toLowerCase(),
     ]).join("-");
   })();
   const levelName = hasOverrides ? `${name.text} (${suffix})` : name.text;

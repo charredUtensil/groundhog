@@ -6,7 +6,6 @@ import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
   declareStringFromLore,
   DzPriorities,
-  eventChain,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -17,6 +16,7 @@ import { placeSleepingMonsters } from "./utils/creatures";
 import { gLostMiners } from "./lost_miners";
 import { LoreDie } from "../lore/lore";
 import { FOUND_HOARD } from "../lore/graphs/events";
+import { gObjectives } from "./utils/objectives";
 
 const METADATA = {
   tag: "treasure",
@@ -36,7 +36,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
   },
 };
 
-const g = mkVars("gHoard", ["wasTriggered", "message", "crystalsAvailable"]);
+const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
 
 const HOARD: typeof BASE = {
   ...BASE,
@@ -82,7 +82,7 @@ const HOARD: typeof BASE = {
     }
     return scriptFragment(
       "# Globals: Hoard",
-      `bool ${g.wasTriggered}=false`,
+      `int ${g.lock}=0`,
       declareStringFromLore(
         cavern,
         LoreDie.foundHoard,
@@ -98,7 +98,7 @@ const HOARD: typeof BASE = {
     const pos = plan.innerPearl[0][0];
     return [{ pos, priority: DzPriorities.HINT }];
   },
-  script({ cavern, plan }) {
+  script({ cavern, plan, sh }) {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
@@ -118,27 +118,22 @@ const HOARD: typeof BASE = {
 
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-
-    const v = mkVars(`p${plan.id}Hoard`, ["onDiscovered", "go"]);
-
     return scriptFragment(
       `# P${plan.id}: Hoard`,
-      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscovered}]`,
-      eventChain(
-        v.onDiscovered,
-        `((${g.wasTriggered}))[return][${g.wasTriggered}=true];`,
+      sh.trigger(
+        `if(change:${transformPoint(cavern, discoPoint)})`,
+        `((${g.lock}>0))[return][${g.lock}=1];`,
         `wait:1;`,
-        `${g.wasTriggered}=false;`,
+        `${g.lock}=0;`,
+        // If the game was already won, don't say anything.
+        `((${gObjectives.won}>0))return;`,
         // If there's a lost miners objective that isn't fulfilled, don't
         // act like the level is done.
         hasLostMiners && `((${gLostMiners.done}<1))return;`,
         // Count all the crystals in storage and on the floor.
         `${g.crystalsAvailable}=crystals+Crystal_C;`,
-        // If this is enough to win the level, alert the player.
-        `((${g.crystalsAvailable}>=${cavern.objectives.crystals}))${v.go};`,
-      ),
-      eventChain(
-        v.go,
+        // If this is not enough to win the level, don't alert the player.
+        `((${g.crystalsAvailable}<${cavern.objectives.crystals}))return;`,
         `msg:${g.message};`,
         `pan:${transformPoint(cavern, discoPoint)};`,
       ),

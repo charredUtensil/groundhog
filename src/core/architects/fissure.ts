@@ -3,7 +3,7 @@ import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import {
   declareStringFromLore,
-  eventChain,
+  EventChainLine,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -35,7 +35,6 @@ const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}Fissure`, [
     "onDiscover",
     `onTrip`,
-    `onFissure`,
     `msgForeshadow`,
     `spawn`,
     "tripCount",
@@ -44,7 +43,7 @@ const sVars = (plan: Plan<any>) =>
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
   prime: () => METADATA,
-  script: ({ cavern, plan }) => {
+  script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
     const discoveryPoints = getDiscoveryPoints(cavern, plan);
     const panTo = plan.innerPearl[0][Math.floor(plan.innerPearl[0].length / 2)];
@@ -68,17 +67,13 @@ const BASE: PartialArchitect<typeof METADATA> = {
         {},
       ),
       ...discoveryPoints.map(
-        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.onTrip}]`,
+        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
       ...drillPoints.map(
-        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.onTrip}]`,
+        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
-      eventChain(
-        v.onTrip,
-        `((${v.tripCount}==${trips}))[${v.onFissure}][${v.tripCount}+=1];`,
-      ),
-      eventChain(
-        v.onFissure,
+      sh.trigger(
+        `if(${v.tripCount}>=${trips})`,
         `wait:random(5)(30);`,
         `shake:1;`,
         `msg:${v.msgForeshadow};`,
@@ -91,7 +86,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
           .filter((pos) => cavern.tiles.get(...pos)?.isWall)
           .map(
             (pos) =>
-              `drill:${transformPoint(cavern, pos)};` satisfies `${string};`,
+              `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
           ),
         cavern.context.hasMonsters && `${v.spawn};`,
       ),

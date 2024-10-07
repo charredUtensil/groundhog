@@ -10,11 +10,12 @@ import { Plan } from "../models/plan";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { intersectsOnly } from "./utils/intersects";
+import { gObjectives } from "./utils/objectives";
 import { Rough, mkRough } from "./utils/rough";
 import {
   declareStringFromLore,
   eventChain,
-  eventChainSynchronized,
+  EventChainLine,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -39,22 +40,19 @@ function buildAndPower(
   "prime" | "objectives" | "script" | "scriptGlobals"
 > {
   const g = mkVars(`gBp${template.inspectAbbrev}`, [
-    "onBuild",
     "built",
-    "onPower",
+    "checkPower",
     "doneCount",
     "done",
     "msgA",
     "msgB",
     "msgC",
-    "onComplete",
   ]);
   const metadata: BuildAndPowerMetadata = { tag: TAG, template };
   const mv = (plan: Plan<any>) =>
     mkVars(`p${plan.id}Bp${template.inspectAbbrev}`, [
       "arrow",
       "building",
-      "onInit",
       "onBuild",
     ]);
   return {
@@ -81,7 +79,7 @@ function buildAndPower(
         sufficient: true,
       };
     },
-    scriptGlobals({ cavern }) {
+    scriptGlobals({ cavern, sh }) {
       const pvs = cavern.plans
         .filter(
           (plan) =>
@@ -96,30 +94,31 @@ function buildAndPower(
         // have collisions. In theory, it shouldn't be possible to level up
         // multiple buildings at the same time.
         `building ${g.built}`,
-        `when(${template.id}.${minLevel > 1 ? "levelup" : "new"})[${g.onBuild}]`,
-        eventChain(
-          g.onBuild,
+        sh.trigger(
+          `when(${template.id}.${minLevel > 1 ? "levelup" : "new"})`,
           `savebuilding:${g.built};`,
           minLevel > 1 && `((${g.built}.level<${minLevel}))return;`,
-          ...pvs.map((v) => `${v.onBuild};` satisfies `${string};`),
+          ...pvs.map((v) => `${v.onBuild};` satisfies EventChainLine),
         ),
 
         // Second trigger: power state changes.
+        `int ${g.checkPower}=0`,
         `int ${g.doneCount}=0`,
         ...pvs.map((v) => `arrow ${v.arrow}`),
         ...pvs.map((v) => `building ${v.building}`),
-        `when(${template.id}.poweron)[${g.onPower}]`,
-        `when(${template.id}.poweroff)[${g.onPower}]`,
-        eventChainSynchronized(
-          g.onPower,
+        `when(${template.id}.poweron)[${g.checkPower}+=1]`,
+        `when(${template.id}.poweroff)[${g.checkPower}+=1]`,
+        sh.trigger(
+          `when(${g.checkPower}==1)`,
           `${g.doneCount}=0;`,
           ...pvs.flatMap(
             (v) =>
               [
                 `((${v.building}.powered>0))[hidearrow:${v.arrow}][showarrow:${v.building}.row,${v.building}.column,${v.arrow}];`,
                 `((${v.building}.powered>0))${g.doneCount}+=1;`,
-              ] satisfies `${string};`[],
+              ] satisfies EventChainLine[],
           ),
+          `((${g.checkPower}>1))[${g.checkPower}=1][${g.checkPower}=0];`,
         ),
 
         // Messages & done trigger
@@ -163,8 +162,13 @@ function buildAndPower(
             buildingName: template.name,
           },
         ),
-        `if(${g.doneCount}>=${pvs.length})[${g.onComplete}]`,
-        eventChain(g.onComplete, `msg:${g.msgC};`, "wait:2;", `${g.done}=1;`),
+        sh.trigger(
+          `if(${g.doneCount}>=${pvs.length})`,
+          `${gObjectives.met}+=1;`,
+          `msg:${g.msgC};`,
+          "wait:2;",
+          `${g.done}=1;`,
+        ),
       );
     },
     script({ cavern, plan }) {
@@ -184,8 +188,7 @@ function buildAndPower(
 
       return scriptFragment(
         `# P${plan.id}: Build and Power ${template.name}`,
-        `if(${openOnSpawn ? `time:0` : `change:${atp}`})[${v.onInit}]`,
-        eventChain(v.onInit, `showarrow:${atp},${v.arrow};`),
+        `if(${openOnSpawn ? `time:0` : `change:${atp}`})[showarrow:${atp},${v.arrow}]`,
         eventChain(
           v.onBuild,
           // Filter out buildings outside the baseplate rectangle
@@ -193,8 +196,10 @@ function buildAndPower(
           `((${g.built}.column>=${bp.right - cavern.left}))return;`,
           `((${g.built}.row<${bp.top - cavern.top}))return;`,
           `((${g.built}.row>=${bp.bottom - cavern.top}))return;`,
+          // Setting a building variable to the value of another building
+          // variable doesn't work in MMScript for some reason
           `savebuilding:${v.building};`,
-          `${g.onPower};`,
+          `${g.checkPower}+=1;`,
         ),
       );
     },

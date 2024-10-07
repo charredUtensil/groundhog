@@ -5,12 +5,7 @@ import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
-import {
-  declareStringFromLore,
-  eventChain,
-  mkVars,
-  scriptFragment,
-} from "./utils/script";
+import { declareStringFromLore, mkVars, scriptFragment } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
 import { Hardness, Tile } from "../models/tiles";
 import {
@@ -45,12 +40,7 @@ const VEHICLE_BIDS = [
   { item: null, bid: 1 },
 ] as const;
 
-export const gNomads = mkVars("gNomads", [
-  "messageBuiltBase",
-  "onBuiltBase",
-  "onInit",
-  "onFoundHq",
-]);
+export const gNomads = mkVars("gNomads", ["messageBuiltBase"]);
 
 const BASE: PartialArchitect<NomadsMetadata> = {
   ...DefaultCaveArchitect,
@@ -154,21 +144,19 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       }),
     };
   },
-  scriptGlobals({ cavern }) {
+  scriptGlobals({ cavern, sh }) {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
       return scriptFragment(
         "# Globals: Nomads with Lost HQ",
-        `if(time:0)[${gNomads.onInit}]`,
-        eventChain(
-          gNomads.onInit,
+        sh.trigger(
+          `if(time:0)`,
           "disable:miners;",
           "disable:buildings;",
           "disable:vehicles;",
         ),
-        `if(${gLostHq.foundHq}>0)[${gNomads.onFoundHq}]`,
-        eventChain(
-          gNomads.onFoundHq,
+        sh.trigger(
+          `if(${gLostHq.foundHq}>0)`,
           "enable:miners;",
           "enable:buildings;",
           "enable:vehicles;",
@@ -187,8 +175,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
         {},
         {},
       ),
-      `if(${SUPPORT_STATION.id}.new)[${gNomads.onBuiltBase}]`,
-      eventChain(gNomads.onBuiltBase, `msg:${gNomads.messageBuiltBase};`),
+      `if(${SUPPORT_STATION.id}.new)[msg:${gNomads.messageBuiltBase}]`,
     );
   },
 };
