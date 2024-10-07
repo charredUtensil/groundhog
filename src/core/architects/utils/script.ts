@@ -43,9 +43,9 @@ export function escapeString(s: string) {
 export class ScriptHelper {
   private _uid: number = 0;
 
-  trigger(condition: `${'if' | 'when'}(${string})`, ...rest: EventChainLine[]) {
+  trigger(condition: `${"if" | "when"}(${string})`, ...rest: EventChainLine[]) {
     const name = `ec${this._uid++}`;
-    return `${condition}[${name}]\n${eventChain(name, ...rest)}`
+    return `${condition}[${name}]\n${eventChain(name, ...rest)}`;
   }
 }
 

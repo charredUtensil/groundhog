@@ -14,7 +14,6 @@ import { getDiscoveryPoint } from "./utils/discovery";
 import {
   declareStringFromLore,
   DzPriorities,
-  eventChain,
   mkVars,
   scriptFragment,
   transformPoint,

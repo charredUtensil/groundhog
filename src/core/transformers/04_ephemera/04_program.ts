@@ -30,19 +30,27 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
     creatureSpawnGlobals({ cavern, sh }),
     scriptFragment(...globalsFns.map((fn) => fn({ cavern, sh }))),
     "#> Architect Scripts",
-    scriptFragment(...cavern.plans.map((plan) => plan.architect.script?.({ cavern, plan, sh }))) || na,
+    scriptFragment(
+      ...cavern.plans.map((plan) =>
+        plan.architect.script?.({ cavern, plan, sh }),
+      ),
+    ) || na,
     "#> Spawn Monsters",
-    cavern.context.hasMonsters ? scriptFragment(
-      ...cavern.plans.map((plan) =>
-          plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
-        ),
-      ) : na,
+    cavern.context.hasMonsters
+      ? scriptFragment(
+          ...cavern.plans.map((plan) =>
+            plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
+          ),
+        )
+      : na,
     "#> Spawn Slugs",
-    cavern.context.hasSlugs ? scriptFragment(
-      ...cavern.plans.map((plan) =>
-          plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
-        ),
-      ) : na,
+    cavern.context.hasSlugs
+      ? scriptFragment(
+          ...cavern.plans.map((plan) =>
+            plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
+          ),
+        )
+      : na,
   );
 
   return { ...cavern, script };

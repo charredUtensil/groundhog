@@ -37,10 +37,7 @@ const T0_BUILDINGS = [
 
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 
-const gFCHQ = mkVars("gFCHQ", [
-  "msgLose",
-  "wasBaseDestroyed",
-]);
+const gFCHQ = mkVars("gFCHQ", ["msgLose", "wasBaseDestroyed"]);
 
 export const FC_BASE: Pick<
   Architect<HqMetadata>,
@@ -67,10 +64,12 @@ export const FC_BASE: Pick<
     return scriptFragment(
       `# Globals: Fixed Complete HQ`,
       sh.trigger(
-        'if(time:0)',
+        "if(time:0)",
         // Can't just disable buildings because that disables fences - and
         // nobody wants that.
-        ...ALL_BUILDINGS.map((bt) => `disable:${bt.id};` satisfies EventChainLine),
+        ...ALL_BUILDINGS.map(
+          (bt) => `disable:${bt.id};` satisfies EventChainLine,
+        ),
       ),
       declareStringFromLore(
         cavern,

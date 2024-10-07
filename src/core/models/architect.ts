@@ -144,7 +144,10 @@ export type BaseArchitect<T extends BaseMetadata> = {
     cavern: EnscribedCavern;
     plan: Plan<T>;
   }): { priority: number; dz?: DiscoveryZone; pos?: Point }[];
-  scriptGlobals?(args: { cavern: PreprogrammedCavern; sh: ScriptHelper }): string | undefined;
+  scriptGlobals?(args: {
+    cavern: PreprogrammedCavern;
+    sh: ScriptHelper;
+  }): string | undefined;
   script?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;

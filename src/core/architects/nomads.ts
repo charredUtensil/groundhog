@@ -5,11 +5,7 @@ import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
-import {
-  declareStringFromLore,
-  mkVars,
-  scriptFragment,
-} from "./utils/script";
+import { declareStringFromLore, mkVars, scriptFragment } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
 import { Hardness, Tile } from "../models/tiles";
 import {
@@ -44,9 +40,7 @@ const VEHICLE_BIDS = [
   { item: null, bid: 1 },
 ] as const;
 
-export const gNomads = mkVars("gNomads", [
-  "messageBuiltBase",
-]);
+export const gNomads = mkVars("gNomads", ["messageBuiltBase"]);
 
 const BASE: PartialArchitect<NomadsMetadata> = {
   ...DefaultCaveArchitect,
