@@ -61,7 +61,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
     const pos = getDiscoveryPoint(cavern, plan);
     return [{ pos, priority: DzPriorities.TRIVIAL }];
   },
-  script: ({ cavern, plan }) => {
+  script: ({ cavern, plan, sh }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (
       !discoPoint ||
@@ -72,7 +72,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
       return scriptFragment(`# P${plan.id}: Slug Nest`, `# [Skip]`);
     }
 
-    const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover", "onDiscover"]);
+    const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover"]);
 
     return scriptFragment(
       `# P${plan.id}: Slug Nest`,
@@ -84,9 +84,8 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
         {},
         {},
       ),
-      `if(change:${transformPoint(cavern, discoPoint)})[${v.onDiscover}]`,
-      eventChain(
-        v.onDiscover,
+      sh.trigger(
+        `if(change:${transformPoint(cavern, discoPoint)})`,
         `msg:${v.messageDiscover};`,
         `pan:${transformPoint(cavern, discoPoint)};`,
       ),

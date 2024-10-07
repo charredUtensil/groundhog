@@ -306,7 +306,7 @@ const STANDARD_DEFAULTS = {
   hallLandslideCooldownRange: { min: 30, max: 150 },
   crystalGoalRatio: 0.2,
   airSafetyFactor: 2,
-  globalCreatureDelay: 7,
+  globalCreatureDelay: 0,
 } as const satisfies Partial<CavernContext>;
 
 const DEFAULTS_FOR_BIOME = {

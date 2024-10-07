@@ -268,14 +268,12 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       ),
     );
   },
-  script({ cavern, plan }) {
+  script({ cavern, plan, sh }) {
     const rng = cavern.dice.script(plan.id);
     const { lostMinerCaves } = countLostMiners(cavern);
     const v = mkVars(`p${plan.id}LostMiners`, [
       "msgFoundBreadcrumb",
       "msgFoundMiners",
-      "onFoundBreadcrumb",
-      "onFoundMiners",
       "onIncomplete",
       "wasFound",
     ]);
@@ -312,9 +310,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
           },
         ),
       `int ${v.wasFound}=0`,
-      `if(change:${transformPoint(cavern, minersPoint)})[${v.onFoundMiners}]`,
-      eventChain(
-        v.onFoundMiners,
+      sh.trigger(
+        `if(change:${transformPoint(cavern, minersPoint)})`,
         shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
         `${v.wasFound}=1;`,
         `${gLostMiners.remainingCaves}-=1;`,
@@ -336,9 +333,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
               vehicleName: breadcrumb!.template.name,
             },
           ),
-          `if(change:${transformPoint(cavern, breadcrumbPoint)})[${v.onFoundBreadcrumb}]`,
-          eventChain(
-            v.onFoundBreadcrumb,
+          sh.trigger(
+            `if(change:${transformPoint(cavern, breadcrumbPoint)})`,
             `((${v.wasFound}>0))return;`,
             `pan:${transformPoint(cavern, breadcrumbPoint)};`,
             `msg:${v.msgFoundBreadcrumb};`,

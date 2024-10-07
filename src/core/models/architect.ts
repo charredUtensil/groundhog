@@ -30,6 +30,7 @@ import {
   AnchoredCavern,
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
+import { ScriptHelper } from "../architects/utils/script";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
@@ -143,18 +144,21 @@ export type BaseArchitect<T extends BaseMetadata> = {
     cavern: EnscribedCavern;
     plan: Plan<T>;
   }): { priority: number; dz?: DiscoveryZone; pos?: Point }[];
-  scriptGlobals?(args: { cavern: PreprogrammedCavern }): string | undefined;
+  scriptGlobals?(args: { cavern: PreprogrammedCavern; sh: ScriptHelper }): string | undefined;
   script?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
+    sh: ScriptHelper;
   }): string | undefined;
   monsterSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
+    sh: ScriptHelper;
   }): string | undefined;
   slugSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
+    sh: ScriptHelper;
   }): string | undefined;
 };
 

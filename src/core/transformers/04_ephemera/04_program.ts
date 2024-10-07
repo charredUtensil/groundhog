@@ -1,5 +1,5 @@
 import { creatureSpawnGlobals } from "../../architects/utils/creature_spawners";
-import { eventChain, scriptFragment } from "../../architects/utils/script";
+import { scriptFragment, ScriptHelper } from "../../architects/utils/script";
 import { Architect } from "../../models/architect";
 import { PreprogrammedCavern } from "./03_preprogram";
 import { objectiveGlobals } from "../../architects/utils/objectives";
@@ -23,23 +23,24 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
     ),
   );
   const na = "# n/a\n";
+  const sh = new ScriptHelper();
   const script = scriptFragment(
     "#> Globals",
-    objectiveGlobals({ cavern }),
-    creatureSpawnGlobals({ cavern }),
-    scriptFragment(...globalsFns.map((fn) => fn({ cavern }))),
+    objectiveGlobals({ cavern, sh }),
+    creatureSpawnGlobals({ cavern, sh }),
+    scriptFragment(...globalsFns.map((fn) => fn({ cavern, sh }))),
     "#> Architect Scripts",
-    scriptFragment(...cavern.plans.map((plan) => plan.architect.script?.({ cavern, plan }))) || na,
+    scriptFragment(...cavern.plans.map((plan) => plan.architect.script?.({ cavern, plan, sh }))) || na,
     "#> Spawn Monsters",
     cavern.context.hasMonsters ? scriptFragment(
       ...cavern.plans.map((plan) =>
-          plan.architect.monsterSpawnScript?.({ cavern, plan }),
+          plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
         ),
       ) : na,
     "#> Spawn Slugs",
     cavern.context.hasSlugs ? scriptFragment(
       ...cavern.plans.map((plan) =>
-          plan.architect.slugSpawnScript?.({ cavern, plan }),
+          plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
         ),
       ) : na,
   );

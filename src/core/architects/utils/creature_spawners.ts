@@ -9,7 +9,7 @@ import {
 import { Plan } from "../../models/plan";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
-import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
+import { eventChain, EventChainLine, mkVars, scriptFragment, ScriptHelper, transformPoint } from "./script";
 
 type CreatureSpawnerArgs = {
   readonly armEvent?: string;
@@ -58,7 +58,7 @@ type Emerge = {
   readonly radius: number;
 };
 
-const g = mkVars("gCreatures", ["armThreshold", "onRetrigger"]);
+const g = mkVars("gCreatures", ["armThreshold"]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
@@ -103,16 +103,15 @@ function getTriggerPoints(
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
 }
 
-export function creatureSpawnGlobals({ cavern: {context} }: { cavern: PreprogrammedCavern }) {
-  if (!(context.hasMonsters || context.hasSlugs || context.globalCreatureDelay <= 0)) {
+export function creatureSpawnGlobals({ cavern: {context}, sh }: { cavern: PreprogrammedCavern, sh: ScriptHelper }) {
+  if (!(context.hasMonsters || context.hasSlugs) || context.globalCreatureDelay <= 0) {
     return undefined;
   }
   return scriptFragment(
     '# Globals: Creatures',
     `int ${g.armThreshold}=${STATE.ARMED}`,
-    `when(${g.armThreshold}>${STATE.ARMED})[${g.onRetrigger}]`,
-    eventChain(
-      g.onRetrigger,
+    sh.trigger(
+      `when(${g.armThreshold}>${STATE.ARMED})`,
       `wait:${context.globalCreatureDelay};`,
       `${g.armThreshold}=${STATE.ARMED};`,
     ),
@@ -243,7 +242,7 @@ function creatureSpawnScript(
           [
             `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
             `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
-          ] satisfies `${string};`[],
+          ] satisfies EventChainLine[],
       ),
 
       // Update the counter.

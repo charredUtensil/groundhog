@@ -1,9 +1,9 @@
-import { mkVars, scriptFragment } from "./script";
+import { mkVars, scriptFragment, ScriptHelper } from "./script";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 
 export const gObjectives = mkVars("objectives", ["met", "won"]);
 
-export function objectiveGlobals({ cavern: { objectives } }: { cavern: PreprogrammedCavern; }) {
+export function objectiveGlobals({ cavern: { objectives }, sh }: { cavern: PreprogrammedCavern; sh: ScriptHelper}) {
   const resources = (["crystals", "ore", "studs"] as const).filter(r => objectives[r] > 0);
   const goalCount = resources.length + objectives.variables.length;
   return scriptFragment(
