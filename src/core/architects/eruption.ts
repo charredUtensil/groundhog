@@ -3,8 +3,6 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import {
   declareStringFromLore,
-  escapeString,
-  eventChain,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -17,15 +15,10 @@ import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 import { SEISMIC_FORESHADOW } from "../lore/graphs/seismic";
 import { placeErosion } from "./utils/hazards";
 
-// Fissure halls are not drillable, but suddenly crack open without any player
-// involvement after being discovered.
-
 const METADATA = { tag: "fissure" } as const satisfies BaseMetadata;
 
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}Eruption`, [
-    `onForeshadow`,
-    `onTrigger`,
     `msgForeshadow`,
     `spawn`,
     "tripCount",
@@ -64,12 +57,12 @@ const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
   prime: () => METADATA,
   placeErosion: (args) => placeErosion(25, 2, args),
-  script: ({ cavern, plan }) => {
+  script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
     const eps = getEruptPoints(cavern, plan);
     const rng = cavern.dice.script(plan.id);
-    const tripCountForeshadow = 10;
-    const tripCount = 20;
+    const tripsForeshadow = 10;
+    const trips = 20;
 
     return scriptFragment(
       `# P${plan.id}: Eruption`,
@@ -83,18 +76,19 @@ const BASE: PartialArchitect<typeof METADATA> = {
         {},
       ),
       ...eps.map(
-        (pos) => `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
+        (pos) => `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`
       ),
-      `if(${v.tripCount}>=${tripCountForeshadow})[${v.onForeshadow}]`,
-      eventChain(
-        v.onForeshadow,
+      ...eps.map(
+        (pos) => `if(change:${transformPoint(cavern, pos)}:${Tile.LAVA.id})[${v.tripCount}=${trips + 1}]`
+      ),
+      sh.trigger(
+        `if(${v.tripCount}>=${tripsForeshadow})`,
         `wait:random(5)(20);`,
         `shake:1;`,
         `msg:${v.msgForeshadow};`,
       ),
-      `if(${v.tripCount}>=${tripCount})[${v.onTrigger}]`,
-      eventChain(
-        v.onTrigger,
+      sh.trigger(
+        `if(${v.tripCount}>=${trips})`,
         `wait:random(30)(150);`,
         `shake:2;`,
         `pan:${transformPoint(cavern, eps[0])};`,
