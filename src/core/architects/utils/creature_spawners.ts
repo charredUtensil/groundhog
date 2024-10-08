@@ -1,5 +1,6 @@
 import { PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
+import { filterTruthy } from "../../common/utils";
 import {
   CreatureTemplate,
   SLIMY_SLUG,
@@ -8,7 +9,14 @@ import {
 import { Plan } from "../../models/plan";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
-import { eventChain, mkVars, scriptFragment, transformPoint } from "./script";
+import {
+  eventChain,
+  EventChainLine,
+  mkVars,
+  scriptFragment,
+  ScriptHelper,
+  transformPoint,
+} from "./script";
 
 type CreatureSpawnerArgs = {
   readonly armEvent?: string;
@@ -31,12 +39,17 @@ const STATE = {
   EXHAUSTED: 0,
   /** This spawner has not been activated yet. */
   INITIAL: 1,
-  /** This spawner is waiting to be reactivated by some trigger. */
+  /**
+   * When the cooldown time ends, this spawner will be exhausted.
+   * The spawner may be promoted back to COOLDOWN before this time is up.
+   */
   AWAITING_REARM: 2,
-  /** This spawner just activated and is waiting for time to pass. */
+  /** When the cooldown time ends, this spawner will be re-armed. */
   COOLDOWN: 3,
   /** This spawner is ready to activate. */
   ARMED: 4,
+  /** This spawner is ready to activate, ignoring global cooldown. */
+  ARMED_PRIORITY: 5,
 } as const;
 
 const RETRIGGER_MODES = {
@@ -51,6 +64,8 @@ type Emerge = {
   readonly y: number;
   readonly radius: number;
 };
+
+const g = mkVars("gCreatures", ["armThreshold"]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
@@ -93,6 +108,30 @@ function getTriggerPoints(
 ): Point[] {
   // Pick any tile that was set with a value, even if it is solid rock.
   return plan.outerPearl[0].filter((point) => cavern.tiles.get(...point));
+}
+
+export function creatureSpawnGlobals({
+  cavern: { context },
+  sh,
+}: {
+  cavern: PreprogrammedCavern;
+  sh: ScriptHelper;
+}) {
+  if (
+    !(context.hasMonsters || context.hasSlugs) ||
+    context.globalCreatureDelay <= 0
+  ) {
+    return undefined;
+  }
+  return scriptFragment(
+    "# Globals: Creatures",
+    `int ${g.armThreshold}=${STATE.ARMED}`,
+    sh.trigger(
+      `when(${g.armThreshold}>${STATE.ARMED})`,
+      `wait:${context.globalCreatureDelay};`,
+      `${g.armThreshold}=${STATE.ARMED};`,
+    ),
+  );
 }
 
 export function monsterSpawnScript(
@@ -168,7 +207,14 @@ function creatureSpawnScript(
   const needTriggerPoints = !(once && opts.triggerOnFirstArmed);
 
   return scriptFragment(
-    `# P${plan.id}: Spawn ${opts.creature.name} x${waveSize}`,
+    `# P${plan.id}: Spawn ${opts.creature.name}`,
+    filterTruthy([
+      `# x${waveSize}`,
+      once ? "once" : `/${meanCooldown.toFixed()}s`,
+      !once &&
+        opts.needCrystals?.increment &&
+        `/${opts.needCrystals.increment}EC`,
+    ]).join(" "),
 
     // Declare variables
     `int ${v.state}=${STATE.INITIAL}`,
@@ -183,8 +229,8 @@ function creatureSpawnScript(
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
       armTriggers.length === 1
-        ? `${v.state}=${STATE.ARMED};`
-        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED}];`,
+        ? `${v.state}=${STATE.ARMED_PRIORITY};`
+        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED_PRIORITY}];`,
       opts.triggerOnFirstArmed && `${v.doSpawn};`,
     ),
 
@@ -201,7 +247,9 @@ function creatureSpawnScript(
       // Check conditions to reject.
       opts.needCrystals &&
         `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
-      `((${v.state}<${STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
+      `((${v.state}<${cavern.context.globalCreatureDelay > 0 ? g.armThreshold : STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
+      cavern.context.globalCreatureDelay > 0 &&
+        `${g.armThreshold}=${STATE.ARMED_PRIORITY};`,
 
       needCountTriggerEvents && `${v.triggerCount}+=1;`,
       opts.needCrystals?.increment !== undefined &&
@@ -213,7 +261,7 @@ function creatureSpawnScript(
           [
             `wait:random(${delay.min.toFixed(2)})(${delay.max.toFixed(2)});`,
             `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
-          ] satisfies `${string};`[],
+          ] satisfies EventChainLine[],
       ),
 
       // Update the counter.

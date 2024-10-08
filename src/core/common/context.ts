@@ -255,6 +255,13 @@ export type CavernContext = {
    * the safety factor to get the final air number.
    */
   airSafetyFactor: number;
+  /**
+   * When a monster or slug spawn is triggered, wait at least this many seconds
+   * before another spawn can be triggered anywhere in the cavern. This is to
+   * mitigate instances where a single vehicle speeds through a bunch of
+   * caves and sending a wave of like 17 monsters.
+   */
+  globalCreatureDelay: number;
 };
 
 export type PartialCavernContext = Partial<CavernContext> &
@@ -297,8 +304,9 @@ const STANDARD_DEFAULTS = {
   hallHasLandslidesChance: 0.8,
   caveLandslideCooldownRange: { min: 15, max: 120 },
   hallLandslideCooldownRange: { min: 30, max: 150 },
-  airSafetyFactor: 2,
   crystalGoalRatio: 0.2,
+  airSafetyFactor: 2,
+  globalCreatureDelay: 0,
 } as const satisfies Partial<CavernContext>;
 
 const DEFAULTS_FOR_BIOME = {

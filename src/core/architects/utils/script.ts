@@ -26,31 +26,27 @@ export function transformPoint(
 }
 
 type Falsy = false | null | undefined;
+export type EventChainLine = `${string};` | Falsy;
 
 export function scriptFragment(...rest: (string | Falsy)[]) {
   return rest.filter((s) => s).join("\n");
 }
 
-export function eventChain(name: string, ...rest: (`${string};` | Falsy)[]) {
+export function eventChain(name: string, ...rest: EventChainLine[]) {
   return `${name}::;\n${scriptFragment(...rest)}\n`;
-}
-
-export function eventChainSynchronized(
-  name: string,
-  ...rest: (`${string};` | Falsy)[]
-) {
-  const semaphore = `${name}_lock`;
-  return scriptFragment(
-    `int ${semaphore}=0`,
-    eventChain(name, `((${semaphore}==0))[${semaphore}=1][${name}_wait];`),
-    `when(${semaphore}==1)[${name}_syn]`,
-    eventChain(`${name}_syn`, ...rest, `${semaphore}=0;`),
-    eventChain(`${name}_wait`, "wait:1;", `${name};`),
-  );
 }
 
 export function escapeString(s: string) {
   return s.replace(/\\/g, "").replace(/"/g, '\\"');
+}
+
+export class ScriptHelper {
+  private _uid: number = 0;
+
+  trigger(condition: `${"if" | "when"}(${string})`, ...rest: EventChainLine[]) {
+    const name = `ec${this._uid++}`;
+    return `${condition}[${name}]\n${eventChain(name, ...rest)}`;
+  }
 }
 
 export function declareStringFromLore<T extends { [K: string]: boolean }>(

@@ -1,6 +1,8 @@
-import { filterTruthy } from "../../common/utils";
+import { creatureSpawnGlobals } from "../../architects/utils/creature_spawners";
+import { scriptFragment, ScriptHelper } from "../../architects/utils/script";
 import { Architect } from "../../models/architect";
 import { PreprogrammedCavern } from "./03_preprogram";
+import { objectiveGlobals } from "../../architects/utils/objectives";
 
 export type ProgrammedCavern = PreprogrammedCavern & {
   readonly script: string;
@@ -20,35 +22,36 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
       [],
     ),
   );
-  const archGlobals = filterTruthy(globalsFns.map((fn) => fn({ cavern })));
-  const archScripts = filterTruthy(
-    cavern.plans.map((plan) => plan.architect.script?.({ cavern, plan })),
-  );
-  const monsters = cavern.context.hasMonsters
-    ? filterTruthy(
-        cavern.plans.map((plan) =>
-          plan.architect.monsterSpawnScript?.({ cavern, plan }),
-        ),
-      )
-    : [];
-  const slugs = cavern.context.hasSlugs
-    ? filterTruthy(
-        cavern.plans.map((plan) =>
-          plan.architect.slugSpawnScript?.({ cavern, plan }),
-        ),
-      )
-    : [];
-  const na = ["# n/a", ""];
-  const script = [
-    "#> Architect Globals",
-    ...(archGlobals.length ? archGlobals : na),
+  const na = "# n/a\n";
+  const sh = new ScriptHelper();
+  const script = scriptFragment(
+    "#> Globals",
+    objectiveGlobals({ cavern, sh }),
+    creatureSpawnGlobals({ cavern, sh }),
+    scriptFragment(...globalsFns.map((fn) => fn({ cavern, sh }))),
     "#> Architect Scripts",
-    ...(archScripts.length ? archScripts : na),
+    scriptFragment(
+      ...cavern.plans.map((plan) =>
+        plan.architect.script?.({ cavern, plan, sh }),
+      ),
+    ) || na,
     "#> Spawn Monsters",
-    ...(monsters.length ? monsters : na),
+    cavern.context.hasMonsters
+      ? scriptFragment(
+          ...cavern.plans.map((plan) =>
+            plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
+          ),
+        )
+      : na,
     "#> Spawn Slugs",
-    ...(slugs.length ? slugs : na),
-  ].join("\n");
+    cavern.context.hasSlugs
+      ? scriptFragment(
+          ...cavern.plans.map((plan) =>
+            plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
+          ),
+        )
+      : na,
+  );
 
   return { ...cavern, script };
 }

@@ -3,7 +3,7 @@ import { DefaultHallArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import {
   declareStringFromLore,
-  eventChain,
+  EventChainLine,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -34,7 +34,7 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}Fissure`, [
     "onDiscover",
-    `onTrigger`,
+    `onTrip`,
     `msgForeshadow`,
     `spawn`,
     "tripCount",
@@ -43,7 +43,7 @@ const sVars = (plan: Plan<any>) =>
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
   prime: () => METADATA,
-  script: ({ cavern, plan }) => {
+  script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
     const discoveryPoints = getDiscoveryPoints(cavern, plan);
     const panTo = plan.innerPearl[0][Math.floor(plan.innerPearl[0].length / 2)];
@@ -53,7 +53,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       const t = cavern.tiles.get(...pos) ?? Tile.SOLID_ROCK;
       return t.isWall && t.hardness < Hardness.SOLID;
     });
-    const tripCount = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
+    const trips = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
 
     return scriptFragment(
       `# P${plan.id}: Fissure`,
@@ -72,9 +72,8 @@ const BASE: PartialArchitect<typeof METADATA> = {
       ...drillPoints.map(
         (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
-      `if(${v.tripCount}>=${tripCount})[${v.onTrigger}]`,
-      eventChain(
-        v.onTrigger,
+      sh.trigger(
+        `if(${v.tripCount}>=${trips})`,
         `wait:random(5)(30);`,
         `shake:1;`,
         `msg:${v.msgForeshadow};`,
@@ -87,7 +86,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
           .filter((pos) => cavern.tiles.get(...pos)?.isWall)
           .map(
             (pos) =>
-              `drill:${transformPoint(cavern, pos)};` satisfies `${string};`,
+              `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
           ),
         cavern.context.hasMonsters && `${v.spawn};`,
       ),
