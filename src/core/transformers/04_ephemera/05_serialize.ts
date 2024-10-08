@@ -47,7 +47,7 @@ function pointSet(points: Point[], [ox, oy]: Point, mode: "xy" | "yx"): string {
       const ys = (y + oy).toFixed();
       return mode === "xy" ? `${xs},${ys}/` : `${ys},${xs}/`;
     })
-    .join();
+    .join("");
 }
 
 function grid(
