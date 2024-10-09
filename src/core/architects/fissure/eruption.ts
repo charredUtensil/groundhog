@@ -1,26 +1,24 @@
-import { Architect, BaseMetadata } from "../models/architect";
-import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
+import { Architect, BaseMetadata } from "../../models/architect";
+import { DefaultCaveArchitect, PartialArchitect } from "../default";
+import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
 import {
   declareStringFromLore,
   mkVars,
   scriptFragment,
   transformPoint,
-} from "./utils/script";
-import { Plan } from "../models/plan";
-import { monsterSpawnScript } from "./utils/creature_spawners";
-import { Tile } from "../models/tiles";
-import { plotLine, Point } from "../common/geometry";
-import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
-import { SEISMIC_FORESHADOW } from "../lore/graphs/seismic";
-import { placeErosion } from "./utils/hazards";
-
-const METADATA = { tag: "fissure" } as const satisfies BaseMetadata;
+} from "../utils/script";
+import { Plan } from "../../models/plan";
+import { monsterSpawnScript } from "../utils/creature_spawners";
+import { Tile } from "../../models/tiles";
+import { plotLine, Point } from "../../common/geometry";
+import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
+import { SEISMIC_FORESHADOW } from "../../lore/graphs/seismic";
+import { placeErosion } from "../utils/hazards";
+import { FISSURE_BASE, gFissure, METADATA } from "./base";
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}Eruption`, [
-    `msgForeshadow`,
-    `spawn`,
+  mkVars(`p${plan.id}FE`, [
+    `doSpawn`,
     "tripCount",
   ]);
 
@@ -55,26 +53,17 @@ function getEruptPoints(cavern: PreprogrammedCavern, plan: Plan<typeof METADATA>
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
-  prime: () => METADATA,
+  ...FISSURE_BASE,
   placeErosion: (args) => placeErosion(25, 2, args),
   script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
     const eps = getEruptPoints(cavern, plan);
-    const rng = cavern.dice.script(plan.id);
     const tripsForeshadow = 10;
     const trips = 20;
 
     return scriptFragment(
-      `# P${plan.id}: Eruption`,
+      `# P${plan.id}: Fissure (Eruption)`,
       `int ${v.tripCount}=0`,
-      declareStringFromLore(
-        cavern,
-        rng,
-        v.msgForeshadow,
-        SEISMIC_FORESHADOW,
-        {},
-        {},
-      ),
       ...eps.map(
         (pos) => `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`
       ),
@@ -85,7 +74,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `if(${v.tripCount}>=${tripsForeshadow})`,
         `wait:random(5)(20);`,
         `shake:1;`,
-        `msg:${v.msgForeshadow};`,
+        `${gFissure.doMessage};`,
       ),
       sh.trigger(
         `if(${v.tripCount}>=${trips})`,
@@ -97,13 +86,13 @@ const BASE: PartialArchitect<typeof METADATA> = {
         ...eps.map((pos) =>
           `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
         ),
-        cavern.context.hasMonsters && `${v.spawn};`,
+        cavern.context.hasMonsters && `${v.doSpawn};`,
       ),
     );
   },
   monsterSpawnScript: (args) => {
     return monsterSpawnScript(args, {
-      armEvent: sVars(args.plan).spawn,
+      armEvent: sVars(args.plan).doSpawn,
       triggerOnFirstArmed: true,
     });
   },
@@ -111,7 +100,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
 
 const ERUPTION = [
   {
-    name: "Eruption",
+    name: "Fissure.Eruption",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
@@ -125,11 +114,12 @@ const ERUPTION = [
       },
       { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.5 },
     ),
-    caveBid: ({ cavern, plan }) =>
+    caveBid: ({ cavern, plan, plans }) =>
       !plan.fluid &&
       plan.hasErosion &&
       cavern.context.biome !== 'ice' &&
       plan.path.baseplates.length === 2 &&
+      !plan.intersects.some((_, i) => plans[i].metadata?.tag === 'fissure') &&
       1,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];

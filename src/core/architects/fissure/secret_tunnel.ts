@@ -1,23 +1,17 @@
-import { Architect, BaseMetadata } from "../models/architect";
-import { DefaultHallArchitect, PartialArchitect } from "./default";
-import { mkRough, Rough } from "./utils/rough";
+import { Architect } from "../../models/architect";
+import { DefaultHallArchitect, PartialArchitect } from "../default";
+import { mkRough, Rough } from "../utils/rough";
 import {
-  declareStringFromLore,
   EventChainLine,
   mkVars,
   scriptFragment,
   transformPoint,
-} from "./utils/script";
-import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
-import { Plan } from "../models/plan";
-import { monsterSpawnScript } from "./utils/creature_spawners";
-import { Hardness, Tile } from "../models/tiles";
-import { SEISMIC_FORESHADOW } from "../lore/graphs/seismic";
-
-// Fissure halls are not drillable, but suddenly crack open without any player
-// involvement after being discovered.
-
-const METADATA = { tag: "fissure" } as const satisfies BaseMetadata;
+} from "../utils/script";
+import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
+import { Plan } from "../../models/plan";
+import { monsterSpawnScript } from "../utils/creature_spawners";
+import { Hardness, Tile } from "../../models/tiles";
+import { FISSURE_BASE, gFissure, METADATA } from "./base";
 
 function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
   const used: true[] = [];
@@ -32,22 +26,19 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
 }
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}Fissure`, [
-    "onDiscover",
+  mkVars(`p${plan.id}FST`, [
     `onTrip`,
-    `msgForeshadow`,
-    `spawn`,
+    `doSpawn`,
     "tripCount",
   ]);
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
-  prime: () => METADATA,
+  ...FISSURE_BASE,
   script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
     const discoveryPoints = getDiscoveryPoints(cavern, plan);
     const panTo = plan.innerPearl[0][Math.floor(plan.innerPearl[0].length / 2)];
-    const rng = cavern.dice.script(plan.id);
 
     const drillPoints = plan.innerPearl[0].filter((pos) => {
       const t = cavern.tiles.get(...pos) ?? Tile.SOLID_ROCK;
@@ -56,16 +47,8 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const trips = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
 
     return scriptFragment(
-      `# P${plan.id}: Fissure`,
+      `# P${plan.id}: Fissure (Secret Tunnel)`,
       `int ${v.tripCount}=0`,
-      declareStringFromLore(
-        cavern,
-        rng,
-        v.msgForeshadow,
-        SEISMIC_FORESHADOW,
-        {},
-        {},
-      ),
       ...discoveryPoints.map(
         (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
@@ -76,7 +59,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `if(${v.tripCount}>=${trips})`,
         `wait:random(5)(30);`,
         `shake:1;`,
-        `msg:${v.msgForeshadow};`,
+        `${gFissure.doMessage};`,
         `wait:random(30)(150);`,
         `shake:2;`,
         `pan:${transformPoint(cavern, panTo)};`,
@@ -88,7 +71,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
             (pos) =>
               `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
           ),
-        cavern.context.hasMonsters && `${v.spawn};`,
+        cavern.context.hasMonsters && `${v.doSpawn};`,
       ),
     );
   },
@@ -96,7 +79,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const bps = args.plan.path.baseplates;
     const ebps = [bps[0], bps[bps.length - 1]];
     return monsterSpawnScript(args, {
-      armEvent: sVars(args.plan).spawn,
+      armEvent: sVars(args.plan).doSpawn,
       emerges: ebps.map((bp) => {
         const [x, y] = bp.center;
         return { x: Math.floor(x), y: Math.floor(y), radius: bp.pearlRadius };
@@ -107,9 +90,9 @@ const BASE: PartialArchitect<typeof METADATA> = {
   },
 };
 
-const FISSURE = [
+const SECRET_TUNNEL = [
   {
-    name: "Fissure",
+    name: "Fissure.SecretTunnel",
     ...BASE,
     ...mkRough({ of: Rough.SOLID_ROCK }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan, plans }) =>
@@ -121,4 +104,4 @@ const FISSURE = [
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 
-export default FISSURE;
+export default SECRET_TUNNEL;

@@ -64,6 +64,7 @@ export enum LoreDie {
   name,
   failureBaseDestroyed,
   buildAndPower,
+  seismicForeshadow,
 }
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
