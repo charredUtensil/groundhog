@@ -1,5 +1,6 @@
 import { Architect } from "../models/architect";
 import { BUILD_AND_POWER, BuildAndPowerMetadata } from "./build_and_power";
+import ERUPTION from "./eruption";
 import ESTABLISHED_HQ from "./established_hq";
 import { HqMetadata } from "./established_hq/base";
 import FISSURE from "./fissure";
@@ -24,6 +25,7 @@ export type AnyMetadata =
 
 export const ARCHITECTS = [
   ...BUILD_AND_POWER,
+  ...ERUPTION,
   ...ESTABLISHED_HQ,
   ...FISSURE,
   ...FLOODED,
