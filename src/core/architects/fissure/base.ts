@@ -35,7 +35,8 @@ export const FISSURE_BASE: Pick<Architect<typeof METADATA>, 'prime' | 'scriptGlo
           {},
         ),
         `if(${gFissure.showMessage}==2)[msg:${gFissure.msg}2]`,
-        fissureCount > 2 && 
+      ),
+      fissureCount > 2 && scriptFragment(
         declareStringFromLore(
           cavern,
           rng,

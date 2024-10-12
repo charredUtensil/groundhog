@@ -100,7 +100,7 @@ const SECRET_TUNNEL = [
       plan.path.kind === "auxiliary" &&
       plan.path.exclusiveSnakeDistance > 1 &&
       !plan.intersects.some((_, i) => plans[i].metadata?.tag === "fissure") &&
-      1,
+      0.75,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 

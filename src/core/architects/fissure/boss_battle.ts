@@ -105,7 +105,7 @@ const BASE: PartialArchitect<Metadata> = {
         `wait:random(5)(30);`,
         `shake:1;`,
         `${gFissure.showMessage}+=1;`,
-        `wait:random(30)(150);`,
+        `wait:random(15)(60);`,
         `shake:2;`,
         `pan:${transformPoint(cavern, [Math.floor(boss.x), Math.floor(boss.y)])};`,
         `wait:1;`,
@@ -166,7 +166,7 @@ const BOSS_BATTLE = [
       plan.pearlRadius >= 5 &&
       plan.path.baseplates.length === 1 &&
       !plan.intersects.some((_, i) => plans[i].metadata?.tag === "fissure") &&
-      0.25,
+      0.1,
   },
 ] as const satisfies readonly Architect<Metadata>[];
 
