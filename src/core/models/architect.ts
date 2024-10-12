@@ -92,7 +92,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly crystals: MutableGrid<number>;
     readonly ore: MutableGrid<number>;
     readonly openCaveFlags: MutableGrid<true>;
-  }): { buildings?: Building[]; cameraPosition?: EntityPosition };
+  }): { readonly buildings?: Building[]; readonly cameraPosition?: EntityPosition; readonly metadata?: T };
   placeCrystals(args: {
     readonly cavern: RoughPlasticCavern;
     readonly plan: Plan<T>;
@@ -111,16 +111,6 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly tiles: MutableGrid<Tile>;
   }): void;
 
-  placeLandslides(args: {
-    readonly cavern: StrataformedCavern;
-    readonly plan: Plan<T>;
-    readonly landslides: MutableGrid<Landslide>;
-  }): void;
-  placeErosion(args: {
-    readonly cavern: StrataformedCavern;
-    readonly plan: Plan<T>;
-    readonly erosion: MutableGrid<Erosion>;
-  }): void;
   placeEntities(args: {
     readonly cavern: StrataformedCavern;
     readonly plan: Plan<T>;
@@ -132,7 +122,18 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly miners?: Miner[];
     readonly vehicles?: Vehicle[];
     readonly cameraPosition?: EntityPosition;
+    readonly metadata?: T;
   };
+  placeLandslides(args: {
+    readonly cavern: StrataformedCavern;
+    readonly plan: Plan<T>;
+    readonly landslides: MutableGrid<Landslide>;
+  }): void;
+  placeErosion(args: {
+    readonly cavern: StrataformedCavern;
+    readonly plan: Plan<T>;
+    readonly erosion: MutableGrid<Erosion>;
+  }): void;
 
   objectives(args: {
     cavern: DiscoveredCavern;

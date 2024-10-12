@@ -7,6 +7,8 @@ import { Vehicle, VehicleFactory } from "../../models/vehicle";
 import { StrataformedCavern } from "./02_strataform";
 import { EntityPosition } from "../../models/position";
 import { AnyMetadata } from "../../architects";
+import { Architect } from "../../models/architect";
+import { Mutable } from "../../common";
 
 export type PopulatedCavern = StrataformedCavern & {
   readonly landslides: Grid<Landslide>;
@@ -30,11 +32,10 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
   const creatures: Creature[] = [];
   const miners: Miner[] = [];
   const vehicles: Vehicle[] = [];
+  const plans = [...cavern.plans];
   cavern.plans.forEach(<T extends AnyMetadata>(plan: Plan<T>) => {
-    const args = { ...diorama, plan };
-    plan.architect.placeLandslides(args);
-    plan.architect.placeErosion(args);
-    const r = plan.architect.placeEntities(args);
+    const architect: Architect<T> = plan.architect;
+    const r = architect.placeEntities({ ...diorama, plan });
     creatures.push(...(r.creatures ?? []));
     miners.push(...(r.miners ?? []));
     vehicles.push(...(r.vehicles ?? []));
@@ -44,6 +45,12 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
       }
       cameraPosition = r.cameraPosition;
     }
+    if (r.metadata) {
+      plan = {...plan, metadata: r.metadata};
+      plans[plan.id] = plan;
+    }
+    architect.placeLandslides({ ...diorama, plan });
+    architect.placeErosion({ ...diorama, plan });
   });
   if (!cameraPosition) {
     throw new Error(

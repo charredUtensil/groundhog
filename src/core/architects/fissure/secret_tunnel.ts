@@ -59,7 +59,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `if(${v.tripCount}>=${trips})`,
         `wait:random(5)(30);`,
         `shake:1;`,
-        `${gFissure.doMessage};`,
+        `${gFissure.showMessage}+=1;`,
         `wait:random(30)(150);`,
         `shake:2;`,
         `pan:${transformPoint(cavern, panTo)};`,

@@ -1,8 +1,7 @@
-import { Architect, BaseMetadata } from "../../models/architect";
+import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
 import {
-  declareStringFromLore,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -12,7 +11,6 @@ import { monsterSpawnScript } from "../utils/creature_spawners";
 import { Tile } from "../../models/tiles";
 import { plotLine, Point } from "../../common/geometry";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
-import { SEISMIC_FORESHADOW } from "../../lore/graphs/seismic";
 import { placeErosion } from "../utils/hazards";
 import { FISSURE_BASE, gFissure, METADATA } from "./base";
 
@@ -74,7 +72,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `if(${v.tripCount}>=${tripsForeshadow})`,
         `wait:random(5)(20);`,
         `shake:1;`,
-        `${gFissure.doMessage};`,
+        `${gFissure.showMessage}+=1;`,
       ),
       sh.trigger(
         `if(${v.tripCount}>=${trips})`,
@@ -119,7 +117,7 @@ const ERUPTION = [
       plan.hasErosion &&
       cavern.context.biome !== 'ice' &&
       plan.path.baseplates.length === 2 &&
-      !plan.intersects.some((_, i) => plans[i].metadata?.tag === 'fissure') &&
+      !plan.intersects.some((_, i) => plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === 'fissure') &&
       1,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];

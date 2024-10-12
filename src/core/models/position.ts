@@ -5,6 +5,7 @@ import { Grid } from "../common/grid";
 type EntityPositionArgs = {
   x: number;
   y: number;
+  scale?: number;
 } & ({ aimedAt: Point } | { facing: Cardinal8 } | { yaw: number } | {});
 
 function getYaw(args: EntityPositionArgs): number | undefined {
@@ -54,9 +55,9 @@ export function position(
     pitch: args.pitch ?? POSITION_DEFAULTS.pitch,
     yaw: getYaw(args) ?? POSITION_DEFAULTS.yaw,
     roll: args.roll ?? POSITION_DEFAULTS.roll,
-    scaleX: args.scaleX ?? POSITION_DEFAULTS.scaleX,
-    scaleY: args.scaleY ?? POSITION_DEFAULTS.scaleY,
-    scaleZ: args.scaleZ ?? POSITION_DEFAULTS.scaleZ,
+    scaleX: args.scaleX ?? args.scale ?? POSITION_DEFAULTS.scaleX,
+    scaleY: args.scaleY ?? args.scale ?? POSITION_DEFAULTS.scaleY,
+    scaleZ: args.scaleZ ?? args.scale ?? POSITION_DEFAULTS.scaleZ,
   };
 }
 
@@ -70,7 +71,8 @@ export function randomlyInTile(
   const x = args.rng.uniform({}) + args.x;
   const y = args.rng.uniform({}) + args.y;
   const yaw = getYaw(args) ?? args.rng.uniform({ min: -Math.PI, max: Math.PI });
-  return { ...POSITION_DEFAULTS, x, y, yaw };
+  const scale = args.scale;
+  return position({ x, y, yaw, scale });
 }
 
 function zOffsetForBuilding(
