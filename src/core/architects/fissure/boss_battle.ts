@@ -16,6 +16,7 @@ import { PearledPlan } from "../../transformers/01_planning/06_pearl";
 import { Point } from "../../common/geometry";
 import { FoundationPlasticCavern } from "../../transformers/02_masonry/00_foundation";
 import { filterTruthy } from "../../common/utils";
+import { Tile } from "../../models/tiles";
 
 type Metadata = {
   readonly tag: 'fissure',
@@ -24,7 +25,6 @@ type Metadata = {
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}FBB`, [
     `boss`,
-    `reqsMet`,
     `onTrip`,
     `doSpawn`,
     "tripCount",
@@ -32,7 +32,8 @@ const sVars = (plan: Plan<any>) =>
 
 function findSpokes(cavern: FoundationPlasticCavern, plan: PearledPlan<Metadata>, dLayer: number) {
   const result: Point[][] = [];
-  for (let i = dLayer + 1; i <= dLayer + 2; i++) {
+  const max = Math.min(dLayer + 3, plan.pearlRadius);
+  for (let i = dLayer + 1; i <= max; i++) {
     plan.innerPearl[i].forEach(pos => {
       const bucket = cavern.pearlInnerDex.get(...pos)?.reduce(
         (r: number | null, layerInOther, otherId) => {
@@ -57,6 +58,21 @@ function findSpokes(cavern: FoundationPlasticCavern, plan: PearledPlan<Metadata>
 const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
   ...FISSURE_BASE,
+  placeBuildings: ({ plan, tiles }) => {
+    for (let i = 0; i < plan.pearlRadius; i++) {
+      let found = false;
+      for (const pos of plan.innerPearl[i]) {
+        if (tiles.get(...pos) === Tile.FLOOR) {
+          found = true;
+          tiles.set(...pos, Tile.LANDSLIDE_RUBBLE_4);
+        }
+      }
+      if (!found) {
+        break;
+      }
+    }
+    return {};
+  },
   placeEntities: ({ cavern, plan, creatureFactory }) => {
     const monsterPos = plan.innerPearl[0][0];
     const rng = cavern.dice.placeEntities(plan.id);
@@ -92,14 +108,14 @@ const BASE: PartialArchitect<Metadata> = {
       `# P${plan.id}: Fissure (Boss Battle)`,
       `creature ${v.boss}=${boss.id}`,
       `int ${v.tripCount}=0`,
-      ...plan.innerPearl[dLayer + 2].map(
+      ...spokes.flatMap(spoke => spoke.filter(pos => cavern.pearlInnerDex.get(...pos)![plan.id] > dLayer + 1).map(
         (pos) => {
           const isWall = cavern.tiles.get(...pos)?.isWall;
           const tv = isWall ? 3 : 1;
           totalTrips += tv;
           return `if(${isWall ? 'drill' : 'enter'}:${transformPoint(cavern, pos)})[${v.tripCount}+=${tv}]`;
         },
-      ),
+      )),
       sh.trigger(
         `if(${v.tripCount}>=${Math.ceil(totalTrips / 4)})`,
         `wait:random(5)(30);`,
@@ -113,16 +129,16 @@ const BASE: PartialArchitect<Metadata> = {
         ...spokes
           .flatMap(spoke => [
             ...spoke
-              .filter(pos => cavern.tiles.get(...pos)?.isWall)
+              .filter(pos => cavern.tiles.get(...pos)?.isWall && cavern.pearlInnerDex.get(...pos)![plan.id] <= dLayer + 2)
               .flatMap(
                 (pos) => [
                   `drill:${transformPoint(cavern, pos)};`,
                 ] satisfies EventChainLine[]
               ),
             // There is a bug in Manic Miners where caves don't become
-            // "discovered" properly when more than one discovery zone
-            // is revealed in the same tick. Combat this by making the
-            // monster reveal more dramatic.
+            // "discovered" properly when more than one discovery zone is
+            // revealed in the same tick. Prevent this while making the monster
+            // reveal more dramatic.
             `wait:0.25;` satisfies EventChainLine,
           ] satisfies EventChainLine[]),
         `shake:5;`,
@@ -135,7 +151,8 @@ const BASE: PartialArchitect<Metadata> = {
       ),
       sh.trigger(
         `if(change:${transformPoint(cavern, discoPoint)})`,
-        cavern.context.hasMonsters && `${v.doSpawn};`,
+        `${v.tripCount}=9999;`,
+        `${v.doSpawn};`,
       ),
     );
   },
@@ -155,7 +172,6 @@ const BOSS_BATTLE = [
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.ALWAYS_SOLID_ROCK, width: 2 },
       { of: Rough.MIX_LOOSE_HARD_ROCK, shrink: 1 },
-      { of: Rough.MIX_DIRT_LOOSE_ROCK, grow: 1},
       { of: Rough.MIX_AT_MOST_DIRT_LOOSE_ROCK, grow: 1},
       { of: Rough.MIX_FRINGE, shrink: 1},
       { of: Rough.VOID, width: 0, grow: 1}

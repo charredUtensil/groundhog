@@ -1,7 +1,7 @@
 import { SEISMIC_FORESHADOW, SEISMIC_FORESHADOW_AGAIN } from "../../lore/graphs/seismic";
 import { LoreDie } from "../../lore/lore";
 import { Architect, BaseMetadata } from "../../models/architect";
-import { declareStringFromLore, eventChain, mkVars, scriptFragment } from "../utils/script";
+import { declareStringFromLore, mkVars, scriptFragment } from "../utils/script";
 
 export const METADATA = { tag: "fissure" } as const satisfies BaseMetadata;
 
@@ -14,7 +14,7 @@ export const FISSURE_BASE: Pick<Architect<typeof METADATA>, 'prime' | 'scriptGlo
     const fissureCount = cavern.plans.reduce(
       (r, plan) => plan.metadata?.tag === 'fissure' ? r + 1 : r, 0);
     return scriptFragment(
-      `# Globals: Fissure x${fissureCount}`,
+      '# Globals: Fissure',
       `int ${gFissure.showMessage}=0`,
       declareStringFromLore(
         cavern,
@@ -45,7 +45,7 @@ export const FISSURE_BASE: Pick<Architect<typeof METADATA>, 'prime' | 'scriptGlo
           {},
           {},
         ),
-        `when(${gFissure.showMessage}>=2)[msg:${gFissure.msg}3]`,
+        `when(${gFissure.showMessage}>=3)[msg:${gFissure.msg}3]`,
       )
     );
   })
