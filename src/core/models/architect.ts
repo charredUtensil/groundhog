@@ -92,7 +92,11 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly crystals: MutableGrid<number>;
     readonly ore: MutableGrid<number>;
     readonly openCaveFlags: MutableGrid<true>;
-  }): { readonly buildings?: Building[]; readonly cameraPosition?: EntityPosition; readonly metadata?: T };
+  }): {
+    readonly buildings?: Building[];
+    readonly cameraPosition?: EntityPosition;
+    readonly metadata?: T;
+  };
   placeCrystals(args: {
     readonly cavern: RoughPlasticCavern;
     readonly plan: Plan<T>;

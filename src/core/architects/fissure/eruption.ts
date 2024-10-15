@@ -1,11 +1,7 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
-import {
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "../utils/script";
+import { mkVars, scriptFragment, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
 import { Tile } from "../../models/tiles";
@@ -15,12 +11,12 @@ import { placeErosion } from "../utils/hazards";
 import { FISSURE_BASE, gFissure, METADATA } from "./base";
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}FE`, [
-    `doSpawn`,
-    "tripCount",
-  ]);
+  mkVars(`p${plan.id}FE`, [`doSpawn`, "tripCount"]);
 
-function getEruptPoints(cavern: PreprogrammedCavern, plan: Plan<typeof METADATA>) {
+function getEruptPoints(
+  cavern: PreprogrammedCavern,
+  plan: Plan<typeof METADATA>,
+) {
   const [b0x, b0y] = plan.path.baseplates[0].center;
   const [b1x, b1y] = plan.path.baseplates[1].center;
   const theta = Math.atan2(b1y - b0y, b1x - b0x);
@@ -30,7 +26,10 @@ function getEruptPoints(cavern: PreprogrammedCavern, plan: Plan<typeof METADATA>
   const cx = (b0x + b1x) / 2;
   const cy = (b0y + b1y) / 2;
   const result: Point[] = [];
-  for (const to of [[cx - dx, cy + dy], [cx + dx, cy - dy]] satisfies Point[]) {
+  for (const to of [
+    [cx - dx, cy + dy],
+    [cx + dx, cy - dy],
+  ] satisfies Point[]) {
     let first = true;
     for (const pos of plotLine([cx, cy], to)) {
       if (first) {
@@ -63,10 +62,12 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `# P${plan.id}: Fissure (Eruption)`,
       `int ${v.tripCount}=0`,
       ...eps.map(
-        (pos) => `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`
+        (pos) =>
+          `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),
       ...eps.map(
-        (pos) => `if(change:${transformPoint(cavern, pos)}:${Tile.LAVA.id})[${v.tripCount}=${trips + 1}]`
+        (pos) =>
+          `if(change:${transformPoint(cavern, pos)}:${Tile.LAVA.id})[${v.tripCount}=${trips + 1}]`,
       ),
       sh.trigger(
         `if(${v.tripCount}>=${tripsForeshadow})`,
@@ -81,8 +82,9 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `pan:${transformPoint(cavern, eps[0])};`,
         `wait:1;`,
         `shake:4;`,
-        ...eps.map((pos) =>
-          `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
+        ...eps.map(
+          (pos) =>
+            `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
         ),
         cavern.context.hasMonsters && `${v.doSpawn};`,
       ),
@@ -115,9 +117,12 @@ const ERUPTION = [
     caveBid: ({ cavern, plan, plans }) =>
       !plan.fluid &&
       plan.hasErosion &&
-      cavern.context.biome !== 'ice' &&
+      cavern.context.biome !== "ice" &&
       plan.path.baseplates.length === 2 &&
-      !plan.intersects.some((_, i) => plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === 'fissure') &&
+      !plan.intersects.some(
+        (_, i) =>
+          plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === "fissure",
+      ) &&
       1,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];

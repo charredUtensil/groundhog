@@ -26,11 +26,7 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
 }
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}FST`, [
-    `onTrip`,
-    `doSpawn`,
-    "tripCount",
-  ]);
+  mkVars(`p${plan.id}FST`, [`onTrip`, `doSpawn`, "tripCount"]);
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,

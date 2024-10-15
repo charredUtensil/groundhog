@@ -8,7 +8,6 @@ import { StrataformedCavern } from "./02_strataform";
 import { EntityPosition } from "../../models/position";
 import { AnyMetadata } from "../../architects";
 import { Architect } from "../../models/architect";
-import { Mutable } from "../../common";
 
 export type PopulatedCavern = StrataformedCavern & {
   readonly landslides: Grid<Landslide>;
@@ -46,7 +45,7 @@ export default function populate(cavern: StrataformedCavern): PopulatedCavern {
       cameraPosition = r.cameraPosition;
     }
     if (r.metadata) {
-      plan = {...plan, metadata: r.metadata};
+      plan = { ...plan, metadata: r.metadata };
       plans[plan.id] = plan;
     }
     architect.placeLandslides({ ...diorama, plan });

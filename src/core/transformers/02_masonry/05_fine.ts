@@ -5,7 +5,6 @@ import { Building } from "../../models/building";
 import { Plan } from "../../models/plan";
 import { EntityPosition } from "../../models/position";
 import { AnyMetadata } from "../../architects";
-import { Mutable } from "../../common";
 import { Architect } from "../../models/architect";
 
 export type FinePlasticCavern = Omit<RoughPlasticCavern, "tiles"> & {
@@ -43,7 +42,7 @@ export default function fine(cavern: RoughPlasticCavern): FinePlasticCavern {
       cameraPosition = r.cameraPosition;
     }
     if (r.metadata) {
-      plan = {...plan, metadata: r.metadata};
+      plan = { ...plan, metadata: r.metadata };
       plans[plan.id] = plan;
     }
 
