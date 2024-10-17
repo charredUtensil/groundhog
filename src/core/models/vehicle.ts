@@ -25,6 +25,7 @@ export class VehicleTemplate {
   readonly kind: "land" | "sea" | "air";
   readonly crystals: number;
   readonly upgrades: readonly Upgrade[];
+  readonly zOffset: number; 
   constructor(
     id: string,
     name: string,
@@ -33,6 +34,7 @@ export class VehicleTemplate {
     kind: "land" | "sea" | "air",
     crystals: number,
     upgrades: readonly Upgrade[],
+    zOffset: number,
   ) {
     this.id = id;
     this.name = name;
@@ -41,6 +43,7 @@ export class VehicleTemplate {
     this.kind = kind;
     this.crystals = crystals;
     this.upgrades = upgrades;
+    this.zOffset = zOffset;
   }
 
   get job() {
@@ -56,6 +59,7 @@ export const HOVER_SCOUT = new VehicleTemplate(
   "land",
   1,
   ["UpEngine"],
+  0.990,
 );
 export const SMALL_DIGGER = new VehicleTemplate(
   "VehicleSmallDigger_C",
@@ -65,6 +69,7 @@ export const SMALL_DIGGER = new VehicleTemplate(
   "land",
   1,
   ["UpEngine", "UpDrill"],
+  -0.004,
 );
 export const SMALL_TRANSPORT_TRUCK = new VehicleTemplate(
   "VehicleSmallTransportTruck_C",
@@ -74,6 +79,7 @@ export const SMALL_TRANSPORT_TRUCK = new VehicleTemplate(
   "land",
   2,
   ["UpEngine", "UpCargoHold"],
+  0.971,
 );
 export const RAPID_RIDER = new VehicleTemplate(
   "VehicleRapidRider_C",
@@ -83,6 +89,7 @@ export const RAPID_RIDER = new VehicleTemplate(
   "sea",
   2,
   ["UpAddDrill", "UpCargoHold"],
+  0.978,
 );
 export const SMLC = new VehicleTemplate(
   "VehicleSMLC_C",
@@ -92,6 +99,7 @@ export const SMLC = new VehicleTemplate(
   "land",
   3,
   ["UpEngine", "UpLaser"],
+  0.388,
 );
 export const TUNNEL_SCOUT = new VehicleTemplate(
   "VehicleTunnelScout_C",
@@ -101,6 +109,7 @@ export const TUNNEL_SCOUT = new VehicleTemplate(
   "air",
   3,
   ["UpAddDrill"],
+  -0.012,
 );
 export const LOADER_DOZER = new VehicleTemplate(
   "VehicleLoaderDozer_C",
@@ -110,6 +119,7 @@ export const LOADER_DOZER = new VehicleTemplate(
   "land",
   5,
   ["UpEngine"],
+  0.773,
 );
 export const GRANITE_GRINDER = new VehicleTemplate(
   "VehicleGraniteGrinder_C",
@@ -119,6 +129,7 @@ export const GRANITE_GRINDER = new VehicleTemplate(
   "land",
   5,
   ["UpEngine", "UpDrill"],
+  -0.553,
 );
 export const CARGO_CARRIER = new VehicleTemplate(
   "VehicleCargoCarrier_C",
@@ -128,6 +139,7 @@ export const CARGO_CARRIER = new VehicleTemplate(
   "sea",
   5,
   ["UpAddNav"],
+  0.978,
 );
 export const LMLC = new VehicleTemplate(
   "VehicleLMLC_C",
@@ -137,6 +149,7 @@ export const LMLC = new VehicleTemplate(
   "land",
   8,
   ["UpEngine", "UpLaser", "UpAddNav"],
+  0.036,
 );
 export const CHROME_CRUSHER = new VehicleTemplate(
   "VehicleChromeCrusher_C",
@@ -146,6 +159,7 @@ export const CHROME_CRUSHER = new VehicleTemplate(
   "land",
   8,
   ["UpEngine", "UpDrill", "UpLaser", "UpScanner"],
+  -0.346,
 );
 export const TUNNEL_TRANSPORT = new VehicleTemplate(
   "VehicleTunnelTransport_C",
@@ -155,6 +169,7 @@ export const TUNNEL_TRANSPORT = new VehicleTemplate(
   "air",
   10,
   [],
+  -0.012,
 );
 
 export type Vehicle = EntityPosition & {
@@ -187,12 +202,17 @@ export class VehicleFactory {
 
 export function serializeVehicle(
   vehicle: Vehicle,
-  offset: Point,
+  tileOffset: Point,
   heightMap: Grid<number>,
 ) {
   return [
     vehicle.template.id,
-    serializePosition(vehicle, offset, heightMap, 0, "entity"),
+    serializePosition({
+      position: vehicle,
+      tileOffset,
+      heightMap,
+      entityOffset: {z: vehicle.template.zOffset},
+    }),
     vehicle.upgrades.length &&
       `upgrades=${vehicle.upgrades.map((u) => `${u}/`).join("")}`,
     vehicle.driverId !== null && `driver=${vehicle.driverId.toFixed()}`,

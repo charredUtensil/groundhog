@@ -79,7 +79,7 @@ const BASE: PartialArchitect<Metadata> = {
       template: monsterForBiome(cavern.context.biome),
       planId: plan.id,
       sleep: false,
-      ...randomlyInTile({ rng, x: monsterPos[0], y: monsterPos[1], scale: 4 }),
+      ...randomlyInTile({ rng, x: monsterPos[0], y: monsterPos[1], scale: 2 }),
     });
     return { creatures: [boss] };
   },

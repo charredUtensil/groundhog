@@ -7,10 +7,12 @@ export class CreatureTemplate {
   readonly id: string;
   readonly name: string;
   readonly inspectAbbrev: string;
-  constructor(id: string, name: string, inspectAbbrev: string) {
+  readonly zOffset: number;
+  constructor(id: string, name: string, inspectAbbrev: string, zOffset: number) {
     this.id = id;
     this.name = name;
     this.inspectAbbrev = inspectAbbrev;
+    this.zOffset = zOffset;
   }
 }
 
@@ -18,28 +20,33 @@ export const ROCK_MONSTER = new CreatureTemplate(
   "CreatureRockMonster_C",
   "Rock Monster",
   "Rm",
+  138.150,
 );
 export const ICE_MONSTER = new CreatureTemplate(
   "CreatureIceMonster_C",
   "Ice Monster",
   "Im",
+  138.150,
 );
 export const LAVA_MONSTER = new CreatureTemplate(
   "CreatureLavaMonster_C",
   "Lava Monster",
   "Lm",
+  138.150,
 );
 export const SLIMY_SLUG = new CreatureTemplate(
   "CreatureSlimySlug_C",
   "Slimy Slug",
   "Sg",
+  62.150,
 );
 export const SMALL_SPIDER = new CreatureTemplate(
   "CreatureSmallSpider_C",
   "Small Spider",
   "Sr",
+  32.150,
 );
-export const BAT = new CreatureTemplate("CreatureBat_C", "Bat", "Bt");
+export const BAT = new CreatureTemplate("CreatureBat_C", "Bat", "Bt", 27.150);
 
 export function monsterForBiome(biome: Biome): CreatureTemplate {
   switch (biome) {
@@ -74,10 +81,15 @@ export class CreatureFactory {
 
 export function serializeCreature(
   creature: Creature,
-  offset: Point,
+  tileOffset: Point,
   heightMap: Grid<number>,
 ) {
   return `${creature.template.id}
-${serializePosition(creature, offset, heightMap, 0, "entity")}
+${serializePosition({
+  position: creature,
+  tileOffset,
+  heightMap,
+  entityOffset: {z: creature.template.zOffset},
+})}
 ID=${creature.id.toFixed()}${creature.sleep ? ",Sleep=true" : ""}`;
 }
