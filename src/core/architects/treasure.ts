@@ -4,7 +4,6 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
-  declareStringFromLore,
   DzPriorities,
   mkVars,
   scriptFragment,
@@ -76,22 +75,15 @@ const HOARD: typeof BASE = {
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
-  scriptGlobals({ cavern }) {
+  scriptGlobals({ cavern, sh }) {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
     return scriptFragment(
       "# Globals: Hoard",
-      `int ${g.lock}=0`,
-      declareStringFromLore(
-        cavern,
-        LoreDie.foundHoard,
-        g.message,
-        FOUND_HOARD,
-        {},
-        {},
-      ),
-      `int ${g.crystalsAvailable}=0`,
+      sh.declareInt(g.lock, 0),
+      sh.declareString(g.message, { die: LoreDie.foundHoard, pg: FOUND_HOARD }),
+      sh.declareInt(g.crystalsAvailable, 0),
     );
   },
   claimEventOnDiscover({ plan }) {

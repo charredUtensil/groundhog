@@ -13,7 +13,6 @@ import { intersectsOnly } from "./utils/intersects";
 import { gObjectives } from "./utils/objectives";
 import { Rough, mkRough } from "./utils/rough";
 import {
-  declareStringFromLore,
   eventChain,
   EventChainLine,
   mkVars,
@@ -102,8 +101,8 @@ function buildAndPower(
         ),
 
         // Second trigger: power state changes.
-        `int ${g.checkPower}=0`,
-        `int ${g.doneCount}=0`,
+        sh.declareInt(g.checkPower, 0),
+        sh.declareInt(g.doneCount, 0),
         ...pvs.map((v) => `arrow ${v.arrow}`),
         ...pvs.map((v) => `building ${v.building}`),
         `when(${template.id}.poweron)[${g.checkPower}+=1]`,
@@ -124,44 +123,35 @@ function buildAndPower(
         // Messages & done trigger
         pvs.length > 1 &&
           scriptFragment(
-            declareStringFromLore(
-              cavern,
-              LoreDie.buildAndPower,
-              g.msgA,
-              BUILD_POWER_GC_FIRST,
-              {},
-              {
+            sh.declareString(g.msgA, {
+              die: LoreDie.buildAndPower,
+              pg: BUILD_POWER_GC_FIRST,
+              formatVars: {
                 buildingName: template.name,
                 remainingCount: spellNumber(pvs.length - 1),
               },
-            ),
+            }),
             `if(${g.doneCount}==1)[msg:${g.msgA}]`,
           ),
         pvs.length > 2 &&
           scriptFragment(
-            declareStringFromLore(
-              cavern,
-              LoreDie.buildAndPower,
-              g.msgB,
-              BUILD_POWER_GC_PENULTIMATE,
-              {},
-              {
+            sh.declareString(g.msgB, {
+              die: LoreDie.buildAndPower,
+              pg: BUILD_POWER_GC_PENULTIMATE,
+              formatVars: {
                 buildingName: template.name,
               },
-            ),
+            }),
             `if(${g.doneCount}==${pvs.length - 1})[msg:${g.msgB}]`,
           ),
-        `int ${g.done}=0`,
-        declareStringFromLore(
-          cavern,
-          LoreDie.buildAndPower,
-          g.msgC,
-          BUILD_POWER_GC_LAST,
-          {},
-          {
+        sh.declareInt(g.done, 0),
+        sh.declareString(g.msgC, {
+          die: LoreDie.buildAndPower,
+          pg: BUILD_POWER_GC_LAST,
+          formatVars: {
             buildingName: template.name,
           },
-        ),
+        }),
         sh.trigger(
           `if(${g.doneCount}>=${pvs.length})`,
           `${gObjectives.met}+=1;`,

@@ -103,7 +103,7 @@ export function creatureSpawnGlobals({
   }
   return scriptFragment(
     "# Globals: Creatures",
-    `int ${g.globalCooldown}=0`,
+    sh.declareInt(g.globalCooldown, 0),
     sh.trigger(
       `when(${g.globalCooldown}==1)`,
       `wait:${context.globalHostilesCooldown};`,
@@ -200,11 +200,11 @@ function creatureSpawnScript(
     ]).join(" "),
 
     // Declare variables
-    `int ${v.trip}=2`,
-    `int ${v.hold}=0`,
-    `int ${v.firedCount}=0`,
+    sh.declareInt(v.trip, 2),
+    sh.declareInt(v.hold, 0),
+    sh.declareInt(v.firedCount, 0),
     !!opts.needCrystals?.increment &&
-      `int ${v.needCrystals}=${opts.needCrystals.base}`,
+      sh.declareInt(v.needCrystals, opts.needCrystals.base),
 
     // Enable
     ...armTriggers,
@@ -233,7 +233,7 @@ function creatureSpawnScript(
     !once &&
       opts.retriggerMode === "hoard" &&
       scriptFragment(
-        `int ${v.retrip}=0`,
+        sh.declareInt(v.retrip, 0),
         ...plan.innerPearl[0].map(
           (point) =>
             `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.retrip}+=1]`,

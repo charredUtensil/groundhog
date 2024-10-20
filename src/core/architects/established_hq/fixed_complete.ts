@@ -14,12 +14,7 @@ import {
   ALL_BUILDINGS,
 } from "../../models/building";
 import { gObjectives } from "../utils/objectives";
-import {
-  declareStringFromLore,
-  EventChainLine,
-  mkVars,
-  scriptFragment,
-} from "../utils/script";
+import { EventChainLine, mkVars, scriptFragment } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 const T0_BUILDINGS = [
@@ -71,15 +66,11 @@ export const FC_BASE: Pick<
           (bt) => `disable:${bt.id};` satisfies EventChainLine,
         ),
       ),
-      declareStringFromLore(
-        cavern,
-        LoreDie.failureBaseDestroyed,
-        gFCHQ.msgLose,
-        FAILURE_BASE_DESTROYED,
-        {},
-        {},
-      ),
-      `int ${gFCHQ.wasBaseDestroyed}=0`,
+      sh.declareString(gFCHQ.msgLose, {
+        die: LoreDie.failureBaseDestroyed,
+        pg: FAILURE_BASE_DESTROYED,
+      }),
+      sh.declareInt(gFCHQ.wasBaseDestroyed, 0),
       `if(${TOOL_STORE.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
       `if(${POWER_STATION.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
       `if(${SUPPORT_STATION.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,

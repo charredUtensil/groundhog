@@ -44,7 +44,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
 
     return scriptFragment(
       `# P${plan.id}: Fissure (Secret Tunnel)`,
-      `int ${v.tripCount}=0`,
+      sh.declareInt(v.tripCount, 0),
       ...discoveryPoints.map(
         (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
       ),

@@ -5,7 +5,7 @@ import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
-import { declareStringFromLore, mkVars, scriptFragment } from "./utils/script";
+import { mkVars, scriptFragment } from "./utils/script";
 import { SUPPORT_STATION } from "../models/building";
 import { Hardness, Tile } from "../models/tiles";
 import {
@@ -167,14 +167,10 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     // Acknowledge the construction of a Support Station.
     return scriptFragment(
       "# Globals: Nomads, no HQ",
-      declareStringFromLore(
-        cavern,
-        LoreDie.nomadsSettled,
-        gNomads.messageBuiltBase,
-        NOMADS_SETTLED,
-        {},
-        {},
-      ),
+      sh.declareString(gNomads.messageBuiltBase, {
+        die: LoreDie.nomadsSettled,
+        pg: NOMADS_SETTLED,
+      }),
       `if(${SUPPORT_STATION.id}.new)[msg:${gNomads.messageBuiltBase}]`,
     );
   },

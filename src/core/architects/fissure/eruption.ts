@@ -60,7 +60,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
 
     return scriptFragment(
       `# P${plan.id}: Fissure (Eruption)`,
-      `int ${v.tripCount}=0`,
+      sh.declareInt(v.tripCount, 0),
       ...eps.map(
         (pos) =>
           `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,

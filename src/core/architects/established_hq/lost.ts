@@ -8,7 +8,6 @@ import {
   scriptFragment,
   mkVars,
   transformPoint,
-  declareStringFromLore,
 } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
 
@@ -36,8 +35,8 @@ const LOST_BASE: Pick<
     }
     return [{ pos, priority: DzPriorities.OBJECTIVE }];
   },
-  scriptGlobals: () =>
-    scriptFragment("# Globals: Lost HQ", `int ${gLostHq.foundHq}=0`),
+  scriptGlobals: ({ sh }) =>
+    scriptFragment("# Globals: Lost HQ", sh.declareInt(gLostHq.foundHq, 0)),
   script({ cavern, plan, sh }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
@@ -54,14 +53,10 @@ const LOST_BASE: Pick<
     return scriptFragment(
       `# P${plan.id}: Lost HQ`,
       shouldPanMessage &&
-        declareStringFromLore(
-          cavern,
-          LoreDie.foundHq,
-          v.messageDiscover,
-          FOUND_HQ,
-          {},
-          {},
-        ),
+        sh.declareString(v.messageDiscover, {
+          die: LoreDie.foundHq,
+          pg: FOUND_HQ,
+        }),
       sh.trigger(
         `if(change:${transformPoint(cavern, discoPoint)})`,
         shouldPanMessage && `msg:${v.messageDiscover};`,

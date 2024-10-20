@@ -109,7 +109,7 @@ const BASE: PartialArchitect<Metadata> = {
     return scriptFragment(
       `# P${plan.id}: Fissure (Boss Battle)`,
       `creature ${v.boss}=${boss.id}`,
-      `int ${v.tripCount}=0`,
+      sh.declareInt(v.tripCount, 0),
       ...spokes.flatMap((spoke) =>
         spoke
           .filter(

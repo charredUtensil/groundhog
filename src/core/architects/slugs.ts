@@ -12,7 +12,6 @@ import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import {
-  declareStringFromLore,
   DzPriorities,
   mkVars,
   scriptFragment,
@@ -75,14 +74,10 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
 
     return scriptFragment(
       `# P${plan.id}: Slug Nest`,
-      declareStringFromLore(
-        cavern,
-        LoreDie.foundSlugNest,
-        v.messageDiscover,
-        FOUND_SLUG_NEST,
-        {},
-        {},
-      ),
+      sh.declareString(v.messageDiscover, {
+        die: LoreDie.foundSlugNest,
+        pg: FOUND_SLUG_NEST,
+      }),
       sh.trigger(
         `if(change:${transformPoint(cavern, discoPoint)})`,
         `msg:${v.messageDiscover};`,

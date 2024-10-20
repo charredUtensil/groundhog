@@ -24,7 +24,6 @@ import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import {
-  declareStringFromLore,
   DzPriorities,
   eventChain,
   mkVars,
@@ -245,20 +244,16 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       { pos: minersPoint, priority: DzPriorities.OBJECTIVE },
     ];
   },
-  scriptGlobals({ cavern }) {
+  scriptGlobals({ cavern, sh }) {
     const { lostMinerCaves } = countLostMiners(cavern);
     return scriptFragment(
       `# Globals: Lost Miners`,
-      `int ${gLostMiners.remainingCaves}=${lostMinerCaves}`,
-      `int ${gLostMiners.done}=0`,
-      declareStringFromLore(
-        cavern,
-        LoreDie.foundAllLostMiners,
-        gLostMiners.messageFoundAll,
-        FOUND_ALL_LOST_MINERS,
-        {},
-        {},
-      ),
+      sh.declareInt(gLostMiners.remainingCaves, lostMinerCaves),
+      sh.declareInt(gLostMiners.done, 0),
+      sh.declareString(gLostMiners.messageFoundAll, {
+        die: LoreDie.foundAllLostMiners,
+        pg: FOUND_ALL_LOST_MINERS,
+      }),
       eventChain(
         gLostMiners.onFoundAll,
         `${gObjectives.met}+=1;`,
@@ -296,20 +291,18 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
     return scriptFragment(
       `# P${plan.id}: Lost Miners`,
       shouldMessageOnMiners &&
-        declareStringFromLore(
-          cavern,
+        sh.declareString(v.msgFoundMiners, {
           rng,
-          v.msgFoundMiners,
-          FOUND_LOST_MINERS,
-          {
+          pg: FOUND_LOST_MINERS,
+          state: {
             foundMinersOne: plan.metadata.minersCount <= 1,
             foundMinersTogether: plan.metadata.minersCount > 1,
           },
-          {
+          formatVars: {
             foundMinersCount: spellNumber(plan.metadata.minersCount),
           },
-        ),
-      `int ${v.wasFound}=0`,
+        }),
+      sh.declareInt(v.wasFound, 0),
       sh.trigger(
         `if(change:${transformPoint(cavern, minersPoint)})`,
         shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
@@ -323,16 +316,13 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       ),
       shouldPanMessageOnBreadcrumb &&
         scriptFragment(
-          declareStringFromLore(
-            cavern,
+          sh.declareString(v.msgFoundBreadcrumb, {
             rng,
-            v.msgFoundBreadcrumb,
-            FOUND_LM_BREADCRUMB,
-            {},
-            {
+            pg: FOUND_LM_BREADCRUMB,
+            formatVars: {
               vehicleName: breadcrumb!.template.name,
             },
-          ),
+          }),
           sh.trigger(
             `if(change:${transformPoint(cavern, breadcrumbPoint)})`,
             `((${v.wasFound}>0))return;`,
