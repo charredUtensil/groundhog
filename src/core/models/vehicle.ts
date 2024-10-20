@@ -25,7 +25,7 @@ export class VehicleTemplate {
   readonly kind: "land" | "sea" | "air";
   readonly crystals: number;
   readonly upgrades: readonly Upgrade[];
-  readonly zOffset: number; 
+  readonly zOffset: number;
   constructor(
     id: string,
     name: string,
@@ -59,7 +59,7 @@ export const HOVER_SCOUT = new VehicleTemplate(
   "land",
   1,
   ["UpEngine"],
-  0.990,
+  0.99,
 );
 export const SMALL_DIGGER = new VehicleTemplate(
   "VehicleSmallDigger_C",
@@ -211,7 +211,7 @@ export function serializeVehicle(
       position: vehicle,
       tileOffset,
       heightMap,
-      entityOffset: {z: vehicle.template.zOffset},
+      entityOffset: { z: vehicle.template.zOffset },
     }),
     vehicle.upgrades.length &&
       `upgrades=${vehicle.upgrades.map((u) => `${u}/`).join("")}`,

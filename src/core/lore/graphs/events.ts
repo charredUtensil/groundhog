@@ -269,3 +269,18 @@ export const FAILURE_BASE_DESTROYED = phraseGraph<State>(
       .then(end);
   },
 );
+
+export const BOSS_ENEMY_DEFEATED = phraseGraph<State>(
+  "Boss Enemy Defeated",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(
+        "Good work!",
+        "Your Rock Raiders made short work of that ${enemy}.",
+        "That's a relief!",
+        "I was worried for a minute there.",
+      )
+      .then(skip, "")
+      .then(end);
+  },
+);

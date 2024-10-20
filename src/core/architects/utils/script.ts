@@ -25,11 +25,14 @@ export function transformPoint(
   return `${y - cavern.top},${x - cavern.left}`;
 }
 
-type Falsy = false | null | undefined;
+type Falsy = "" | false | null | undefined;
+type ScriptLine = string | Falsy;
 export type EventChainLine = `${string};` | Falsy;
 
-export function scriptFragment(...rest: (string | Falsy)[]) {
-  return rest.filter((s) => s).join("\n");
+export function scriptFragment(...rest: EventChainLine[]): `${string};` | "";
+export function scriptFragment(...rest: ScriptLine[]): string;
+export function scriptFragment(...rest: ScriptLine[]) {
+  return rest.filter((s) => s).join("\n") as any;
 }
 
 export function eventChain(name: string, ...rest: EventChainLine[]) {

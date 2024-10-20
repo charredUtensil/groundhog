@@ -1,6 +1,7 @@
 import { PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
 import { filterTruthy } from "../../common/utils";
+import { Architect } from "../../models/architect";
 import {
   CreatureTemplate,
   SLIMY_SLUG,
@@ -34,30 +35,7 @@ type CreatureSpawnerArgs = {
   readonly waveSize?: number;
 };
 
-const STATE = {
-  /** This spawner is deactivated and can't be reactivated. */
-  EXHAUSTED: 0,
-  /** This spawner has not been activated yet. */
-  INITIAL: 1,
-  /**
-   * When the cooldown time ends, this spawner will be exhausted.
-   * The spawner may be promoted back to COOLDOWN before this time is up.
-   */
-  AWAITING_REARM: 2,
-  /** When the cooldown time ends, this spawner will be re-armed. */
-  COOLDOWN: 3,
-  /** This spawner is ready to activate. */
-  ARMED: 4,
-  /** This spawner is ready to activate, ignoring global cooldown. */
-  ARMED_PRIORITY: 5,
-} as const;
-
-const RETRIGGER_MODES = {
-  automatic: { afterTriggerState: STATE.COOLDOWN },
-  hoard: { afterTriggerState: STATE.AWAITING_REARM },
-} as const;
-
-export type RetriggerMode = keyof typeof RETRIGGER_MODES;
+export type RetriggerMode = "automatic" | "hoard";
 
 type Emerge = {
   readonly x: number;
@@ -65,7 +43,7 @@ type Emerge = {
   readonly radius: number;
 };
 
-const g = mkVars("gCreatures", ["armThreshold"]);
+const g = mkVars("gCreatures", ["globalCooldown"]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
@@ -119,23 +97,25 @@ export function creatureSpawnGlobals({
 }) {
   if (
     !(context.hasMonsters || context.hasSlugs) ||
-    context.globalCreatureDelay <= 0
+    context.globalHostilesCooldown <= 0
   ) {
     return undefined;
   }
   return scriptFragment(
     "# Globals: Creatures",
-    `int ${g.armThreshold}=${STATE.ARMED}`,
+    `int ${g.globalCooldown}=0`,
     sh.trigger(
-      `when(${g.armThreshold}>${STATE.ARMED})`,
-      `wait:${context.globalCreatureDelay};`,
-      `${g.armThreshold}=${STATE.ARMED};`,
+      `when(${g.globalCooldown}==1)`,
+      `wait:${context.globalHostilesCooldown};`,
+      `${g.globalCooldown}=0;`,
     ),
   );
 }
 
+type ScriptArgs = Parameters<NonNullable<Architect<any>["script"]>>[0];
+
 export function monsterSpawnScript(
-  args: { cavern: PreprogrammedCavern; plan: Plan<any> },
+  args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -148,7 +128,7 @@ export function monsterSpawnScript(
 }
 
 export function slugSpawnScript(
-  args: { cavern: PreprogrammedCavern; plan: Plan<any> },
+  args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
   return creatureSpawnScript(args, {
@@ -162,26 +142,30 @@ export function slugSpawnScript(
 }
 
 function creatureSpawnScript(
-  { cavern, plan }: { cavern: PreprogrammedCavern; plan: Plan<any> },
+  { cavern, plan, sh }: ScriptArgs,
   opts: CreatureSpawnerArgs,
 ) {
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
     "doArm",
-    "doRetrigger",
-    "doSpawn",
     "needCrystals",
-    "state",
-    "triggerCount",
+    "trip",
+    "retrip",
+    "hold",
+    "firedCount",
   ]);
 
-  const waveSize =
+  const waveSize = Math.min(
     opts.waveSize ??
-    opts.rng.betaInt({
-      a: 5,
-      b: 2,
-      min: 1,
-      max: (opts.meanWaveSize ?? plan.monsterWaveSize) * 1.25,
-    });
+      opts.rng.betaInt({
+        a: 5,
+        b: 2,
+        min: 1,
+        max: (opts.meanWaveSize ?? plan.monsterWaveSize) * 1.25,
+      }),
+    cavern.context.globalHostilesCap > 0
+      ? cavern.context.globalHostilesCap
+      : Infinity,
+  );
   const delay = { min: 2 / waveSize, max: 15 / waveSize };
   const spawnRate = opts.spawnRate ?? plan.monsterSpawnRate;
   const meanCooldown = (60 * waveSize) / spawnRate;
@@ -203,7 +187,6 @@ function creatureSpawnScript(
   const once = opts.maxTriggerCount === 1;
   const triggerPoints = opts.triggerPoints ?? getTriggerPoints(cavern, plan);
 
-  const needCountTriggerEvents = !once && opts.maxTriggerCount !== undefined;
   const needTriggerPoints = !(once && opts.triggerOnFirstArmed);
 
   return scriptFragment(
@@ -212,14 +195,15 @@ function creatureSpawnScript(
       `# x${waveSize}`,
       once ? "once" : `/${meanCooldown.toFixed()}s`,
       !once &&
-        opts.needCrystals?.increment &&
+        !!opts.needCrystals?.increment &&
         `/${opts.needCrystals.increment}EC`,
     ]).join(" "),
 
     // Declare variables
-    `int ${v.state}=${STATE.INITIAL}`,
-    needCountTriggerEvents && `int ${v.triggerCount}=0`,
-    opts.needCrystals?.increment !== undefined &&
+    `int ${v.trip}=2`,
+    `int ${v.hold}=0`,
+    `int ${v.firedCount}=0`,
+    !!opts.needCrystals?.increment &&
       `int ${v.needCrystals}=${opts.needCrystals.base}`,
 
     // Enable
@@ -228,34 +212,58 @@ function creatureSpawnScript(
       armEvent,
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-      armTriggers.length === 1
-        ? `${v.state}=${STATE.ARMED_PRIORITY};`
-        : `((${v.state}>${STATE.INITIAL}))[return][${v.state}=${STATE.ARMED_PRIORITY}];`,
-      opts.triggerOnFirstArmed && `${v.doSpawn};`,
+      (() => {
+        const set = `${v.trip}=${opts.triggerOnFirstArmed ? 1 : 0}`;
+        return armTriggers.length > 1
+          ? `((${v.firedCount}==0))[return][${set}];`
+          : `${set};`;
+      })(),
     ),
 
     // Do the actual spawning.
     ...(needTriggerPoints
       ? triggerPoints.map(
           (point) =>
-            `when(enter:${transformPoint(cavern, point)})[${v.doSpawn}]`,
+            `when(enter:${transformPoint(cavern, point)})[${v.trip}+=1]`,
         )
       : []),
-    eventChain(
-      v.doSpawn,
 
-      // Check conditions to reject.
-      opts.needCrystals &&
-        `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
-      `((${v.state}<${cavern.context.globalCreatureDelay > 0 ? g.armThreshold : STATE.ARMED}))[return][${v.state}=${RETRIGGER_MODES[opts.retriggerMode].afterTriggerState}];`,
-      cavern.context.globalCreatureDelay > 0 &&
-        `${g.armThreshold}=${STATE.ARMED_PRIORITY};`,
+    // Hoard mode must be "manually" re-armed by a monster visiting the hoard
+    // within cooldown.
+    !once &&
+      opts.retriggerMode === "hoard" &&
+      scriptFragment(
+        `int ${v.retrip}=0`,
+        ...plan.innerPearl[0].map(
+          (point) =>
+            `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.retrip}+=1]`,
+        ),
+      ),
 
-      needCountTriggerEvents && `${v.triggerCount}+=1;`,
-      opts.needCrystals?.increment !== undefined &&
+    sh.trigger(
+      `when(${v.trip}==1)`,
+      `${v.hold}=0;`,
+
+      // First check things that are partial blockers
+      cavern.context.globalHostilesCooldown > 0 &&
+        `((${g.globalCooldown}>0))${v.hold}=1;`,
+      cavern.context.globalHostilesCap > 0 &&
+        `((hostiles>=${cavern.context.globalHostilesCap - waveSize}))${v.hold}=1;`,
+
+      // Next check things that are total blockers
+      !!opts.needCrystals &&
+        `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))${v.hold}=2;`,
+
+      `((${v.firedCount}==0))${v.hold}-=1;`,
+      `((${v.hold}>0))[${v.trip}=0][${v.firedCount}+=1];`,
+    ),
+    sh.trigger(
+      `when(${v.firedCount}>0)`,
+      cavern.context.globalHostilesCooldown > 0 && `${g.globalCooldown}+=1;`,
+      !!opts.needCrystals?.increment &&
         `${v.needCrystals}=crystals+${opts.needCrystals.increment};`,
 
-      // Trigger all the spawns.
+      // Do all the spawns.
       ...emerges.flatMap(
         (emerge) =>
           [
@@ -264,32 +272,16 @@ function creatureSpawnScript(
           ] satisfies EventChainLine[],
       ),
 
-      // Update the counter.
-      once
-        ? `${v.state}=${STATE.EXHAUSTED};`
-        : opts.maxTriggerCount !== undefined &&
-            `((${v.triggerCount}>=${opts.maxTriggerCount}))${v.state}=${STATE.EXHAUSTED};`,
-      // Wait for the cooldown period.
+      // Cooldown and reset
       !once &&
-        `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
-      // Re-arm if in cooldown.
-      !once &&
-        `((${v.state}>=${STATE.COOLDOWN}))[${v.state}=${STATE.ARMED}][${v.state}=${STATE.EXHAUSTED}];`,
+        scriptFragment(
+          opts.maxTriggerCount !== undefined &&
+            `((${v.firedCount}>=${opts.maxTriggerCount}))return;`,
+          opts.retriggerMode === "hoard" && `${v.retrip}=0;`,
+          `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
+          opts.retriggerMode === "hoard" && `((${v.retrip}==0))return;`,
+          `${v.trip}=0;`,
+        ),
     ),
-
-    // Hoard mode must be "manually" re-armed by a monster visiting the hoard
-    // within cooldown.
-    !once &&
-      opts.retriggerMode === "hoard" &&
-      scriptFragment(
-        ...plan.innerPearl[0].map(
-          (point) =>
-            `when(enter:${transformPoint(cavern, point)},${opts.creature.id})[${v.doRetrigger}]`,
-        ),
-        eventChain(
-          v.doRetrigger,
-          `((${v.state}==${STATE.AWAITING_REARM}))${v.state}=${STATE.COOLDOWN};`,
-        ),
-      ),
   );
 }

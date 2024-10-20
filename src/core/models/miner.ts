@@ -48,7 +48,7 @@ export class MinerFactory {
 }
 
 const ENTITY_OFFSET = {
-  z: 52.150
+  z: 52.15,
 } as const satisfies Partial<EntityPosition>;
 
 export function serializeMiner(

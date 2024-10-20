@@ -141,10 +141,8 @@ export function serializePosition({
   floorMethod?: "entity" | "building";
 }): string {
   const { scaleX, scaleY, scaleZ } = position;
-  const x =
-    (position.x + tx) * ENTITY_TILE_SCALE + (entityOffset?.x ?? 0);
-  const y =
-    (position.y + ty) * ENTITY_TILE_SCALE + (entityOffset?.y ?? 0);
+  const x = (position.x + tx) * ENTITY_TILE_SCALE + (entityOffset?.x ?? 0);
+  const y = (position.y + ty) * ENTITY_TILE_SCALE + (entityOffset?.y ?? 0);
   const z =
     position.z * ENTITY_TILE_SCALE +
     (entityOffset?.z ?? 0) +

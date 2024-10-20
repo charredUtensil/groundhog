@@ -23,125 +23,125 @@ export type Curve = {
 
 export type CavernContext = {
   /** The root seed for the dice box. */
-  seed: number;
+  readonly seed: number;
 
   /**
    * Which biome this map is in. Biome affects the default setting for some
    * other context values, such as how much water or lava a map has.
    */
-  biome: Biome;
+  readonly biome: Biome;
 
   /**
    * The "target" final size for the cavern.
    * The final size may be larger or smaller due to random fluctuations -
    * larger caverns will not be explicitly cropped to fit this value.
    */
-  targetSize: number;
+  readonly targetSize: number;
   /**
    * The maximum aspect ratio baseplates can have.
    */
-  baseplateMaxOblongness: number;
+  readonly baseplateMaxOblongness: number;
   /**
    * Baseplates may be at most this ratio of the target size.
    */
-  baseplateMaxRatioOfSize: number;
+  readonly baseplateMaxRatioOfSize: number;
   /**
    * Promote this many baseplates to become caves.
    * The higher this number is, the more "busy" the final map will be.
    */
-  caveCount: number;
+  readonly caveCount: number;
   /**
    * Add at most this many extra redundant paths.
    */
-  optimalAuxiliaryPathCount: number;
+  readonly optimalAuxiliaryPathCount: number;
   /**
    * Add at most this many extra redundant paths.
    */
-  randomAuxiliaryPathCount: number;
+  readonly randomAuxiliaryPathCount: number;
   /**
    * Auxiliary paths will not be chosen if they make an angle less than this
    * against another path.
    */
-  auxiliaryPathMinAngle: number;
+  readonly auxiliaryPathMinAngle: number;
   /**
    * How many plans to flood with water.
    */
-  waterPlans: number;
+  readonly waterPlans: number;
   /**
    * How many plans to flood with lava.
    */
-  lavaPlans: number;
+  readonly lavaPlans: number;
   /**
    * How many contiguous water "lakes" to generate.
    */
-  waterLakes: number;
+  readonly waterLakes: number;
   /**
    * How many contiguous lava "lakes" to generate.
    */
-  lavaLakes: number;
+  readonly lavaLakes: number;
   /**
    * How many plans will have erosion? Note that lava-flooded plans do not
    * necessarily have erosion, so this number has some overlap with that.
    */
-  erosionPlans: number;
+  readonly erosionPlans: number;
   /**
    * Does this cavern have monsters in it?
    */
-  hasMonsters: boolean;
+  readonly hasMonsters: boolean;
   /**
    * Does this cavern have slugs in it?
    */
-  hasSlugs: boolean;
+  readonly hasSlugs: boolean;
   /**
    * Does this cavern have limited air?
    */
-  hasAirLimit: boolean;
+  readonly hasAirLimit: boolean;
   /**
    * How blobby and jagged caves should be.
    * 0 results in perfectly squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves, up
    * to about 70% where caves start to get simpler and smaller.
    */
-  caveBaroqueness: number;
+  readonly caveBaroqueness: number;
   /**
    * How blobby and jagged halls should be.
    * 0 results in perfect squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged halls, up
    * to about 70% where caves start to get simpler and smaller.
    */
-  hallBaroqueness: number;
+  readonly hallBaroqueness: number;
 
   /**
    * Curve for determining how many crystals each cave will have.
    * This is roughly measured by crystals per unit of perimeter of the cave.
    */
-  caveCrystalRichness: Curve;
+  readonly caveCrystalRichness: Curve;
   /**
    * Curve for determining how many crystals each hall will have.
    * This is roughly measured by crystals per unit of perimeter of the hall.
    */
-  hallCrystalRichness: Curve;
+  readonly hallCrystalRichness: Curve;
   /**
    * Curve for determining how much additional ore each cave will have.
    * This is roughly measured by ore per unit of perimeter of the cave, and
    * does not include the 4 ore yielded by clearing rubble.
    */
-  caveOreRichness: Curve;
+  readonly caveOreRichness: Curve;
   /**
    * Curve for determining how much additional ore each hall will have.
    * This is roughly measured by ore per unit of perimeter of the hall, and
    * does not include the 4 ore yielded by clearing rubble.
    */
-  hallOreRichness: Curve;
+  readonly hallOreRichness: Curve;
 
   /**
    * How many monsters to spawn per minute in a cave, if monsters are enabled.
    */
-  monsterSpawnRate: Curve;
+  readonly monsterSpawnRate: Curve;
   /**
    * How many monsters to spawn at a time in a cave, if monsters are enabled.
    */
-  monsterWaveSize: Curve;
+  readonly monsterWaveSize: Curve;
   /**
    * Adjusts the likelihood of architects appearing.
    * Architects that are "encouraged" have their chance multiplied by a high
@@ -151,102 +151,108 @@ export type CavernContext = {
    * Note that adjusting this may cause other seemingly unrelated caves to use
    * different architects as the probabilities shift.
    */
-  architects: { [key: string]: "encourage" | "disable" };
+  readonly architects: { readonly [key: string]: "encourage" | "disable" };
   /**
    * The chance each cave will have a recharge seam. Some caves (like most
    * spawns) will always have a recharge seam.
    */
-  caveHasRechargeSeamChance: number;
+  readonly caveHasRechargeSeamChance: number;
   /** The chance each hall will have a recharge seam. */
-  hallHasRechargeSeamChance: number;
+  readonly hallHasRechargeSeamChance: number;
   /**
    * The chance each crystal placed will immediately place a seam instead,
    * assuming it is possible to do so. When this is set to 0, seams may still
    * appear since any wall with 4 or more crystals will be automatically
    * upgraded to a seam.
    */
-  caveCrystalSeamBias: number;
+  readonly caveCrystalSeamBias: number;
   /**
    * The chance each crystal placed will immediately place a seam instead,
    * assuming it is possible to do so. When this is set to 0, seams may still
    * appear since any wall with 4 or more crystals will be automatically
    * upgraded to a seam.
    */
-  hallCrystalSeamBias: number;
+  readonly hallCrystalSeamBias: number;
   /**
    * The chance each ore placed will immediately place a seam instead,
    * assuming it is possible to do so. When this is set to 0, seams may still
    * appear since any wall with 4 or more ore will be automatically
    * upgraded to a seam.
    */
-  caveOreSeamBias: number;
+  readonly caveOreSeamBias: number;
   /**
    * The chance each ore placed will immediately place a seam instead,
    * assuming it is possible to do so. When this is set to 0, seams may still
    * appear since any wall with 4 or more ore will be automatically
    * upgraded to a seam.
    */
-  hallOreSeamBias: number;
+  readonly hallOreSeamBias: number;
   /**
    * The chance each normal cave will have a slug hole, regardless of whether
    * Slimy Slugs are enabled in this level.
    */
-  caveHasSlugHoleChance: number;
+  readonly caveHasSlugHoleChance: number;
   /**
    * The chance each normal hall will have a slug hole, regardless of whether
    * Slimy Slugs are enabled in this level.
    */
-  hallHasSlugHoleChance: number;
+  readonly hallHasSlugHoleChance: number;
   /** The chance each cave will have landslides at all. */
-  caveHasLandslidesChance: number;
+  readonly caveHasLandslidesChance: number;
   /** The chance each hall will have landslides at all. */
-  hallHasLandslidesChance: number;
+  readonly hallHasLandslidesChance: number;
   /** The range of cooldowns to use in caves that have landslides. */
-  caveLandslideCooldownRange: { min: number; max: number };
+  readonly caveLandslideCooldownRange: {
+    readonly min: number;
+    readonly max: number;
+  };
   /** The range of cooldowns to use in halls that have landslides. */
-  hallLandslideCooldownRange: { min: number; max: number };
+  readonly hallLandslideCooldownRange: {
+    readonly min: number;
+    readonly max: number;
+  };
   /**
    * Approximately what portion of all the Energy Crystals available in the
    * level should be used as the goal, if there is a crystal goal.
    * For most Rock Raiders levels, this tends to be about 20%.
    */
-  crystalGoalRatio: number;
+  readonly crystalGoalRatio: number;
   /**
    * The heightmap will try to generate caves at a height that is +/- this
    * number. If this is set to 0, height generation will be skipped and the
    * entire map will be flat.
    */
-  heightTargetRange: number;
+  readonly heightTargetRange: number;
   /**
    * The number of passes to spread cave target heights into the void.
    */
-  stratascosity: number;
+  readonly stratascosity: number;
   /**
    * How closely the strataflux step should adhere to target heights.
    */
-  strataplanity: number;
+  readonly strataplanity: number;
   /**
    * The maximum height difference between two points on the side of any tile
    * that is part of an arbitrary cave. Some tiles (like water) and caves (like
    * those intended to be built in) will be further restricted.
    */
-  caveMaxSlope: number;
+  readonly caveMaxSlope: number;
   /**
    * The maximum height difference between two points on the side of any tile
    * that is part of an arbitrary hall. Some tiles (like water) will be further
    * restricted.
    */
-  hallMaxSlope: number;
+  readonly hallMaxSlope: number;
   /**
    * The maximum height difference between two points on the side of any tile
    * that is outside the playable area - that is, undrillable solid rock.
    */
-  voidMaxSlope: number;
+  readonly voidMaxSlope: number;
   /**
    * The maximum height difference between two points on the side of any tile
    * that is out of play on the border of the map.
    */
-  borderMaxSlope: number;
+  readonly borderMaxSlope: number;
   /**
    * GroundHog attempts to calculate how much air is needed to build a Support
    * Station by playing perfectly through a (rough) simulation of the level.
@@ -254,14 +260,19 @@ export type CavernContext = {
    * this simulation - but that's not going to be fun. Multiply the estimate by
    * the safety factor to get the final air number.
    */
-  airSafetyFactor: number;
+  readonly airSafetyFactor: number;
   /**
    * When a monster or slug spawn is triggered, wait at least this many seconds
    * before another spawn can be triggered anywhere in the cavern. This is to
    * mitigate instances where a single vehicle speeds through a bunch of
    * caves and sending a wave of like 17 monsters.
    */
-  globalCreatureDelay: number;
+  readonly globalHostilesCooldown: number;
+  /**
+   * Discourage more than this many monsters or slugs from spawning in the
+   * level at the same time.
+   */
+  readonly globalHostilesCap: number;
 };
 
 export type PartialCavernContext = Partial<CavernContext> &
@@ -306,7 +317,8 @@ const STANDARD_DEFAULTS = {
   hallLandslideCooldownRange: { min: 30, max: 150 },
   crystalGoalRatio: 0.2,
   airSafetyFactor: 2,
-  globalCreatureDelay: 0,
+  globalHostilesCooldown: 0,
+  globalHostilesCap: 15,
 } as const satisfies Partial<CavernContext>;
 
 const DEFAULTS_FOR_BIOME = {
