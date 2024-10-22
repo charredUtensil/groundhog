@@ -8,10 +8,10 @@ import { Tile } from "../../models/tiles";
 import { plotLine, Point } from "../../common/geometry";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { placeErosion } from "../utils/hazards";
-import { FISSURE_BASE, gFissure, METADATA } from "./base";
+import { SEISMIC_BASE, gSeismic, METADATA } from "./base";
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}FE`, [`doSpawn`, "tripCount"]);
+  mkVars(`p${plan.id}SE`, [`doSpawn`, "tripCount"]);
 
 function getEruptPoints(
   cavern: PreprogrammedCavern,
@@ -50,7 +50,7 @@ function getEruptPoints(
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
-  ...FISSURE_BASE,
+  ...SEISMIC_BASE,
   placeErosion: (args) => placeErosion(25, 2, args),
   script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
@@ -59,7 +59,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const trips = 20;
 
     return scriptFragment(
-      `# P${plan.id}: Fissure (Eruption)`,
+      `# P${plan.id}: Seismic (Eruption)`,
       sh.declareInt(v.tripCount, 0),
       ...eps.map(
         (pos) =>
@@ -73,7 +73,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `if(${v.tripCount}>=${tripsForeshadow})`,
         `wait:random(5)(20);`,
         `shake:1;`,
-        `${gFissure.showMessage}+=1;`,
+        `${gSeismic.showMessage}+=1;`,
       ),
       sh.trigger(
         `if(${v.tripCount}>=${trips})`,
@@ -100,7 +100,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
 
 const ERUPTION = [
   {
-    name: "Fissure.Eruption",
+    name: "Seismic.Eruption",
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, grow: 2 },
@@ -121,7 +121,7 @@ const ERUPTION = [
       plan.path.baseplates.length === 2 &&
       !plan.intersects.some(
         (_, i) =>
-          plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === "fissure",
+          plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === "seismic",
       ) &&
       1,
   },

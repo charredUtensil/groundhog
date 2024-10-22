@@ -26,7 +26,7 @@ export function transformPoint(
 }
 
 type Falsy = "" | false | null | undefined;
-type ScriptLine = string | Falsy;
+export type ScriptLine = string | Falsy;
 export type EventChainLine = `${string};` | Falsy;
 
 export function scriptFragment(...rest: EventChainLine[]): `${string};` | "";

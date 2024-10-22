@@ -9,7 +9,7 @@ import {
 } from "../utils/script";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
-import { FISSURE_BASE, gFissure } from "./base";
+import { SEISMIC_BASE, gSeismic } from "./base";
 import { monsterForBiome } from "../../models/creature";
 import { randomlyInTile } from "../../models/position";
 import { PearledPlan } from "../../transformers/01_planning/06_pearl";
@@ -19,11 +19,11 @@ import { filterTruthy } from "../../common/utils";
 import { Tile } from "../../models/tiles";
 
 type Metadata = {
-  readonly tag: "fissure";
+  readonly tag: "seismic";
 };
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}FBB`, [`boss`, `onTrip`, `doSpawn`, "tripCount"]);
+  mkVars(`p${plan.id}SBB`, [`boss`, `onTrip`, `doSpawn`, "tripCount"]);
 
 function findSpokes(
   cavern: FoundationPlasticCavern,
@@ -56,7 +56,7 @@ function findSpokes(
 
 const BASE: PartialArchitect<Metadata> = {
   ...DefaultCaveArchitect,
-  ...FISSURE_BASE,
+  ...SEISMIC_BASE,
   placeBuildings: ({ plan, tiles }) => {
     for (let i = 0; i < plan.pearlRadius; i++) {
       let found = false;
@@ -107,7 +107,7 @@ const BASE: PartialArchitect<Metadata> = {
     let totalTrips = 0;
 
     return scriptFragment(
-      `# P${plan.id}: Fissure (Boss Battle)`,
+      `# P${plan.id}: Seismic (Boss Battle)`,
       `creature ${v.boss}=${boss.id}`,
       sh.declareInt(v.tripCount, 0),
       ...spokes.flatMap((spoke) =>
@@ -126,7 +126,7 @@ const BASE: PartialArchitect<Metadata> = {
         `if(${v.tripCount}>=${Math.ceil(totalTrips / 4)})`,
         `wait:random(5)(30);`,
         `shake:1;`,
-        `${gFissure.showMessage}+=1;`,
+        `${gSeismic.showMessage}+=1;`,
         `wait:random(15)(60);`,
         `shake:2;`,
         `pan:${transformPoint(cavern, [Math.floor(boss.x), Math.floor(boss.y)])};`,
@@ -179,7 +179,7 @@ const BASE: PartialArchitect<Metadata> = {
 
 const BOSS_BATTLE = [
   {
-    name: "Fissure.BossBattle",
+    name: "Seismic.BossBattle",
     ...BASE,
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
@@ -194,7 +194,7 @@ const BOSS_BATTLE = [
       cavern.context.hasMonsters &&
       plan.pearlRadius >= 5 &&
       plan.path.baseplates.length === 1 &&
-      !plan.intersects.some((_, i) => plans[i].metadata?.tag === "fissure") &&
+      !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&
       0.1,
   },
 ] as const satisfies readonly Architect<Metadata>[];

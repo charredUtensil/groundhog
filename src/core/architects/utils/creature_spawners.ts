@@ -2,6 +2,7 @@ import { PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
 import { filterTruthy } from "../../common/utils";
 import { Architect } from "../../models/architect";
+import { SUPPORT_STATION } from "../../models/building";
 import {
   CreatureTemplate,
   SLIMY_SLUG,
@@ -27,6 +28,7 @@ type CreatureSpawnerArgs = {
   readonly maxTriggerCount?: number;
   readonly meanWaveSize?: number;
   readonly needCrystals?: { base: number; increment?: number };
+  readonly needStableAir?: boolean;
   readonly retriggerMode: RetriggerMode;
   readonly rng: PseudorandomStream;
   readonly spawnRate?: number;
@@ -43,7 +45,7 @@ type Emerge = {
   readonly radius: number;
 };
 
-const g = mkVars("gCreatures", ["globalCooldown"]);
+const g = mkVars("gCreatures", ["globalCooldown", "airMiners"]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
@@ -89,26 +91,32 @@ function getTriggerPoints(
 }
 
 export function creatureSpawnGlobals({
-  cavern: { context },
+  cavern,
   sh,
 }: {
   cavern: PreprogrammedCavern;
   sh: ScriptHelper;
 }) {
-  if (
-    !(context.hasMonsters || context.hasSlugs) ||
-    context.globalHostilesCooldown <= 0
-  ) {
+  if (!cavern.context.hasMonsters && !cavern.context.hasSlugs) {
     return undefined;
   }
   return scriptFragment(
     "# Globals: Creatures",
-    sh.declareInt(g.globalCooldown, 0),
-    sh.trigger(
-      `when(${g.globalCooldown}==1)`,
-      `wait:${context.globalHostilesCooldown};`,
-      `${g.globalCooldown}=0;`,
-    ),
+    scriptFragment(
+      cavern.context.globalHostilesCooldown > 0 && scriptFragment(
+        sh.declareInt(g.globalCooldown, 0),
+        sh.trigger(
+          `when(${g.globalCooldown}==1)`,
+          `wait:${cavern.context.globalHostilesCooldown};`,
+          `${g.globalCooldown}=0;`,
+        ),
+      ),
+      cavern.oxygen && scriptFragment(
+        sh.declareInt(g.airMiners, 0),
+        `if(${SUPPORT_STATION.id}.poweron)[${g.airMiners}+=10]`,
+        `if(${SUPPORT_STATION.id}.poweroff)[${g.airMiners}-=10]`,
+      ),
+    ) || '# n/a\n',
   );
 }
 
@@ -195,8 +203,12 @@ function creatureSpawnScript(
       `# x${waveSize}`,
       once ? "once" : `/${meanCooldown.toFixed()}s`,
       !once &&
-        !!opts.needCrystals?.increment &&
-        `/${opts.needCrystals.increment}EC`,
+        opts.needCrystals && [
+          opts.needCrystals.base,
+          opts.needCrystals.increment ? `+/${opts.needCrystals.increment}` : '',
+          'EC'
+        ].join(''),
+      (opts.maxTriggerCount ?? 0) > 1 && `${opts.maxTriggerCount} max`,
     ]).join(" "),
 
     // Declare variables
@@ -249,12 +261,16 @@ function creatureSpawnScript(
         `((${g.globalCooldown}>0))${v.hold}=1;`,
       cavern.context.globalHostilesCap > 0 &&
         `((hostiles>=${cavern.context.globalHostilesCap - waveSize}))${v.hold}=1;`,
+      cavern.oxygen && opts.needStableAir &&
+        `((${g.airMiners}<miners))${v.hold}=1;`,
 
       // Next check things that are total blockers
       !!opts.needCrystals &&
         `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))${v.hold}=2;`,
 
-      `((${v.firedCount}==0))${v.hold}-=1;`,
+      // If there are no trigger points, this can't be fired again.
+      !needTriggerPoints && `((${v.firedCount}==0))${v.hold}-=1;`,
+
       `((${v.hold}>0))[${v.trip}=0][${v.firedCount}+=1];`,
     ),
     sh.trigger(

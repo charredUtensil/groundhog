@@ -6,44 +6,44 @@ import { LoreDie } from "../../lore/lore";
 import { Architect, BaseMetadata } from "../../models/architect";
 import { mkVars, scriptFragment } from "../utils/script";
 
-export const METADATA = { tag: "fissure" } as const satisfies BaseMetadata;
+export const METADATA = { tag: "seismic" } as const satisfies BaseMetadata;
 
-export const gFissure = mkVars("gFissure", ["showMessage", "msg"]);
+export const gSeismic = mkVars("gSeismic", ["showMessage", "msg"]);
 
-export const FISSURE_BASE: Pick<
+export const SEISMIC_BASE: Pick<
   Architect<typeof METADATA>,
   "prime" | "scriptGlobals"
 > = {
   prime: () => METADATA,
   scriptGlobals: ({ cavern, sh }) => {
     const rng = cavern.dice.lore(LoreDie.seismicForeshadow);
-    const fissureCount = cavern.plans.reduce(
-      (r, plan) => (plan.metadata?.tag === "fissure" ? r + 1 : r),
+    const seismicCount = cavern.plans.reduce(
+      (r, plan) => (plan.metadata?.tag === "seismic" ? r + 1 : r),
       0,
     );
     return scriptFragment(
-      "# Globals: Fissure",
-      sh.declareInt(gFissure.showMessage, 0),
-      sh.declareString(`${gFissure.msg}1`, {
+      "# Globals: Seismic",
+      sh.declareInt(gSeismic.showMessage, 0),
+      sh.declareString(`${gSeismic.msg}1`, {
         rng,
         pg: SEISMIC_FORESHADOW,
       }),
-      `if(${gFissure.showMessage}==1)[msg:${gFissure.msg}1]`,
-      fissureCount > 1 &&
+      `if(${gSeismic.showMessage}==1)[msg:${gSeismic.msg}1]`,
+      seismicCount > 1 &&
         scriptFragment(
-          sh.declareString(`${gFissure.msg}2`, {
+          sh.declareString(`${gSeismic.msg}2`, {
             rng,
             pg: SEISMIC_FORESHADOW_AGAIN,
           }),
-          `if(${gFissure.showMessage}==2)[msg:${gFissure.msg}2]`,
+          `if(${gSeismic.showMessage}==2)[msg:${gSeismic.msg}2]`,
         ),
-      fissureCount > 2 &&
+      seismicCount > 2 &&
         scriptFragment(
-          sh.declareString(`${gFissure.msg}3`, {
+          sh.declareString(`${gSeismic.msg}3`, {
             rng,
             pg: SEISMIC_FORESHADOW_AGAIN,
           }),
-          `when(${gFissure.showMessage}>=3)[msg:${gFissure.msg}3]`,
+          `when(${gSeismic.showMessage}>=3)[msg:${gSeismic.msg}3]`,
         ),
     );
   },

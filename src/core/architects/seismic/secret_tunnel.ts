@@ -11,7 +11,7 @@ import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
 import { Hardness, Tile } from "../../models/tiles";
-import { FISSURE_BASE, gFissure, METADATA } from "./base";
+import { SEISMIC_BASE, gSeismic, METADATA } from "./base";
 
 function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
   const used: true[] = [];
@@ -26,11 +26,11 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
 }
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}FST`, [`onTrip`, `doSpawn`, "tripCount"]);
+  mkVars(`p${plan.id}SST`, [`onTrip`, `doSpawn`, "tripCount"]);
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
-  ...FISSURE_BASE,
+  ...SEISMIC_BASE,
   script: ({ cavern, plan, sh }) => {
     const v = sVars(plan);
     const discoveryPoints = getDiscoveryPoints(cavern, plan);
@@ -43,7 +43,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const trips = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
 
     return scriptFragment(
-      `# P${plan.id}: Fissure (Secret Tunnel)`,
+      `# P${plan.id}: Seismic (Secret Tunnel)`,
       sh.declareInt(v.tripCount, 0),
       ...discoveryPoints.map(
         (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
@@ -55,7 +55,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `if(${v.tripCount}>=${trips})`,
         `wait:random(5)(30);`,
         `shake:1;`,
-        `${gFissure.showMessage}+=1;`,
+        `${gSeismic.showMessage}+=1;`,
         `wait:random(30)(150);`,
         `shake:2;`,
         `pan:${transformPoint(cavern, panTo)};`,
@@ -88,14 +88,14 @@ const BASE: PartialArchitect<typeof METADATA> = {
 
 const SECRET_TUNNEL = [
   {
-    name: "Fissure.SecretTunnel",
+    name: "Seismic.SecretTunnel",
     ...BASE,
     ...mkRough({ of: Rough.SOLID_ROCK }, { of: Rough.VOID, grow: 1 }),
     hallBid: ({ plan, plans }) =>
       !plan.fluid &&
       plan.path.kind === "auxiliary" &&
       plan.path.exclusiveSnakeDistance > 1 &&
-      !plan.intersects.some((_, i) => plans[i].metadata?.tag === "fissure") &&
+      !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&
       0.75,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];

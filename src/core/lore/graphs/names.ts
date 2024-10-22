@@ -112,6 +112,7 @@ export const NAME = phraseGraph<State>(
         "Sandstone",
         "Schist",
         "Sedimentary",
+        "Seismic",
         "Shale",
         "Silica",
         "Silt",
