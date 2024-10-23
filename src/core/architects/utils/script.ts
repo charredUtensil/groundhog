@@ -28,6 +28,7 @@ export function transformPoint(
 type Falsy = "" | false | null | undefined;
 export type ScriptLine = string | Falsy;
 export type EventChainLine = `${string};` | Falsy;
+export type Trigger = `${"if" | "when"}(${string})`;
 
 export function scriptFragment(...rest: EventChainLine[]): `${string};` | "";
 export function scriptFragment(...rest: ScriptLine[]): string;
@@ -106,7 +107,7 @@ export class ScriptHelperImpl implements ScriptHelper {
     return `string ${name}="${escapeString(strVal)}"`;
   }
 
-  trigger(condition: `${"if" | "when"}(${string})`, ...rest: EventChainLine[]) {
+  trigger(condition: Trigger, ...rest: EventChainLine[]) {
     const name = `ec${this._uid++}`;
     return `${condition}[${name}]\n${eventChain(name, ...rest)}`;
   }

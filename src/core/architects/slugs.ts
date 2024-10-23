@@ -48,10 +48,10 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
   slugSpawnScript: (args) => {
     const holeCount = getSlugHoles(args).length;
     return slugSpawnScript(args, {
+      reArmMode: 'none',
       initialCooldown: { min: 20, max: 60 },
-      maxTriggerCount: 1,
       needCrystals: { base: Math.floor(getTotalCrystals(args.cavern) / 10) },
-      triggerOnFirstArmed: true,
+      tripOnArmed: true,
       waveSize: holeCount,
     });
   },
@@ -120,7 +120,7 @@ const SLUG_HALL: PartialArchitect<undefined> = {
         base: args.plan.crystals * 2,
         increment: args.plan.crystals,
       },
-      triggerPoints: holes,
+      tripPoints: holes,
       waveSize: holes.length,
     });
   },

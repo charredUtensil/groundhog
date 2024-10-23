@@ -71,7 +71,7 @@ const HOARD: typeof BASE = {
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
       meanWaveSize: args.plan.monsterWaveSize * 1.5,
-      retriggerMode: "hoard",
+      reArmMode: "hoard",
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),

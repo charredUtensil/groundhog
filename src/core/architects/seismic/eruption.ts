@@ -67,7 +67,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       ),
       ...eps.map(
         (pos) =>
-          `if(change:${transformPoint(cavern, pos)}:${Tile.LAVA.id})[${v.tripCount}=${trips + 1}]`,
+          `if(change:${transformPoint(cavern, pos)}:${Tile.LAVA.id})[${v.tripCount}=999]`,
       ),
       sh.trigger(
         `if(${v.tripCount}>=${tripsForeshadow})`,
@@ -93,7 +93,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
   monsterSpawnScript: (args) => {
     return monsterSpawnScript(args, {
       armEvent: sVars(args.plan).doSpawn,
-      triggerOnFirstArmed: true,
+      tripOnArmed: true,
     });
   },
 };
