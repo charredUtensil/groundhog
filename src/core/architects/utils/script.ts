@@ -113,7 +113,7 @@ export class ScriptHelperImpl implements ScriptHelper {
   }
 }
 
-export enum DzPriorities {
+export enum DzPriority {
   CRITICAL = 0,
   OBJECTIVE,
   HINT,

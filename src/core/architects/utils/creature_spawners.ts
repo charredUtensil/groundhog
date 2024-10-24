@@ -53,7 +53,7 @@ type Emerge = {
   readonly radius: number;
 };
 
-const g = mkVars("gCreatures", ["globalCooldown", "airMiners"]);
+export const gCreatures = mkVars("gCreatures", ["globalCooldown", "airMiners", "anchorHold"]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
   return plan.path.baseplates.map((bp) => {
@@ -111,18 +111,19 @@ export function creatureSpawnGlobals({
     "# Globals: Creatures",
     scriptFragment(
       cavern.context.globalHostilesCooldown > 0 && scriptFragment(
-        sh.declareInt(g.globalCooldown, 0),
+        sh.declareInt(gCreatures.globalCooldown, 0),
         sh.trigger(
-          `when(${g.globalCooldown}==1)`,
+          `when(${gCreatures.globalCooldown}==1)`,
           `wait:${cavern.context.globalHostilesCooldown};`,
-          `${g.globalCooldown}=0;`,
+          `${gCreatures.globalCooldown}=0;`,
         ),
       ),
       cavern.oxygen && scriptFragment(
-        sh.declareInt(g.airMiners, 0),
-        `when(${SUPPORT_STATION.id}.poweron)[${g.airMiners}+=10]`,
-        `when(${SUPPORT_STATION.id}.poweroff)[${g.airMiners}-=10]`,
+        sh.declareInt(gCreatures.airMiners, 0),
+        `when(${SUPPORT_STATION.id}.poweron)[${gCreatures.airMiners}+=10]`,
+        `when(${SUPPORT_STATION.id}.poweroff)[${gCreatures.airMiners}-=10]`,
       ),
+      cavern.anchorHoldCreatures && sh.declareInt(gCreatures.anchorHold, 1),
     ) || '# n/a',
   );
 }
@@ -213,14 +214,15 @@ function creatureSpawnScript(
         sh.declareInt(v.needCrystals, opts.needCrystals.base),
       eventChain(
         v.doTrip,
-        cavern.context.globalHostilesCooldown > 0 &&
-          `((${g.globalCooldown}>0))return;`,
+        cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
         cavern.context.globalHostilesCap > 0 &&
           `((hostiles>=${cavern.context.globalHostilesCap - waveSize}))return;`,
         cavern.oxygen && opts.needStableAir &&
-          `((${g.airMiners}<miners))return;`,
+          `((${gCreatures.airMiners}<miners))return;`,
         opts.needCrystals &&
           `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
+        cavern.context.globalHostilesCooldown > 0 &&
+          `((${gCreatures.globalCooldown}>0))return;`,
         `((${v.arm}==1))${v.arm}=2;`
       ),
       `when(${v.arm}==2)[${v.doSpawn}]`,
@@ -239,7 +241,7 @@ function creatureSpawnScript(
     // Spawn
     eventChain(
       opts.spawnEvent ?? v.doSpawn,
-      cavern.context.globalHostilesCooldown > 0 && `${g.globalCooldown}+=1;`,
+      cavern.context.globalHostilesCooldown > 0 && `${gCreatures.globalCooldown}+=1;`,
       !!opts.needCrystals?.increment &&
         `${v.needCrystals}=crystals+${opts.needCrystals.increment};`,
       ...emerges.flatMap(

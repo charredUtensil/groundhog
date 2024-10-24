@@ -1,7 +1,6 @@
 import { creatureSpawnGlobals } from "../../architects/utils/creature_spawners";
 import {
   scriptFragment,
-  ScriptHelper,
   ScriptHelperImpl,
 } from "../../architects/utils/script";
 import { Architect } from "../../models/architect";

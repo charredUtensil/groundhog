@@ -2,6 +2,7 @@ import { EnscribedCavern } from "./02_enscribe";
 
 export type PreprogrammedCavern = EnscribedCavern & {
   ownsScriptOnDiscover: number[];
+  anchorHoldCreatures: boolean;
 };
 
 export default function preprogram(
@@ -24,5 +25,9 @@ export default function preprogram(
   });
   const ownsScriptOnDiscover: number[] = [];
   claims.forEach(({ planId }, dzId) => (ownsScriptOnDiscover[dzId] = planId));
-  return { ...cavern, ownsScriptOnDiscover };
+
+  const anchor = cavern.plans[cavern.anchor];
+  const anchorHoldCreatures = !!anchor.architect.holdCreatures?.({cavern, plan: anchor});
+
+  return { ...cavern, ownsScriptOnDiscover, anchorHoldCreatures };
 }

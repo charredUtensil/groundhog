@@ -4,7 +4,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
-  DzPriorities,
+  DzPriority,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -88,7 +88,7 @@ const HOARD: typeof BASE = {
   },
   claimEventOnDiscover({ plan }) {
     const pos = plan.innerPearl[0][0];
-    return [{ pos, priority: DzPriorities.HINT }];
+    return [{ pos, priority: DzPriority.HINT }];
   },
   script({ cavern, plan, sh }) {
     if (!cavern.objectives.crystals) {

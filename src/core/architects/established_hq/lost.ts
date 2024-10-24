@@ -4,7 +4,7 @@ import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
 import {
-  DzPriorities,
+  DzPriority,
   scriptFragment,
   mkVars,
   transformPoint,
@@ -33,7 +33,7 @@ const LOST_BASE: Pick<
     if (!pos) {
       throw new Error("Cave has Find HQ objective but no undiscovered point.");
     }
-    return [{ pos, priority: DzPriorities.OBJECTIVE }];
+    return [{ pos, priority: DzPriority.OBJECTIVE }];
   },
   scriptGlobals: ({ sh }) =>
     scriptFragment("# Globals: Lost HQ", sh.declareInt(gLostHq.foundHq, 0)),

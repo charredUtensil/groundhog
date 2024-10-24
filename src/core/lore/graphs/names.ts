@@ -174,7 +174,7 @@ export const OVERRIDE_SUFFIXES = [
   "Reimagined",
   "Reloaded",
   "Remixed",
-  "Ressurection",
+  "Resurrection",
   "Retooled",
   "Revenant",
   "Revolutions",

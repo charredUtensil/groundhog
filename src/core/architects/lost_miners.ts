@@ -24,7 +24,7 @@ import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import {
-  DzPriorities,
+  DzPriority,
   eventChain,
   mkVars,
   scriptFragment,
@@ -240,8 +240,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
   claimEventOnDiscover({ cavern, plan }) {
     const { minersPoint, breadcrumbPoint } = getAbandonedEnts(cavern, plan);
     return [
-      { pos: breadcrumbPoint, priority: DzPriorities.HINT },
-      { pos: minersPoint, priority: DzPriorities.OBJECTIVE },
+      { pos: breadcrumbPoint, priority: DzPriority.HINT },
+      { pos: minersPoint, priority: DzPriority.OBJECTIVE },
     ];
   },
   scriptGlobals({ cavern, sh }) {

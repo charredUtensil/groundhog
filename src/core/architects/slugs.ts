@@ -12,7 +12,7 @@ import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import {
-  DzPriorities,
+  DzPriority,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -57,7 +57,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
   },
   claimEventOnDiscover: ({ cavern, plan }) => {
     const pos = getDiscoveryPoint(cavern, plan);
-    return [{ pos, priority: DzPriorities.TRIVIAL }];
+    return [{ pos, priority: DzPriority.TRIVIAL }];
   },
   script: ({ cavern, plan, sh }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
