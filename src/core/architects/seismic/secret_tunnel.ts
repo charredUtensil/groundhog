@@ -75,7 +75,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const bps = args.plan.path.baseplates;
     const ebps = [bps[0], bps[bps.length - 1]];
     return monsterSpawnScript(args, {
-      reArmMode: 'none',
+      reArmMode: "none",
       spawnEvent: sVars(args.plan).doSpawn,
       emerges: ebps.map((bp) => {
         const [x, y] = bp.center;

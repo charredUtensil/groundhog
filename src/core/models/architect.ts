@@ -30,7 +30,10 @@ import {
   AnchoredCavern,
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
-import { DzPriority as DzPriority, ScriptHelper } from "../architects/utils/script";
+import {
+  DzPriority,
+  ScriptHelper,
+} from "../architects/utils/script";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
@@ -149,7 +152,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * objectives returned by this plan would be usable as a level objective even
    * if no other plans returned an objective. If this only makes sense as an
    * interim objective, return sufficient: false.
-   * 
+   *
    * If no plans return a sufficient objective, a "collect N crystals"
    * objective will be added.
    */
@@ -164,7 +167,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * DiscoveryZone is discovered. This prevents issues where multiple scripts
    * try to perform a pan + message simultaneously. If this plan loses the bid,
    * it MUST NOT perform a cutscene on discover.
-   * 
+   *
    * Note: It's generally OK to do something after a random delay, or to have
    * some other "quieter" effect on discover like spawning a monster without
    * bidding for the DZ.
@@ -180,10 +183,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * tripped. In this case, it is expected that this architect's script will
    * set the value of that variable to 0 to release the hold.
    */
-  holdCreatures?(args: {
-    cavern: EnscribedCavern;
-    plan: Plan<T>;
-  }): boolean,
+  holdCreatures?(args: { cavern: EnscribedCavern; plan: Plan<T> }): boolean;
   scriptGlobals?(args: {
     cavern: PreprogrammedCavern;
     sh: ScriptHelper;

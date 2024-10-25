@@ -54,7 +54,7 @@ Add everything else that doesn't necessarily have a position within the map.
 1. _Adjure_: Determine the level objectives. This is done late in the transformation so those objectives can match reality. For example, it's possible to generate lost miners and have them discovered at map start, meaning they should not be used as an objective.
 1. _Enscribe_: Write the level name, briefing, success, and failure messages. This also creates a Lore object which is used to produce additional text strings during scripting.
 1. _Preprogram_: Perform some steps that need to be completed before writing scripts:
-  1. Each plan bids for the right to perform a "cutscene" when a region is discovered.
-  `. The anchor decides if it wants to have a hold over monster spawns
+1. Each plan bids for the right to perform a "cutscene" when a region is discovered.
+   `. The anchor decides if it wants to have a hold over monster spawns
 1. _Program_: Plans add any scripts they need. This includes monster and slug spawns, along with some level objectives that are triggered by scripts.
 1. _Serialize_: Convert the cavern to a text string, which is the final contents of the level.dat file.

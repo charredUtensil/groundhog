@@ -1,5 +1,5 @@
 import { Architect } from "../models/architect";
-import { SUPPORT_STATION, TOOL_STORE } from "../models/building";
+import { TOOL_STORE } from "../models/building";
 import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
@@ -8,7 +8,6 @@ import { getPlaceRechargeSeams } from "./utils/resources";
 import { position } from "../models/position";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { monsterSpawnScript, slugSpawnScript } from "./utils/creature_spawners";
-import { mkVars, scriptFragment } from "./utils/script";
 
 const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
@@ -43,11 +42,12 @@ const BASE: PartialArchitect<undefined> = {
       : undefined;
     sprinkleSlugHoles(args, { count });
   },
-  monsterSpawnScript: (args) => monsterSpawnScript(args, {
-    initialCooldown: { min: 120, max: 240 },
-    needCrystals: {base: 4},
-    needStableAir: true,
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      initialCooldown: { min: 120, max: 240 },
+      needCrystals: { base: 4 },
+      needStableAir: true,
+    }),
   slugSpawnScript: (args) =>
     slugSpawnScript(args, {
       initialCooldown: { min: 120, max: 240 },

@@ -27,7 +27,10 @@ export default function preprogram(
   claims.forEach(({ planId }, dzId) => (ownsScriptOnDiscover[dzId] = planId));
 
   const anchor = cavern.plans[cavern.anchor];
-  const anchorHoldCreatures = !!anchor.architect.holdCreatures?.({cavern, plan: anchor});
+  const anchorHoldCreatures = !!anchor.architect.holdCreatures?.({
+    cavern,
+    plan: anchor,
+  });
 
   return { ...cavern, ownsScriptOnDiscover, anchorHoldCreatures };
 }

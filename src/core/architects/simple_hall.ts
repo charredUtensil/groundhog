@@ -20,9 +20,10 @@ const SIMPLE_HALL = [
       { of: Rough.AT_MOST_HARD_ROCK },
       { of: Rough.VOID, grow: 1 },
     ),
-    hallBid: ({ plans, plan, hops }) => !plan.fluid && plan.pearlRadius > 0 && (
-      hops.length < 3 && plans[hops[0]].metadata?.tag === 'nomads' ? 5 : 1
-    ),
+    hallBid: ({ plans, plan, hops }) =>
+      !plan.fluid &&
+      plan.pearlRadius > 0 &&
+      (hops.length < 3 && plans[hops[0]].metadata?.tag === "nomads" ? 5 : 1),
   },
   {
     name: "SimpleHall.WideWithMonsters",

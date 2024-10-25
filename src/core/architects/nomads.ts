@@ -162,7 +162,8 @@ const BASE: PartialArchitect<NomadsMetadata> = {
           "enable:miners;",
           "enable:buildings;",
           "enable:vehicles;",
-          `${gCreatures.anchorHold}=0;`
+          "wait:random(20)(120);",
+          `${gCreatures.anchorHold}=0;`,
         ),
       );
     }
@@ -174,7 +175,11 @@ const BASE: PartialArchitect<NomadsMetadata> = {
         die: LoreDie.nomadsSettled,
         pg: NOMADS_SETTLED,
       }),
-      `if(${TOOL_STORE.id}.new)[${gCreatures.anchorHold}=0]`,
+      sh.trigger(
+        `if(${TOOL_STORE.id}.new)`,
+        "wait:random(20)(120);",
+        `${gCreatures.anchorHold}=0;`,
+      ),
       `if(${SUPPORT_STATION.id}.onPowered)[msg:${gNomads.messageBuiltBase}]`,
     );
   },

@@ -80,10 +80,23 @@ export class ScriptHelperImpl implements ScriptHelper {
     this.cavern = cavern;
   }
 
+  /**
+   * Declares an integer variable.
+   *
+   * Note: I've explicitly decided not to use boolean vars in level scripts.
+   * This is partially because I keep accidentally using constructs like
+   * `if(var)` instead of `if(var==true)` but also because, at least according
+   * to documentation, declaring a boolean in script actually just delcares an
+   * int.
+   */
   declareInt(name: string, value: number) {
     return `int ${name}=${value.toFixed()}`;
   }
 
+  /**
+   * Declares a string variable. Takes ether a string value or parameters to
+   * determine the string from lore.
+   */
   declareString<T>(
     name: string,
     value: string | FromLoreArgs | FromLoreArgsWithState<T>,
@@ -107,6 +120,9 @@ export class ScriptHelperImpl implements ScriptHelper {
     return `string ${name}="${escapeString(strVal)}"`;
   }
 
+  /**
+   * Declares an anonymous event chain for the given trigger.
+   */
   trigger(condition: Trigger, ...rest: EventChainLine[]) {
     const name = `ec${this._uid++}`;
     return `${condition}[${name}]\n${eventChain(name, ...rest)}`;
