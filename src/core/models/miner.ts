@@ -47,14 +47,23 @@ export class MinerFactory {
   }
 }
 
+const ENTITY_OFFSET = {
+  z: 52.15,
+} as const satisfies Partial<EntityPosition>;
+
 export function serializeMiner(
   miner: Miner,
-  offset: Point,
+  tileOffset: Point,
   heightMap: Grid<number>,
 ) {
   return [
     `ID=${miner.id.toFixed()}${miner.unique ? `/${miner.unique}` : ""}`,
-    serializePosition(miner, offset, heightMap, 0, "entity"),
+    serializePosition({
+      position: miner,
+      tileOffset,
+      heightMap,
+      entityOffset: ENTITY_OFFSET,
+    }),
     [...miner.loadout, ...new Array(miner.level - 1).fill("Level")]
       .map((l) => `${l}/`)
       .join(""),

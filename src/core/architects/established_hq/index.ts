@@ -8,7 +8,7 @@ import FIXED_COMPLETE from "./fixed_complete";
 import ISLAND from "./island";
 import LOST from "./lost";
 
-export const ESTABLISHED_HQ = [
+const ESTABLISHED_HQ = [
   {
     name: "Hq.Spawn.Established",
     ...BASE,

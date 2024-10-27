@@ -145,6 +145,10 @@ export const Rough = {
     { item: _Rough.DIRT, bid: 1 },
     { item: _Rough.LOOSE_ROCK, bid: 4 },
   ),
+  MIX_AT_MOST_DIRT_LOOSE_ROCK: weightedSprinkle(
+    { item: _Rough.AT_MOST_DIRT, bid: 1 },
+    { item: _Rough.AT_MOST_LOOSE_ROCK, bid: 4 },
+  ),
   MIX_LOOSE_HARD_ROCK: weightedSprinkle(
     { item: _Rough.LOOSE_ROCK, bid: 4 },
     { item: _Rough.LOOSE_OR_HARD_ROCK, bid: 1 },

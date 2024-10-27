@@ -4,8 +4,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import {
-  declareStringFromLore,
-  DzPriorities,
+  DzPriority,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -72,31 +71,24 @@ const HOARD: typeof BASE = {
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {
       meanWaveSize: args.plan.monsterWaveSize * 1.5,
-      retriggerMode: "hoard",
+      reArmMode: "hoard",
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
-  scriptGlobals({ cavern }) {
+  scriptGlobals({ cavern, sh }) {
     if (!cavern.objectives.crystals) {
       return undefined;
     }
     return scriptFragment(
       "# Globals: Hoard",
-      `int ${g.lock}=0`,
-      declareStringFromLore(
-        cavern,
-        LoreDie.foundHoard,
-        g.message,
-        FOUND_HOARD,
-        {},
-        {},
-      ),
-      `int ${g.crystalsAvailable}=0`,
+      sh.declareInt(g.lock, 0),
+      sh.declareString(g.message, { die: LoreDie.foundHoard, pg: FOUND_HOARD }),
+      sh.declareInt(g.crystalsAvailable, 0),
     );
   },
   claimEventOnDiscover({ plan }) {
     const pos = plan.innerPearl[0][0];
-    return [{ pos, priority: DzPriorities.HINT }];
+    return [{ pos, priority: DzPriority.HINT }];
   },
   script({ cavern, plan, sh }) {
     if (!cavern.objectives.crystals) {

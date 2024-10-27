@@ -358,7 +358,14 @@ function CavernContextInputInner({
             </div>
             <div className={styles.subsection}>
               <h3>Enscribe</h3>
-              <Slider of="globalCreatureDelay" min={0} max={20} {...rest} />
+              <Slider of="globalHostilesCooldown" min={0} max={20} {...rest} />
+              <Slider
+                of="globalHostilesCap"
+                min={0}
+                max={40}
+                zeroLabel="disabled"
+                {...rest}
+              />
             </div>
           </div>
         </>

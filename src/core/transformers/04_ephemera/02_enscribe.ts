@@ -1,6 +1,6 @@
 import { CavernContext } from "../../common";
 import { PartialCavernContext } from "../../common/context";
-import { filterTruthy } from "../../common/utils";
+import { filterTruthy, Mutable } from "../../common/utils";
 import { OVERRIDE_SUFFIXES } from "../../lore/graphs/names";
 import { Lore } from "../../lore/lore";
 import { AdjuredCavern } from "./01_adjure";
@@ -17,7 +17,7 @@ export type EnscribedCavern = AdjuredCavern & {
 };
 
 function overrideSuffix(initialContext: PartialCavernContext) {
-  const overrides: Partial<CavernContext> = { ...initialContext };
+  const overrides: Mutable<Partial<CavernContext>> = { ...initialContext };
   delete overrides.seed;
   const s = Object.keys(overrides)
     .sort()

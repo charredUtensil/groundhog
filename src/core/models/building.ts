@@ -238,14 +238,24 @@ export type Building = EntityPosition & {
   readonly teleportAtStart: boolean;
 };
 
+const BUILDING_ENTITY_OFFSET = {
+  yaw: Math.PI / 2,
+} as const satisfies Partial<EntityPosition>;
+
 export function serializeBuilding(
   building: Building,
-  offset: Point,
+  tileOffset: Point,
   heightMap: Grid<number>,
 ) {
   return [
     building.template.id,
-    serializePosition(building, offset, heightMap, Math.PI / 2, "building"),
+    serializePosition({
+      position: building,
+      tileOffset,
+      heightMap,
+      entityOffset: BUILDING_ENTITY_OFFSET,
+      floorMethod: "building",
+    }),
     building.level > 1 && `Level=${building.level.toFixed()}`,
     building.isEssential && "Essential=True",
     building.teleportAtStart && "Teleport=True",

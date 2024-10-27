@@ -98,7 +98,7 @@ function performErrorChecking(serialized: string) {
 }
 
 export default function serialize(cavern: ProgrammedCavern): SerializedCavern {
-  const offset: Point = [-cavern.left, -cavern.top];
+  const tileOffset: Point = [-cavern.left, -cavern.top];
 
   const serialized = `comments{
 ${indent(comments(cavern), "  ")}
@@ -106,13 +106,13 @@ ${indent(comments(cavern), "  ")}
 info{
 rowcount:${(cavern.right - cavern.left).toFixed()}
 colcount:${(cavern.bottom - cavern.top).toFixed()}
-camerapos:${serializePosition(cavern.cameraPosition, offset, cavern.height, 0, "entity")}
+camerapos:${serializePosition({ position: cavern.cameraPosition, tileOffset, heightMap: cavern.height })}
 biome:${cavern.context.biome}
 creator:groundHog
 levelname:${cavern.levelName}
 opencaves:${pointSet(
     cavern.openCaveFlags.map((_, x, y) => [x, y]),
-    offset,
+    tileOffset,
     "yx",
   )}
 ${cavern.oxygen ? `oxygen:${cavern.oxygen.join("/")}` : ""}
@@ -145,22 +145,22 @@ objectives{
 ${serializeObjectives(cavern.objectives)}
 }
 buildings{
-${cavern.buildings.map((b) => serializeBuilding(b, offset, cavern.height)).join("\n")}
+${cavern.buildings.map((b) => serializeBuilding(b, tileOffset, cavern.height)).join("\n")}
 }
 landslidefrequency{
-${serializeHazards(cavern.landslides, offset)}
+${serializeHazards(cavern.landslides, tileOffset)}
 }
 lavaspread{
-${serializeHazards(cavern.erosion, offset)}
+${serializeHazards(cavern.erosion, tileOffset)}
 }
 creatures{
-${cavern.creatures.map((c) => serializeCreature(c, offset, cavern.height)).join("\n")}
+${cavern.creatures.map((c) => serializeCreature(c, tileOffset, cavern.height)).join("\n")}
 }
 miners{
-${cavern.miners.map((m) => serializeMiner(m, offset, cavern.height)).join("\n")}
+${cavern.miners.map((m) => serializeMiner(m, tileOffset, cavern.height)).join("\n")}
 }
 vehicles{
-${cavern.vehicles.map((v) => serializeVehicle(v, offset, cavern.height)).join("\n")}
+${cavern.vehicles.map((v) => serializeVehicle(v, tileOffset, cavern.height)).join("\n")}
 }
 briefing{
 ${cavern.briefing.intro}

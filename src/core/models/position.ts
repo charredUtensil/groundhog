@@ -5,6 +5,7 @@ import { Grid } from "../common/grid";
 type EntityPositionArgs = {
   x: number;
   y: number;
+  scale?: number;
 } & ({ aimedAt: Point } | { facing: Cardinal8 } | { yaw: number } | {});
 
 function getYaw(args: EntityPositionArgs): number | undefined {
@@ -20,7 +21,7 @@ function getYaw(args: EntityPositionArgs): number | undefined {
   return undefined;
 }
 
-const ENTITY_SCALE = 300;
+const ENTITY_TILE_SCALE = 300;
 
 export type EntityPosition = {
   readonly x: number;
@@ -54,9 +55,9 @@ export function position(
     pitch: args.pitch ?? POSITION_DEFAULTS.pitch,
     yaw: getYaw(args) ?? POSITION_DEFAULTS.yaw,
     roll: args.roll ?? POSITION_DEFAULTS.roll,
-    scaleX: args.scaleX ?? POSITION_DEFAULTS.scaleX,
-    scaleY: args.scaleY ?? POSITION_DEFAULTS.scaleY,
-    scaleZ: args.scaleZ ?? POSITION_DEFAULTS.scaleZ,
+    scaleX: args.scaleX ?? args.scale ?? POSITION_DEFAULTS.scaleX,
+    scaleY: args.scaleY ?? args.scale ?? POSITION_DEFAULTS.scaleY,
+    scaleZ: args.scaleZ ?? args.scale ?? POSITION_DEFAULTS.scaleZ,
   };
 }
 
@@ -70,10 +71,11 @@ export function randomlyInTile(
   const x = args.rng.uniform({}) + args.x;
   const y = args.rng.uniform({}) + args.y;
   const yaw = getYaw(args) ?? args.rng.uniform({ min: -Math.PI, max: Math.PI });
-  return { ...POSITION_DEFAULTS, x, y, yaw };
+  const scale = args.scale;
+  return position({ x, y, yaw, scale });
 }
 
-function zOffsetForBuilding(
+function zFloorForBuilding(
   unused_x: number,
   unused_y: number,
   nw: number,
@@ -84,7 +86,7 @@ function zOffsetForBuilding(
   return (Math.max(nw, ne, sw, se) + Math.min(nw, ne, sw, se)) / 2;
 }
 
-function zOffsetForEntity(
+function zFloorForEntity(
   x: number,
   y: number,
   nw: number,
@@ -92,7 +94,7 @@ function zOffsetForEntity(
   sw: number,
   se: number,
 ): number {
-  // Manic Miners reliably clips tiles into two triangles this way.
+  // Manic Miners always clips tiles into two triangles this way.
   if (y <= 1 - x) {
     // First triangle (nw, ne, sw)
     const wx = (ne - nw) * x;
@@ -106,7 +108,7 @@ function zOffsetForEntity(
   }
 }
 
-function zOffset(
+function floorZ(
   x: number,
   y: number,
   heightMap: Grid<number>,
@@ -114,7 +116,7 @@ function zOffset(
 ): number {
   const tileX = Math.floor(x);
   const tileY = Math.floor(y);
-  const fn = { entity: zOffsetForEntity, building: zOffsetForBuilding }[method];
+  const fn = { entity: zFloorForEntity, building: zFloorForBuilding }[method];
   return fn(
     x - tileX,
     y - tileY,
@@ -125,21 +127,29 @@ function zOffset(
   );
 }
 
-export function serializePosition(
-  position: EntityPosition,
-  [ox, oy]: Point,
-  heightMap: Grid<number>,
-  yawOffset: number,
-  zOffsetMethod: "entity" | "building",
-): string {
-  const x = (position.x + ox) * ENTITY_SCALE;
-  const y = (position.y + oy) * ENTITY_SCALE;
-  const z =
-    position.z + zOffset(position.x, position.y, heightMap, zOffsetMethod);
-  const pitch = radsToDegrees(position.pitch);
-  const yaw = radsToDegrees(position.yaw + yawOffset);
-  const roll = radsToDegrees(position.roll);
+export function serializePosition({
+  position,
+  tileOffset: [tx, ty],
+  heightMap,
+  entityOffset,
+  floorMethod = "entity",
+}: {
+  position: EntityPosition;
+  tileOffset: Point;
+  heightMap: Grid<number>;
+  entityOffset?: Partial<EntityPosition>;
+  floorMethod?: "entity" | "building";
+}): string {
   const { scaleX, scaleY, scaleZ } = position;
+  const x = (position.x + tx) * ENTITY_TILE_SCALE + (entityOffset?.x ?? 0);
+  const y = (position.y + ty) * ENTITY_TILE_SCALE + (entityOffset?.y ?? 0);
+  const z =
+    position.z * ENTITY_TILE_SCALE +
+    (entityOffset?.z ?? 0) +
+    floorZ(position.x, position.y, heightMap, floorMethod);
+  const pitch = radsToDegrees(position.pitch + (entityOffset?.pitch ?? 0));
+  const yaw = radsToDegrees(position.yaw + (entityOffset?.yaw ?? 0));
+  const roll = radsToDegrees(position.roll + (entityOffset?.roll ?? 0));
   return (
     `Translation: X=${x.toFixed(3)} Y=${y.toFixed(3)} Z=${z.toFixed(3)} ` +
     `Rotation: P=${pitch.toFixed(6)} Y=${yaw.toFixed(6)} R=${roll.toFixed(6)} ` +

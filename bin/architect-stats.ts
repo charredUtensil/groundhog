@@ -76,10 +76,9 @@ function draw(stats: Stats, count: number, totalCount: number) {
         }
         const ratio = c / count
         const color = `\x1b[38;5;${Math.round(15 * ratio + 240)}m`;
-        if (ratio < 0.05) {
-          return `${color}${(ratio * 100).toFixed(1)}%`;
-        }
-        return `${color}${(ratio * 100).toFixed().padStart(3)}%`;
+        const s = (ratio * 100).toFixed(1);
+        const z = s.length > 3 ? s.substring(0, s.length - 2) : s;
+        return `${color}${z.padStart(3)}%`;
       })
       .join(" ");
     return `${rowColor}${name} ${cols}\x1b[m`;
@@ -101,7 +100,7 @@ function draw(stats: Stats, count: number, totalCount: number) {
   const footer = `Maps tested: ${count}/${totalCount}`;
   console.clear();
   console.log(
-    `${header1} | ${header1}\n${header2} + ${header2}\n${chart}\n${footer}`,
+    `${header1} | ${header1}\n${header2} + ${header2}\n${chart}\n\n${footer}`,
   );
 }
 

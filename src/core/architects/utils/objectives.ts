@@ -16,8 +16,8 @@ export function objectiveGlobals({
   const goalCount = resources.length + objectives.variables.length;
   return scriptFragment(
     "# Globals: Objectives",
-    `int ${gObjectives.met}=0`,
-    `int ${gObjectives.won}=0`,
+    sh.declareInt(gObjectives.met, 0),
+    sh.declareInt(gObjectives.won, 0),
     ...resources.map(
       (resource) =>
         `if(${resource}>=${objectives[resource]})[${gObjectives.met}+=1]`,

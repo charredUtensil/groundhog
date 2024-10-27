@@ -12,8 +12,7 @@ import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import {
-  declareStringFromLore,
-  DzPriorities,
+  DzPriority,
   mkVars,
   scriptFragment,
   transformPoint,
@@ -49,16 +48,16 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
   slugSpawnScript: (args) => {
     const holeCount = getSlugHoles(args).length;
     return slugSpawnScript(args, {
+      reArmMode: "none",
       initialCooldown: { min: 20, max: 60 },
-      maxTriggerCount: 1,
       needCrystals: { base: Math.floor(getTotalCrystals(args.cavern) / 10) },
-      triggerOnFirstArmed: true,
+      tripOnArmed: true,
       waveSize: holeCount,
     });
   },
   claimEventOnDiscover: ({ cavern, plan }) => {
     const pos = getDiscoveryPoint(cavern, plan);
-    return [{ pos, priority: DzPriorities.TRIVIAL }];
+    return [{ pos, priority: DzPriority.TRIVIAL }];
   },
   script: ({ cavern, plan, sh }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
@@ -75,14 +74,10 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
 
     return scriptFragment(
       `# P${plan.id}: Slug Nest`,
-      declareStringFromLore(
-        cavern,
-        LoreDie.foundSlugNest,
-        v.messageDiscover,
-        FOUND_SLUG_NEST,
-        {},
-        {},
-      ),
+      sh.declareString(v.messageDiscover, {
+        die: LoreDie.foundSlugNest,
+        pg: FOUND_SLUG_NEST,
+      }),
       sh.trigger(
         `if(change:${transformPoint(cavern, discoPoint)})`,
         `msg:${v.messageDiscover};`,
@@ -125,7 +120,7 @@ const SLUG_HALL: PartialArchitect<undefined> = {
         base: args.plan.crystals * 2,
         increment: args.plan.crystals,
       },
-      triggerPoints: holes,
+      tripPoints: holes,
       waveSize: holes.length,
     });
   },

@@ -1,5 +1,8 @@
 import { creatureSpawnGlobals } from "../../architects/utils/creature_spawners";
-import { scriptFragment, ScriptHelper } from "../../architects/utils/script";
+import {
+  scriptFragment,
+  ScriptHelperImpl,
+} from "../../architects/utils/script";
 import { Architect } from "../../models/architect";
 import { PreprogrammedCavern } from "./03_preprogram";
 import { objectiveGlobals } from "../../architects/utils/objectives";
@@ -23,7 +26,7 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
     ),
   );
   const na = "# n/a\n";
-  const sh = new ScriptHelper();
+  const sh = new ScriptHelperImpl(cavern);
   const script = scriptFragment(
     "#> Globals",
     objectiveGlobals({ cavern, sh }),

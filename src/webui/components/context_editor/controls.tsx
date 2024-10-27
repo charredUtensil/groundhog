@@ -123,6 +123,7 @@ export const Slider = ({
   percent,
   angle,
   step,
+  zeroLabel,
   update,
   initialContext,
   context,
@@ -133,19 +134,25 @@ export const Slider = ({
   percent?: boolean;
   angle?: boolean;
   step?: number;
+  zeroLabel?: string;
 } & UpdateData) => {
   const value = context[of];
+  const label = (() => {
+    if (zeroLabel && value === 0) {
+      return zeroLabel;
+    }
+    if (percent) {
+      return <>{(value * 100).toFixed()}%</>;
+    }
+    if (angle) {
+      return <>{radsToDegrees(value).toFixed()}&deg;</>;
+    }
+    return value;
+  })();
   return (
     <>
       <p>
-        {of}:{" "}
-        {percent ? (
-          <>{(value * 100).toFixed()}%</>
-        ) : angle ? (
-          <>{radsToDegrees(value).toFixed()}&deg;</>
-        ) : (
-          value
-        )}
+        {of}: {label}
       </p>
       <div className={styles.inputRow}>
         <input

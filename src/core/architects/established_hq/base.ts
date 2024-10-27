@@ -19,7 +19,10 @@ import { MakeBuildingFn, getBuildings } from "../utils/buildings";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "../utils/resources";
 import { PseudorandomStream } from "../../common";
 import { PartialArchitect, DefaultCaveArchitect } from "../default";
-import { slugSpawnScript } from "../utils/creature_spawners";
+import {
+  monsterSpawnScript,
+  slugSpawnScript,
+} from "../utils/creature_spawners";
 import { sprinkleSlugHoles } from "../utils/creatures";
 import { mkRough, Rough } from "../utils/rough";
 
@@ -257,6 +260,12 @@ export const BASE: Omit<PartialArchitect<HqMetadata>, "prime"> &
     }
     sprinkleSlugHoles(args, { count: 2 });
   },
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      initialCooldown: { min: 120, max: 240 },
+      needCrystals: { base: 4 },
+      needStableAir: true,
+    }),
   slugSpawnScript(args) {
     return slugSpawnScript(args, {
       needCrystals: { base: 5, increment: 10 },

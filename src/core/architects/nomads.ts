@@ -5,8 +5,8 @@ import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
-import { declareStringFromLore, mkVars, scriptFragment } from "./utils/script";
-import { SUPPORT_STATION } from "../models/building";
+import { mkVars, scriptFragment } from "./utils/script";
+import { SUPPORT_STATION, TOOL_STORE } from "../models/building";
 import { Hardness, Tile } from "../models/tiles";
 import {
   VehicleTemplate,
@@ -24,6 +24,7 @@ import { plotLine } from "../common/geometry";
 import { gLostHq } from "./established_hq/lost";
 import { LoreDie } from "../lore/lore";
 import { NOMADS_SETTLED } from "../lore/graphs/events";
+import { gCreatures } from "./utils/creature_spawners";
 
 export type NomadsMetadata = {
   readonly tag: "nomads";
@@ -144,6 +145,7 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       }),
     };
   },
+  holdCreatures: () => true,
   scriptGlobals({ cavern, sh }) {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
@@ -160,22 +162,25 @@ const BASE: PartialArchitect<NomadsMetadata> = {
           "enable:miners;",
           "enable:buildings;",
           "enable:vehicles;",
+          "wait:random(20)(120);",
+          `${gCreatures.anchorHold}=0;`,
         ),
       );
     }
 
-    // Acknowledge the construction of a Support Station.
+    // No HQ: Acknowledge the construction of a Support Station.
     return scriptFragment(
       "# Globals: Nomads, no HQ",
-      declareStringFromLore(
-        cavern,
-        LoreDie.nomadsSettled,
-        gNomads.messageBuiltBase,
-        NOMADS_SETTLED,
-        {},
-        {},
+      sh.declareString(gNomads.messageBuiltBase, {
+        die: LoreDie.nomadsSettled,
+        pg: NOMADS_SETTLED,
+      }),
+      sh.trigger(
+        `if(${TOOL_STORE.id}.new)`,
+        "wait:random(20)(120);",
+        `${gCreatures.anchorHold}=0;`,
       ),
-      `if(${SUPPORT_STATION.id}.new)[msg:${gNomads.messageBuiltBase}]`,
+      `if(${SUPPORT_STATION.id}.onPowered)[msg:${gNomads.messageBuiltBase}]`,
     );
   },
 };

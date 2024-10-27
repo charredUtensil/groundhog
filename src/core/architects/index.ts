@@ -2,7 +2,7 @@ import { Architect } from "../models/architect";
 import { BUILD_AND_POWER, BuildAndPowerMetadata } from "./build_and_power";
 import ESTABLISHED_HQ from "./established_hq";
 import { HqMetadata } from "./established_hq/base";
-import FISSURE from "./fissure";
+import SEISMIC from "./seismic";
 import FLOODED from "./flooded";
 import LOOPBACK from "./loopback";
 import LOST_MINERS, { LostMinersMetadata } from "./lost_miners";
@@ -20,12 +20,12 @@ export type AnyMetadata =
   | HqMetadata
   | LostMinersMetadata
   | NomadsMetadata
-  | { tag: "fissure" | "slugNest" | "treasure" };
+  | { tag: "seismic" | "slugNest" | "treasure" };
 
 export const ARCHITECTS = [
   ...BUILD_AND_POWER,
   ...ESTABLISHED_HQ,
-  ...FISSURE,
+  ...SEISMIC,
   ...FLOODED,
   ...LOOPBACK,
   ...LOST_MINERS,
