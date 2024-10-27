@@ -35,6 +35,7 @@ export type State = {
   readonly hasGiantCave: boolean;
   readonly buildAndPowerGcOne: boolean;
   readonly buildAndPowerGcMultiple: boolean;
+  readonly hasAirLimit: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -237,6 +238,7 @@ export class Lore {
       hasGiantCave,
       buildAndPowerGcOne: buildAndPowerGcCount === 1,
       buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
+      hasAirLimit: !!cavern.oxygen,
     };
 
     const enemies = filterTruthy([

@@ -1,39 +1,11 @@
 import { Architect } from "../models/architect";
-import { TOOL_STORE } from "../models/building";
-import { Tile } from "../models/tiles";
-import { DefaultCaveArchitect, PartialArchitect } from "./default";
+import { DefaultSpawnArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
-import { getBuildings } from "./utils/buildings";
-import { getPlaceRechargeSeams } from "./utils/resources";
-import { position } from "../models/position";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { monsterSpawnScript, slugSpawnScript } from "./utils/creature_spawners";
 
 const BASE: PartialArchitect<undefined> = {
-  ...DefaultCaveArchitect,
-  crystalsToPlace: () => 5,
-  placeRechargeSeam: getPlaceRechargeSeams(1),
-  placeBuildings: (args) => {
-    const [toolStore] = getBuildings(
-      {
-        queue: [(pos) => TOOL_STORE.atTile({ ...pos, teleportAtStart: true })],
-      },
-      args,
-    );
-    toolStore.foundation.forEach(([x, y]) =>
-      args.tiles.set(x, y, Tile.FOUNDATION),
-    );
-    args.openCaveFlags.set(...toolStore.foundation[0], true);
-    return {
-      buildings: [toolStore],
-      cameraPosition: position({
-        x: toolStore.x,
-        y: toolStore.y,
-        yaw: toolStore.yaw + Math.PI * 0.75,
-        pitch: Math.PI / 4,
-      }),
-    };
-  },
+  ...DefaultSpawnArchitect,
   placeSlugHoles: (args) => {
     const count = args.cavern.context.hasSlugs
       ? args.cavern.dice
@@ -55,7 +27,6 @@ const BASE: PartialArchitect<undefined> = {
       spawnRate: 0.2,
       waveSize: 1,
     }),
-  maxSlope: 15,
 };
 
 const OPEN = mkRough(

@@ -284,3 +284,26 @@ export const BOSS_ENEMY_DEFEATED = phraseGraph<State>(
       .then(end);
   },
 );
+
+export const BLACKOUT_START = phraseGraph<State>(
+  "Blackout Start",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(
+        skip,
+        "Oh no!",
+      )
+      .then("The magnetic shifts are interfering with our Power Station.")
+      .then(end);
+  },
+);
+
+export const BLACKOUT_END = phraseGraph<State>(
+  "Blackout End",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then("The power is back!")
+      .then(skip, state("hasAirLimit").then("I suggest you build additional Support Stations."))
+      .then(end);
+  },
+);

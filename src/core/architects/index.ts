@@ -13,6 +13,7 @@ import SIMPLE_SPAWN from "./simple_spawn";
 import SLUGS from "./slugs";
 import THIN_HALL from "./thin_hall";
 import TREASURE from "./treasure";
+import BLACKOUT from "./blackout";
 
 export type AnyMetadata =
   | undefined
@@ -23,6 +24,7 @@ export type AnyMetadata =
   | { tag: "seismic" | "slugNest" | "treasure" };
 
 export const ARCHITECTS = [
+  ...BLACKOUT,
   ...BUILD_AND_POWER,
   ...ESTABLISHED_HQ,
   ...SEISMIC,

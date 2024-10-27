@@ -1,4 +1,8 @@
 import { Architect, BaseMetadata } from "../models/architect";
+import { TOOL_STORE } from "../models/building";
+import { position } from "../models/position";
+import { Tile } from "../models/tiles";
+import { getBuildings } from "./utils/buildings";
 import { sprinkleSlugHoles } from "./utils/creatures";
 import { placeErosion, placeLandslides } from "./utils/hazards";
 import {
@@ -60,3 +64,31 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       claimEventOnDiscover: () => [],
     }) as PartialArchitect<any>,
 );
+
+export const DefaultSpawnArchitect: PartialArchitect<undefined> = {
+  ...DefaultCaveArchitect,
+  crystalsToPlace: () => 5,
+  placeRechargeSeam: getPlaceRechargeSeams(1),
+  placeBuildings: (args) => {
+    const [toolStore] = getBuildings(
+      {
+        queue: [(pos) => TOOL_STORE.atTile({ ...pos, teleportAtStart: true })],
+      },
+      args,
+    );
+    toolStore.foundation.forEach(([x, y]) =>
+      args.tiles.set(x, y, Tile.FOUNDATION),
+    );
+    args.openCaveFlags.set(...toolStore.foundation[0], true);
+    return {
+      buildings: [toolStore],
+      cameraPosition: position({
+        x: toolStore.x,
+        y: toolStore.y,
+        yaw: toolStore.yaw + Math.PI * 0.75,
+        pitch: Math.PI / 4,
+      }),
+    };
+  },
+  maxSlope: 15,
+};
