@@ -16,6 +16,7 @@ import { gLostMiners } from "./lost_miners";
 import { LoreDie } from "../lore/lore";
 import { FOUND_HOARD } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 const METADATA = {
   tag: "treasure",
@@ -36,6 +37,9 @@ const BASE: PartialArchitect<typeof METADATA> = {
 };
 
 const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
+
+const shouldIncludeHoardScript = (cavern: PreprogrammedCavern) =>
+  cavern.objectives.crystals && cavern.plans[cavern.anchor].metadata?.tag !== 'mobFarm';
 
 const HOARD: typeof BASE = {
   ...BASE,
@@ -76,7 +80,7 @@ const HOARD: typeof BASE = {
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
   scriptGlobals({ cavern, sh }) {
-    if (!cavern.objectives.crystals) {
+    if (!shouldIncludeHoardScript(cavern)) {
       return undefined;
     }
     return scriptFragment(
@@ -91,7 +95,7 @@ const HOARD: typeof BASE = {
     return [{ pos, priority: DzPriority.HINT }];
   },
   script({ cavern, plan, sh }) {
-    if (!cavern.objectives.crystals) {
+    if (!shouldIncludeHoardScript(cavern)) {
       return undefined;
     }
 

@@ -12,6 +12,7 @@ import { Plan } from "../../models/plan";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
 import {
+  check,
   eventChain,
   mkVars,
   scriptFragment,
@@ -41,12 +42,18 @@ type CreatureSpawnerArgs = {
       readonly initialCooldown?: { min: number; max: number };
       readonly needCrystals?: { base: number; increment?: number };
       readonly needStableAir?: boolean;
-      readonly tripOnArmed: boolean;
+      readonly tripOnArmed?: 'first' | 'always';
       readonly tripPoints?: readonly Point[];
     }
 );
 
 export type ReArmMode = "none" | "automatic" | "hoard";
+
+enum ArmState {
+  DISARMED = 0,
+  ARMED,
+  FIRE,
+}
 
 type Emerge = {
   readonly x: number;
@@ -142,7 +149,6 @@ export function monsterSpawnScript(
     creature: monsterForBiome(args.cavern.context.biome),
     reArmMode: "automatic",
     rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
-    tripOnArmed: false,
     ...opts,
   });
 }
@@ -156,7 +162,6 @@ export function slugSpawnScript(
     needCrystals: { base: 1 },
     reArmMode: "automatic",
     rng: args.cavern.dice.slugSpawnScript(args.plan.id),
-    tripOnArmed: false,
     ...opts,
   });
 }
@@ -166,12 +171,13 @@ function creatureSpawnScript(
   opts: CollapseUnion<CreatureSpawnerArgs>,
 ) {
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
-    "needCrystals",
     "arm",
+    "doCooldown",
     "doArm",
     "doTrip",
     "doSpawn",
     "hoardTrip",
+    "needCrystals",
   ]);
 
   const waveSize = Math.min(
@@ -200,13 +206,13 @@ function creatureSpawnScript(
     !opts.spawnEvent &&
       scriptFragment(
         // Arm
-        sh.declareInt(v.arm, 0),
+        sh.declareInt(v.arm, ArmState.DISARMED),
         !opts.armEvent && `${getArmTrigger(cavern, plan)}[${v.doArm}]`,
         eventChain(
           opts.armEvent ?? v.doArm,
           opts.initialCooldown &&
             `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-          `${v.arm}=1;`,
+          `${v.arm}=${ArmState.ARMED};`,
           opts.tripOnArmed && `${v.doTrip};`,
         ),
 
@@ -229,9 +235,13 @@ function creatureSpawnScript(
             `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
           cavern.context.globalHostilesCooldown > 0 &&
             `((${gCreatures.globalCooldown}>0))return;`,
-          `((${v.arm}==1))${v.arm}=2;`,
+          check(
+            `${v.arm}==${ArmState.ARMED}`,
+            `${v.arm}=${ArmState.FIRE}`,
+            opts.reArmMode !== "none" && opts.tripOnArmed === 'always' && `${v.arm}=${v.doCooldown}`,
+          ),
         ),
-        `when(${v.arm}==2)[${v.doSpawn}]`,
+        `when(${v.arm}==${ArmState.FIRE})[${v.doSpawn}]`,
       ),
 
     // Hoard mode must be "manually" re-armed by a monster visiting the hoard
@@ -258,25 +268,28 @@ function creatureSpawnScript(
           `emerge:${transformPoint(cavern, [emerge.x, emerge.y])},A,${opts.creature.id},${emerge.radius};`,
         ),
       ),
-
-      // Cooldown and reset
-      opts.reArmMode !== "none" &&
-        (() => {
-          const spawnRate = opts.spawnRate ?? plan.monsterSpawnRate;
-          const meanCooldown = (60 * waveSize) / spawnRate;
-
-          const cooldownOffset = meanCooldown / 4;
-          const cooldown = {
-            min: meanCooldown - cooldownOffset,
-            max: meanCooldown + cooldownOffset,
-          };
-          return scriptFragment(
-            opts.reArmMode === "hoard" && `${v.hoardTrip}=0;`,
-            `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
-            opts.reArmMode === "hoard" && `((${v.hoardTrip}==0))return;`,
-            `${v.arm}=1;`,
-          );
-        })(),
+      opts.reArmMode !== "none" && `${v.doCooldown};`,
     ),
+
+    // Cooldown and reset
+    opts.reArmMode !== "none" &&
+      (() => {
+        const spawnRate = opts.spawnRate ?? plan.monsterSpawnRate;
+        const meanCooldown = (60 * waveSize) / spawnRate;
+
+        const cooldownOffset = meanCooldown / 4;
+        const cooldown = {
+          min: meanCooldown - cooldownOffset,
+          max: meanCooldown + cooldownOffset,
+        };
+        return eventChain(
+          v.doCooldown,
+          opts.reArmMode === "hoard" && `${v.hoardTrip}=0;`,
+          `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
+          opts.reArmMode === "hoard" && `((${v.hoardTrip}==0))return;`,
+          `${v.arm}=1;`,
+          opts.tripOnArmed === 'always' && `${v.doTrip};`,
+        );
+      })(),
   );
 }

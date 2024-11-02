@@ -23,7 +23,7 @@ type Metadata = {
 };
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}SBB`, ["boss", "onTrip", "doSpawn", "tripCount"]);
+  mkVars(`p${plan.id}SBB`, ["boss", "onTrip", "doArm", "tripCount"]);
 
 function findSpokes(
   cavern: FoundationPlasticCavern,
@@ -165,14 +165,14 @@ const BASE: PartialArchitect<Metadata> = {
       sh.trigger(
         `if(change:${transformPoint(cavern, discoPoint)})`,
         `${v.tripCount}=9999;`,
-        `${v.doSpawn};`,
+        `${v.doArm};`,
       ),
     );
   },
   monsterSpawnScript: (args) => {
     return monsterSpawnScript(args, {
-      armEvent: sVars(args.plan).doSpawn,
-      tripOnArmed: true,
+      armEvent: sVars(args.plan).doArm,
+      tripOnArmed: 'first',
     });
   },
 };

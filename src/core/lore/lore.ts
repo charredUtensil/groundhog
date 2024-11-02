@@ -36,6 +36,7 @@ export type State = {
   readonly buildAndPowerGcOne: boolean;
   readonly buildAndPowerGcMultiple: boolean;
   readonly hasAirLimit: boolean;
+  readonly spawnIsMobFarm: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -239,6 +240,7 @@ export class Lore {
       buildAndPowerGcOne: buildAndPowerGcCount === 1,
       buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
       hasAirLimit: !!cavern.oxygen,
+      spawnIsMobFarm: anchor.metadata?.tag === 'mobFarm',
     };
 
     const enemies = filterTruthy([

@@ -1,5 +1,5 @@
 import { PseudorandomStream } from "../common";
-import { Point } from "../common/geometry";
+import { closestTo, Point } from "../common/geometry";
 import { Grid } from "../common/grid";
 import { Architect } from "../models/architect";
 import { PlannedCavern } from "../models/cavern";
@@ -65,7 +65,7 @@ export function countLostMiners(cavern: PlannedCavern) {
 
 function getBreadcrumbPoint(
   cavern: DiscoveredCavern,
-  [minersX, minersY]: Point,
+  minersPos: Point,
   minersDz: DiscoveryZone,
   plan: Plan<any>,
 ): Point {
@@ -76,36 +76,22 @@ function getBreadcrumbPoint(
   // Choose the neighboring plan which is closest to spawn (fewest hops).
   const neighborPlan = cavern.plans[plan.hops[plan.hops.length - 1]];
 
-  const result = neighborPlan.innerPearl
+  const result = closestTo(minersPos, neighborPlan.innerPearl
     .flatMap((layer) => layer)
     // Find all the points in the inner pearl that are not walls and are in a
     // different discovery zone from the miners.
     .filter(([x, y]) => {
       const dz = cavern.discoveryZones.get(x, y);
       return dz && dz !== minersDz;
-    })
-    // Compute a^2 + b^2 for these points to get their relative distance and
-    // choose the closest point to the miners.
-    .map(
-      ([x, y]) =>
-        [x, y, (x - minersX) ** 2 + (y - minersY) ** 2] as [
-          number,
-          number,
-          number,
-        ],
-    )
-    .reduce(
-      (r: [number, number, number] | null, p) => (r && r[2] < p[2] ? r : p),
-      null,
-    );
+    }));
 
   // If such a point exists, return it.
   if (result) {
-    return [result[0], result[1]];
+    return result;
   }
 
   // If no points exist, recurse.
-  return getBreadcrumbPoint(cavern, [minersX, minersY], minersDz, neighborPlan);
+  return getBreadcrumbPoint(cavern, minersPos, minersDz, neighborPlan);
 }
 
 function placeBreadcrumbVehicles(

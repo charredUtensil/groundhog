@@ -1,5 +1,6 @@
 import { Point } from "../../common/geometry";
 import { PseudorandomStream } from "../../common/prng";
+import { Falsy, filterTruthy } from "../../common/utils";
 import { FormatVars, PhraseGraph } from "../../lore/builder";
 import { LoreDie, State } from "../../lore/lore";
 import { FencedCavern } from "../../transformers/03_plastic/00_fence";
@@ -25,7 +26,6 @@ export function transformPoint(
   return `${y - cavern.top},${x - cavern.left}`;
 }
 
-type Falsy = "" | false | null | undefined;
 export type ScriptLine = string | Falsy;
 export type EventChainLine = `${string};` | Falsy;
 export type Trigger = `${"if" | "when"}(${string})`;
@@ -34,6 +34,13 @@ export function scriptFragment(...rest: EventChainLine[]): `${string};` | "";
 export function scriptFragment(...rest: ScriptLine[]): string;
 export function scriptFragment(...rest: ScriptLine[]) {
   return rest.filter((s) => s).join("\n") as any;
+}
+
+export function check(condition: string, ifTrue: string, ifFalse?: ScriptLine): EventChainLine {
+  if (ifFalse) {
+    return `((${condition}))${ifTrue};`;
+  }
+  return `((${condition}))[${ifTrue}][${ifFalse}];`
 }
 
 export function eventChain(name: string, ...rest: EventChainLine[]) {
@@ -124,8 +131,12 @@ export class ScriptHelperImpl implements ScriptHelper {
    * Declares an anonymous event chain for the given trigger.
    */
   trigger(condition: Trigger, ...rest: EventChainLine[]) {
+    const lines = filterTruthy(rest);
+    if (lines.length === 1) {
+      return `${condition}[${lines[0].substring(0, lines[0].length - 1)}]`;
+    }
     const name = `ec${this._uid++}`;
-    return `${condition}[${name}]\n${eventChain(name, ...rest)}`;
+    return `${condition}[${name}]\n${eventChain(name, ...lines)}`;
   }
 }
 

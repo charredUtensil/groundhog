@@ -40,6 +40,26 @@ export function isAdjacent8(a: Point, b: Point) {
   return Math.abs(a[0] - b[0]) <= 1 && Math.abs(a[1] - b[1]) <= 1;
 }
 
+export function asXY([x, y]: Point) {
+  return {x, y};
+}
+
+export function closestTo([x, y]: Point, points: readonly Point[]): Point | null {
+  if (!points.length) {
+    return null;
+  }
+  let [rx, ry] = points[0];
+  let minD = Infinity;
+  for (const [x1, y1] of points) {
+    // Don't bother computing square root
+    const d = (x - x1) * (x - x1) + (y - y1) * (y - y1);
+    if (d < minD) {
+      [rx, ry, minD] = [x1, y1, d];
+    }
+  }
+  return [rx, ry];
+}
+
 export function offsetBy([x, y]: Point, [ox, oy]: Point): Point {
   return [x + ox, y + oy];
 }

@@ -14,6 +14,7 @@ import SLUGS from "./slugs";
 import THIN_HALL from "./thin_hall";
 import TREASURE from "./treasure";
 import BLACKOUT from "./blackout";
+import MOB_FARM from "./mob_farm";
 
 export type AnyMetadata =
   | undefined
@@ -21,7 +22,7 @@ export type AnyMetadata =
   | HqMetadata
   | LostMinersMetadata
   | NomadsMetadata
-  | { tag: "seismic" | "slugNest" | "treasure" };
+  | { tag: "mobFarm" | "seismic" | "slugNest" | "treasure" };
 
 export const ARCHITECTS = [
   ...BLACKOUT,
@@ -31,6 +32,7 @@ export const ARCHITECTS = [
   ...FLOODED,
   ...LOOPBACK,
   ...LOST_MINERS,
+  ...MOB_FARM,
   ...NOMAD_SPAWN,
   ...SIMPLE_CAVE,
   ...SIMPLE_HALL,

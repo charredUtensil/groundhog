@@ -172,6 +172,21 @@ export const TUNNEL_TRANSPORT = new VehicleTemplate(
   -0.012,
 );
 
+export const ALL_VEHICLES = [
+  HOVER_SCOUT,
+  SMALL_DIGGER,
+  SMALL_TRANSPORT_TRUCK,
+  RAPID_RIDER,
+  SMLC,
+  TUNNEL_SCOUT,
+  LOADER_DOZER,
+  GRANITE_GRINDER,
+  CARGO_CARRIER,
+  LMLC,
+  CHROME_CRUSHER,
+  TUNNEL_TRANSPORT,
+] as const;
+
 export type Vehicle = EntityPosition & {
   readonly id: number;
   readonly planId: number;

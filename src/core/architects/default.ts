@@ -65,7 +65,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
     }) as PartialArchitect<any>,
 );
 
-export const DefaultSpawnArchitect: PartialArchitect<undefined> = {
+export const DefaultSpawnArchitect: PartialArchitect<any> = {
   ...DefaultCaveArchitect,
   crystalsToPlace: () => 5,
   placeRechargeSeam: getPlaceRechargeSeams(1),

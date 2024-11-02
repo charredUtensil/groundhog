@@ -22,19 +22,19 @@ const BASE: PartialArchitect<undefined> = {
       'msgStart',
       'msgEnd',
       'needCrystals',
+      'reset',
       'tc',
       'trips',
-      'reset',
     ]);
     const rng = cavern.dice.script(plan.id);
     return scriptFragment(
       `# P${plan.id}: Blackout`,
-      sh.declareInt(v.needCrystals, CRYSTALS_INITIAL),
       sh.declareInt(v.crystalBank, 0),
+      sh.declareInt(v.needCrystals, CRYSTALS_INITIAL),
+      sh.declareInt(v.ms, 0),
       sh.declareInt(v.tc, 0),
       sh.declareInt(v.trips, 0),
       sh.declareInt(v.reset, 0),
-      sh.declareInt(v.ms, 0),
       sh.declareString(v.msgStart, {
         pg: BLACKOUT_START,
         rng,

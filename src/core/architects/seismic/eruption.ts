@@ -93,7 +93,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
   monsterSpawnScript: (args) => {
     return monsterSpawnScript(args, {
       armEvent: sVars(args.plan).doSpawn,
-      tripOnArmed: true,
+      tripOnArmed: 'first',
     });
   },
 };

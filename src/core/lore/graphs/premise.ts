@@ -215,6 +215,30 @@ const PREMISE = phraseGraph<State>(
           .then(end),
       );
 
+    // TODO: need lore state and copy for blackout?
+
+    greeting.then(state('spawnIsMobFarm')).then(
+      "We discovered this incredible cave with the abundance of Energy " +
+      "Crystals you now see before you."
+    ).then(
+      "We meant to teleport you onto that island, but something is " +
+      "interfering with the signal.",
+      "That many Energy Crystals in one place seems to be interfering with " +
+      "our teleporters.",
+    ).then(
+      "We are extremely limited in what vehicles we can send down to you, " +
+      "so you'll have to get the crystals some other way."
+    ).then(
+      skip, state('hasMonsters')
+    ).then(
+      skip, state('hasSlugs')
+    ).then(
+      skip, state('spawnHasErosion')
+    ).then(
+      skip, state('treasureCaveOne', 'treasureCaveMany')
+    ).then(end);
+    // TODO: write copy for find hq / lost miners combos
+
     const negativeGreeting = pg(
       greeting,
       start
