@@ -176,6 +176,7 @@ export default function TilesPreview({
           return null;
         }
         const title = getTitle(cavern, mapOverlay, t, x, y);
+        const [tx, ty] = cavern.top ? [x - cavern.left!, y - cavern.top] : [x, y];
         return (
           <rect
             key={`${x},${y}`}
@@ -186,7 +187,7 @@ export default function TilesPreview({
             width={1}
             height={1}
           >
-            {title && <title>{title}</title>}
+            {title && <title>{tx}, {ty}: {title}</title>}
           </rect>
         );
       })}

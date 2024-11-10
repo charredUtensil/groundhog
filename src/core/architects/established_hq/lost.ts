@@ -3,6 +3,7 @@ import { LoreDie } from "../../lore/lore";
 import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
+import { gObjectives } from "../utils/objectives";
 import {
   DzPriority,
   scriptFragment,
@@ -61,6 +62,7 @@ const LOST_BASE: Pick<
         `if(change:${transformPoint(cavern, discoPoint)})`,
         shouldPanMessage && `msg:${v.messageDiscover};`,
         shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
+        `${gObjectives.met}+=1;`,
         `wait:1;`,
         `${gLostHq.foundHq}=1;`,
       ),
