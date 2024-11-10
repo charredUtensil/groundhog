@@ -41,10 +41,13 @@ export function isAdjacent8(a: Point, b: Point) {
 }
 
 export function asXY([x, y]: Point) {
-  return {x, y};
+  return { x, y };
 }
 
-export function closestTo([x, y]: Point, points: readonly Point[]): Point | null {
+export function closestTo(
+  [x, y]: Point,
+  points: readonly Point[],
+): Point | null {
   if (!points.length) {
     return null;
   }

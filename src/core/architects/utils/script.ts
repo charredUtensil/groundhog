@@ -36,9 +36,13 @@ export function scriptFragment(...rest: ScriptLine[]) {
   return rest.filter((s) => s).join("\n") as any;
 }
 
-export function check(condition: string, ifTrue: string, ifFalse?: string | Falsy): EventChainLine {
+export function check(
+  condition: string,
+  ifTrue: string,
+  ifFalse?: string | Falsy,
+): EventChainLine {
   if (ifFalse) {
-    return `((${condition}))[${ifTrue}][${ifFalse}];`
+    return `((${condition}))[${ifTrue}][${ifFalse}];`;
   }
   return `((${condition}))${ifTrue};`;
 }
@@ -48,7 +52,7 @@ export function eventChain(name: string, ...rest: EventChainLine[]) {
 }
 
 export function sanitizeString(s: string) {
-  return s.replace(/[\\"]+/g, "").replace(/\s*\n[\s\n]*/g, ' ');
+  return s.replace(/[\\"]+/g, "").replace(/\s*\n[\s\n]*/g, " ");
 }
 
 type DieOrRng =
@@ -132,7 +136,7 @@ export class ScriptHelperImpl implements ScriptHelper {
    */
   trigger(condition: Trigger, ...rest: EventChainLine[]) {
     const lines = filterTruthy(rest);
-    if (lines.length === 1 && !lines.some(line => line.includes('\n'))) {
+    if (lines.length === 1 && !lines.some((line) => line.includes("\n"))) {
       return `${condition}[${lines[0].substring(0, lines[0].length - 1)}]`;
     }
     const name = `ec${this._uid++}`;

@@ -1,19 +1,26 @@
 import { closestTo, plotLine } from "./geometry";
 
-
-describe('closestTo', () => {
-  it('should return null for an empty list of points', () => {
+describe("closestTo", () => {
+  it("should return null for an empty list of points", () => {
     const result = closestTo([0, 0], []);
     expect(result).toBeNull();
   });
 
-  it('should return the only point in the list', () => {
+  it("should return the only point in the list", () => {
     const result = closestTo([0, 0], [[1, 1]]);
     expect(result).toEqual([1, 1]);
   });
 
-  it('should return the closest point', () => {
-    const result = closestTo([7, -2], [[1, 1], [6, -1], [14, -2], [-7, 2]]);
+  it("should return the closest point", () => {
+    const result = closestTo(
+      [7, -2],
+      [
+        [1, 1],
+        [6, -1],
+        [14, -2],
+        [-7, 2],
+      ],
+    );
     expect(result).toEqual([6, -1]);
   });
 });

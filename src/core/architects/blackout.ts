@@ -12,7 +12,7 @@ const MIN_AIR = 500;
 const RESET_SECONDS = 120;
 const RESET_END = 999;
 
-const METADATA = {tag:'blackout'} as const satisfies BaseMetadata;
+const METADATA = { tag: "blackout" } as const satisfies BaseMetadata;
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultSpawnArchitect,
@@ -21,22 +21,22 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const context = inferContextDefaults({
       caveHasRechargeSeamChance: 0.15,
       hallHasRechargeSeamChance: 0.15,
-      ...cavern.initialContext
-    })
-    return {...cavern, context}
+      ...cavern.initialContext,
+    });
+    return { ...cavern, context };
   },
-  script({cavern, plan, sh}) {
+  script({ cavern, plan, sh }) {
     const v = mkVars(`p${plan.id}Bo`, [
-      'crystalBank',
-      'doReset',
-      'loop',
-      'ms',
-      'msgStart',
-      'msgEnd',
-      'needCrystals',
-      'reset',
-      'tc',
-      'trips',
+      "crystalBank",
+      "doReset",
+      "loop",
+      "ms",
+      "msgStart",
+      "msgEnd",
+      "needCrystals",
+      "reset",
+      "tc",
+      "trips",
     ]);
     const rng = cavern.dice.script(plan.id);
     return scriptFragment(
@@ -58,12 +58,12 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `when(crystals>=${v.needCrystals})[${v.trips}+=1]`,
       sh.trigger(
         `when(${v.trips}==1)`,
-        'wait:random(5)(30);',
+        "wait:random(5)(30);",
         `${v.needCrystals}=crystals+${CRYSTALS_INCREMENT_TO_RESET};`,
-        'disable:lights;',
+        "disable:lights;",
         `${v.reset}=0;`,
         `${v.loop};`,
-        'wait:1;',
+        "wait:1;",
         `${v.ms}=1;`,
       ),
       `if(${v.ms}==1)[msg:${v.msgStart}]`,
@@ -85,15 +85,15 @@ const BASE: PartialArchitect<typeof METADATA> = {
         `crystals+=${v.crystalBank};`,
         `${v.needCrystals}=${v.crystalBank}+${CRYSTALS_INCREMENT_TO_RETRIGGER};`,
         `${v.crystalBank}=0;`,
-        'wait:1;',
-        'enable:lights;',
+        "wait:1;",
+        "enable:lights;",
         `${v.trips}=0;`,
         `wait:1;`,
         `${v.ms}=2;`,
       ),
       `if(${v.ms}==2)[msg:${v.msgEnd}]`,
     );
-  }
+  },
 };
 
 const BLACKOUT = [

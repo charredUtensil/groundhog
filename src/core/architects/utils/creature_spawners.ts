@@ -42,7 +42,7 @@ type CreatureSpawnerArgs = {
       readonly initialCooldown?: { min: number; max: number };
       readonly needCrystals?: { base: number; increment?: number };
       readonly needStableAir?: boolean;
-      readonly tripOnArmed?: 'first' | 'always';
+      readonly tripOnArmed?: "first" | "always";
       readonly tripPoints?: readonly Point[];
     }
 );
@@ -287,7 +287,7 @@ function creatureSpawnScript(
           `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
           opts.reArmMode === "hoard" && `((${v.hoardTrip}==0))return;`,
           `${v.arm}=1;`,
-          opts.tripOnArmed === 'always' && `${v.doTrip};`,
+          opts.tripOnArmed === "always" && `${v.doTrip};`,
         );
       })(),
   );

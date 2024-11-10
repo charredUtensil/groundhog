@@ -39,7 +39,8 @@ const BASE: PartialArchitect<typeof METADATA> = {
 const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
 
 const shouldIncludeHoardScript = (cavern: PreprogrammedCavern) =>
-  cavern.objectives.crystals && cavern.plans[cavern.anchor].metadata?.tag !== 'mobFarm';
+  cavern.objectives.crystals &&
+  cavern.plans[cavern.anchor].metadata?.tag !== "mobFarm";
 
 const HOARD: typeof BASE = {
   ...BASE,

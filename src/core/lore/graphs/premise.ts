@@ -41,17 +41,17 @@ const PREMISE = phraseGraph<State>(
       const spawnHasErosion = state("spawnHasErosion").then(
         "we are dangerously close to a cavern full of lava",
         "we are concerned about nearby lava flows that could engulf this " +
-        "cavern",
+          "cavern",
         "you will need to keep an eye on the volcanic activity in this " +
-        "cavern to avoid being buried in lava",
+          "cavern to avoid being buried in lava",
       );
 
       const blackout = state("spawnIsBlackout").then(
         "the unusual magnetic properties of the rock here might interfere " +
-        "with our equipment",
+          "with our equipment",
         "there are unusual magnetic readings in this cavern and we're " +
-        "concerned about the effects that might have on our equipment"
-      )
+          "concerned about the effects that might have on our equipment",
+      );
 
       const hasMonstersTexts = pg(
         state("hasMonsters").then(skip, state("hasSlugs")),
@@ -79,8 +79,15 @@ const PREMISE = phraseGraph<State>(
           "you must make do with the buildings that are already constructed.",
         );
 
-      pg(spawnHasErosion, blackout.then(skip, state("spawnHasErosion"))).then(", and").then(hasMonstersTexts);
-      return pg(blackout, spawnHasErosion, hasMonstersTexts, hqIsFixedComplete.then(end))
+      pg(spawnHasErosion, blackout.then(skip, state("spawnHasErosion")))
+        .then(", and")
+        .then(hasMonstersTexts);
+      return pg(
+        blackout,
+        spawnHasErosion,
+        hasMonstersTexts,
+        hqIsFixedComplete.then(end),
+      )
         .then(".")
         .then(end, hqIsFixedComplete);
     })();
@@ -169,12 +176,14 @@ const PREMISE = phraseGraph<State>(
           ),
           "another cavern where we can continue our mining operations",
         ),
-        state("spawnIsBlackout").then(
-          "We found a cavern with unusual geomagnetic properties. We believe " +
-          "it will have plenty of Energy Crystals",
-          "We're sending you to a cavern deep within the planet where we've " +
-          "been picking up unusual magnetic readings",
-        ).then(skip, state("treasureCaveOne", "treasureCaveMany")),
+        state("spawnIsBlackout")
+          .then(
+            "We found a cavern with unusual geomagnetic properties. We believe " +
+              "it will have plenty of Energy Crystals",
+            "We're sending you to a cavern deep within the planet where we've " +
+              "been picking up unusual magnetic readings",
+          )
+          .then(skip, state("treasureCaveOne", "treasureCaveMany")),
       )
       .then(
         pg(".").then(end),
@@ -232,50 +241,57 @@ const PREMISE = phraseGraph<State>(
 
     // TODO: need lore state and copy for blackout?
 
-    greeting.then(state('spawnIsMobFarm')).then(
-      "We discovered this incredible cave with the abundance of Energy " +
-      "Crystals you now see before you.",
-      "As you can see, we have located a cave with an absurd number of " +
-      "Energy Crystals.",
-    ).then(
-      "We meant to teleport you onto that island, but something is " +
-      "interfering with the signal.",
-      "That many Energy Crystals in one place seems to be interfering with " +
-      "our teleporters.",
-    ).then(
-      "We are extremely limited in what vehicles we can send down to you, " +
-      "so you'll have to get the crystals some other way.",
-    ).then(
-      skip, state('hasMonsters')
-    ).then(
-      skip, state('hasSlugs')
-    ).then(
-      skip, state('spawnHasErosion')
-    ).then(
-      skip, state('treasureCaveOne', 'treasureCaveMany')
-    ).then(
-      skip,
-      pg("\n\nThere's one more thing - ").then(skip, "you aren't the first to arrive here.").then(
-        state('lostMinersApart').then(
-          "Some of our Rock Raiders were scattered a bit further away from " +
-          "the island. By our readings, they seem to be in separate caverns " +
-          "nearby"
-        ),
-        state('lostMinersTogether').then(
-          "We already sent a team down here, but they failed to check in").then(skip, ". We believe they are stranded in a nearby cavern",
-        ),
-        state('lostMinersOne').then(
-          "One of our Rock Raiders was teleported to another cavern " +
-          "somewhere near here",
-          "One of our Rock Raiders didn't come down with the group. They " +
-          "should be somewhere nearby"
-        ),
-      ).then(
-        "and we're counting on you to rescue them!",
-        ". I know I can count on you to reach them.",
-        ".",
+    greeting
+      .then(state("spawnIsMobFarm"))
+      .then(
+        "We discovered this incredible cave with the abundance of Energy " +
+          "Crystals you now see before you.",
+        "As you can see, we have located a cave with an absurd number of " +
+          "Energy Crystals.",
       )
-    ).then(end);
+      .then(
+        "We meant to teleport you onto that island, but something is " +
+          "interfering with the signal.",
+        "That many Energy Crystals in one place seems to be interfering with " +
+          "our teleporters.",
+      )
+      .then(
+        "We are extremely limited in what vehicles we can send down to you, " +
+          "so you'll have to get the crystals some other way.",
+      )
+      .then(skip, state("hasMonsters"))
+      .then(skip, state("hasSlugs"))
+      .then(skip, state("spawnHasErosion"))
+      .then(skip, state("treasureCaveOne", "treasureCaveMany"))
+      .then(
+        skip,
+        pg("\n\nThere's one more thing - ")
+          .then(skip, "you aren't the first to arrive here.")
+          .then(
+            state("lostMinersApart").then(
+              "Some of our Rock Raiders were scattered a bit further away from " +
+                "the island. By our readings, they seem to be in separate caverns " +
+                "nearby",
+            ),
+            state("lostMinersTogether")
+              .then(
+                "We already sent a team down here, but they failed to check in",
+              )
+              .then(skip, ". We believe they are stranded in a nearby cavern"),
+            state("lostMinersOne").then(
+              "One of our Rock Raiders was teleported to another cavern " +
+                "somewhere near here",
+              "One of our Rock Raiders didn't come down with the group. They " +
+                "should be somewhere nearby",
+            ),
+          )
+          .then(
+            "and we're counting on you to rescue them!",
+            ". I know I can count on you to reach them.",
+            ".",
+          ),
+      )
+      .then(end);
 
     const negativeGreeting = pg(
       greeting,

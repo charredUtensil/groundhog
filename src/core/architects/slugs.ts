@@ -51,7 +51,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
       reArmMode: "none",
       initialCooldown: { min: 20, max: 60 },
       needCrystals: { base: Math.floor(getTotalCrystals(args.cavern) / 10) },
-      tripOnArmed: 'first',
+      tripOnArmed: "first",
       waveSize: holeCount,
     });
   },

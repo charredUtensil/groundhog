@@ -79,7 +79,7 @@ const LOST = [
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
-      plans[cavern.anchor]?.metadata?.tag !== 'mobFarm' &&
+      plans[cavern.anchor]?.metadata?.tag !== "mobFarm" &&
       !hops.some((id) => plans[id].fluid) &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       0.5,
@@ -95,7 +95,7 @@ const LOST = [
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops.length <= MAX_HOPS &&
-      plans[cavern.anchor]?.metadata?.tag !== 'mobFarm' &&
+      plans[cavern.anchor]?.metadata?.tag !== "mobFarm" &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
   },

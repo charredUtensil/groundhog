@@ -241,8 +241,8 @@ export class Lore {
       buildAndPowerGcOne: buildAndPowerGcCount === 1,
       buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
       hasAirLimit: !!cavern.oxygen,
-      spawnIsMobFarm: anchor.metadata?.tag === 'mobFarm',
-      spawnIsBlackout: anchor.metadata?.tag === 'blackout',
+      spawnIsMobFarm: anchor.metadata?.tag === "mobFarm",
+      spawnIsBlackout: anchor.metadata?.tag === "blackout",
     };
 
     const enemies = filterTruthy([

@@ -1,10 +1,16 @@
 import { MutableGrid } from "../../common/grid";
 import { RoughPlasticCavern } from "./01_rough";
 import { Tile } from "../../models/tiles";
-import { NSEW, offsetBy, Point, rotateAround, rotateLeft, rotateRight } from "../../common/geometry";
+import {
+  NSEW,
+  offsetBy,
+  Point,
+  rotateAround,
+  rotateLeft,
+  rotateRight,
+} from "../../common/geometry";
 import { DiscoveryZone, getDiscoveryZones } from "../../models/discovery_zone";
 import { filterTruthy } from "../../common/utils";
-
 
 /*
   Each tile is part of four different possible 2x2 squares.
@@ -13,7 +19,6 @@ import { filterTruthy } from "../../common/utils";
     track the DZs that must be conditionally undiscovered for this to be open?
   If it needs to be braced, 
  */
-
 
 export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
   const rng = cavern.dice.brace;
@@ -34,38 +39,37 @@ export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
     //                             . W E
     //                             A V D
     //                             Z S .
-    const squares = rng.shuffle(NSEW).map(
-      ([owx, owy]) => {
-        const pw = offsetBy(pv, [owx, owy]);
-        const pa = offsetBy(pv, [owy, -owx]);
-        const ps = offsetBy(pv, [-owx, -owy]);
-        const pd = offsetBy(pv, [-owy, owx]);
-        const pe = offsetBy(pv, [owx - owy, owy + owx])
-        const pz = offsetBy(pv, [-owx + owy, -owy - owx])
-        const floors = [pw, pe, pd].reduce((r, p) => tiles.get(...p)?.isWall === false ? r + 1 : r, 0);
-        return {pw, pa, ps, pd, pe, pz, floors};
-      }
-    );
+    const squares = rng.shuffle(NSEW).map(([owx, owy]) => {
+      const pw = offsetBy(pv, [owx, owy]);
+      const pa = offsetBy(pv, [owy, -owx]);
+      const ps = offsetBy(pv, [-owx, -owy]);
+      const pd = offsetBy(pv, [-owy, owx]);
+      const pe = offsetBy(pv, [owx - owy, owy + owx]);
+      const pz = offsetBy(pv, [-owx + owy, -owy - owx]);
+      const floors = [pw, pe, pd].reduce(
+        (r, p) => (tiles.get(...p)?.isWall === false ? r + 1 : r),
+        0,
+      );
+      return { pw, pa, ps, pd, pe, pz, floors };
+    });
     // Sort the squares by how many floor tiles they have so the most supported
     // goes first.
     squares.sort((a, b) => a.floors - b.floors);
-    for (const {pw, pa, ps, pd, pe, pz, floors} of squares) {
+    for (const { pw, pa, ps, pd, pe, pz, floors } of squares) {
       // All points are already walls - nothing to do.
       if (floors === 0) {
-        [pv, pw, pe, pd].forEach(p => done.set(...p, true));
+        [pv, pw, pe, pd].forEach((p) => done.set(...p, true));
         return;
       }
       // Determine if this separates two discovery zones. If so, it doesn't
       // need to be supported.
       const dzs: DiscoveryZone[] = [];
-      [pw, pe, pd, ps, pz, pa].forEach(
-        p => {
-          if (tiles.get(...p)?.isWall === false) {
-            const dz = discoveryZones.get(...p)!;
-            dzs[dz.id] = dz;
-          }
+      [pw, pe, pd, ps, pz, pa].forEach((p) => {
+        if (tiles.get(...p)?.isWall === false) {
+          const dz = discoveryZones.get(...p)!;
+          dzs[dz.id] = dz;
         }
-      );
+      });
       if (dzs.reduce((r) => r + 1, 0) > 1) {
         const [d1, d2] = dzs.filter(() => true);
         if (!d1.openOnSpawn || !d2.openOnSpawn) {
@@ -78,7 +82,7 @@ export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
         }
       }
       // This square must become wall.
-      [pw, pe, pd].forEach(p => {
+      [pw, pe, pd].forEach((p) => {
         if (tiles.get(...p)?.isWall === false) {
           tiles.set(...p, Tile.DIRT);
         }
@@ -89,9 +93,11 @@ export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
     }
   }
 
-  const queue: Point[] = rng.shuffle(tiles.flatMap(
-    (_, x, y) => [[0,0], ...NSEW].map(([ox, oy]) => [x + ox, y + oy] satisfies Point)
-  ));
+  const queue: Point[] = rng.shuffle(
+    tiles.flatMap((_, x, y) =>
+      [[0, 0], ...NSEW].map(([ox, oy]) => [x + ox, y + oy] satisfies Point),
+    ),
+  );
   queue.forEach(visit);
   return { ...cavern, tiles };
 }

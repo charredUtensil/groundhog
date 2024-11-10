@@ -30,10 +30,7 @@ import {
   AnchoredCavern,
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
-import {
-  DzPriority,
-  ScriptHelper,
-} from "../architects/utils/script";
+import { DzPriority, ScriptHelper } from "../architects/utils/script";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 

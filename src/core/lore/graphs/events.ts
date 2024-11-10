@@ -289,10 +289,7 @@ export const BLACKOUT_START = phraseGraph<State>(
   "Blackout Start",
   ({ pg, state, start, end, cut, skip }) => {
     start
-      .then(
-        skip,
-        "Oh no!",
-      )
+      .then(skip, "Oh no!")
       .then("The magnetic shifts are interfering with our Power Station.")
       .then(end);
   },
@@ -303,7 +300,12 @@ export const BLACKOUT_END = phraseGraph<State>(
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then("The power is back!")
-      .then(skip, state("hasAirLimit").then("I suggest you build additional Support Stations."))
+      .then(
+        skip,
+        state("hasAirLimit").then(
+          "I suggest you build additional Support Stations.",
+        ),
+      )
       .then(end);
   },
 );
@@ -314,16 +316,17 @@ export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State>(
     start
       .then(
         "With so many Energy Crystals removed, you should now have no " +
-        "issues teleporting in the other vehicles.",
+          "issues teleporting in the other vehicles.",
       )
       .then(
         skip,
         state("lostMinersOne").then(
-          "Use them to find that missing Rock Raider!"
+          "Use them to find that missing Rock Raider!",
         ),
         state("lostMinersTogether", "lostMinersApart").then(
-          "Use them to find those missing Rock Raiders!"
-        ))
+          "Use them to find those missing Rock Raiders!",
+        ),
+      )
       .then(end);
   },
 );

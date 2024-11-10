@@ -78,14 +78,17 @@ function getBreadcrumbPoint(
   // Choose the neighboring plan which is closest to spawn (fewest hops).
   const neighborPlan = cavern.plans[plan.hops[plan.hops.length - 1]];
 
-  const result = closestTo(minersPos, neighborPlan.innerPearl
-    .flatMap((layer) => layer)
-    // Find all the points in the inner pearl that are not walls and are in a
-    // different discovery zone from the miners.
-    .filter(([x, y]) => {
-      const dz = cavern.discoveryZones.get(x, y);
-      return dz && dz !== minersDz;
-    }));
+  const result = closestTo(
+    minersPos,
+    neighborPlan.innerPearl
+      .flatMap((layer) => layer)
+      // Find all the points in the inner pearl that are not walls and are in a
+      // different discovery zone from the miners.
+      .filter(([x, y]) => {
+        const dz = cavern.discoveryZones.get(x, y);
+        return dz && dz !== minersDz;
+      }),
+  );
 
   // If such a point exists, return it.
   if (result) {
@@ -105,16 +108,18 @@ function placeBreadcrumbVehicles(
 ): Vehicle[] {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const isMobFarm = cavern.plans[cavern.anchor].metadata?.tag === 'mobFarm';
-  const template = rng.weightedChoice<VehicleTemplate | null>(filterTruthy([
-    !fluid && !isMobFarm && { item: HOVER_SCOUT, bid: 2 },
-    !fluid && { item: SMALL_DIGGER, bid: 0.5 },
-    !fluid && { item: SMALL_TRANSPORT_TRUCK, bid: 0.75 },
-    !fluid && { item: SMLC, bid: 0.05},
-    !isMobFarm && fluid === Tile.WATER && { item: RAPID_RIDER, bid: 1 },
-    !isMobFarm && { item: TUNNEL_SCOUT, bid: 0.25 },
-    { item: null, bid: 0.0025 },
-  ]));
+  const isMobFarm = cavern.plans[cavern.anchor].metadata?.tag === "mobFarm";
+  const template = rng.weightedChoice<VehicleTemplate | null>(
+    filterTruthy([
+      !fluid && !isMobFarm && { item: HOVER_SCOUT, bid: 2 },
+      !fluid && { item: SMALL_DIGGER, bid: 0.5 },
+      !fluid && { item: SMALL_TRANSPORT_TRUCK, bid: 0.75 },
+      !fluid && { item: SMLC, bid: 0.05 },
+      !isMobFarm && fluid === Tile.WATER && { item: RAPID_RIDER, bid: 1 },
+      !isMobFarm && { item: TUNNEL_SCOUT, bid: 0.25 },
+      { item: null, bid: 0.0025 },
+    ]),
+  );
   if (template) {
     return [
       vehicleFactory.create({
