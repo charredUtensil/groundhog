@@ -255,7 +255,9 @@ export const BUILD_AND_POWER = [
         plan.pearlRadius > 2 &&
         plan.pearlRadius < 10 &&
         plan.path.baseplates.length === 1 &&
+        // Incompatible with fchq or mob farm
         !(amd?.tag === "hq" && amd.fixedComplete) &&
+        !(amd?.tag === "mobFarm") &&
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
         !hops.some((h) => {

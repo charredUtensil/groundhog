@@ -307,3 +307,27 @@ export const BLACKOUT_END = phraseGraph<State>(
       .then(end);
   },
 );
+
+export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State>(
+  "Mob Farm no longer blocking",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(
+        "With so many Energy Crystals removed, you should now have no " +
+        "issues teleporting in the other vehicles.",
+      )
+      .then(
+        skip,
+        state("lostMinersOne").then(
+          "Use them to find that missing Rock Raider!"
+        ),
+        state("lostMinersTogether", "lostMinersApart").then(
+          "Use them to find those missing Rock Raiders!"
+        ))
+      .then(end);
+  },
+);
+
+export const HINT_SELECT_LASER_GROUP = `Hint: Hold SHIFT+click to select multiple units.
+CTRL+[0-9] assigns a group of units that you can recall with [0-9].
+X activates laser mode.`;

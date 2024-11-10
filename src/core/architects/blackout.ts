@@ -1,5 +1,6 @@
+import { inferContextDefaults } from "../common";
 import { BLACKOUT_START, BLACKOUT_END } from "../lore/graphs/events";
-import { Architect } from "../models/architect";
+import { Architect, BaseMetadata } from "../models/architect";
 import { DefaultSpawnArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { eventChain, mkVars, scriptFragment } from "./utils/script";
@@ -11,8 +12,19 @@ const MIN_AIR = 500;
 const RESET_SECONDS = 120;
 const RESET_END = 999;
 
-const BASE: PartialArchitect<undefined> = {
+const METADATA = {tag:'blackout'} as const satisfies BaseMetadata;
+
+const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultSpawnArchitect,
+  prime: () => METADATA,
+  mod(cavern) {
+    const context = inferContextDefaults({
+      caveHasRechargeSeamChance: 0.15,
+      hallHasRechargeSeamChance: 0.15,
+      ...cavern.initialContext
+    })
+    return {...cavern, context}
+  },
   script({cavern, plan, sh}) {
     const v = mkVars(`p${plan.id}Bo`, [
       'crystalBank',
@@ -98,7 +110,7 @@ const BLACKOUT = [
       plan.lakeSize >= 3 &&
       plan.pearlRadius > 0 &&
       !cavern.context.hasSlugs &&
-      0.4,
+      0.03,
   },
-] as const satisfies readonly Architect<undefined>[];
+] as const satisfies readonly Architect<typeof METADATA>[];
 export default BLACKOUT;

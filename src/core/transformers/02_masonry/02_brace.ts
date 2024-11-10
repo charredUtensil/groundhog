@@ -1,58 +1,97 @@
 import { MutableGrid } from "../../common/grid";
 import { RoughPlasticCavern } from "./01_rough";
 import { Tile } from "../../models/tiles";
-import { Cardinal4, NSEW } from "../../common/geometry";
-import { getDiscoveryZones } from "../../models/discovery_zone";
+import { NSEW, offsetBy, Point, rotateAround, rotateLeft, rotateRight } from "../../common/geometry";
+import { DiscoveryZone, getDiscoveryZones } from "../../models/discovery_zone";
+import { filterTruthy } from "../../common/utils";
+
+
+/*
+  Each tile is part of four different possible 2x2 squares.
+  If the tile is floor, it does not need to be braced.
+  If the tile is part of at least one firm 2x2 square of wall, it does not need to be braced.
+    track the DZs that must be conditionally undiscovered for this to be open?
+  If it needs to be braced, 
+ */
+
 
 export default function brace(cavern: RoughPlasticCavern): RoughPlasticCavern {
   const rng = cavern.dice.brace;
   const tiles = cavern.tiles.copy();
   const discoveryZones = getDiscoveryZones(tiles);
-  const visited: MutableGrid<true> = new MutableGrid();
-  const queue: { x: number; y: number; facing: Cardinal4 | null }[] =
-    tiles.flatMap((_, x, y) => [
-      { x, y, facing: null },
-      ...NSEW.map((f) => ({ x: x + f[0], y: y + f[1], facing: null })),
-    ]);
-  while (queue.length) {
-    const { x, y, facing } = queue.pop()!;
-    if (!visited.get(x, y) && (tiles.get(x, y)?.isWall ?? true)) {
-      const neighbors = NSEW.map((f) => ({
-        x: x + f[0],
-        y: y + f[1],
-        facing: f,
-      }));
-      const wallNeighbors = neighbors.filter(
-        ({ x, y }) => tiles.get(x, y)?.isWall ?? true,
-      );
+  const done: MutableGrid<true> = new MutableGrid();
 
-      if (!wallNeighbors.length) {
-        const n = rng.uniformChoice(neighbors);
-        tiles.set(n.x, n.y, Tile.DIRT);
-        wallNeighbors.push(n);
+  function visit(pv: Point) {
+    if (done.get(...pv)) {
+      return;
+    }
+    if (!tiles.get(...pv)?.isWall) {
+      return;
+    }
+    // V marks the tile at point pv. The tile has four possible squares it can
+    // fit in. Look at them in this pattern, rotated to each of the four
+    // possible orientations:
+    //                             . W E
+    //                             A V D
+    //                             Z S .
+    const squares = rng.shuffle(NSEW).map(
+      ([owx, owy]) => {
+        const pw = offsetBy(pv, [owx, owy]);
+        const pa = offsetBy(pv, [owy, -owx]);
+        const ps = offsetBy(pv, [-owx, -owy]);
+        const pd = offsetBy(pv, [-owy, owx]);
+        const pe = offsetBy(pv, [owx - owy, owy + owx])
+        const pz = offsetBy(pv, [-owx + owy, -owy - owx])
+        const floors = [pw, pe, pd].reduce((r, p) => tiles.get(...p)?.isWall === false ? r + 1 : r, 0);
+        return {pw, pa, ps, pd, pe, pz, floors};
       }
-
-      const needsBrace = () => {
-        if (wallNeighbors.length === 2) {
-          const [a, b] = wallNeighbors;
-          return (
-            (a.x === b.x || a.y === b.y) &&
-            discoveryZones.get(a.x, a.y) === discoveryZones.get(b.x, b.y)
-          );
+    );
+    // Sort the squares by how many floor tiles they have so the most supported
+    // goes first.
+    squares.sort((a, b) => a.floors - b.floors);
+    for (const {pw, pa, ps, pd, pe, pz, floors} of squares) {
+      // All points are already walls - nothing to do.
+      if (floors === 0) {
+        [pv, pw, pe, pd].forEach(p => done.set(...p, true));
+        return;
+      }
+      // Determine if this separates two discovery zones. If so, it doesn't
+      // need to be supported.
+      const dzs: DiscoveryZone[] = [];
+      [pw, pe, pd, ps, pz, pa].forEach(
+        p => {
+          if (tiles.get(...p)?.isWall === false) {
+            const dz = discoveryZones.get(...p)!;
+            dzs[dz.id] = dz;
+          }
         }
-        return wallNeighbors.length < 2;
-      };
-
-      if (needsBrace()) {
-        const [ox, oy] = facing || wallNeighbors[0].facing.map((v) => -v);
-        const n = { x: x - oy, y: y + ox, facing: [-oy, ox] as Cardinal4 };
-        tiles.set(n.x, n.y, Tile.DIRT);
-        wallNeighbors.push(n);
+      );
+      if (dzs.reduce((r) => r + 1, 0) > 1) {
+        const [d1, d2] = dzs.filter(() => true);
+        if (!d1.openOnSpawn || !d2.openOnSpawn) {
+          // V sits on the boundary between two different discovery zones.
+          // Because of the way DZs are calculated, it is not possible for there
+          // to be more than one DZ in either contiguious group (WED/SZA) so this
+          // must be actually bisecting.
+          done.set(...pv, true);
+          return;
+        }
       }
-
-      visited.set(x, y, true);
-      queue.push(...wallNeighbors.filter(({ x, y }) => tiles.get(x, y)));
+      // This square must become wall.
+      [pw, pe, pd].forEach(p => {
+        if (tiles.get(...p)?.isWall === false) {
+          tiles.set(...p, Tile.DIRT);
+        }
+        done.set(...p, true);
+      });
+      done.set(...pv, true);
+      return;
     }
   }
+
+  const queue: Point[] = rng.shuffle(tiles.flatMap(
+    (_, x, y) => [[0,0], ...NSEW].map(([ox, oy]) => [x + ox, y + oy] satisfies Point)
+  ));
+  queue.forEach(visit);
   return { ...cavern, tiles };
 }

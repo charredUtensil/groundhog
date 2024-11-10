@@ -47,11 +47,12 @@ function expectCompletion(actual: PhraseGraph<any>) {
         .then(skip, st("spawnHasErosion"))
         .then(skip, st("treasureCaveOne", "treasureCaveMany"))
         .then(
-          pg(skip, st("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsMobFarm")).then(
+          pg(skip, st("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsBlackout")).then(
             skip,
             st("findHq").then(skip, st("hqIsRuin")),
           ),
           st("spawnIsHq").then(skip, st("hqIsFixedComplete"), st("hqIsRuin")),
+          st("spawnIsMobFarm"),
         )
         .then(
           skip,

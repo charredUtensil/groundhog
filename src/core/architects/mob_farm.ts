@@ -1,16 +1,19 @@
-import { Architect, BaseMetadata } from "../models/architect";
+import { Architect } from "../models/architect";
 import { Tile } from "../models/tiles";
 import { DefaultSpawnArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { getBuildings } from "./utils/buildings";
-import { DOCKS, SUPER_TELEPORT, TOOL_STORE } from "../models/building";
+import { DOCKS, MINING_LASER, SUPER_TELEPORT, TOOL_STORE } from "../models/building";
 import { position, randomlyInTile } from "../models/position";
 import { asXY, closestTo, NSEW, offsetBy, Point } from "../common/geometry";
-import { CARGO_CARRIER, CHROME_CRUSHER, GRANITE_GRINDER, HOVER_SCOUT, LMLC, LOADER_DOZER, RAPID_RIDER, TUNNEL_SCOUT, TUNNEL_TRANSPORT } from "../models/vehicle";
+import { CARGO_CARRIER, CHROME_CRUSHER, GRANITE_GRINDER, HOVER_SCOUT, LMLC, LOADER_DOZER, RAPID_RIDER, SMLC, TUNNEL_SCOUT, TUNNEL_TRANSPORT } from "../models/vehicle";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { inferContextDefaults } from "../common";
-import { scriptFragment } from "./utils/script";
+import { mkVars, scriptFragment } from "./utils/script";
+import { HINT_SELECT_LASER_GROUP, MOB_FARM_NO_LONGER_BLOCKING } from "../lore/graphs/events";
+import { gObjectives } from "./utils/objectives";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 const BANLIST = [
   DOCKS,
@@ -21,27 +24,37 @@ const BANLIST = [
   LOADER_DOZER,
   GRANITE_GRINDER,
   CARGO_CARRIER,
+  LMLC,
   CHROME_CRUSHER,
   TUNNEL_TRANSPORT,
 ] as const;
 
-const METADATA = {
+export type MobFarmMetadata = {
   tag: "mobFarm",
-} as const satisfies BaseMetadata;
+  hoardSize: number,
+};
 
-const BASE: PartialArchitect<typeof METADATA> = {
+function totalAccessibleWalls({aerationLog, tiles}: PreprogrammedCavern) {
+  let result = 0;
+  aerationLog?.forEach((_, x, y) => tiles.get(x, y)?.isWall && result++);
+  return result;
+}
+
+const BASE: PartialArchitect<MobFarmMetadata> = {
   ...DefaultSpawnArchitect,
-  prime: () => METADATA,
+  prime: ({cavern, plan}) => ({tag: "mobFarm", hoardSize: cavern.dice.prime(plan.id).betaInt({a: 4, b: 4, min: 170, max: 230})}),
   mod(cavern) {
     const context = inferContextDefaults({
       caveCrystalRichness: { base: -0.16, hops: 0.32, order: 0.32 },
       hallCrystalRichness: { base: 0, hops: 0, order: 0 },
+      caveCrystalSeamBias: 0.7,
+      globalHostilesCap: 10,
       ...cavern.initialContext
     })
     return {...cavern, context}
   },
-  crystalsToPlace: () => 200,
-  crystalsFromMetadata: () => 8,
+  crystalsToPlace: ({ plan }) => Math.max(plan.crystalRichness * plan.perimeter, 9),
+  crystalsFromMetadata: (metadata) => 4 + LMLC.crystals + metadata.hoardSize,
   placeRechargeSeam: getPlaceRechargeSeams(3),
   placeBuildings(args) {
     const [toolStore] = getBuildings({
@@ -64,11 +77,12 @@ const BASE: PartialArchitect<typeof METADATA> = {
       cameraPosition: position({
         ...asXY(args.plan.innerPearl[0][0]),
         aimedAt: [toolStore.x, toolStore.y],
-        pitch: Math.PI / 8,
+        pitch: Math.PI / 3,
       })
     }
   },
   placeCrystals(args) {
+    sprinkleCrystals(args);
     const tiles = args.plan.innerPearl.flatMap((ly, i) => i <= 2 ? ly : []).filter(pos => {
       const t = args.tiles.get(...pos);
       return t && !t.isWall && !t.isFluid;
@@ -77,39 +91,80 @@ const BASE: PartialArchitect<typeof METADATA> = {
     sprinkleCrystals(args, {
       getRandomTile: () => rng.betaChoice(tiles, {a: 1, b: 2.5}),
       seamBias: 0,
+      count: args.plan.metadata.hoardSize,
     });
   },
   placeSlugHoles() {},
   placeLandslides() {},
-  placeEntities({cavern, plan, vehicleFactory}) {
+  placeEntities({cavern, plan, minerFactory, vehicleFactory}) {
     const rng = cavern.dice.placeEntities(plan.id);
     const ts = cavern.buildings.find(b => cavern.pearlInnerDex.get(...b.foundation[0])?.[plan.id])!;
     const tiles = NSEW.map(oPos => offsetBy(ts.foundation[0], oPos)).filter(pos => {
       const t = cavern.tiles.get(...pos);
       return t && !t.isWall && !t.isFluid;
     })
+    const pos = randomlyInTile({...asXY(rng.uniformChoice(tiles)), rng});
+    const driver = minerFactory.create({
+      loadout: ['Drill', 'JobDriver', 'JobEngineer'],
+      planId: plan.id,
+      ...pos,
+    })
     const lmlc = vehicleFactory.create({
       template: LMLC,
       upgrades: ['UpLaser'],
       planId: plan.id,
-      ...randomlyInTile({...asXY(rng.uniformChoice(tiles)), rng}),
+      driverId: driver.id,
+      ...pos,
     });
     return {
-      vehicles: [lmlc]
+      miners: [driver],
+      vehicles: [lmlc],
     }
   },
   objectives({cavern}) {
-    const crystals = cavern.plans[cavern.anchor].crystals * 0.75
+    const crystals = cavern.plans[cavern.anchor].crystals * 0.6;
     return {
       crystals: Math.floor(crystals / 5) * 5, sufficient: true
     };
   },
-  scriptGlobals({cavern, sh}) {
+  script({cavern, plan, sh}) {
+    const v = mkVars(`p${plan.id}MF`, ['hintGroup', 'msgHintGroup', 'msgNotBlocking'])
+    const rng = cavern.dice.script(plan.id)
     return scriptFragment(
       '# Globals: Mob Farm',
       sh.trigger(
         'if(time:0)',
         ...BANLIST.map(t => `disable:${t.id};` satisfies `${string};`)
+      ),
+      cavern.objectives.variables.length > 0 && scriptFragment(
+        sh.declareString(v.msgNotBlocking, {rng, pg: MOB_FARM_NO_LONGER_BLOCKING}),
+        sh.trigger(
+          // There's a good chance any further objectives are softlocked by the
+          // inability to cross lakes and rivers - so unlock them.
+          `if(crystals>=${cavern.objectives.crystals})`,
+          `wait:5;`,
+          ...BANLIST.map(t => `enable:${t.id};` satisfies `${string};`),
+          `((${gObjectives.won}==0))msg:${v.msgNotBlocking};`,
+        ),
+      ),
+      // Hint to tell players about control groups. This isn't super annoying
+      // under normal circumstances, but here it's almost a necessity that the
+      // player have their lasers bound to a single key.
+      sh.declareInt(v.hintGroup, 0),
+      sh.trigger(
+        `when(${MINING_LASER.id}.click)`,
+        `((${MINING_LASER.id}<2))return;`,
+        `${v.hintGroup}=1;`,
+      ),
+      sh.trigger(
+        `when(${SMLC.id}.click)`,
+        `((${SMLC.id}<2))return;`,
+        `${v.hintGroup}=1;`,
+      ),
+      sh.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP),
+      sh.trigger(
+        `if(${v.hintGroup}>0)`,
+        `msg:${v.msgHintGroup};`,
       ),
     );
   },
@@ -119,11 +174,6 @@ const BASE: PartialArchitect<typeof METADATA> = {
     tripOnArmed: 'always',
   })
 };
-
-// TODO:
-// Give crystals - either as a seam or just give them initially
-// Lore to indicate the point of the level
-// Disable flying vehicles (all vehicles but STT?)
 
 const MOB_FARM = [
   {
@@ -151,9 +201,12 @@ const MOB_FARM = [
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 6 &&
       plan.path.baseplates.length === 1 &&
+      plan.intersects.some((_, i) => {
+        const p = cavern.plans[i];
+        return !p.fluid && p.lakeSize >= 6;
+      }) &&
       plan.intersects.reduce((r, _, i) => cavern.plans[i].fluid ? r + 1 : r, 0) <= 1 &&
-      cavern.plans.reduce((r, p) => p.fluid ? r + 1 : r, 0) <= 5 &&
-      1,
+      2,
   },
-] as const satisfies readonly Architect<typeof METADATA>[];
+] as const satisfies readonly Architect<MobFarmMetadata>[];
 export default MOB_FARM;

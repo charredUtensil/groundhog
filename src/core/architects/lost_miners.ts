@@ -16,6 +16,7 @@ import {
   SMALL_DIGGER,
   SMALL_TRANSPORT_TRUCK,
   TUNNEL_SCOUT,
+  SMLC,
 } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
@@ -38,6 +39,7 @@ import {
   FOUND_LOST_MINERS,
 } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
+import { filterTruthy } from "../common/utils";
 
 export type LostMinersMetadata = {
   readonly tag: "lostMiners";
@@ -103,14 +105,16 @@ function placeBreadcrumbVehicles(
 ): Vehicle[] {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const template = rng.weightedChoice<VehicleTemplate | null>([
-    { item: HOVER_SCOUT, bid: fluid ? 0 : 2 },
-    { item: SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
-    { item: SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
-    { item: RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
-    { item: TUNNEL_SCOUT, bid: 0.25 },
+  const isMobFarm = cavern.plans[cavern.anchor].metadata?.tag === 'mobFarm';
+  const template = rng.weightedChoice<VehicleTemplate | null>(filterTruthy([
+    !fluid && !isMobFarm && { item: HOVER_SCOUT, bid: 2 },
+    !fluid && { item: SMALL_DIGGER, bid: 0.5 },
+    !fluid && { item: SMALL_TRANSPORT_TRUCK, bid: 0.75 },
+    !fluid && { item: SMLC, bid: 0.05},
+    !isMobFarm && fluid === Tile.WATER && { item: RAPID_RIDER, bid: 1 },
+    !isMobFarm && { item: TUNNEL_SCOUT, bid: 0.25 },
     { item: null, bid: 0.0025 },
-  ]);
+  ]));
   if (template) {
     return [
       vehicleFactory.create({

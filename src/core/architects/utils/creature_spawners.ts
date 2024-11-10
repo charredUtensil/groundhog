@@ -12,8 +12,8 @@ import { Plan } from "../../models/plan";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
 import {
-  check,
   eventChain,
+  EventChainLine,
   mkVars,
   scriptFragment,
   ScriptHelper,
@@ -173,7 +173,6 @@ function creatureSpawnScript(
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
     "arm",
     "doCooldown",
-    "doArm",
     "doTrip",
     "doSpawn",
     "hoardTrip",
@@ -207,14 +206,18 @@ function creatureSpawnScript(
       scriptFragment(
         // Arm
         sh.declareInt(v.arm, ArmState.DISARMED),
-        !opts.armEvent && `${getArmTrigger(cavern, plan)}[${v.doArm}]`,
-        eventChain(
-          opts.armEvent ?? v.doArm,
-          opts.initialCooldown &&
-            `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-          `${v.arm}=${ArmState.ARMED};`,
-          opts.tripOnArmed && `${v.doTrip};`,
-        ),
+        (() => {
+          const body: EventChainLine[] = [
+            opts.initialCooldown &&
+              `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
+            `${v.arm}=${ArmState.ARMED};`,
+            opts.tripOnArmed && `${v.doTrip};`,
+          ];
+          if (opts.armEvent) {
+            return eventChain(opts.armEvent, ...body);
+          }
+          return sh.trigger(getArmTrigger(cavern, plan), ...body);
+        })(),
 
         // Trip
         ...(opts.tripPoints ?? getTriggerPoints(cavern, plan)).map(
@@ -235,11 +238,7 @@ function creatureSpawnScript(
             `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
           cavern.context.globalHostilesCooldown > 0 &&
             `((${gCreatures.globalCooldown}>0))return;`,
-          check(
-            `${v.arm}==${ArmState.ARMED}`,
-            `${v.arm}=${ArmState.FIRE}`,
-            opts.reArmMode !== "none" && opts.tripOnArmed === 'always' && `${v.arm}=${v.doCooldown}`,
-          ),
+          `((${v.arm}==${ArmState.ARMED}))${v.arm}=${ArmState.FIRE};`,
         ),
         `when(${v.arm}==${ArmState.FIRE})[${v.doSpawn}]`,
       ),

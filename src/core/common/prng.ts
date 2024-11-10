@@ -23,6 +23,7 @@ export class PseudorandomStream {
     return min + (this.mt() * (max - min)) / MAX_PLUS_ONE;
   }
 
+  // https://mathlets.org/mathlets/beta-distribution/
   beta({
     a,
     b,

@@ -75,10 +75,11 @@ const LOST = [
     ...LOST_BASE,
     prime: getPrime(15, false),
     placeBuildings: getPlaceBuildings({}),
-    caveBid: ({ plan, hops, plans }) =>
+    caveBid: ({ cavern, plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
+      plans[cavern.anchor]?.metadata?.tag !== 'mobFarm' &&
       !hops.some((id) => plans[id].fluid) &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       0.5,
@@ -90,10 +91,11 @@ const LOST = [
     prime: getPrime(15, true),
     placeBuildings: getPlaceBuildings({ from: 3 }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 100 }, args),
-    caveBid: ({ plan, hops, plans }) =>
+    caveBid: ({ cavern, plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops.length <= MAX_HOPS &&
+      plans[cavern.anchor]?.metadata?.tag !== 'mobFarm' &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
   },
