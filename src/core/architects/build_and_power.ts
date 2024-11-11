@@ -12,13 +12,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { intersectsOnly } from "./utils/intersects";
 import { gObjectives } from "./utils/objectives";
 import { Rough, mkRough } from "./utils/rough";
-import {
-  eventChain,
-  EventChainLine,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "./utils/script";
+import { EventChainLine, mkVars, transformPoint } from "./utils/script";
 
 const TAG = "buildAndPower" as const;
 export type BuildAndPowerMetadata = {
@@ -38,7 +32,7 @@ function buildAndPower(
   Architect<BuildAndPowerMetadata>,
   "prime" | "objectives" | "script" | "scriptGlobals"
 > {
-  const g = mkVars(`gBp${template.inspectAbbrev}`, [
+  const g = mkVars(`gBuPw${template.inspectAbbrev}`, [
     "built",
     "checkPower",
     "doneCount",
@@ -49,7 +43,7 @@ function buildAndPower(
   ]);
   const metadata: BuildAndPowerMetadata = { tag: TAG, template };
   const mv = (plan: Plan<any>) =>
-    mkVars(`p${plan.id}Bp${template.inspectAbbrev}`, [
+    mkVars(`p${plan.id}BuPw${template.inspectAbbrev}`, [
       "arrow",
       "building",
       "onBuild",
@@ -85,83 +79,79 @@ function buildAndPower(
             plan.metadata?.tag === TAG && plan.metadata.template === template,
         )
         .map((plan) => mv(plan));
-      return scriptFragment(
-        `# Globals: Build and Power ${template.name}`,
+      // First trigger: when building is built or leveled up. This doesn't
+      // work with mutexes properly, but this is the least likely event to
+      // have collisions. In theory, it shouldn't be possible to level up
+      // multiple buildings at the same time.
+      sh.declareBuilding(g.built);
+      sh.when(
+        `${template.id}.${minLevel > 1 ? "levelup" : "new"}`,
+        `savebuilding:${g.built};`,
+        minLevel > 1 && `((${g.built}.level<${minLevel}))return;`,
+        ...pvs.map((v) => `${v.onBuild};` satisfies EventChainLine),
+      );
 
-        // First trigger: when building is built or leveled up. This doesn't
-        // work with mutexes properly, but this is the least likely event to
-        // have collisions. In theory, it shouldn't be possible to level up
-        // multiple buildings at the same time.
-        `building ${g.built}`,
-        sh.trigger(
-          `when(${template.id}.${minLevel > 1 ? "levelup" : "new"})`,
-          `savebuilding:${g.built};`,
-          minLevel > 1 && `((${g.built}.level<${minLevel}))return;`,
-          ...pvs.map((v) => `${v.onBuild};` satisfies EventChainLine),
+      // Second trigger: power state changes.
+      sh.declareInt(g.checkPower, 0);
+      sh.declareInt(g.doneCount, 0);
+      pvs.forEach((v) => {
+        sh.declareArrow(v.arrow);
+        sh.declareBuilding(v.building);
+      });
+      sh.when(`${template.id}.poweron`, `${g.checkPower}+=1;`);
+      sh.when(`${template.id}.poweroff`, `${g.checkPower}+=1;`);
+      sh.when(
+        `${g.checkPower}==1`,
+        `${g.doneCount}=0;`,
+        ...pvs.flatMap(
+          (v) =>
+            [
+              `((${v.building}.powered>0))[hidearrow:${v.arrow}][showarrow:${v.building}.row,${v.building}.column,${v.arrow}];`,
+              `((${v.building}.powered>0))${g.doneCount}+=1;`,
+            ] satisfies EventChainLine[],
         ),
+        `((${g.checkPower}>1))[${g.checkPower}=1][${g.checkPower}=0];`,
+      );
 
-        // Second trigger: power state changes.
-        sh.declareInt(g.checkPower, 0),
-        sh.declareInt(g.doneCount, 0),
-        ...pvs.map((v) => `arrow ${v.arrow}`),
-        ...pvs.map((v) => `building ${v.building}`),
-        `when(${template.id}.poweron)[${g.checkPower}+=1]`,
-        `when(${template.id}.poweroff)[${g.checkPower}+=1]`,
-        sh.trigger(
-          `when(${g.checkPower}==1)`,
-          `${g.doneCount}=0;`,
-          ...pvs.flatMap(
-            (v) =>
-              [
-                `((${v.building}.powered>0))[hidearrow:${v.arrow}][showarrow:${v.building}.row,${v.building}.column,${v.arrow}];`,
-                `((${v.building}.powered>0))${g.doneCount}+=1;`,
-              ] satisfies EventChainLine[],
-          ),
-          `((${g.checkPower}>1))[${g.checkPower}=1][${g.checkPower}=0];`,
-        ),
-
-        // Messages & done trigger
-        pvs.length > 1 &&
-          scriptFragment(
-            sh.declareString(g.msgA, {
-              die: LoreDie.buildAndPower,
-              pg: BUILD_POWER_GC_FIRST,
-              formatVars: {
-                buildingName: template.name,
-                remainingCount: spellNumber(pvs.length - 1),
-              },
-            }),
-            `if(${g.doneCount}==1)[msg:${g.msgA}]`,
-          ),
-        pvs.length > 2 &&
-          scriptFragment(
-            sh.declareString(g.msgB, {
-              die: LoreDie.buildAndPower,
-              pg: BUILD_POWER_GC_PENULTIMATE,
-              formatVars: {
-                buildingName: template.name,
-              },
-            }),
-            `if(${g.doneCount}==${pvs.length - 1})[msg:${g.msgB}]`,
-          ),
-        sh.declareInt(g.done, 0),
-        sh.declareString(g.msgC, {
+      // Messages & done trigger
+      if (pvs.length > 1) {
+        sh.declareString(g.msgA, {
           die: LoreDie.buildAndPower,
-          pg: BUILD_POWER_GC_LAST,
+          pg: BUILD_POWER_GC_FIRST,
+          formatVars: {
+            buildingName: template.name,
+            remainingCount: spellNumber(pvs.length - 1),
+          },
+        });
+        sh.if(`${g.doneCount}==1`, `msg:${g.msgA};`);
+      }
+      if (pvs.length > 2) {
+        sh.declareString(g.msgB, {
+          die: LoreDie.buildAndPower,
+          pg: BUILD_POWER_GC_PENULTIMATE,
           formatVars: {
             buildingName: template.name,
           },
-        }),
-        sh.trigger(
-          `if(${g.doneCount}>=${pvs.length})`,
-          `${gObjectives.met}+=1;`,
-          `msg:${g.msgC};`,
-          "wait:2;",
-          `${g.done}=1;`,
-        ),
+        });
+        sh.if(`${g.doneCount}==${pvs.length - 1}`, `msg:${g.msgB};`);
+      }
+      sh.declareInt(g.done, 0);
+      sh.declareString(g.msgC, {
+        die: LoreDie.buildAndPower,
+        pg: BUILD_POWER_GC_LAST,
+        formatVars: {
+          buildingName: template.name,
+        },
+      });
+      sh.if(
+        `${g.doneCount}>=${pvs.length}`,
+        `${gObjectives.met}+=1;`,
+        `msg:${g.msgC};`,
+        "wait:2;",
+        `${g.done}=1;`,
       );
     },
-    script({ cavern, plan }) {
+    script({ cavern, plan, sh }) {
       const v = mv(plan);
       if (plan.path.baseplates.length > 1) {
         throw new Error("Plan must have one baseplate.");
@@ -175,22 +165,21 @@ function buildAndPower(
       }
       const atp = transformPoint(cavern, arrowPos);
       const openOnSpawn = cavern.discoveryZones.get(...arrowPos)!.openOnSpawn;
-
-      return scriptFragment(
-        `# P${plan.id}: Build and Power ${template.name}`,
-        `if(${openOnSpawn ? `time:0` : `change:${atp}`})[showarrow:${atp},${v.arrow}]`,
-        eventChain(
-          v.onBuild,
-          // Filter out buildings outside the baseplate rectangle
-          `((${g.built}.column<${bp.left - cavern.left}))return;`,
-          `((${g.built}.column>=${bp.right - cavern.left}))return;`,
-          `((${g.built}.row<${bp.top - cavern.top}))return;`,
-          `((${g.built}.row>=${bp.bottom - cavern.top}))return;`,
-          // Setting a building variable to the value of another building
-          // variable doesn't work in MMScript for some reason
-          `savebuilding:${v.building};`,
-          `${g.checkPower}+=1;`,
-        ),
+      sh.if(
+        `${openOnSpawn ? `time:0` : `change:${atp}`}`,
+        `showarrow:${atp},${v.arrow};`,
+      );
+      sh.event(
+        v.onBuild,
+        // Filter out buildings outside the baseplate rectangle
+        `((${g.built}.column<${bp.left - cavern.left}))return;`,
+        `((${g.built}.column>=${bp.right - cavern.left}))return;`,
+        `((${g.built}.row<${bp.top - cavern.top}))return;`,
+        `((${g.built}.row>=${bp.bottom - cavern.top}))return;`,
+        // Setting a building variable to the value of another building
+        // variable doesn't work in MMScript for some reason
+        `savebuilding:${v.building};`,
+        `${g.checkPower}+=1;`,
       );
     },
   };

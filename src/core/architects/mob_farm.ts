@@ -26,7 +26,7 @@ import {
 } from "../models/vehicle";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { inferContextDefaults } from "../common";
-import { mkVars, scriptFragment } from "./utils/script";
+import { mkVars } from "./utils/script";
 import {
   HINT_SELECT_LASER_GROUP,
   MOB_FARM_NO_LONGER_BLOCKING,
@@ -52,12 +52,6 @@ export type MobFarmMetadata = {
   tag: "mobFarm";
   hoardSize: number;
 };
-
-function totalAccessibleWalls({ aerationLog, tiles }: PreprogrammedCavern) {
-  let result = 0;
-  aerationLog?.forEach((_, x, y) => tiles.get(x, y)?.isWall && result++);
-  return result;
-}
 
 const BASE: PartialArchitect<MobFarmMetadata> = {
   ...DefaultSpawnArchitect,
@@ -166,50 +160,39 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     };
   },
   script({ cavern, plan, sh }) {
-    const v = mkVars(`p${plan.id}MF`, [
+    const v = mkVars(`p${plan.id}MbFm`, [
       "hintGroup",
       "msgHintGroup",
       "msgNotBlocking",
     ]);
     const rng = cavern.dice.script(plan.id);
-    return scriptFragment(
-      "# Globals: Mob Farm",
-      sh.trigger(
-        "if(time:0)",
-        ...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`),
-      ),
-      cavern.objectives.variables.length > 0 &&
-        scriptFragment(
-          sh.declareString(v.msgNotBlocking, {
-            rng,
-            pg: MOB_FARM_NO_LONGER_BLOCKING,
-          }),
-          sh.trigger(
-            // There's a good chance any further objectives are softlocked by the
-            // inability to cross lakes and rivers - so unlock them.
-            `if(crystals>=${cavern.objectives.crystals})`,
-            `wait:5;`,
-            ...BANLIST.map((t) => `enable:${t.id};` satisfies `${string};`),
-            `((${gObjectives.won}==0))msg:${v.msgNotBlocking};`,
-          ),
-        ),
-      // Hint to tell players about control groups. This isn't super annoying
-      // under normal circumstances, but here it's almost a necessity that the
-      // player have their lasers bound to a single key.
-      sh.declareInt(v.hintGroup, 0),
-      sh.trigger(
-        `when(${MINING_LASER.id}.click)`,
-        `((${MINING_LASER.id}<2))return;`,
-        `${v.hintGroup}=1;`,
-      ),
-      sh.trigger(
-        `when(${SMLC.id}.click)`,
-        `((${SMLC.id}<2))return;`,
-        `${v.hintGroup}=1;`,
-      ),
-      sh.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP),
-      sh.trigger(`if(${v.hintGroup}>0)`, `msg:${v.msgHintGroup};`),
+    sh.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`));
+    if (cavern.objectives.variables.length > 0) {
+      sh.declareString(v.msgNotBlocking, {
+        rng,
+        pg: MOB_FARM_NO_LONGER_BLOCKING,
+      });
+      // There's a good chance any further objectives are softlocked by the
+      // inability to cross lakes and rivers - so unlock them.
+      sh.if(
+        `crystals>=${cavern.objectives.crystals}`,
+        `wait:5;`,
+        ...BANLIST.map((t) => `enable:${t.id};` satisfies `${string};`),
+        `((${gObjectives.won}==0))msg:${v.msgNotBlocking};`,
+      );
+    }
+    // Hint to tell players about control groups. This isn't super annoying
+    // under normal circumstances, but here it's almost a necessity that the
+    // player have their lasers bound to a single key.
+    sh.declareInt(v.hintGroup, 0);
+    sh.when(
+      `${MINING_LASER.id}.click`,
+      `((${MINING_LASER.id}<2))return;`,
+      `${v.hintGroup}=1;`,
     );
+    sh.when(`${SMLC.id}.click`, `((${SMLC.id}<2))return;`, `${v.hintGroup}=1;`);
+    sh.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP);
+    sh.if(`${v.hintGroup}>0)`, `msg:${v.msgHintGroup};`);
   },
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {

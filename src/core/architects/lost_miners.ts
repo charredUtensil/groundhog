@@ -24,13 +24,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
-import {
-  DzPriority,
-  eventChain,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "./utils/script";
+import { check, DzPriority, mkVars, transformPoint } from "./utils/script";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { LoreDie, spellNumber } from "../lore/lore";
 import {
@@ -241,30 +235,26 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
   },
   scriptGlobals({ cavern, sh }) {
     const { lostMinerCaves } = countLostMiners(cavern);
-    return scriptFragment(
-      `# Globals: Lost Miners`,
-      sh.declareInt(gLostMiners.remainingCaves, lostMinerCaves),
-      sh.declareInt(gLostMiners.done, 0),
-      sh.declareString(gLostMiners.messageFoundAll, {
-        die: LoreDie.foundAllLostMiners,
-        pg: FOUND_ALL_LOST_MINERS,
-      }),
-      eventChain(
-        gLostMiners.onFoundAll,
-        `${gObjectives.met}+=1;`,
-        `msg:${gLostMiners.messageFoundAll};`,
-        `wait:3;`,
-        `${gLostMiners.done}=1;`,
-      ),
+    sh.declareInt(gLostMiners.remainingCaves, lostMinerCaves);
+    sh.declareInt(gLostMiners.done, 0);
+    sh.declareString(gLostMiners.messageFoundAll, {
+      die: LoreDie.foundAllLostMiners,
+      pg: FOUND_ALL_LOST_MINERS,
+    });
+    sh.event(
+      gLostMiners.onFoundAll,
+      `${gObjectives.met}+=1;`,
+      `msg:${gLostMiners.messageFoundAll};`,
+      `wait:3;`,
+      `${gLostMiners.done}=1;`,
     );
   },
   script({ cavern, plan, sh }) {
     const rng = cavern.dice.script(plan.id);
     const { lostMinerCaves } = countLostMiners(cavern);
-    const v = mkVars(`p${plan.id}LostMiners`, [
+    const v = mkVars(`p${plan.id}LoMi`, [
       "msgFoundBreadcrumb",
       "msgFoundMiners",
-      "onIncomplete",
       "wasFound",
     ]);
 
@@ -283,49 +273,46 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
         cavern.discoveryZones.get(...breadcrumbPoint)!.id
       ] === plan.id;
 
-    return scriptFragment(
-      `# P${plan.id}: Lost Miners`,
-      shouldMessageOnMiners &&
-        sh.declareString(v.msgFoundMiners, {
-          rng,
-          pg: FOUND_LOST_MINERS,
-          state: {
-            foundMinersOne: plan.metadata.minersCount <= 1,
-            foundMinersTogether: plan.metadata.minersCount > 1,
-          },
-          formatVars: {
-            foundMinersCount: spellNumber(plan.metadata.minersCount),
-          },
-        }),
-      sh.declareInt(v.wasFound, 0),
-      sh.trigger(
-        `if(change:${transformPoint(cavern, minersPoint)})`,
-        shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
-        `${v.wasFound}=1;`,
-        `${gLostMiners.remainingCaves}-=1;`,
-        `((${gLostMiners.remainingCaves}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
+    if (shouldMessageOnMiners) {
+      sh.declareString(v.msgFoundMiners, {
+        rng,
+        pg: FOUND_LOST_MINERS,
+        state: {
+          foundMinersOne: plan.metadata.minersCount <= 1,
+          foundMinersTogether: plan.metadata.minersCount > 1,
+        },
+        formatVars: {
+          foundMinersCount: spellNumber(plan.metadata.minersCount),
+        },
+      });
+    }
+    sh.declareInt(v.wasFound, 0);
+    sh.if(
+      `change:${transformPoint(cavern, minersPoint)}`,
+      shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
+      `${v.wasFound}=1;`,
+      `${gLostMiners.remainingCaves}-=1;`,
+      check(
+        `${gLostMiners.remainingCaves}<=0`,
+        gLostMiners.onFoundAll,
+        shouldMessageOnMiners && `msg:${v.msgFoundMiners}`,
       ),
-      eventChain(
-        v.onIncomplete,
-        shouldMessageOnMiners && `msg:${v.msgFoundMiners};`,
-      ),
-      shouldPanMessageOnBreadcrumb &&
-        scriptFragment(
-          sh.declareString(v.msgFoundBreadcrumb, {
-            rng,
-            pg: FOUND_LM_BREADCRUMB,
-            formatVars: {
-              vehicleName: breadcrumb!.template.name,
-            },
-          }),
-          sh.trigger(
-            `if(change:${transformPoint(cavern, breadcrumbPoint)})`,
-            `((${v.wasFound}>0))return;`,
-            `pan:${transformPoint(cavern, breadcrumbPoint)};`,
-            `msg:${v.msgFoundBreadcrumb};`,
-          ),
-        ),
     );
+    if (shouldPanMessageOnBreadcrumb) {
+      sh.declareString(v.msgFoundBreadcrumb, {
+        rng,
+        pg: FOUND_LM_BREADCRUMB,
+        formatVars: {
+          vehicleName: breadcrumb!.template.name,
+        },
+      });
+      sh.if(
+        `change:${transformPoint(cavern, breadcrumbPoint)}`,
+        `((${v.wasFound}>0))return;`,
+        `pan:${transformPoint(cavern, breadcrumbPoint)};`,
+        `msg:${v.msgFoundBreadcrumb};`,
+      );
+    }
   },
 };
 

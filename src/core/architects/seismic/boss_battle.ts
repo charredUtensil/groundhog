@@ -1,12 +1,7 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough } from "../utils/rough";
-import {
-  EventChainLine,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "../utils/script";
+import { EventChainLine, mkVars, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
 import { SEISMIC_BASE, gSeismic } from "./base";
@@ -23,7 +18,7 @@ type Metadata = {
 };
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}SBB`, ["boss", "onTrip", "doArm", "tripCount"]);
+  mkVars(`p${plan.id}SmBBa`, ["boss", "onTrip", "doArm", "tripCount"]);
 
 function findSpokes(
   cavern: FoundationPlasticCavern,
@@ -106,67 +101,65 @@ const BASE: PartialArchitect<Metadata> = {
 
     let totalTrips = 0;
 
-    return scriptFragment(
-      `# P${plan.id}: Seismic (Boss Battle)`,
-      `creature ${v.boss}=${boss.id}`,
-      sh.declareInt(v.tripCount, 0),
-      ...spokes.flatMap((spoke) =>
-        spoke
-          .filter(
-            (pos) => cavern.pearlInnerDex.get(...pos)![plan.id] > dLayer + 1,
-          )
-          .map((pos) => {
-            const isWall = cavern.tiles.get(...pos)?.isWall;
-            const tv = isWall ? 3 : 1;
-            totalTrips += tv;
-            return `if(${isWall ? "drill" : "enter"}:${transformPoint(cavern, pos)})[${v.tripCount}+=${tv}]`;
-          }),
+    sh.declareCreature(v.boss, boss);
+    sh.declareInt(v.tripCount, 0);
+    spokes.forEach((spoke) =>
+      spoke.forEach((pos) => {
+        if (cavern.pearlInnerDex.get(...pos)![plan.id] > dLayer + 1) {
+          const isWall = cavern.tiles.get(...pos)?.isWall;
+          const tv = isWall ? 3 : 1;
+          totalTrips += tv;
+          sh.if(
+            `${isWall ? "drill" : "enter"}:${transformPoint(cavern, pos)}`,
+            `${v.tripCount}+=${tv};`,
+          );
+        }
+      }),
+    );
+    sh.if(
+      `${v.tripCount}>=${Math.ceil(totalTrips / 4)}`,
+      `wait:random(5)(30);`,
+      `shake:1;`,
+      `${gSeismic.showMessage}+=1;`,
+      `wait:random(15)(60);`,
+      `shake:2;`,
+      `pan:${transformPoint(cavern, [Math.floor(boss.x), Math.floor(boss.y)])};`,
+      `wait:1;`,
+      `shake:4;`,
+      ...spokes.flatMap(
+        (spoke) =>
+          [
+            ...spoke
+              .filter(
+                (pos) =>
+                  cavern.tiles.get(...pos)?.isWall &&
+                  cavern.pearlInnerDex.get(...pos)![plan.id] <= dLayer + 2,
+              )
+              .flatMap(
+                (pos) =>
+                  [
+                    `drill:${transformPoint(cavern, pos)};`,
+                  ] satisfies EventChainLine[],
+              ),
+            // There is a bug in Manic Miners where caves don't become
+            // "discovered" properly when more than one discovery zone is
+            // revealed in the same tick. Prevent this while making the monster
+            // reveal more dramatic.
+            `wait:0.25;` satisfies EventChainLine,
+          ] satisfies EventChainLine[],
       ),
-      sh.trigger(
-        `if(${v.tripCount}>=${Math.ceil(totalTrips / 4)})`,
-        `wait:random(5)(30);`,
-        `shake:1;`,
-        `${gSeismic.showMessage}+=1;`,
-        `wait:random(15)(60);`,
-        `shake:2;`,
-        `pan:${transformPoint(cavern, [Math.floor(boss.x), Math.floor(boss.y)])};`,
-        `wait:1;`,
-        `shake:4;`,
-        ...spokes.flatMap(
-          (spoke) =>
-            [
-              ...spoke
-                .filter(
-                  (pos) =>
-                    cavern.tiles.get(...pos)?.isWall &&
-                    cavern.pearlInnerDex.get(...pos)![plan.id] <= dLayer + 2,
-                )
-                .flatMap(
-                  (pos) =>
-                    [
-                      `drill:${transformPoint(cavern, pos)};`,
-                    ] satisfies EventChainLine[],
-                ),
-              // There is a bug in Manic Miners where caves don't become
-              // "discovered" properly when more than one discovery zone is
-              // revealed in the same tick. Prevent this while making the monster
-              // reveal more dramatic.
-              `wait:0.25;` satisfies EventChainLine,
-            ] satisfies EventChainLine[],
+      `shake:5;`,
+      ...plan.innerPearl[dLayer]
+        .filter((pos) => cavern.tiles.get(...pos)?.isWall)
+        .map(
+          (pos) =>
+            `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
         ),
-        `shake:5;`,
-        ...plan.innerPearl[dLayer]
-          .filter((pos) => cavern.tiles.get(...pos)?.isWall)
-          .map(
-            (pos) =>
-              `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
-          ),
-      ),
-      sh.trigger(
-        `if(change:${transformPoint(cavern, discoPoint)})`,
-        `${v.tripCount}=9999;`,
-        `${v.doArm};`,
-      ),
+    );
+    sh.if(
+      `change:${transformPoint(cavern, discoPoint)}`,
+      `${v.tripCount}=9999;`,
+      `${v.doArm};`,
     );
   },
   monsterSpawnScript: (args) => {

@@ -1,8 +1,5 @@
 import { creatureSpawnGlobals } from "../../architects/utils/creature_spawners";
-import {
-  scriptFragment,
-  ScriptHelperImpl,
-} from "../../architects/utils/script";
+import { mkScriptBuilder } from "../../architects/utils/script";
 import { Architect } from "../../models/architect";
 import { PreprogrammedCavern } from "./03_preprogram";
 import { objectiveGlobals } from "../../architects/utils/objectives";
@@ -25,36 +22,22 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
       [],
     ),
   );
-  const na = "# n/a\n";
-  const sh = new ScriptHelperImpl(cavern);
-  const script = scriptFragment(
-    "#> Globals",
-    objectiveGlobals({ cavern, sh }),
-    creatureSpawnGlobals({ cavern, sh }),
-    scriptFragment(...globalsFns.map((fn) => fn({ cavern, sh }))),
-    "#> Architect Scripts",
-    scriptFragment(
-      ...cavern.plans.map((plan) =>
-        plan.architect.script?.({ cavern, plan, sh }),
-      ),
-    ) || na,
-    "#> Spawn Monsters",
-    cavern.context.hasMonsters
-      ? scriptFragment(
-          ...cavern.plans.map((plan) =>
-            plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
-          ),
-        )
-      : na,
-    "#> Spawn Slugs",
-    cavern.context.hasSlugs
-      ? scriptFragment(
-          ...cavern.plans.map((plan) =>
-            plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
-          ),
-        )
-      : na,
-  );
+  const sh = mkScriptBuilder(cavern);
+  objectiveGlobals({ cavern, sh });
+  creatureSpawnGlobals({ cavern, sh });
+  globalsFns.forEach((fn) => fn({ cavern, sh }));
+  cavern.plans.forEach((plan) => plan.architect.script?.({ cavern, plan, sh }));
+  if (cavern.context.hasMonsters) {
+    cavern.plans.forEach((plan) =>
+      plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
+    );
+  }
+  if (cavern.context.hasSlugs) {
+    cavern.plans.forEach((plan) =>
+      plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
+    );
+  }
 
+  const script = sh.build();
   return { ...cavern, script };
 }

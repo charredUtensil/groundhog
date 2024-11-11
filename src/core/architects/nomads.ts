@@ -5,7 +5,7 @@ import { intersectsAny, intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { getPlaceRechargeSeams, sprinkleOre } from "./utils/resources";
 import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
-import { mkVars, scriptFragment } from "./utils/script";
+import { mkVars } from "./utils/script";
 import { SUPPORT_STATION, TOOL_STORE } from "../models/building";
 import { Hardness, Tile } from "../models/tiles";
 import {
@@ -149,39 +149,31 @@ const BASE: PartialArchitect<NomadsMetadata> = {
   scriptGlobals({ cavern, sh }) {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
-      return scriptFragment(
-        "# Globals: Nomads with Lost HQ",
-        sh.trigger(
-          `if(time:0)`,
-          "disable:miners;",
-          "disable:buildings;",
-          "disable:vehicles;",
-        ),
-        sh.trigger(
-          `if(${gLostHq.foundHq}>0)`,
-          "enable:miners;",
-          "enable:buildings;",
-          "enable:vehicles;",
-          "wait:random(20)(120);",
-          `${gCreatures.anchorHold}=0;`,
-        ),
+      sh.onInit("disable:miners;", "disable:buildings;", "disable:vehicles;");
+      sh.if(
+        `${gLostHq.foundHq}>0`,
+        "enable:miners;",
+        "enable:buildings;",
+        "enable:vehicles;",
+        "wait:random(20)(120);",
+        `${gCreatures.anchorHold}=0;`,
       );
-    }
-
-    // No HQ: Acknowledge the construction of a Support Station.
-    return scriptFragment(
-      "# Globals: Nomads, no HQ",
+    } else {
+      // No HQ: Acknowledge the construction of a Support Station.
       sh.declareString(gNomads.messageBuiltBase, {
         die: LoreDie.nomadsSettled,
         pg: NOMADS_SETTLED,
-      }),
-      sh.trigger(
-        `if(${TOOL_STORE.id}.new)`,
+      });
+      sh.if(
+        `${TOOL_STORE.id}.new`,
         "wait:random(20)(120);",
         `${gCreatures.anchorHold}=0;`,
-      ),
-      `if(${SUPPORT_STATION.id}.onPowered)[msg:${gNomads.messageBuiltBase}]`,
-    );
+      );
+      sh.if(
+        `${SUPPORT_STATION.id}.onPowered`,
+        `msg:${gNomads.messageBuiltBase};`,
+      );
+    }
   },
 };
 

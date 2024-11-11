@@ -1,12 +1,7 @@
 import { Architect } from "../../models/architect";
 import { DefaultHallArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough } from "../utils/rough";
-import {
-  EventChainLine,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "../utils/script";
+import { EventChainLine, mkVars, transformPoint } from "../utils/script";
 import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
@@ -26,7 +21,7 @@ function getDiscoveryPoints(cavern: DiscoveredCavern, plan: Plan<any>) {
 }
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}SST`, [`onTrip`, `doSpawn`, "tripCount"]);
+  mkVars(`p${plan.id}SSeTu`, [`onTrip`, `doSpawn`, "tripCount"]);
 
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
@@ -42,33 +37,30 @@ const BASE: PartialArchitect<typeof METADATA> = {
     });
     const trips = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
 
-    return scriptFragment(
-      `# P${plan.id}: Seismic (Secret Tunnel)`,
-      sh.declareInt(v.tripCount, 0),
-      ...discoveryPoints.map(
-        (pos) => `if(change:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
-      ),
-      ...drillPoints.map(
-        (pos) => `if(drill:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
-      ),
-      sh.trigger(
-        `if(${v.tripCount}>=${trips})`,
-        `wait:random(5)(30);`,
-        `shake:1;`,
-        `${gSeismic.showMessage}+=1;`,
-        `wait:random(30)(150);`,
-        `shake:2;`,
-        `pan:${transformPoint(cavern, panTo)};`,
-        `wait:1;`,
-        `shake:4;`,
-        ...plan.innerPearl[0]
-          .filter((pos) => cavern.tiles.get(...pos)?.isWall)
-          .map(
-            (pos) =>
-              `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
-          ),
-        cavern.context.hasMonsters && `${v.doSpawn};`,
-      ),
+    sh.declareInt(v.tripCount, 0);
+    discoveryPoints.forEach((pos) =>
+      sh.if(`change:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`),
+    );
+    drillPoints.map((pos) =>
+      sh.if(`drill:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`),
+    );
+    sh.if(
+      `${v.tripCount}>=${trips}`,
+      `wait:random(5)(30);`,
+      `shake:1;`,
+      `${gSeismic.showMessage}+=1;`,
+      `wait:random(30)(150);`,
+      `shake:2;`,
+      `pan:${transformPoint(cavern, panTo)};`,
+      `wait:1;`,
+      `shake:4;`,
+      ...plan.innerPearl[0]
+        .filter((pos) => cavern.tiles.get(...pos)?.isWall)
+        .map(
+          (pos) =>
+            `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
+        ),
+      cavern.context.hasMonsters && `${v.doSpawn};`,
     );
   },
   monsterSpawnScript: (args) => {

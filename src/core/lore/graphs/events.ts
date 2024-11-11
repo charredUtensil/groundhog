@@ -289,8 +289,12 @@ export const BLACKOUT_START = phraseGraph<State>(
   "Blackout Start",
   ({ pg, state, start, end, cut, skip }) => {
     start
-      .then(skip, "Oh no!")
-      .then("The magnetic shifts are interfering with our Power Station.")
+      .then(skip, "Hmmm -", "Oh no!", "This isn't good.")
+      .then(
+        "the magnetic shifts are interfering with our Power Station.",
+        "the anomaly disabled our Power Station.",
+        "our Energy Crystals aren't able to power our HQ right now.",
+      )
       .then(end);
   },
 );
@@ -299,11 +303,17 @@ export const BLACKOUT_END = phraseGraph<State>(
   "Blackout End",
   ({ pg, state, start, end, cut, skip }) => {
     start
-      .then("The power is back!")
+      .then(
+        "The power is back, but it's hard to tell how long it will last.",
+        "The anomaly has disappeared for now.",
+      )
       .then(
         skip,
+        "The Canteen doesn't need power, so you might want to build some as " +
+          "a backup.",
         state("hasAirLimit").then(
-          "I suggest you build additional Support Stations.",
+          "I suggest you build additional Support Stations to keep the " +
+            "cavern breathable.",
         ),
       )
       .then(end);

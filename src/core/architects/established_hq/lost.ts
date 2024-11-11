@@ -4,12 +4,7 @@ import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
 import { gObjectives } from "../utils/objectives";
-import {
-  DzPriority,
-  scriptFragment,
-  mkVars,
-  transformPoint,
-} from "../utils/script";
+import { DzPriority, mkVars, transformPoint } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
 
 const MAX_HOPS = 3;
@@ -36,8 +31,7 @@ const LOST_BASE: Pick<
     }
     return [{ pos, priority: DzPriority.OBJECTIVE }];
   },
-  scriptGlobals: ({ sh }) =>
-    scriptFragment("# Globals: Lost HQ", sh.declareInt(gLostHq.foundHq, 0)),
+  scriptGlobals: ({ sh }) => sh.declareInt(gLostHq.foundHq, 0),
   script({ cavern, plan, sh }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
@@ -49,24 +43,22 @@ const LOST_BASE: Pick<
       return r.pearlRadius > p.pearlRadius ? r : p;
     }).center;
 
-    const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover"]);
+    const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
 
-    return scriptFragment(
-      `# P${plan.id}: Lost HQ`,
-      shouldPanMessage &&
-        sh.declareString(v.messageDiscover, {
-          die: LoreDie.foundHq,
-          pg: FOUND_HQ,
-        }),
-      sh.trigger(
-        `if(change:${transformPoint(cavern, discoPoint)})`,
+    if (shouldPanMessage) {
+      sh.declareString(v.messageDiscover, {
+        die: LoreDie.foundHq,
+        pg: FOUND_HQ,
+      });
+      sh.if(
+        `change:${transformPoint(cavern, discoPoint)}`,
         shouldPanMessage && `msg:${v.messageDiscover};`,
         shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
         `${gObjectives.met}+=1;`,
         `wait:1;`,
         `${gLostHq.foundHq}=1;`,
-      ),
-    );
+      );
+    }
   },
 };
 
