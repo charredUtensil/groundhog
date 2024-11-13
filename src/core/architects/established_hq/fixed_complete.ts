@@ -55,23 +55,23 @@ export const FC_BASE: Pick<
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),
-  scriptGlobals: ({ sh }) => {
-    sh.onInit(
+  scriptGlobals: ({ sb }) => {
+    sb.onInit(
       // Can't just disable buildings because that disables fences - and
       // nobody wants that.
       ...ALL_BUILDINGS.map(
         (bt) => `disable:${bt.id};` satisfies EventChainLine,
       ),
     );
-    sh.declareString(gFCHQ.msgLose, {
+    sb.declareString(gFCHQ.msgLose, {
       die: LoreDie.failureBaseDestroyed,
       pg: FAILURE_BASE_DESTROYED,
     });
-    sh.declareInt(gFCHQ.wasBaseDestroyed, 0);
-    sh.if(`${TOOL_STORE.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
-    sh.if(`${POWER_STATION.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
-    sh.if(`${SUPPORT_STATION.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
-    sh.if(
+    sb.declareInt(gFCHQ.wasBaseDestroyed, 0);
+    sb.if(`${TOOL_STORE.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
+    sb.if(`${POWER_STATION.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
+    sb.if(`${SUPPORT_STATION.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
+    sb.if(
       `${gFCHQ.wasBaseDestroyed}>=1`,
       `((${gObjectives.won}>0))return;`,
       `msg:${gFCHQ.msgLose};`,

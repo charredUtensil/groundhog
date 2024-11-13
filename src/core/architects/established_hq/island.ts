@@ -95,12 +95,12 @@ export const ISLAND_BASE: Pick<
     ];
     return { miners: [miner], vehicles };
   },
-  script: ({ cavern, plan, sh }) => {
+  script: ({ cavern, plan, sb }) => {
     plan.innerPearl.forEach((ly) =>
       ly.forEach((pos) => {
         if (cavern.tiles.get(...pos)?.isWall) {
           const tp = transformPoint(cavern, pos);
-          sh.if(`change:${tp}`, `place:${tp},${Tile.WATER.id};`);
+          sb.if(`change:${tp}`, `place:${tp},${Tile.WATER.id};`);
         }
       }),
     );

@@ -22,22 +22,22 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
       [],
     ),
   );
-  const sh = mkScriptBuilder(cavern);
-  objectiveGlobals({ cavern, sh });
-  creatureSpawnGlobals({ cavern, sh });
-  globalsFns.forEach((fn) => fn({ cavern, sh }));
-  cavern.plans.forEach((plan) => plan.architect.script?.({ cavern, plan, sh }));
+  const sb = mkScriptBuilder(cavern);
+  objectiveGlobals({ cavern, sb });
+  creatureSpawnGlobals({ cavern, sb });
+  globalsFns.forEach((fn) => fn({ cavern, sb }));
+  cavern.plans.forEach((plan) => plan.architect.script?.({ cavern, plan, sb }));
   if (cavern.context.hasMonsters) {
     cavern.plans.forEach((plan) =>
-      plan.architect.monsterSpawnScript?.({ cavern, plan, sh }),
+      plan.architect.monsterSpawnScript?.({ cavern, plan, sb }),
     );
   }
   if (cavern.context.hasSlugs) {
     cavern.plans.forEach((plan) =>
-      plan.architect.slugSpawnScript?.({ cavern, plan, sh }),
+      plan.architect.slugSpawnScript?.({ cavern, plan, sb }),
     );
   }
 
-  const script = sh.build();
+  const script = sb.build();
   return { ...cavern, script };
 }

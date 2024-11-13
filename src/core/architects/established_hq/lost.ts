@@ -31,8 +31,8 @@ const LOST_BASE: Pick<
     }
     return [{ pos, priority: DzPriority.OBJECTIVE }];
   },
-  scriptGlobals: ({ sh }) => sh.declareInt(gLostHq.foundHq, 0),
-  script({ cavern, plan, sh }) {
+  scriptGlobals: ({ sb }) => sb.declareInt(gLostHq.foundHq, 0),
+  script({ cavern, plan, sb }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
       cavern.ownsScriptOnDiscover[
@@ -46,11 +46,11 @@ const LOST_BASE: Pick<
     const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
 
     if (shouldPanMessage) {
-      sh.declareString(v.messageDiscover, {
+      sb.declareString(v.messageDiscover, {
         die: LoreDie.foundHq,
         pg: FOUND_HQ,
       });
-      sh.if(
+      sb.if(
         `change:${transformPoint(cavern, discoPoint)}`,
         shouldPanMessage && `msg:${v.messageDiscover};`,
         shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,

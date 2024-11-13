@@ -183,22 +183,22 @@ export type BaseArchitect<T extends BaseMetadata> = {
   holdCreatures?(args: { cavern: EnscribedCavern; plan: Plan<T> }): boolean;
   scriptGlobals?(args: {
     cavern: PreprogrammedCavern;
-    sh: ScriptBuilder;
+    sb: ScriptBuilder;
   }): void;
   script?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
-    sh: ScriptBuilder;
+    sb: ScriptBuilder;
   }): void;
   monsterSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
-    sh: ScriptBuilder;
+    sb: ScriptBuilder;
   }): void;
   slugSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
-    sh: ScriptBuilder;
+    sb: ScriptBuilder;
   }): void;
 };
 

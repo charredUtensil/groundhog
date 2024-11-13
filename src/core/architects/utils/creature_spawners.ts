@@ -95,29 +95,29 @@ function getTriggerPoints(
 
 export function creatureSpawnGlobals({
   cavern,
-  sh,
+  sb,
 }: {
   cavern: PreprogrammedCavern;
-  sh: ScriptBuilder;
+  sb: ScriptBuilder;
 }) {
   if (!cavern.context.hasMonsters && !cavern.context.hasSlugs) {
     return undefined;
   }
   if (cavern.context.globalHostilesCooldown > 0) {
-    sh.declareInt(gCreatures.globalCooldown, 0);
-    sh.when(
+    sb.declareInt(gCreatures.globalCooldown, 0);
+    sb.when(
       `${gCreatures.globalCooldown}==1`,
       `wait:${cavern.context.globalHostilesCooldown};`,
       `${gCreatures.globalCooldown}=0;`,
     );
   }
   if (cavern.oxygen) {
-    sh.declareInt(gCreatures.airMiners, 0);
-    sh.when(`${SUPPORT_STATION.id}.poweron`, `${gCreatures.airMiners}+=10;`);
-    sh.when(`${SUPPORT_STATION.id}.poweroff`, `${gCreatures.airMiners}-=10;`);
+    sb.declareInt(gCreatures.airMiners, 0);
+    sb.when(`${SUPPORT_STATION.id}.poweron`, `${gCreatures.airMiners}+=10;`);
+    sb.when(`${SUPPORT_STATION.id}.poweroff`, `${gCreatures.airMiners}-=10;`);
   }
   if (cavern.anchorHoldCreatures) {
-    sh.declareInt(gCreatures.anchorHold, 1);
+    sb.declareInt(gCreatures.anchorHold, 1);
   }
 }
 
@@ -149,7 +149,7 @@ export function slugSpawnScript(
 }
 
 function creatureSpawnScript(
-  { cavern, plan, sh }: ScriptArgs,
+  { cavern, plan, sb }: ScriptArgs,
   opts: CollapseUnion<CreatureSpawnerArgs>,
 ) {
   const v = mkVars(`p${plan.id}${opts.creature.inspectAbbrev}Sp`, [
@@ -183,7 +183,7 @@ function creatureSpawnScript(
 
   if (!opts.spawnEvent) {
     // Arm
-    sh.declareInt(v.arm, ArmState.DISARMED);
+    sb.declareInt(v.arm, ArmState.DISARMED);
     const body: EventChainLine[] = [
       opts.initialCooldown &&
         `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
@@ -191,24 +191,24 @@ function creatureSpawnScript(
       opts.tripOnArmed && `${v.doTrip};`,
     ];
     if (opts.armEvent) {
-      sh.event(opts.armEvent, ...body);
+      sb.event(opts.armEvent, ...body);
     } else {
       const dp = getDiscoveryPoint(cavern, plan);
       if (dp) {
-        sh.if(`change:${transformPoint(cavern, dp)}`, ...body);
+        sb.if(`change:${transformPoint(cavern, dp)}`, ...body);
       } else {
-        sh.onInit(...body);
+        sb.onInit(...body);
       }
     }
 
     // Trip
     (opts.tripPoints ?? getTriggerPoints(cavern, plan)).forEach((point) =>
-      sh.when(`enter:${transformPoint(cavern, point)}`, `${v.doTrip};`),
+      sb.when(`enter:${transformPoint(cavern, point)}`, `${v.doTrip};`),
     );
     if (opts.needCrystals?.increment) {
-      sh.declareInt(v.needCrystals, opts.needCrystals.base);
+      sb.declareInt(v.needCrystals, opts.needCrystals.base);
     }
-    sh.event(
+    sb.event(
       v.doTrip,
       cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
       cavern.context.globalHostilesCap > 0 &&
@@ -222,15 +222,15 @@ function creatureSpawnScript(
         `((${gCreatures.globalCooldown}>0))return;`,
       `((${v.arm}==${ArmState.ARMED}))${v.arm}=${ArmState.FIRE};`,
     );
-    sh.when(`${v.arm}==${ArmState.FIRE}`, `${v.doSpawn};`);
+    sb.when(`${v.arm}==${ArmState.FIRE}`, `${v.doSpawn};`);
   }
 
   // Hoard mode must be "manually" re-armed by a monster visiting the hoard
   // within cooldown.
   if (opts.reArmMode === "hoard") {
-    sh.declareInt(v.hoardTrip, 0);
+    sb.declareInt(v.hoardTrip, 0);
     plan.innerPearl[0].forEach((point) =>
-      sh.when(
+      sb.when(
         `enter:${transformPoint(cavern, point)},${opts.creature.id}`,
         `${v.hoardTrip}=1;`,
       ),
@@ -238,7 +238,7 @@ function creatureSpawnScript(
   }
 
   // Spawn
-  sh.event(
+  sb.event(
     opts.spawnEvent ?? v.doSpawn,
     cavern.context.globalHostilesCooldown > 0 &&
       `${gCreatures.globalCooldown}+=1;`,
@@ -263,7 +263,7 @@ function creatureSpawnScript(
       min: meanCooldown - cooldownOffset,
       max: meanCooldown + cooldownOffset,
     };
-    sh.event(
+    sb.event(
       v.doCooldown,
       opts.reArmMode === "hoard" && `${v.hoardTrip}=0;`,
       `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,

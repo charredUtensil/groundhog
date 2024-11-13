@@ -78,7 +78,7 @@ const BASE: PartialArchitect<Metadata> = {
     });
     return { creatures: [boss] };
   },
-  script: ({ cavern, plan, sh }) => {
+  script: ({ cavern, plan, sb }) => {
     const v = sVars(plan);
 
     const discoPoint = plan.innerPearl[0][0];
@@ -101,22 +101,22 @@ const BASE: PartialArchitect<Metadata> = {
 
     let totalTrips = 0;
 
-    sh.declareCreature(v.boss, boss);
-    sh.declareInt(v.tripCount, 0);
+    sb.declareCreature(v.boss, boss);
+    sb.declareInt(v.tripCount, 0);
     spokes.forEach((spoke) =>
       spoke.forEach((pos) => {
         if (cavern.pearlInnerDex.get(...pos)![plan.id] > dLayer + 1) {
           const isWall = cavern.tiles.get(...pos)?.isWall;
           const tv = isWall ? 3 : 1;
           totalTrips += tv;
-          sh.if(
+          sb.if(
             `${isWall ? "drill" : "enter"}:${transformPoint(cavern, pos)}`,
             `${v.tripCount}+=${tv};`,
           );
         }
       }),
     );
-    sh.if(
+    sb.if(
       `${v.tripCount}>=${Math.ceil(totalTrips / 4)}`,
       `wait:random(5)(30);`,
       `shake:1;`,
@@ -156,7 +156,7 @@ const BASE: PartialArchitect<Metadata> = {
             `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
         ),
     );
-    sh.if(
+    sb.if(
       `change:${transformPoint(cavern, discoPoint)}`,
       `${v.tripCount}=9999;`,
       `${v.doArm};`,

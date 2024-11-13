@@ -146,11 +146,11 @@ const BASE: PartialArchitect<NomadsMetadata> = {
     };
   },
   holdCreatures: () => true,
-  scriptGlobals({ cavern, sh }) {
+  scriptGlobals({ cavern, sb }) {
     if (cavern.plans.some((plan) => plan.metadata?.tag === "hq")) {
       // Has HQ: Disable everything until it's found.
-      sh.onInit("disable:miners;", "disable:buildings;", "disable:vehicles;");
-      sh.if(
+      sb.onInit("disable:miners;", "disable:buildings;", "disable:vehicles;");
+      sb.if(
         `${gLostHq.foundHq}>0`,
         "enable:miners;",
         "enable:buildings;",
@@ -160,16 +160,16 @@ const BASE: PartialArchitect<NomadsMetadata> = {
       );
     } else {
       // No HQ: Acknowledge the construction of a Support Station.
-      sh.declareString(gNomads.messageBuiltBase, {
+      sb.declareString(gNomads.messageBuiltBase, {
         die: LoreDie.nomadsSettled,
         pg: NOMADS_SETTLED,
       });
-      sh.if(
+      sb.if(
         `${TOOL_STORE.id}.new`,
         "wait:random(20)(120);",
         `${gCreatures.anchorHold}=0;`,
       );
-      sh.if(
+      sb.if(
         `${SUPPORT_STATION.id}.onPowered`,
         `msg:${gNomads.messageBuiltBase};`,
       );

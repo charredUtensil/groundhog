@@ -52,27 +52,27 @@ const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
   ...SEISMIC_BASE,
   placeErosion: (args) => placeErosion(25, 2, args),
-  script: ({ cavern, plan, sh }) => {
+  script: ({ cavern, plan, sb }) => {
     const v = sVars(plan);
     const eps = getEruptPoints(cavern, plan);
     const tripsForeshadow = 10;
     const trips = 20;
 
-    sh.declareInt(v.tripCount, 0);
+    sb.declareInt(v.tripCount, 0);
     eps.forEach((pos) => {
-      sh.when(`enter:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`);
-      sh.if(
+      sb.when(`enter:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`);
+      sb.if(
         `change:${transformPoint(cavern, pos)}:${Tile.LAVA.id}`,
         `${v.tripCount}=999;`,
       );
     });
-    sh.if(
+    sb.if(
       `${v.tripCount}>=${tripsForeshadow}`,
       `wait:random(5)(20);`,
       `shake:1;`,
       `${gSeismic.showMessage}+=1;`,
     );
-    sh.if(
+    sb.if(
       `${v.tripCount}>=${trips}`,
       `wait:random(30)(150);`,
       `shake:2;`,

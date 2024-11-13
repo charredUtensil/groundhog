@@ -159,22 +159,22 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
       sufficient: true,
     };
   },
-  script({ cavern, plan, sh }) {
+  script({ cavern, plan, sb }) {
     const v = mkVars(`p${plan.id}MbFm`, [
       "hintGroup",
       "msgHintGroup",
       "msgNotBlocking",
     ]);
     const rng = cavern.dice.script(plan.id);
-    sh.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`));
+    sb.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`));
     if (cavern.objectives.variables.length > 0) {
-      sh.declareString(v.msgNotBlocking, {
+      sb.declareString(v.msgNotBlocking, {
         rng,
         pg: MOB_FARM_NO_LONGER_BLOCKING,
       });
       // There's a good chance any further objectives are softlocked by the
       // inability to cross lakes and rivers - so unlock them.
-      sh.if(
+      sb.if(
         `crystals>=${cavern.objectives.crystals}`,
         `wait:5;`,
         ...BANLIST.map((t) => `enable:${t.id};` satisfies `${string};`),
@@ -184,15 +184,15 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     // Hint to tell players about control groups. This isn't super annoying
     // under normal circumstances, but here it's almost a necessity that the
     // player have their lasers bound to a single key.
-    sh.declareInt(v.hintGroup, 0);
-    sh.when(
+    sb.declareInt(v.hintGroup, 0);
+    sb.when(
       `${MINING_LASER.id}.click`,
       `((${MINING_LASER.id}<2))return;`,
       `${v.hintGroup}=1;`,
     );
-    sh.when(`${SMLC.id}.click`, `((${SMLC.id}<2))return;`, `${v.hintGroup}=1;`);
-    sh.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP);
-    sh.if(`${v.hintGroup}>0)`, `msg:${v.msgHintGroup};`);
+    sb.when(`${SMLC.id}.click`, `((${SMLC.id}<2))return;`, `${v.hintGroup}=1;`);
+    sb.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP);
+    sb.if(`${v.hintGroup}>0)`, `msg:${v.msgHintGroup};`);
   },
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {

@@ -75,19 +75,19 @@ const HOARD: typeof BASE = {
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
-  scriptGlobals({ cavern, sh }) {
+  scriptGlobals({ cavern, sb }) {
     if (!shouldIncludeHoardScript(cavern)) {
       return;
     }
-    sh.declareInt(g.lock, 0);
-    sh.declareString(g.message, { die: LoreDie.foundHoard, pg: FOUND_HOARD });
-    sh.declareInt(g.crystalsAvailable, 0);
+    sb.declareInt(g.lock, 0);
+    sb.declareString(g.message, { die: LoreDie.foundHoard, pg: FOUND_HOARD });
+    sb.declareInt(g.crystalsAvailable, 0);
   },
   claimEventOnDiscover({ plan }) {
     const pos = plan.innerPearl[0][0];
     return [{ pos, priority: DzPriority.HINT }];
   },
-  script({ cavern, plan, sh }) {
+  script({ cavern, plan, sb }) {
     if (!shouldIncludeHoardScript(cavern)) {
       return;
     }
@@ -107,7 +107,7 @@ const HOARD: typeof BASE = {
 
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    sh.if(
+    sb.if(
       `change:${transformPoint(cavern, discoPoint)}`,
       `((${g.lock}>0))[return][${g.lock}=1];`,
       `wait:1;`,

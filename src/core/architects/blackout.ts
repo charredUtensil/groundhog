@@ -25,7 +25,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
     });
     return { ...cavern, context };
   },
-  script({ cavern, plan, sh }) {
+  script({ cavern, plan, sb }) {
     const v = mkVars(`p${plan.id}Bo`, [
       "crystalBank",
       "doReset",
@@ -39,22 +39,22 @@ const BASE: PartialArchitect<typeof METADATA> = {
       "trips",
     ]);
     const rng = cavern.dice.script(plan.id);
-    sh.declareInt(v.crystalBank, 0);
-    sh.declareInt(v.needCrystals, CRYSTALS_INITIAL);
-    sh.declareInt(v.ms, 0);
-    sh.declareInt(v.tc, 0);
-    sh.declareInt(v.trips, 0);
-    sh.declareInt(v.reset, 0);
-    sh.declareString(v.msgStart, {
+    sb.declareInt(v.crystalBank, 0);
+    sb.declareInt(v.needCrystals, CRYSTALS_INITIAL);
+    sb.declareInt(v.ms, 0);
+    sb.declareInt(v.tc, 0);
+    sb.declareInt(v.trips, 0);
+    sb.declareInt(v.reset, 0);
+    sb.declareString(v.msgStart, {
       pg: BLACKOUT_START,
       rng,
     });
-    sh.declareString(v.msgEnd, {
+    sb.declareString(v.msgEnd, {
       pg: BLACKOUT_END,
       rng,
     });
-    sh.when(`crystals>=${v.needCrystals}`, `${v.trips}+=1;`);
-    sh.when(
+    sb.when(`crystals>=${v.needCrystals}`, `${v.trips}+=1;`);
+    sb.when(
       `${v.trips}==1`,
       "wait:random(5)(30);",
       `${v.needCrystals}=crystals+${CRYSTALS_INCREMENT_TO_RESET};`,
@@ -64,11 +64,11 @@ const BASE: PartialArchitect<typeof METADATA> = {
       "wait:1;",
       `${v.ms}=1;`,
     );
-    sh.if(`${v.ms}==1`, `msg:${v.msgStart};`);
-    sh.when(`building.dead`, `${v.reset}=${RESET_END};`);
-    sh.when(`vehicle.dead`, `${v.reset}=${RESET_END};`);
-    sh.when(`${v.crystalBank}>=${v.needCrystals}`, `${v.reset}=${RESET_END};`);
-    sh.event(
+    sb.if(`${v.ms}==1`, `msg:${v.msgStart};`);
+    sb.when(`building.dead`, `${v.reset}=${RESET_END};`);
+    sb.when(`vehicle.dead`, `${v.reset}=${RESET_END};`);
+    sb.when(`${v.crystalBank}>=${v.needCrystals}`, `${v.reset}=${RESET_END};`);
+    sb.event(
       v.loop,
       `${v.tc}=crystals;`,
       `crystals-=${v.tc};`,
@@ -78,7 +78,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `${v.reset}+=1;`,
       `((${v.reset}>${RESET_SECONDS}))[${v.doReset}][${v.loop}];`,
     );
-    sh.event(
+    sb.event(
       v.doReset,
       `crystals+=${v.crystalBank};`,
       `${v.needCrystals}=${v.crystalBank}+${CRYSTALS_INCREMENT_TO_RETRIGGER};`,
@@ -89,7 +89,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `wait:1;`,
       `${v.ms}=2;`,
     );
-    sh.if(`${v.ms}==2`, `msg:${v.msgEnd};`);
+    sb.if(`${v.ms}==2`, `msg:${v.msgEnd};`);
   },
 };
 

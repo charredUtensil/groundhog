@@ -233,15 +233,15 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       { pos: minersPoint, priority: DzPriority.OBJECTIVE },
     ];
   },
-  scriptGlobals({ cavern, sh }) {
+  scriptGlobals({ cavern, sb }) {
     const { lostMinerCaves } = countLostMiners(cavern);
-    sh.declareInt(gLostMiners.remainingCaves, lostMinerCaves);
-    sh.declareInt(gLostMiners.done, 0);
-    sh.declareString(gLostMiners.messageFoundAll, {
+    sb.declareInt(gLostMiners.remainingCaves, lostMinerCaves);
+    sb.declareInt(gLostMiners.done, 0);
+    sb.declareString(gLostMiners.messageFoundAll, {
       die: LoreDie.foundAllLostMiners,
       pg: FOUND_ALL_LOST_MINERS,
     });
-    sh.event(
+    sb.event(
       gLostMiners.onFoundAll,
       `${gObjectives.met}+=1;`,
       `msg:${gLostMiners.messageFoundAll};`,
@@ -249,7 +249,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       `${gLostMiners.done}=1;`,
     );
   },
-  script({ cavern, plan, sh }) {
+  script({ cavern, plan, sb }) {
     const rng = cavern.dice.script(plan.id);
     const { lostMinerCaves } = countLostMiners(cavern);
     const v = mkVars(`p${plan.id}LoMi`, [
@@ -274,7 +274,7 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       ] === plan.id;
 
     if (shouldMessageOnMiners) {
-      sh.declareString(v.msgFoundMiners, {
+      sb.declareString(v.msgFoundMiners, {
         rng,
         pg: FOUND_LOST_MINERS,
         state: {
@@ -286,8 +286,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
         },
       });
     }
-    sh.declareInt(v.wasFound, 0);
-    sh.if(
+    sb.declareInt(v.wasFound, 0);
+    sb.if(
       `change:${transformPoint(cavern, minersPoint)}`,
       shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
       `${v.wasFound}=1;`,
@@ -299,14 +299,14 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       ),
     );
     if (shouldPanMessageOnBreadcrumb) {
-      sh.declareString(v.msgFoundBreadcrumb, {
+      sb.declareString(v.msgFoundBreadcrumb, {
         rng,
         pg: FOUND_LM_BREADCRUMB,
         formatVars: {
           vehicleName: breadcrumb!.template.name,
         },
       });
-      sh.if(
+      sb.if(
         `change:${transformPoint(cavern, breadcrumbPoint)}`,
         `((${v.wasFound}>0))return;`,
         `pan:${transformPoint(cavern, breadcrumbPoint)};`,

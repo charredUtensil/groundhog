@@ -26,7 +26,7 @@ const sVars = (plan: Plan<any>) =>
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultHallArchitect,
   ...SEISMIC_BASE,
-  script: ({ cavern, plan, sh }) => {
+  script: ({ cavern, plan, sb }) => {
     const v = sVars(plan);
     const discoveryPoints = getDiscoveryPoints(cavern, plan);
     const panTo = plan.innerPearl[0][Math.floor(plan.innerPearl[0].length / 2)];
@@ -37,14 +37,14 @@ const BASE: PartialArchitect<typeof METADATA> = {
     });
     const trips = Math.ceil((discoveryPoints.length + drillPoints.length) / 4);
 
-    sh.declareInt(v.tripCount, 0);
+    sb.declareInt(v.tripCount, 0);
     discoveryPoints.forEach((pos) =>
-      sh.if(`change:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`),
+      sb.if(`change:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`),
     );
     drillPoints.map((pos) =>
-      sh.if(`drill:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`),
+      sb.if(`drill:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`),
     );
-    sh.if(
+    sb.if(
       `${v.tripCount}>=${trips}`,
       `wait:random(5)(30);`,
       `shake:1;`,
