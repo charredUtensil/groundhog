@@ -26,7 +26,8 @@
     "presubmit": "prettier --write src && eslint --fix src --max-warnings=0 && react-scripts build && react-scripts test --all",
     "eject": "react-scripts eject",
     "gen": "tsx bin/groundhog-gen",
-    "architect-stats": "tsx bin/architect-stats"
+    "architect-stats": "tsx bin/architect-stats",
+    "lore-dump": "tsx bin/lore-dump"
   },
   "eslintConfig": {
     "extends": [

@@ -1,0 +1,43 @@
+import {
+  BUILD_POWER_GC_FIRST,
+  BUILD_POWER_GC_LAST,
+  BUILD_POWER_GC_PENULTIMATE,
+} from "./build_and_power";
+import { FAILURE, SUCCESS } from "./conclusions";
+import {
+  BLACKOUT_END,
+  BLACKOUT_START,
+  FAILURE_BASE_DESTROYED,
+  FOUND_ALL_LOST_MINERS,
+  FOUND_HOARD,
+  FOUND_HQ,
+  FOUND_LOST_MINERS,
+  FOUND_SLUG_NEST,
+  NOMADS_SETTLED,
+} from "./events";
+import { NAME } from "./names";
+import ORDERS from "./orders";
+import PREMISE from "./premise";
+import { SEISMIC_FORESHADOW } from "./seismic";
+
+const ALL_GRAPHS = [
+  BLACKOUT_END,
+  BLACKOUT_START,
+  BUILD_POWER_GC_FIRST,
+  BUILD_POWER_GC_LAST,
+  BUILD_POWER_GC_PENULTIMATE,
+  FAILURE_BASE_DESTROYED,
+  FAILURE,
+  FOUND_ALL_LOST_MINERS,
+  FOUND_HOARD,
+  FOUND_HQ,
+  FOUND_LOST_MINERS,
+  FOUND_SLUG_NEST,
+  NAME,
+  NOMADS_SETTLED,
+  ORDERS,
+  PREMISE,
+  SEISMIC_FORESHADOW,
+  SUCCESS,
+] as const;
+export default ALL_GRAPHS;

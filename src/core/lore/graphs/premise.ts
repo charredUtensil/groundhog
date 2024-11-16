@@ -132,6 +132,12 @@ const PREMISE = phraseGraph<State>(
       )
       .then(end);
 
+    const alsoAdditionalHardship = pg(
+      "Also,",
+      "If that wasn't hard enough,",
+      "It gets worse:",
+    ).then(additionalHardship);
+
     greeting
       .then(
         // Need to build Geological Centers in specific places. Blame "interference"
@@ -139,17 +145,22 @@ const PREMISE = phraseGraph<State>(
           .then(skip, state("treasureCaveOne", "treasureCaveMany"))
           .then(skip, "We're sending you to a cavern deep within the planet.")
           .then(
-            "Our long-range scanners",
-            "The scanners up on the L.M.S. Explorer",
+            pg(
+              "Our long-range scanners",
+              "The scanners up on the L.M.S. Explorer",
+            ).then(
+              "are unable to penetrate the geology in this area and we need " +
+                "some way to amplify them. That's where you come in - we " +
+                "need a team to scan the area manually",
+              "have been unreliable at this depth and we'd like to " +
+                "understand the area better",
+            ),
+            state("spawnIsBlackout").then(
+              "There seems to be some geomagnetic anomaly in this area and " +
+                "researching it could prove vital to our mining operations",
+            ),
           )
-          .then(
-            "are unable to penetrate the geology in this area and we need some " +
-              "way to amplify them.",
-            "have been unreliable at this depth and we'd like to understand the " +
-              "area better.",
-          )
-          .then(skip, "That's where you come in -")
-          .then("We need a team to scan the area"),
+          .then(""),
         // Maybe treasure, maybe spawn is HQ.
         pg(
           pg("A recent scan", "Our most recent geological survey").then(
@@ -195,7 +206,23 @@ const PREMISE = phraseGraph<State>(
           ". Use caution!",
           ", but proceed with caution!\n\n",
           ", but this is no walk in the park.",
-        ).then(additionalHardship),
+        )
+          .then(
+            additionalHardship,
+            state("findHq")
+              .then(
+                "we already sent another team down here before, and they failed " +
+                  "miserably. You should be able to find their Rock Raider HQ " +
+                  "nearby",
+                "you aren't the first to attempt this mission. You'll find an " +
+                  "existing base somewhere in the viscinity",
+              )
+              .then(
+                ".",
+                state("hqIsRuin").then(" - or what's left of it at least."),
+              )
+              .then(alsoAdditionalHardship),
+          ),
         state("spawnIsHq")
           .then(
             ", and we have established our Rock Raider HQ.",
@@ -238,8 +265,6 @@ const PREMISE = phraseGraph<State>(
           .then(skip, state("spawnHasErosion"))
           .then(end),
       );
-
-    // TODO: need lore state and copy for blackout?
 
     greeting
       .then(state("spawnIsMobFarm"))
@@ -305,12 +330,6 @@ const PREMISE = phraseGraph<State>(
         .then("\n\n"),
     );
 
-    const alsoAdditionalHardship = pg(
-      "Also,",
-      "If that wasn't hard enough,",
-      "It gets worse:",
-    ).then(additionalHardship);
-
     const findThem = pg(
       "we're counting on you to find them!",
       "we don't know how long they'll last out there.",
@@ -331,7 +350,20 @@ const PREMISE = phraseGraph<State>(
       .then(state("spawnHasErosion"), skip)
       .then(state("hasSlugs"), skip)
       .then(
-        end,
+        skip,
+        state("spawnIsBlackout")
+          .then(
+            "\n\nOne more thing to look out for: We're picking up some unusal " +
+              "magnetic disturbances",
+          )
+          .then(
+            ", so be prepared for anything.",
+            ", so be careful down there!",
+            state("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(
+              ". Perhaps while you're down there, you can extend the range " +
+                "of our scanners.",
+            ),
+          ),
         state("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(
           "\n\nWhile you're down there, we need you to extend the range of our scanners.",
         ),
@@ -492,7 +524,10 @@ const PREMISE = phraseGraph<State>(
       .then(skip, state("hasSlugs"))
       .then(skip, state("spawnHasErosion"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-      .then(skip, state("spawnIsNomadOne", "spawnIsNomadsTogether"))
+      .then(
+        skip,
+        state("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsBlackout"),
+      )
       .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
       .then(end);
   },

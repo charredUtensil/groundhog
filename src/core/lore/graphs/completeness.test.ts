@@ -1,24 +1,6 @@
+import ALL_GRAPHS from ".";
 import phraseGraph, { PhraseGraph } from "../builder";
 import { FoundLostMinersState, State } from "../lore";
-import {
-  BUILD_POWER_GC_FIRST,
-  BUILD_POWER_GC_LAST,
-  BUILD_POWER_GC_PENULTIMATE,
-} from "./build_and_power";
-import { FAILURE, SUCCESS } from "./conclusions";
-import {
-  FAILURE_BASE_DESTROYED,
-  FOUND_ALL_LOST_MINERS,
-  FOUND_HOARD,
-  FOUND_HQ,
-  FOUND_LOST_MINERS,
-  FOUND_SLUG_NEST,
-  NOMADS_SETTLED,
-} from "./events";
-import { NAME } from "./names";
-import ORDERS from "./orders";
-import PREMISE from "./premise";
-import { SEISMIC_FORESHADOW } from "./seismic";
 
 type CombinedState = State & FoundLostMinersState & { readonly commend: true };
 
@@ -39,74 +21,64 @@ function expectCompletion(actual: PhraseGraph<any>) {
         return state(...presentArgs);
       }
 
-      const hasAnyObjective = pg();
+      // Set up nodes representing possible objectives.
+      const resourceObjective = st("resourceObjective").then(end);
+      const lostMinersAndOrResourceObjective = st(
+        "lostMinersOne",
+        "lostMinersTogether",
+        "lostMinersApart",
+      ).then(end, resourceObjective);
+      const buildPowerGcAndOrLostMinersAndOrResourceObjective = st(
+        "buildAndPowerGcOne",
+        "buildAndPowerGcMultiple",
+      ).then(end, lostMinersAndOrResourceObjective);
+
       start
+        // These can happen regardless of what the anchor is.
+        .then(st("rockBiome", "iceBiome", "lavaBiome"))
         .then(skip, st("floodedWithLava", "floodedWithWater"))
         .then(skip, st("hasMonsters"))
         .then(skip, st("hasSlugs"))
+        .then(skip, st("hasAirLimit"))
         .then(skip, st("spawnHasErosion"))
         .then(skip, st("treasureCaveOne", "treasureCaveMany"))
+        .then(skip, st("hasGiantCave"))
+        .then(st("commend"))
+        .then(st("foundMinersOne", "foundMinersTogether"))
+        // Break down the lore based on possible anchors.
         .then(
+          // FCHQ and Mob Farm: buildpower objectives are not available.
+          pg(
+            st("spawnIsHq").then(st("hqIsFixedComplete")),
+            st("spawnIsMobFarm"),
+          ).then(lostMinersAndOrResourceObjective),
+          // Spawn is HQ: Normal objectives.
+          pg(st("spawnIsHq").then(skip, st("hqIsRuin"))).then(
+            buildPowerGcAndOrLostMinersAndOrResourceObjective,
+          ),
+          // Everything else: Normal objectives + maybe find HQ.
           pg(
             skip,
             st("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsBlackout"),
-          ).then(skip, st("findHq").then(skip, st("hqIsRuin"))),
-          st("spawnIsHq").then(skip, st("hqIsFixedComplete"), st("hqIsRuin")),
-          st("spawnIsMobFarm"),
-        )
-        .then(
-          skip,
-          st("lostMinersOne", "lostMinersTogether", "lostMinersApart").then(
-            skip,
-            hasAnyObjective.then(cut),
-          ),
-        )
-        .then(
-          skip,
-          st("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(
-            skip,
-            hasAnyObjective.then(cut),
-          ),
-        )
-        .then(st("resourceObjective"))
-        .then(hasAnyObjective)
-        .then(st("rockBiome", "iceBiome", "lavaBiome"))
-        .then(skip, st("hasGiantCave"))
-        .then(st("foundMinersOne", "foundMinersTogether"))
-        .then(st("commend"))
-        .then(end);
+          )
+            .then(skip, st("findHq").then(skip, st("hqIsRuin")))
+            .then(buildPowerGcAndOrLostMinersAndOrResourceObjective),
+        );
     },
   );
   expect(actual.states).toEqual(expected.states);
 
+  const actualReachable = actual.phrases[0].reachableStates;
+  const missing: string[] = Object.keys(
+    expected.phrases[0].reachableStates,
+  ).filter((s) => !(s in actualReachable));
   // Actual can sometimes contain states that are impossible, so it's ok if
   // there are reachable states in actual not in expected.
-  expect(actual.phrases[0].reachableStates).toEqual(
-    expect.objectContaining(expected.phrases[0].reachableStates),
-  );
+  expect(missing).toEqual([]);
 }
 
-const GRAPHS_TO_TEST = [
-  BUILD_POWER_GC_FIRST,
-  BUILD_POWER_GC_PENULTIMATE,
-  BUILD_POWER_GC_LAST,
-  SUCCESS,
-  FAILURE,
-  FOUND_LOST_MINERS,
-  FOUND_ALL_LOST_MINERS,
-  FOUND_HOARD,
-  FOUND_HQ,
-  NOMADS_SETTLED,
-  FOUND_SLUG_NEST,
-  FAILURE_BASE_DESTROYED,
-  NAME,
-  ORDERS,
-  PREMISE,
-  SEISMIC_FORESHADOW,
-] as const;
-
 describe(`Graph is complete`, () => {
-  GRAPHS_TO_TEST.forEach((pg) => {
+  ALL_GRAPHS.forEach((pg) => {
     test(`for ${pg.name}`, () => {
       expectCompletion(pg);
     });

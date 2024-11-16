@@ -4,7 +4,7 @@ import { inferContextDefaults } from "../src/core/common";
 import { CAVERN_TF } from "../src/core/transformers";
 import { SerializedCavern } from "../src/core/transformers/04_ephemera/05_serialize";
 
-function generate() {
+function main() {
   const seed = parseInt(process.env.SEED ?? "0", 16);
   if (!seed) {
     throw new Error("Usage:\n  SEED=... yarn gen");
@@ -20,4 +20,4 @@ function generate() {
   console.log((state.result as SerializedCavern).serialized);
 }
 
-generate();
+main();
