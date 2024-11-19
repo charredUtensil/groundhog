@@ -72,7 +72,7 @@ type FromLoreArgsWithState<T> = DieOrRng & {
 
 export type ScriptBuilder = {
   /**
-   * Declares an integer variable.
+   * Declares an integer variable. Returns the variable name.
    *
    * Note: I've explicitly decided not to use boolean vars in level scripts.
    * This is partially because I keep accidentally using constructs like
@@ -83,16 +83,37 @@ export type ScriptBuilder = {
   declareInt(name: string, value: number): string;
   /**
    * Declares a string variable. Takes ether a string value or parameters to
-   * determine the string from lore.
+   * determine the string from lore. Returns the variable name.
    */
   declareString(name: string, value: string | FromLoreArgs): string;
   declareString<T>(name: string, value: FromLoreArgsWithState<T>): string;
+  /**
+   * Declares an arrow variable. Returns the variable name.
+   */
   declareArrow(name: string): string;
+  /**
+   * Declares a building variable. Returns the variable name.
+   */
   declareBuilding(name: string): string;
+  /**
+   * Declares a creature variable. Returns the variable name.
+   */
   declareCreature(name: string, creature?: Creature): string;
+  /**
+   * Runs the given events when the level starts.
+   */
   onInit(...rest: EventChainLine[]): void;
+  /**
+   * Runs the given events once when the condition is true.
+   */
   if(condition: string, ...rest: EventChainLine[]): void;
+  /**
+   * Runs the given events once whenever the condition is true.
+   */
   when(condition: string, ...rest: EventChainLine[]): void;
+  /**
+   * Declares an event chain with the given name.
+   */
   event(name: string, ...rest: EventChainLine[]): void;
 };
 
@@ -102,9 +123,9 @@ type Trigger = {
   bodies: `${string};`[];
 };
 
-type ScriptBuilderX = ScriptBuilder & { build(): string };
+type BuildableScriptBuilder = ScriptBuilder & { build(): string };
 
-export function mkScriptBuilder(cavern: PreprogrammedCavern): ScriptBuilderX {
+export function mkScriptBuilder(cavern: PreprogrammedCavern): BuildableScriptBuilder {
   let uid: number = 0;
   const declarations: string[] = [];
   const triggers: {
