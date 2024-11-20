@@ -5,7 +5,7 @@ import { offsetBy, Point } from "../../../../core/common/geometry";
 import { filterTruthy } from "../../../../core/common/utils";
 
 type Statement = {
-  kind: 'h3' | 'h4' | 'condition' | 'event' | 'misc';
+  kind: "h3" | "h4" | "condition" | "event" | "misc";
   code: string;
   pos?: Point;
 };
@@ -46,9 +46,12 @@ function parse(cavern: Cavern): Statement[] {
       const bp = cavern.plans?.[parseInt(m.groups!.id, 10)].path.baseplates;
       if (bp) {
         return {
-          kind: 'misc',
+          kind: "misc",
           code,
-          pos: offsetBy(bp[Math.floor(bp.length / 2)].center, [-cavern.left!, -cavern.top!]),
+          pos: offsetBy(bp[Math.floor(bp.length / 2)].center, [
+            -cavern.left!,
+            -cavern.top!,
+          ]),
         };
       }
     }
@@ -122,7 +125,9 @@ export default function ScriptPreview({
             <div
               className={className}
               onMouseOver={() => setScriptLineHovered(i)}
-              onMouseLeave={() => scriptLineHovered === i && setScriptLineHovered(-1)}
+              onMouseLeave={() =>
+                scriptLineHovered === i && setScriptLineHovered(-1)
+              }
             >
               {code}
             </div>
@@ -156,7 +161,7 @@ export function ScriptOverlay({
   return (
     <g className={styles.scriptOverlay}>
       {statements!.map(({ kind, pos }, i) => {
-        if (!pos || scriptLineOffsets[i] === undefined || kind === 'misc') {
+        if (!pos || scriptLineOffsets[i] === undefined || kind === "misc") {
           return null;
         }
         const className = filterTruthy([
@@ -188,29 +193,29 @@ export function ScriptOverlay({
         const px = (pos[0] + ox + 0.5) * SCALE;
         const py = (pos[1] + oy + 0.5) * SCALE;
         const bx = px - Math.abs(py - ly) * 0.3;
-        const d = filterTruthy([
-          `M ${px} ${py}`,
-          `L ${bx} ${ly}`,
-          `L ${lx} ${ly}`,
-        ]).join("");
+        const d = `M ${px} ${py} L ${bx} ${ly} L ${lx} ${ly}`;
         const cr = 10;
         const tr = 4;
         return (
           <Fragment key={i}>
             <path className={`${styles.arrow} ${styles[kind]}`} d={d} />
-            {kind !== 'misc' && (<>
-            <circle
-              className={`${styles.arrowhead} ${styles[kind]}`}
-              cx={px}
-              cy={py}
-              r={cr}
-            /><rect
-              className={`${styles.tile} ${styles[kind]}`}
-              x={px - tr}
-              y={py - tr}
-              width={2 * tr}
-              height={2 * tr}
-            /></>)}
+            {kind !== "misc" && (
+              <>
+                <circle
+                  className={`${styles.arrowhead} ${styles[kind]}`}
+                  cx={px}
+                  cy={py}
+                  r={cr}
+                />
+                <rect
+                  className={`${styles.tile} ${styles[kind]}`}
+                  x={px - tr}
+                  y={py - tr}
+                  width={2 * tr}
+                  height={2 * tr}
+                />
+              </>
+            )}
           </Fragment>
         );
       })}

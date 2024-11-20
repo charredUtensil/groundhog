@@ -122,17 +122,13 @@ function getTitle(
       const c = cavern.crystals?.get(x, y) ?? 0;
       const d = t.crystalYield;
       const s = d > 0 ? `${c} + ${d} from ${t.name}` : c;
-      return (
-        c + d > 0 && (t.isWall ? `Yields ${s}` : `${s} on ground`)
-      );
+      return c + d > 0 && (t.isWall ? `Yields ${s}` : `${s} on ground`);
     }
     case "ore": {
       const o = cavern.ore?.get(x, y) ?? 0;
       const d = t.oreYield;
       const s = d > 0 ? `${o} + ${d} from ${t.name}` : o;
-      return (
-        o + d > 0 && (t.isWall ? `Yields ${s}` : `${s} on ground`)
-      );
+      return o + d > 0 && (t.isWall ? `Yields ${s}` : `${s} on ground`);
     }
     case "landslides": {
       const ls = cavern.landslides?.get(x, y);

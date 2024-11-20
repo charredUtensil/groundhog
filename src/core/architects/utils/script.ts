@@ -125,7 +125,9 @@ type Trigger = {
 
 type BuildableScriptBuilder = ScriptBuilder & { build(): string };
 
-export function mkScriptBuilder(cavern: PreprogrammedCavern): BuildableScriptBuilder {
+export function mkScriptBuilder(
+  cavern: PreprogrammedCavern,
+): BuildableScriptBuilder {
   let uid: number = 0;
   const declarations: string[] = [];
   const triggers: {
@@ -144,7 +146,13 @@ export function mkScriptBuilder(cavern: PreprogrammedCavern): BuildableScriptBui
     if (!body) {
       return;
     }
-    if (condition in triggers.byCondition) {
+    const tx: Trigger | undefined = triggers.byCondition[condition];
+    if (tx) {
+      if (tx.kind !== kind) {
+        throw new Error(
+          `Attempted to redefine trigger \`${tx.kind}(${condition})\` as a \`${kind}\` trigger`,
+        );
+      }
       triggers.byCondition[condition].bodies.push(body);
       return;
     }

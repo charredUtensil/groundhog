@@ -185,8 +185,8 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     // under normal circumstances, but here it's almost a necessity that the
     // player have their lasers bound to a single key.
     sb.declareInt(v.hintGroup, 0);
-    [MINING_LASER, SMLC].forEach(e =>
-      sb.when(`${e.id}.click`, `((${e.id}>1))${v.hintGroup}=1;`)
+    [MINING_LASER, SMLC].forEach((e) =>
+      sb.when(`${e.id}.click`, `((${e.id}>1))${v.hintGroup}=1;`),
     );
     sb.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP);
     sb.if(`${v.hintGroup}>0`, `msg:${v.msgHintGroup};`);

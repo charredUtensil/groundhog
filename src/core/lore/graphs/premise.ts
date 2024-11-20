@@ -206,23 +206,22 @@ const PREMISE = phraseGraph<State>(
           ". Use caution!",
           ", but proceed with caution!\n\n",
           ", but this is no walk in the park.",
-        )
-          .then(
-            additionalHardship,
-            state("findHq")
-              .then(
-                "we already sent another team down here before, and they failed " +
-                  "miserably. You should be able to find their Rock Raider HQ " +
-                  "nearby",
-                "you aren't the first to attempt this mission. You'll find an " +
-                  "existing base somewhere in the viscinity",
-              )
-              .then(
-                ".",
-                state("hqIsRuin").then(" - or what's left of it at least."),
-              )
-              .then(alsoAdditionalHardship),
-          ),
+        ).then(
+          additionalHardship,
+          state("findHq")
+            .then(
+              "we already sent another team down here before, and they failed " +
+                "miserably. You should be able to find their Rock Raider HQ " +
+                "nearby",
+              "you aren't the first to attempt this mission. You'll find an " +
+                "existing base somewhere in the viscinity",
+            )
+            .then(
+              ".",
+              state("hqIsRuin").then(" - or what's left of it at least."),
+            )
+            .then(alsoAdditionalHardship),
+        ),
         state("spawnIsHq")
           .then(
             ", and we have established our Rock Raider HQ.",

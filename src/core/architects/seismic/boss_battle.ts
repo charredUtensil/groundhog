@@ -1,16 +1,23 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
-import { chainFragment, EventChainLine, mkVars, transformPoint } from "../utils/script";
+import {
+  chainFragment,
+  EventChainLine,
+  mkVars,
+  transformPoint,
+} from "../utils/script";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
 import { SEISMIC_BASE, gSeismic } from "./base";
 import { monsterForBiome } from "../../models/creature";
 import { randomlyInTile } from "../../models/position";
 import { PearledPlan } from "../../transformers/01_planning/06_pearl";
-import { Point } from "../../common/geometry";
+import { NEIGHBORS8, offsetBy, Point } from "../../common/geometry";
 import { Tile } from "../../models/tiles";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
+import { DiscoveryZone } from "../../models/discovery_zone";
+import { filterTruthy } from "../../common/utils";
 
 type Metadata = {
   readonly tag: "seismic";
@@ -19,37 +26,64 @@ type Metadata = {
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}SmBBa`, ["boss", "onTrip", "doArm", "tripCount"]);
 
+function getAdjacentDzs(
+  cavern: PreprogrammedCavern,
+  pos: Point,
+): DiscoveryZone[] {
+  const result: DiscoveryZone[] = [];
+  NEIGHBORS8.forEach((o) => {
+    const dz = cavern.discoveryZones.get(...offsetBy(pos, o));
+    if (dz && !dz.openOnSpawn) {
+      result[dz.id] = dz;
+    }
+  });
+  return filterTruthy(result);
+}
+
 function getRevealGroups(
   cavern: PreprogrammedCavern,
   plan: PearledPlan<Metadata>,
   dLayer: number,
 ) {
-  const sLayer = Math.min(dLayer, 2);
-  const mixedId = cavern.plans.length;
-  const monsterId = mixedId + 1;
-  const result: Point[][] = [];
-  result[monsterId] = [];
+  // There is a bug in Manic Miners where caves don't become
+  // "discovered" properly when more than one discovery zone is
+  // revealed in the same tick. Prevent this while making the monster
+  // reveal more dramatic by breaking the reveal up into multiple
+  // events. Each event will reveal at most one discovery zone, with
+  // the final reveal revealing the monster.
+  const sLayer = dLayer;
+  const dzPoints: Point[][] = [];
+  const penultimatePoints: Point[] = [];
+  const monsterRevealPoints: Point[] = [];
   plan.innerPearl.forEach((layer, lyi) => {
     if (lyi < dLayer) {
       // Ignore anything in the center
     } else if (lyi < dLayer + 2) {
       // The ring around the monster den - always last
-      result[monsterId].push(...layer.filter(pos => cavern.tiles.get(...pos)?.isWall));
+      monsterRevealPoints.push(
+        ...layer.filter((pos) => cavern.tiles.get(...pos)?.isWall),
+      );
     } else {
       // Remaining points: Anything that is part of one other plan goes in that
       // group. Anything that is part of more than one goes in the "mixed" bin.
-      layer.forEach(pos => {
-        const spokePlans = cavern.pearlInnerDex.get(...pos)!
-          .map((layerInSpoke, spokePlanId) => [layerInSpoke, spokePlanId])
-          .filter(([layerInSpoke, spokePlanId]) => spokePlanId !== plan.id && layerInSpoke < sLayer);
-        if (spokePlans.length) {
-          const spokePlanId = spokePlans.length > 1 ? mixedId : spokePlans[0][1];
-          (result[spokePlanId] ||= []).push(pos);
+      layer.forEach((pos) => {
+        const isSpoke = cavern.pearlInnerDex
+          .get(...pos)
+          ?.some(
+            (layerInSpoke, spokePlanId) =>
+              spokePlanId !== plan.id && layerInSpoke < sLayer,
+          );
+        if (isSpoke) {
+          const dzs = getAdjacentDzs(cavern, pos);
+          (dzs.length === 1
+            ? (dzPoints[dzs[0].id] ||= [])
+            : penultimatePoints
+          ).push(pos);
         }
-      })
+      });
     }
   });
-  return result;
+  return [...filterTruthy(dzPoints), penultimatePoints, monsterRevealPoints];
 }
 
 const BASE: PartialArchitect<Metadata> = {
@@ -106,7 +140,7 @@ const BASE: PartialArchitect<Metadata> = {
     sb.declareInt(v.tripCount, 0);
     let totalTrips = 0;
     revealGroups.forEach((group, gi) => {
-      if (gi < cavern.plans.length) {
+      if (gi < revealGroups.length - 1) {
         group.forEach((pos) => {
           const isWall = cavern.tiles.get(...pos)?.isWall;
           const tv = isWall ? 3 : 1;
@@ -129,22 +163,20 @@ const BASE: PartialArchitect<Metadata> = {
       `wait:1;`,
       `shake:4;`,
       ...revealGroups.map(
-        (group, gi) => gi < cavern.plans.length + 1 && chainFragment(
+        (group, gi) =>
+          gi < revealGroups.length - 1 &&
+          chainFragment(
             ...group
               .filter((pos) => cavern.tiles.get(...pos)?.isWall)
               .map(
-                (pos) => `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
+                (pos) =>
+                  `drill:${transformPoint(cavern, pos)};` satisfies EventChainLine,
               ),
-            // There is a bug in Manic Miners where caves don't become
-            // "discovered" properly when more than one discovery zone is
-            // revealed in the same tick. Prevent this while making the monster
-            // reveal more dramatic by breaking the reveal up into multiple
-            // chunks.
             `wait:0.25;` satisfies EventChainLine,
-            ),
+          ),
       ),
       `shake:5;`,
-      ...revealGroups[cavern.plans.length + 1]
+      ...revealGroups[revealGroups.length - 1]
         .filter((pos) => cavern.tiles.get(...pos)?.isWall)
         .map(
           (pos) =>
@@ -173,10 +205,7 @@ const BOSS_BATTLE = [
       { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.ALWAYS_SOLID_ROCK, width: 2 },
       { of: Rough.MIX_LOOSE_HARD_ROCK, shrink: 1 },
-      { of: weightedSprinkle(
-        { item: Rough.DIRT, bid: 1 },
-        { item: Rough.DIRT_OR_LOOSE_ROCK, bid: 4 },
-      ), grow: 1 },
+      { of: Rough.MIX_AT_MOST_DIRT_LOOSE_ROCK, grow: 1 },
       { of: Rough.MIX_FRINGE, shrink: 1 },
       { of: Rough.VOID, width: 0, grow: 1 },
     ),
