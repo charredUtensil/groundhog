@@ -11,7 +11,7 @@ import {
   TOOL_STORE,
 } from "../models/building";
 import { position, randomlyInTile } from "../models/position";
-import { asXY, closestTo, NSEW, offsetBy, Point } from "../common/geometry";
+import { asXY, closestTo, NSEW, offsetBy } from "../common/geometry";
 import {
   CARGO_CARRIER,
   CHROME_CRUSHER,
@@ -32,7 +32,6 @@ import {
   MOB_FARM_NO_LONGER_BLOCKING,
 } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
-import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 const BANLIST = [
   DOCKS,

@@ -1,16 +1,8 @@
 import { MutableGrid } from "../../common/grid";
 import { RoughPlasticCavern } from "./01_rough";
 import { Tile } from "../../models/tiles";
-import {
-  NSEW,
-  offsetBy,
-  Point,
-  rotateAround,
-  rotateLeft,
-  rotateRight,
-} from "../../common/geometry";
+import { NSEW, offsetBy, Point } from "../../common/geometry";
 import { DiscoveryZone, getDiscoveryZones } from "../../models/discovery_zone";
-import { filterTruthy } from "../../common/utils";
 
 /*
   Each tile is part of four different possible 2x2 squares.

@@ -1,6 +1,6 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
-import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
+import { mkRough, Rough } from "../utils/rough";
 import {
   chainFragment,
   EventChainLine,

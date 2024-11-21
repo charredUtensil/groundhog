@@ -78,6 +78,7 @@ const DUMMY_CAVERN = {
   creatures: [],
   crystals: new MutableGrid<number>(),
   erosion: new MutableGrid<Erosion>(),
+  initialContext: {},
   landslides: new MutableGrid<Landslide>(),
   levelName: "Golden Test",
   miners: [],
