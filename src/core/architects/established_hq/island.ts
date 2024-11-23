@@ -65,7 +65,7 @@ export const ISLAND_BASE: Pick<
     return {
       crystalsInBuildings,
       ruin: false,
-      fixedComplete: false,
+      special: null,
       tag: "hq",
     };
   },
