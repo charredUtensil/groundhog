@@ -1,19 +1,17 @@
-/* eslint-disable no-template-curly-in-string */
+import { Format, State } from "../lore";
+import phraseGraph from "../utils/builder";
 
-import { State } from "../lore";
-import phraseGraph from "../builder";
-
-const ORDERS = phraseGraph<State>(
+const ORDERS = phraseGraph<State, Format>(
   "Briefing - Orders",
   ({ pg, state, start, end, cut, skip }) => {
     const collectResources = pg(
-      "collect ${resourceGoal}.",
-      "continue our mining operation by collecting ${resourceGoal}.",
+      ({format: {resourceGoal}}) => `collect ${resourceGoal}.`,
+      ({format: {resourceGoal}}) => `continue our mining operation by collecting ${resourceGoal}.`,
     );
 
     const weNeed = pg(
-      "we need ${resourceGoal}.",
-      "you need to collect ${resourceGoal}.",
+      ({format: {resourceGoal}}) => `we need ${resourceGoal}.`,
+      ({format: {resourceGoal}}) => `you need to collect ${resourceGoal}.`,
     );
 
     const tail = pg(
@@ -109,7 +107,7 @@ const ORDERS = phraseGraph<State>(
         state("buildAndPowerGcMultiple")
           .then(
             "construct a Geological Center in each of the marked caverns",
-            "build a Geological Center in each of the ${buildAndPowerGcCount} marked caverns",
+            ({format: {buildAndPowerGcCount}}) => `build a Geological Center in ${buildAndPowerGcCount === 2 ? 'both of the' : `each of the ${buildAndPowerGcCount}`} marked caverns`,
           )
           .then(
             pg(
@@ -138,7 +136,7 @@ const ORDERS = phraseGraph<State>(
               .then("the", "those")
               .then("lost Rock Raiders", "missing Rock Raiders"),
           )
-          .then(".", state("hasMonsters").then("before the ${enemies} do!"))
+          .then(".", state("hasMonsters").then(({format: {enemies}}) => `before the ${enemies} do!`))
           .then(
             tailOptional,
             pg(

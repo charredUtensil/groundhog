@@ -48,7 +48,7 @@ export const FC_BASE: Pick<
   prime: () => ({
     crystalsInBuildings: T0_CRYSTALS,
     ruin: false,
-    fixedComplete: true,
+    special: 'fixedComplete',
     tag: "hq",
   }),
   placeBuildings: getPlaceBuildings({

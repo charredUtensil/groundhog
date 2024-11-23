@@ -1,4 +1,5 @@
 import { CavernContext } from "../../common";
+import { PseudorandomStream } from "../../common/prng";
 import { PartialCavernContext } from "../../common/context";
 import { filterTruthy, Mutable } from "../../common/utils";
 import { OVERRIDE_SUFFIXES } from "../../lore/graphs/names";
@@ -29,8 +30,8 @@ function overrideSuffix(initialContext: PartialCavernContext) {
     v = (v << 5) - v + s.charCodeAt(i);
     v |= 0;
   }
-  v = Math.abs(v) % OVERRIDE_SUFFIXES.length;
-  return OVERRIDE_SUFFIXES[v];
+  const rng = new PseudorandomStream((v & 0x1FFFFFFFF) >>> 1);
+  return rng.uniformChoice(OVERRIDE_SUFFIXES);
 }
 
 export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
@@ -52,15 +53,15 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
         { rock: "k", ice: "e", lava: "a" }[cavern.context.biome],
         hasOverrides ? "x" : "",
       ].join(""),
-      name.text.replace(/[^A-Z0-9]+/g, "").toLowerCase(),
+      name.replace(/[^A-Z0-9]+/g, "").toLowerCase(),
       suffix?.replace(/[^A-Z0-9]+/g, "").toLowerCase(),
     ]).join("-");
   })();
-  const levelName = hasOverrides ? `${name.text} (${suffix})` : name.text;
+  const levelName = hasOverrides ? `${name} (${suffix})` : name;
   const briefing = {
-    intro: `${premise.text}\n\n${orders.text}`,
-    success: success.text,
-    failure: failure.text,
+    intro: `${premise}\n\n${orders}`,
+    success: success,
+    failure: failure,
   };
   return { ...cavern, fileName, lore, levelName, briefing };
 }

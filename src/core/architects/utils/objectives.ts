@@ -1,7 +1,7 @@
-import { mkVars, ScriptBuilder } from "./script";
+import { EventChainLine, mkVars, ScriptBuilder } from "./script";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 
-export const gObjectives = mkVars("objectives", ["met", "won"]);
+export const gObjectives = mkVars("objectives", ["res", "met", "won"]);
 
 export function objectiveGlobals({
   cavern: { objectives },
@@ -13,11 +13,26 @@ export function objectiveGlobals({
   const resources = (["crystals", "ore", "studs"] as const).filter(
     (r) => objectives[r] > 0,
   );
-  const goalCount = resources.length + objectives.variables.length;
+  const goalCount = (resources.length ? 1 : 0) + objectives.variables.length;
   sb.declareInt(gObjectives.met, 0);
   sb.declareInt(gObjectives.won, 0);
-  resources.forEach((resource) =>
-    sb.if(`${resource}>=${objectives[resource]}`, `${gObjectives.met}+=1;`),
-  );
+  if (!resources.length) {
+    // skip
+  } else if (resources.length === 1) {
+    sb.if(`${resources[0]}>=${objectives[resources[0]]}`, `${gObjectives.met}+=1;`)
+  } else {
+    sb.declareInt(gObjectives.res, 1);
+    resources.forEach((resource) =>
+      sb.when(
+        `${resource}>=${objectives[resource]}`,
+        ...resources.map(r => r !== resource && `((${r}<${objectives[r]}))return;` as EventChainLine),
+        `${gObjectives.res}=1;`,
+      )
+    );
+    sb.if(
+      `${gObjectives.res}>0`,
+      `${gObjectives.met}+=1;`,
+    );
+  }
   sb.if(`${gObjectives.met}>=${goalCount}`, `${gObjectives.won}=1;`);
 }

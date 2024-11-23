@@ -31,6 +31,7 @@ import {
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
 import { DzPriority, ScriptBuilder } from "../architects/utils/script";
+import { FinePlasticCavern } from "../transformers/02_masonry/05_fine";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
@@ -116,6 +117,11 @@ export type BaseArchitect<T extends BaseMetadata> = {
   }): void;
   placeSlugHoles(args: {
     readonly cavern: RoughPlasticCavern;
+    readonly plan: Plan<T>;
+    readonly tiles: MutableGrid<Tile>;
+  }): void;
+  closer?(args: {
+    readonly cavern: FinePlasticCavern;
     readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
   }): void;

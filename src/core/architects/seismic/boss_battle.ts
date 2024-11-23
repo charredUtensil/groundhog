@@ -95,7 +95,7 @@ const BASE: PartialArchitect<Metadata> = {
       for (const pos of plan.innerPearl[i]) {
         if (tiles.get(...pos) === Tile.FLOOR) {
           found = true;
-          tiles.set(...pos, Tile.LANDSLIDE_RUBBLE_4);
+          tiles.set(...pos, Tile.WASTE_RUBBLE_4);
         }
       }
       if (!found) {

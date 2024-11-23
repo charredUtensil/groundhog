@@ -1,44 +1,38 @@
-/* eslint-disable no-template-curly-in-string */
+import phraseGraph from "../utils/builder";
+import { PgArgs } from "../utils/base";
+import { Format, State } from "../lore";
+import { bothOrSpell, spellNumber } from "../utils/numbers";
+import { listOfAny } from "../utils/list";
 
-import phraseGraph, { PgArgs } from "../builder";
-import { State } from "../lore";
-
-function objectives<T extends State>({
+function objectives<StateT extends State, FormatT extends Format>({
   pg,
   state,
-}: Pick<PgArgs<T>, "pg" | "state">) {
-  const end = pg();
-
-  const buildGcs = pg(
-    state("buildAndPowerGcOne").then("build the Geological Center"),
-    state("buildAndPowerGcMultiple").then(
-      "build ${buildAndPowerGcCount} Geological Centers",
+}: Pick<PgArgs<StateT, FormatT>, "pg" | "state">) {
+  return listOfAny({pg},
+    pg(
+      state("buildAndPowerGcOne").then("build the Geological Center"),
+      state("buildAndPowerGcMultiple").then(
+        ({format: {buildAndPowerGcCount}}) => `build ${spellNumber(buildAndPowerGcCount)} Geological Centers`,
+      ),
+    ),
+    pg(
+      state("buildAndPowerSsOne").then("build the Support Station"),
+      state("buildAndPowerSsMultiple").then(
+        ({format: {buildAndPowerSsCount}}) => `build ${spellNumber(buildAndPowerSsCount)} Support Stations`,
+      ),
+    ),
+    pg(
+      state("lostMinersOne").then("find the lost Rock Raider"),
+      state("lostMinersTogether", "lostMinersApart").then(
+        "find the lost Rock Raiders",
+        ({format: {lostMiners}}) => `find ${bothOrSpell(lostMiners, (s) => `all ${s}`)} lost Rock Raiders`,
+      ),
+    ),
+    state("resourceObjective").then(
+      ({format: {resourceGoal}}) => `collect all ${resourceGoal}`,
+      ({format: {resourceGoal}}) => `get the ${resourceGoal} we needed`,
     ),
   );
-
-  const findLostMiners1 = pg(
-    state("lostMinersOne").then("find the lost Rock Raider"),
-    state("lostMinersTogether", "lostMinersApart").then(
-      "find the lost Rock Raiders",
-    ),
-  );
-
-  const findLostMiners2 = pg(
-    state("lostMinersOne").then("find the lost Rock Raider"),
-    state("lostMinersTogether", "lostMinersApart").then(
-      "find the lost Rock Raiders",
-    ),
-  );
-
-  const getResources = state("resourceObjective").then(
-    "collect all ${resourceGoal}",
-    "get the ${resourceGoal} we needed",
-  );
-
-  buildGcs.then(",").then(findLostMiners1);
-  buildGcs.then("and").then(findLostMiners2).then(end);
-  pg(buildGcs, findLostMiners1).then("and").then(getResources);
-  return pg(buildGcs, findLostMiners1, getResources).then(end);
 }
 
 const COMMENDATIONS = [
@@ -51,14 +45,15 @@ const COMMENDATIONS = [
   "We were right to count on you, Cadet!",
 ] as const;
 
-export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
+export const SUCCESS = phraseGraph<State & { readonly commend: boolean }, Format>(
   "Conclusion - Success",
   ({ pg, state, start, end, cut, skip }) => {
+    const coda = pg();
     (() => {
       const commend = state("commend").then("Wow!", ...COMMENDATIONS);
       const hasMonsters = state("hasMonsters").then(
-        "Those ${enemies} were no match for you!",
-        "You had nothing to fear from those ${enemies}!",
+        ({format: {enemies}}) => `Those ${enemies} were no match for you!`,
+        ({format: {enemies}}) => `You had nothing to fear from those ${enemies}!`,
       );
       const despiteTheOdds = pg(
         "Despite the odds,",
@@ -70,7 +65,7 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
         .then(skip, commend, hasMonsters)
         .then(
           skip,
-          state("hasMonsters", "spawnHasErosion").then(despiteTheOdds),
+          state("hasMonsters", "spawnHasErosion", "spawnIsGasLeak").then(despiteTheOdds),
         );
     })()
       .then("you")
@@ -79,62 +74,52 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
           .then(objectives({ pg, state }))
           .then(
             ".",
-            state("hasMonsters").then("despite that horde of ${enemies}!"),
+            state("hasMonsters").then(({format: {enemies}}) => `despite that horde of ${enemies}!`),
           ),
-        (() => {
-          const foundTheBase = state("findHq").then("found the base");
-          const hqIsRuin = state("hqIsRuin").then(
+        listOfAny({pg},
+          state("findHq").then("found the base"),
+          state("hqIsRuin").then(
             "repaired the Rock Raider HQ",
             "restored our mining operations",
-          );
-          foundTheBase.then(hqIsRuin);
-          const coda = pg();
-          return pg()
-            .then(foundTheBase, hqIsRuin)
-            .then(
+          ),
+        state("buildAndPowerGcOne").then(
+              "constructed the Geological Center",
+              "built the Geological Center where we needed it"),
+            state("buildAndPowerGcMultiple").then(
+              ({format: {buildAndPowerGcCount}}) => `built ${buildAndPowerGcCount === 2 ? 'both' : spellNumber(buildAndPowerGcCount)} Geological Centers`,
+          ),
+          state("buildAndPowerSsOne").then(
+                "constructed the Support Station",
+                "built the Support Station where we needed it"),
+              state("buildAndPowerSsMultiple").then(
+                ({format: {buildAndPowerSsCount}}) => `built ${buildAndPowerSsCount === 2 ? 'both' : spellNumber(buildAndPowerSsCount)} Support Stations`,
+            ),
+            pg(
+              state("lostMinersOne").then(
+                "found the lost Rock Raider",
+                "located the lost Rock Raider",
+              ),
+              state("lostMinersTogether", "lostMinersApart").then(
+                "found the lost Rock Raiders",
+                "located the lost Rock Raiders",
+                ({format: {lostMiners}}) => `found ${lostMiners === 2 ? 'both' : `all ${spellNumber(lostMiners)}`} Rock Raiders`
+              ),
+            ).then(
               skip,
-              state("buildAndPowerGcOne").then(
-                ", constructed the Geological Center",
-                pg("and built the Geological Center where we needed it.")
-                  .then(coda)
-                  .then(cut),
-              ),
-              state("buildAndPowerGcMultiple").then(
-                ", built ${buildAndPowerGcCount} Geological Centers",
-                pg("and built ${buildAndPowerGcCount} Geological Centers.")
-                  .then(coda)
-                  .then(cut),
-              ),
-            )
-            .then("and")
-            .then(
               pg(
-                state("lostMinersOne").then(
-                  "found the lost Rock Raider",
-                  "located the lost Rock Raider",
-                ),
-                state("lostMinersTogether", "lostMinersApart").then(
-                  "found the lost Rock Raiders",
-                  "located the lost Rock Raiders",
-                ),
-              ).then(
                 ", safe and sound.",
-                "before anything could happen to them.",
                 state("resourceObjective").then(
-                  ". You even collected ${resourceGoal}!",
-                  "- and salvaged the operation with those ${resourceGoal}.",
-                  ". Collecting ${resourceGoal} was no small feat either!",
+                  ({format: {resourceGoal}}) => `. You even collected ${resourceGoal}!`,
+                  ({format: {resourceGoal}}) => `. Collecting ${resourceGoal} was no small feat either!`,
                 ),
-              ),
-              state("resourceObjective").then(
-                "collected ${resourceGoal}.",
-                "collected all ${resourceGoal}.",
-                "got all ${resourceGoal}.",
-              ),
-            )
-            .then(coda);
-        })(),
-      )
+              ).then(coda).then(cut),
+            ),
+            state("resourceObjective").then(
+              ({format: {resourceGoal}}) => `collected ${resourceGoal}`,
+              ({format: {resourceGoal}}) => `collected all ${resourceGoal}`,
+              ({format: {resourceGoal}}) => `got all ${resourceGoal}`,
+            ),
+      ).then('.').then(coda))
       .then("\n\n")
       .then(
         skip,
@@ -151,7 +136,7 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }>(
   },
 );
 
-export const FAILURE = phraseGraph<State>(
+export const FAILURE = phraseGraph<State, Format>(
   "Conclusion - Mission Failed",
   ({ pg, state, start, end, cut, skip }) => {
     start

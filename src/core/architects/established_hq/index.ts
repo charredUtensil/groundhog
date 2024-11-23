@@ -5,6 +5,7 @@ import { getPlaceBuildings } from "./base";
 import { getPrime } from "./base";
 import { BASE } from "./base";
 import FIXED_COMPLETE from "./fixed_complete";
+import GAS_LEAK from "./gas_leak";
 import ISLAND from "./island";
 import LOST from "./lost";
 
@@ -28,6 +29,7 @@ const ESTABLISHED_HQ = [
     anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.5,
   },
   ...FIXED_COMPLETE,
+  ...GAS_LEAK,
   ...ISLAND,
   ...LOST,
 ] as const satisfies readonly Architect<HqMetadata>[];
