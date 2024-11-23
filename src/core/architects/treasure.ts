@@ -3,12 +3,7 @@ import { Tile } from "../models/tiles";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough } from "./utils/rough";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
-import {
-  DzPriority,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "./utils/script";
+import { DzPriority, mkVars, transformPoint } from "./utils/script";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
@@ -16,6 +11,7 @@ import { gLostMiners } from "./lost_miners";
 import { LoreDie } from "../lore/lore";
 import { FOUND_HOARD } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 const METADATA = {
   tag: "treasure",
@@ -36,6 +32,10 @@ const BASE: PartialArchitect<typeof METADATA> = {
 };
 
 const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
+
+const shouldIncludeHoardScript = (cavern: PreprogrammedCavern) =>
+  cavern.objectives.crystals &&
+  cavern.plans[cavern.anchor].metadata?.tag !== "mobFarm";
 
 const HOARD: typeof BASE = {
   ...BASE,
@@ -75,24 +75,21 @@ const HOARD: typeof BASE = {
       rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
       spawnRate: args.plan.monsterSpawnRate * 3.5,
     }),
-  scriptGlobals({ cavern, sh }) {
-    if (!cavern.objectives.crystals) {
-      return undefined;
+  scriptGlobals({ cavern, sb }) {
+    if (!shouldIncludeHoardScript(cavern)) {
+      return;
     }
-    return scriptFragment(
-      "# Globals: Hoard",
-      sh.declareInt(g.lock, 0),
-      sh.declareString(g.message, { die: LoreDie.foundHoard, pg: FOUND_HOARD }),
-      sh.declareInt(g.crystalsAvailable, 0),
-    );
+    sb.declareInt(g.lock, 0);
+    sb.declareString(g.message, { die: LoreDie.foundHoard, pg: FOUND_HOARD });
+    sb.declareInt(g.crystalsAvailable, 0);
   },
   claimEventOnDiscover({ plan }) {
     const pos = plan.innerPearl[0][0];
     return [{ pos, priority: DzPriority.HINT }];
   },
-  script({ cavern, plan, sh }) {
-    if (!cavern.objectives.crystals) {
-      return undefined;
+  script({ cavern, plan, sb }) {
+    if (!shouldIncludeHoardScript(cavern)) {
+      return;
     }
 
     const discoPoint = plan.innerPearl[0][0];
@@ -110,25 +107,22 @@ const HOARD: typeof BASE = {
 
     // Generate a script that pans to this cave on discovery if collecting all
     // of the crystals would win the level.
-    return scriptFragment(
-      `# P${plan.id}: Hoard`,
-      sh.trigger(
-        `if(change:${transformPoint(cavern, discoPoint)})`,
-        `((${g.lock}>0))[return][${g.lock}=1];`,
-        `wait:1;`,
-        `${g.lock}=0;`,
-        // If the game was already won, don't say anything.
-        `((${gObjectives.won}>0))return;`,
-        // If there's a lost miners objective that isn't fulfilled, don't
-        // act like the level is done.
-        hasLostMiners && `((${gLostMiners.done}<1))return;`,
-        // Count all the crystals in storage and on the floor.
-        `${g.crystalsAvailable}=crystals+Crystal_C;`,
-        // If this is not enough to win the level, don't alert the player.
-        `((${g.crystalsAvailable}<${cavern.objectives.crystals}))return;`,
-        `msg:${g.message};`,
-        `pan:${transformPoint(cavern, discoPoint)};`,
-      ),
+    sb.if(
+      `change:${transformPoint(cavern, discoPoint)}`,
+      `((${g.lock}>0))[return][${g.lock}=1];`,
+      `wait:1;`,
+      `${g.lock}=0;`,
+      // If the game was already won, don't say anything.
+      `((${gObjectives.won}>0))return;`,
+      // If there's a lost miners objective that isn't fulfilled, don't
+      // act like the level is done.
+      hasLostMiners && `((${gLostMiners.done}<1))return;`,
+      // Count all the crystals in storage and on the floor.
+      `${g.crystalsAvailable}=crystals+Crystal_C;`,
+      // If this is not enough to win the level, don't alert the player.
+      `((${g.crystalsAvailable}<${cavern.objectives.crystals}))return;`,
+      `msg:${g.message};`,
+      `pan:${transformPoint(cavern, discoPoint)};`,
     );
   },
 };

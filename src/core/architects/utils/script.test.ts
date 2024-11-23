@@ -1,20 +1,25 @@
-import { escapeString } from "./script";
+import { sanitizeString } from "./script";
 
 describe("escapeString", () => {
   it("handles the empty string", () => {
-    expect(escapeString("")).toBe("");
+    expect(sanitizeString("")).toBe("");
   });
   it("handles a normal string", () => {
-    expect(escapeString("A landslide has occurred!")).toBe(
+    expect(sanitizeString("A landslide has occurred!")).toBe(
       "A landslide has occurred!",
     );
   });
-  it("escapes quotes", () => {
-    expect(escapeString('An "Energy Crystal" has been found!')).toBe(
-      'An \\"Energy Crystal\\" has been found!',
+  it("removes quotes", () => {
+    expect(sanitizeString('An "Energy Crystal" has been found!')).toBe(
+      "An Energy Crystal has been found!",
     );
   });
   it("removes backslashes", () => {
-    expect(escapeString("\\n\\n\\n\\")).toBe("nnn");
+    expect(sanitizeString("\\n\\n\\n\\")).toBe("nnn");
+  });
+  it("removes newlines", () => {
+    expect(sanitizeString("one\ntwo\n  three  \n  \n  \n  four")).toBe(
+      "one two three four",
+    );
   });
 });

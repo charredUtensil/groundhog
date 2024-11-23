@@ -39,12 +39,20 @@
     fill: none;
     stroke: var(--color-codehlt);
     stroke-width: 2px;
+
+    &.misc {
+      stroke-dasharray: 8, 2;
+    }
   }
 
   .arrowhead {
     fill: var(--palette-bg);
     stroke: var(--color-codehlt);
     stroke-width: 2px;
+
+    &.misc {
+      fill: none;
+    }
   }
 }
 

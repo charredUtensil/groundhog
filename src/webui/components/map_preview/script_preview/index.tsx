@@ -1,11 +1,11 @@
 import React, { Fragment, createRef, useLayoutEffect, useMemo } from "react";
 import { Cavern } from "../../../../core/models/cavern";
 import styles from "./styles.module.scss";
-import { Point } from "../../../../core/common/geometry";
+import { offsetBy, Point } from "../../../../core/common/geometry";
 import { filterTruthy } from "../../../../core/common/utils";
 
 type Statement = {
-  kind: string;
+  kind: "h3" | "h4" | "condition" | "event" | "misc";
   code: string;
   pos?: Point;
 };
@@ -14,30 +14,48 @@ const SCALE = 6;
 
 const H4_RE = /^# (P\d+|Globals):/;
 
-function parse(script: string): Statement[] {
-  return script.split("\n").map((line) => {
-    if (line.startsWith("#>")) {
-      return { kind: "h3", code: line };
+function parse(cavern: Cavern): Statement[] {
+  const script = cavern.script;
+  if (!script) {
+    return [];
+  }
+  return script.split("\n").map((code): Statement => {
+    if (code.startsWith("#>")) {
+      return { kind: "h3", code };
     }
-    if (line.startsWith("#")) {
-      if (H4_RE.test(line)) {
-        return { kind: "h4", code: line };
+    if (code.startsWith("#")) {
+      if (H4_RE.test(code)) {
+        return { kind: "h4", code };
       }
-      return { kind: "misc", code: line };
+      return { kind: "misc", code };
     }
-    if (!line) {
+    if (!code) {
       return { kind: "misc", code: "\u00A0" };
     }
-    const m = line.match(/(?<prefix>(^|\())[a-z]+:(?<y>\d+),(?<x>\d+)/);
+    let m = code.match(/(?<prefix>(^|\())[a-z]+:(?<y>\d+),(?<x>\d+)/);
     if (m) {
       const kind = m.groups!.prefix === "(" ? "condition" : "event";
       return {
-        kind: kind,
-        code: line,
+        kind,
+        code,
         pos: [parseInt(m.groups!.x, 10), parseInt(m.groups!.y)],
       };
     }
-    return { kind: "misc", code: line };
+    m = code.match(/\bp(?<id>\d+)/);
+    if (m) {
+      const bp = cavern.plans?.[parseInt(m.groups!.id, 10)].path.baseplates;
+      if (bp) {
+        return {
+          kind: "misc",
+          code,
+          pos: offsetBy(bp[Math.floor(bp.length / 2)].center, [
+            -cavern.left!,
+            -cavern.top!,
+          ]),
+        };
+      }
+    }
+    return { kind: "misc", code };
   });
 }
 
@@ -85,7 +103,7 @@ export default function ScriptPreview({
     setScriptLineOffsets(getLineOffsets(container));
   }, [ref, setScriptLineOffsets]);
   const statements = useMemo(
-    () => (cavern?.script ? parse(cavern.script) : undefined),
+    () => (cavern?.script ? parse(cavern) : undefined),
     [cavern],
   );
   return (
@@ -97,7 +115,7 @@ export default function ScriptPreview({
       <h2>Script</h2>
       <p>{statements?.length ?? 0} lines</p>
       <div className={styles.src}>
-        {statements?.map(({ code, pos, kind }, i) => {
+        {statements?.map(({ code, kind }, i) => {
           const className = filterTruthy([
             styles.line,
             scriptLineHovered === i && styles.hovered,
@@ -106,7 +124,10 @@ export default function ScriptPreview({
           return (
             <div
               className={className}
-              onMouseOver={pos ? () => setScriptLineHovered(i) : undefined}
+              onMouseOver={() => setScriptLineHovered(i)}
+              onMouseLeave={() =>
+                scriptLineHovered === i && setScriptLineHovered(-1)
+              }
             >
               {code}
             </div>
@@ -129,7 +150,7 @@ export function ScriptOverlay({
   scale: number;
 }) {
   const statements = useMemo(
-    () => (cavern?.script ? parse(cavern.script) : undefined),
+    () => (cavern?.script ? parse(cavern) : undefined),
     [cavern],
   );
   if (!cavern?.script) {
@@ -140,7 +161,7 @@ export function ScriptOverlay({
   return (
     <g className={styles.scriptOverlay}>
       {statements!.map(({ kind, pos }, i) => {
-        if (!pos || scriptLineOffsets[i] === undefined) {
+        if (!pos || scriptLineOffsets[i] === undefined || kind === "misc") {
           return null;
         }
         const className = filterTruthy([
@@ -159,7 +180,7 @@ export function ScriptOverlay({
           />
         );
       })}
-      {parse(cavern.script).map(({ kind, pos }, i) => {
+      {parse(cavern).map(({ kind, pos }, i) => {
         if (
           !pos ||
           scriptLineHovered !== i ||
@@ -172,29 +193,29 @@ export function ScriptOverlay({
         const px = (pos[0] + ox + 0.5) * SCALE;
         const py = (pos[1] + oy + 0.5) * SCALE;
         const bx = px - Math.abs(py - ly) * 0.3;
-        const d = filterTruthy([
-          `M ${px} ${py}`,
-          `L ${bx} ${ly}`,
-          `L ${lx} ${ly}`,
-        ]).join("");
+        const d = `M ${px} ${py} L ${bx} ${ly} L ${lx} ${ly}`;
         const cr = 10;
         const tr = 4;
         return (
           <Fragment key={i}>
             <path className={`${styles.arrow} ${styles[kind]}`} d={d} />
-            <circle
-              className={`${styles.arrowhead} ${styles[kind]}`}
-              cx={px}
-              cy={py}
-              r={cr}
-            />
-            <rect
-              className={`${styles.tile} ${styles[kind]}`}
-              x={px - tr}
-              y={py - tr}
-              width={2 * tr}
-              height={2 * tr}
-            />
+            {kind !== "misc" && (
+              <>
+                <circle
+                  className={`${styles.arrowhead} ${styles[kind]}`}
+                  cx={px}
+                  cy={py}
+                  r={cr}
+                />
+                <rect
+                  className={`${styles.tile} ${styles[kind]}`}
+                  x={px - tr}
+                  y={py - tr}
+                  width={2 * tr}
+                  height={2 * tr}
+                />
+              </>
+            )}
           </Fragment>
         );
       })}

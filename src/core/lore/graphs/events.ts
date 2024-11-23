@@ -284,3 +284,63 @@ export const BOSS_ENEMY_DEFEATED = phraseGraph<State>(
       .then(end);
   },
 );
+
+export const BLACKOUT_START = phraseGraph<State>(
+  "Blackout Start",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(skip, "Hmmm -", "Oh no!", "This isn't good.")
+      .then(
+        "the magnetic shifts are interfering with our Power Station.",
+        "the anomaly disabled our Power Station.",
+        "our Energy Crystals aren't able to power our HQ right now.",
+      )
+      .then(end);
+  },
+);
+
+export const BLACKOUT_END = phraseGraph<State>(
+  "Blackout End",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(
+        "The power is back, but it's hard to tell how long it will last.",
+        "The anomaly has disappeared for now.",
+      )
+      .then(
+        skip,
+        "The Canteen doesn't need power, so you might want to build some as " +
+          "a backup.",
+        state("hasAirLimit").then(
+          "I suggest you build additional Support Stations to keep the " +
+            "cavern breathable.",
+        ),
+      )
+      .then(end);
+  },
+);
+
+export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State>(
+  "Mob Farm no longer blocking",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(
+        "With so many Energy Crystals removed, you should now have no " +
+          "issues teleporting in the other vehicles.",
+      )
+      .then(
+        skip,
+        state("lostMinersOne").then(
+          "Use them to find that missing Rock Raider!",
+        ),
+        state("lostMinersTogether", "lostMinersApart").then(
+          "Use them to find those missing Rock Raiders!",
+        ),
+      )
+      .then(end);
+  },
+);
+
+export const HINT_SELECT_LASER_GROUP = `Hint: Hold SHIFT+click to select multiple units.
+CTRL+[0-9] assigns a group of units that you can recall with [0-9].
+X activates laser mode.`;

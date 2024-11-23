@@ -14,7 +14,7 @@ import {
   ALL_BUILDINGS,
 } from "../../models/building";
 import { gObjectives } from "../utils/objectives";
-import { EventChainLine, mkVars, scriptFragment } from "../utils/script";
+import { EventChainLine, mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 const T0_BUILDINGS = [
@@ -32,7 +32,7 @@ const T0_BUILDINGS = [
 
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 
-const gFCHQ = mkVars("gFCHQ", ["msgLose", "wasBaseDestroyed"]);
+const gFCHQ = mkVars("gFCHq", ["msgLose", "wasBaseDestroyed"]);
 
 export const FC_BASE: Pick<
   Architect<HqMetadata>,
@@ -55,32 +55,28 @@ export const FC_BASE: Pick<
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),
-  scriptGlobals: ({ cavern, sh }) => {
-    return scriptFragment(
-      `# Globals: Fixed Complete HQ`,
-      sh.trigger(
-        "if(time:0)",
-        // Can't just disable buildings because that disables fences - and
-        // nobody wants that.
-        ...ALL_BUILDINGS.map(
-          (bt) => `disable:${bt.id};` satisfies EventChainLine,
-        ),
+  scriptGlobals: ({ sb }) => {
+    sb.onInit(
+      // Can't just disable buildings because that disables fences - and
+      // nobody wants that.
+      ...ALL_BUILDINGS.map(
+        (bt) => `disable:${bt.id};` satisfies EventChainLine,
       ),
-      sh.declareString(gFCHQ.msgLose, {
-        die: LoreDie.failureBaseDestroyed,
-        pg: FAILURE_BASE_DESTROYED,
-      }),
-      sh.declareInt(gFCHQ.wasBaseDestroyed, 0),
-      `if(${TOOL_STORE.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
-      `if(${POWER_STATION.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
-      `if(${SUPPORT_STATION.id}<=0)[${gFCHQ.wasBaseDestroyed}=1]`,
-      sh.trigger(
-        `if(${gFCHQ.wasBaseDestroyed}>=1)`,
-        `((${gObjectives.won}>0))return;`,
-        `msg:${gFCHQ.msgLose};`,
-        `wait:5;`,
-        `lose;`,
-      ),
+    );
+    sb.declareString(gFCHQ.msgLose, {
+      die: LoreDie.failureBaseDestroyed,
+      pg: FAILURE_BASE_DESTROYED,
+    });
+    sb.declareInt(gFCHQ.wasBaseDestroyed, 0);
+    sb.if(`${TOOL_STORE.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
+    sb.if(`${POWER_STATION.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
+    sb.if(`${SUPPORT_STATION.id}<=0`, `${gFCHQ.wasBaseDestroyed}=1;`);
+    sb.if(
+      `${gFCHQ.wasBaseDestroyed}>=1`,
+      `((${gObjectives.won}>0))return;`,
+      `msg:${gFCHQ.msgLose};`,
+      `wait:5;`,
+      `lose;`,
     );
   },
 };

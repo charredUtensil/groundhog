@@ -1,5 +1,5 @@
 import { PseudorandomStream } from "../common";
-import { Point } from "../common/geometry";
+import { closestTo, Point } from "../common/geometry";
 import { Grid } from "../common/grid";
 import { Architect } from "../models/architect";
 import { PlannedCavern } from "../models/cavern";
@@ -16,6 +16,7 @@ import {
   SMALL_DIGGER,
   SMALL_TRANSPORT_TRUCK,
   TUNNEL_SCOUT,
+  SMLC,
 } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
@@ -23,13 +24,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
-import {
-  DzPriority,
-  eventChain,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "./utils/script";
+import { check, DzPriority, mkVars, transformPoint } from "./utils/script";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { LoreDie, spellNumber } from "../lore/lore";
 import {
@@ -38,6 +33,7 @@ import {
   FOUND_LOST_MINERS,
 } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
+import { filterTruthy } from "../common/utils";
 
 export type LostMinersMetadata = {
   readonly tag: "lostMiners";
@@ -65,7 +61,7 @@ export function countLostMiners(cavern: PlannedCavern) {
 
 function getBreadcrumbPoint(
   cavern: DiscoveredCavern,
-  [minersX, minersY]: Point,
+  minersPos: Point,
   minersDz: DiscoveryZone,
   plan: Plan<any>,
 ): Point {
@@ -76,36 +72,25 @@ function getBreadcrumbPoint(
   // Choose the neighboring plan which is closest to spawn (fewest hops).
   const neighborPlan = cavern.plans[plan.hops[plan.hops.length - 1]];
 
-  const result = neighborPlan.innerPearl
-    .flatMap((layer) => layer)
-    // Find all the points in the inner pearl that are not walls and are in a
-    // different discovery zone from the miners.
-    .filter(([x, y]) => {
-      const dz = cavern.discoveryZones.get(x, y);
-      return dz && dz !== minersDz;
-    })
-    // Compute a^2 + b^2 for these points to get their relative distance and
-    // choose the closest point to the miners.
-    .map(
-      ([x, y]) =>
-        [x, y, (x - minersX) ** 2 + (y - minersY) ** 2] as [
-          number,
-          number,
-          number,
-        ],
-    )
-    .reduce(
-      (r: [number, number, number] | null, p) => (r && r[2] < p[2] ? r : p),
-      null,
-    );
+  const result = closestTo(
+    minersPos,
+    neighborPlan.innerPearl
+      .flatMap((layer) => layer)
+      // Find all the points in the inner pearl that are not walls and are in a
+      // different discovery zone from the miners.
+      .filter(([x, y]) => {
+        const dz = cavern.discoveryZones.get(x, y);
+        return dz && dz !== minersDz;
+      }),
+  );
 
   // If such a point exists, return it.
   if (result) {
-    return [result[0], result[1]];
+    return result;
   }
 
   // If no points exist, recurse.
-  return getBreadcrumbPoint(cavern, [minersX, minersY], minersDz, neighborPlan);
+  return getBreadcrumbPoint(cavern, minersPos, minersDz, neighborPlan);
 }
 
 function placeBreadcrumbVehicles(
@@ -117,14 +102,18 @@ function placeBreadcrumbVehicles(
 ): Vehicle[] {
   const tile = cavern.tiles.get(x, y);
   const fluid = tile === Tile.LAVA || tile === Tile.WATER ? tile : null;
-  const template = rng.weightedChoice<VehicleTemplate | null>([
-    { item: HOVER_SCOUT, bid: fluid ? 0 : 2 },
-    { item: SMALL_DIGGER, bid: fluid ? 0 : 0.5 },
-    { item: SMALL_TRANSPORT_TRUCK, bid: fluid ? 0 : 0.75 },
-    { item: RAPID_RIDER, bid: fluid === Tile.WATER ? 1 : 0 },
-    { item: TUNNEL_SCOUT, bid: 0.25 },
-    { item: null, bid: 0.0025 },
-  ]);
+  const isMobFarm = cavern.plans[cavern.anchor].metadata?.tag === "mobFarm";
+  const template = rng.weightedChoice<VehicleTemplate | null>(
+    filterTruthy([
+      !fluid && !isMobFarm && { item: HOVER_SCOUT, bid: 2 },
+      !fluid && { item: SMALL_DIGGER, bid: 0.5 },
+      !fluid && { item: SMALL_TRANSPORT_TRUCK, bid: 0.75 },
+      !fluid && { item: SMLC, bid: 0.05 },
+      !isMobFarm && fluid === Tile.WATER && { item: RAPID_RIDER, bid: 1 },
+      !isMobFarm && { item: TUNNEL_SCOUT, bid: 0.25 },
+      { item: null, bid: 0.0025 },
+    ]),
+  );
   if (template) {
     return [
       vehicleFactory.create({
@@ -244,32 +233,28 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       { pos: minersPoint, priority: DzPriority.OBJECTIVE },
     ];
   },
-  scriptGlobals({ cavern, sh }) {
+  scriptGlobals({ cavern, sb }) {
     const { lostMinerCaves } = countLostMiners(cavern);
-    return scriptFragment(
-      `# Globals: Lost Miners`,
-      sh.declareInt(gLostMiners.remainingCaves, lostMinerCaves),
-      sh.declareInt(gLostMiners.done, 0),
-      sh.declareString(gLostMiners.messageFoundAll, {
-        die: LoreDie.foundAllLostMiners,
-        pg: FOUND_ALL_LOST_MINERS,
-      }),
-      eventChain(
-        gLostMiners.onFoundAll,
-        `${gObjectives.met}+=1;`,
-        `msg:${gLostMiners.messageFoundAll};`,
-        `wait:3;`,
-        `${gLostMiners.done}=1;`,
-      ),
+    sb.declareInt(gLostMiners.remainingCaves, lostMinerCaves);
+    sb.declareInt(gLostMiners.done, 0);
+    sb.declareString(gLostMiners.messageFoundAll, {
+      die: LoreDie.foundAllLostMiners,
+      pg: FOUND_ALL_LOST_MINERS,
+    });
+    sb.event(
+      gLostMiners.onFoundAll,
+      `${gObjectives.met}+=1;`,
+      `msg:${gLostMiners.messageFoundAll};`,
+      `wait:3;`,
+      `${gLostMiners.done}=1;`,
     );
   },
-  script({ cavern, plan, sh }) {
+  script({ cavern, plan, sb }) {
     const rng = cavern.dice.script(plan.id);
     const { lostMinerCaves } = countLostMiners(cavern);
-    const v = mkVars(`p${plan.id}LostMiners`, [
+    const v = mkVars(`p${plan.id}LoMi`, [
       "msgFoundBreadcrumb",
       "msgFoundMiners",
-      "onIncomplete",
       "wasFound",
     ]);
 
@@ -288,49 +273,46 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
         cavern.discoveryZones.get(...breadcrumbPoint)!.id
       ] === plan.id;
 
-    return scriptFragment(
-      `# P${plan.id}: Lost Miners`,
-      shouldMessageOnMiners &&
-        sh.declareString(v.msgFoundMiners, {
-          rng,
-          pg: FOUND_LOST_MINERS,
-          state: {
-            foundMinersOne: plan.metadata.minersCount <= 1,
-            foundMinersTogether: plan.metadata.minersCount > 1,
-          },
-          formatVars: {
-            foundMinersCount: spellNumber(plan.metadata.minersCount),
-          },
-        }),
-      sh.declareInt(v.wasFound, 0),
-      sh.trigger(
-        `if(change:${transformPoint(cavern, minersPoint)})`,
-        shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
-        `${v.wasFound}=1;`,
-        `${gLostMiners.remainingCaves}-=1;`,
-        `((${gLostMiners.remainingCaves}>0))[${v.onIncomplete}][${gLostMiners.onFoundAll}];`,
+    if (shouldMessageOnMiners) {
+      sb.declareString(v.msgFoundMiners, {
+        rng,
+        pg: FOUND_LOST_MINERS,
+        state: {
+          foundMinersOne: plan.metadata.minersCount <= 1,
+          foundMinersTogether: plan.metadata.minersCount > 1,
+        },
+        formatVars: {
+          foundMinersCount: spellNumber(plan.metadata.minersCount),
+        },
+      });
+    }
+    sb.declareInt(v.wasFound, 0);
+    sb.if(
+      `change:${transformPoint(cavern, minersPoint)}`,
+      shouldPanOnMiners && `pan:${transformPoint(cavern, minersPoint)};`,
+      `${v.wasFound}=1;`,
+      `${gLostMiners.remainingCaves}-=1;`,
+      check(
+        `${gLostMiners.remainingCaves}<=0`,
+        gLostMiners.onFoundAll,
+        shouldMessageOnMiners && `msg:${v.msgFoundMiners}`,
       ),
-      eventChain(
-        v.onIncomplete,
-        shouldMessageOnMiners && `msg:${v.msgFoundMiners};`,
-      ),
-      shouldPanMessageOnBreadcrumb &&
-        scriptFragment(
-          sh.declareString(v.msgFoundBreadcrumb, {
-            rng,
-            pg: FOUND_LM_BREADCRUMB,
-            formatVars: {
-              vehicleName: breadcrumb!.template.name,
-            },
-          }),
-          sh.trigger(
-            `if(change:${transformPoint(cavern, breadcrumbPoint)})`,
-            `((${v.wasFound}>0))return;`,
-            `pan:${transformPoint(cavern, breadcrumbPoint)};`,
-            `msg:${v.msgFoundBreadcrumb};`,
-          ),
-        ),
     );
+    if (shouldPanMessageOnBreadcrumb) {
+      sb.declareString(v.msgFoundBreadcrumb, {
+        rng,
+        pg: FOUND_LM_BREADCRUMB,
+        formatVars: {
+          vehicleName: breadcrumb!.template.name,
+        },
+      });
+      sb.if(
+        `change:${transformPoint(cavern, breadcrumbPoint)}`,
+        `((${v.wasFound}>0))return;`,
+        `pan:${transformPoint(cavern, breadcrumbPoint)};`,
+        `msg:${v.msgFoundBreadcrumb};`,
+      );
+    }
   },
 };
 

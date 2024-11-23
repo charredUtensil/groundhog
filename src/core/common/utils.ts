@@ -18,6 +18,8 @@ export type CollapseUnion<T extends object> = UndefinedToOptional<{
   [K in KeyOfUnion<T>]: GetOrUndefined<T, K>;
 }>;
 
+export type Falsy = "" | false | null | undefined;
+
 export function pairEach<T>(
   it: readonly T[],
   fn: (a: T, b: T, i: number) => void,
@@ -35,6 +37,6 @@ export function pairMap<U, V>(
   return result;
 }
 
-export function filterTruthy<T>(it: (T | null | false | undefined)[]): T[] {
+export function filterTruthy<T>(it: (T | Falsy)[]): T[] {
   return it.filter((n) => n) as T[];
 }

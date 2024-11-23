@@ -30,10 +30,7 @@ import {
   AnchoredCavern,
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
-import {
-  DzPriority,
-  ScriptHelper,
-} from "../architects/utils/script";
+import { DzPriority, ScriptBuilder } from "../architects/utils/script";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
@@ -186,23 +183,23 @@ export type BaseArchitect<T extends BaseMetadata> = {
   holdCreatures?(args: { cavern: EnscribedCavern; plan: Plan<T> }): boolean;
   scriptGlobals?(args: {
     cavern: PreprogrammedCavern;
-    sh: ScriptHelper;
-  }): string | undefined;
+    sb: ScriptBuilder;
+  }): void;
   script?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
-    sh: ScriptHelper;
-  }): string | undefined;
+    sb: ScriptBuilder;
+  }): void;
   monsterSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
-    sh: ScriptHelper;
-  }): string | undefined;
+    sb: ScriptBuilder;
+  }): void;
   slugSpawnScript?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;
-    sh: ScriptHelper;
-  }): string | undefined;
+    sb: ScriptBuilder;
+  }): void;
 };
 
 export type Architect<T extends BaseMetadata> = BaseArchitect<T> &

@@ -11,12 +11,7 @@ import { intersectsOnly } from "./utils/intersects";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
-import {
-  DzPriority,
-  mkVars,
-  scriptFragment,
-  transformPoint,
-} from "./utils/script";
+import { DzPriority, mkVars, transformPoint } from "./utils/script";
 import { LoreDie } from "../lore/lore";
 import { FOUND_SLUG_NEST } from "../lore/graphs/events";
 
@@ -51,7 +46,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
       reArmMode: "none",
       initialCooldown: { min: 20, max: 60 },
       needCrystals: { base: Math.floor(getTotalCrystals(args.cavern) / 10) },
-      tripOnArmed: true,
+      tripOnArmed: "first",
       waveSize: holeCount,
     });
   },
@@ -59,7 +54,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
     const pos = getDiscoveryPoint(cavern, plan);
     return [{ pos, priority: DzPriority.TRIVIAL }];
   },
-  script: ({ cavern, plan, sh }) => {
+  script: ({ cavern, plan, sb }) => {
     const discoPoint = getDiscoveryPoint(cavern, plan);
     if (
       !discoPoint ||
@@ -67,22 +62,19 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
         cavern.discoveryZones.get(...discoPoint)!.id
       ] !== plan.id
     ) {
-      return scriptFragment(`# P${plan.id}: Slug Nest`, `# [Skip]`);
+      return;
     }
 
-    const v = mkVars(`p${plan.id}SgNest`, ["messageDiscover"]);
+    const v = mkVars(`p${plan.id}SgNt`, ["messageDiscover"]);
 
-    return scriptFragment(
-      `# P${plan.id}: Slug Nest`,
-      sh.declareString(v.messageDiscover, {
-        die: LoreDie.foundSlugNest,
-        pg: FOUND_SLUG_NEST,
-      }),
-      sh.trigger(
-        `if(change:${transformPoint(cavern, discoPoint)})`,
-        `msg:${v.messageDiscover};`,
-        `pan:${transformPoint(cavern, discoPoint)};`,
-      ),
+    sb.declareString(v.messageDiscover, {
+      die: LoreDie.foundSlugNest,
+      pg: FOUND_SLUG_NEST,
+    });
+    sb.if(
+      `change:${transformPoint(cavern, discoPoint)}`,
+      `msg:${v.messageDiscover};`,
+      `pan:${transformPoint(cavern, discoPoint)};`,
     );
   },
 };

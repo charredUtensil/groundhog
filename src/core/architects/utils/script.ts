@@ -1,7 +1,9 @@
 import { Point } from "../../common/geometry";
 import { PseudorandomStream } from "../../common/prng";
+import { Falsy } from "../../common/utils";
 import { FormatVars, PhraseGraph } from "../../lore/builder";
 import { LoreDie, State } from "../../lore/lore";
+import { Creature } from "../../models/creature";
 import { FencedCavern } from "../../transformers/03_plastic/00_fence";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 
@@ -25,23 +27,30 @@ export function transformPoint(
   return `${y - cavern.top},${x - cavern.left}`;
 }
 
-type Falsy = "" | false | null | undefined;
 export type ScriptLine = string | Falsy;
 export type EventChainLine = `${string};` | Falsy;
-export type Trigger = `${"if" | "when"}(${string})`;
 
-export function scriptFragment(...rest: EventChainLine[]): `${string};` | "";
-export function scriptFragment(...rest: ScriptLine[]): string;
-export function scriptFragment(...rest: ScriptLine[]) {
+export function chainFragment(...rest: EventChainLine[]): `${string};` | "" {
   return rest.filter((s) => s).join("\n") as any;
 }
 
-export function eventChain(name: string, ...rest: EventChainLine[]) {
-  return `${name}::;\n${scriptFragment(...rest)}\n`;
+export function check(
+  condition: string,
+  ifTrue: string,
+  ifFalse?: string | Falsy,
+): EventChainLine {
+  if (ifFalse) {
+    return `((${condition}))[${ifTrue}][${ifFalse}];`;
+  }
+  return `((${condition}))${ifTrue};`;
 }
 
-export function escapeString(s: string) {
-  return s.replace(/\\/g, "").replace(/"/g, '\\"');
+function eventChain(name: string, ...rest: EventChainLine[]) {
+  return `${name}::;\n${chainFragment(...rest)}\n`;
+}
+
+export function sanitizeString(s: string) {
+  return s.replace(/[\\"]+/g, "").replace(/\s*\n[\s\n]*/g, " ");
 }
 
 type DieOrRng =
@@ -61,27 +70,9 @@ type FromLoreArgsWithState<T> = DieOrRng & {
   formatVars?: FormatVars;
 };
 
-export type ScriptHelper = {
-  declareInt(name: string, value: number): ScriptLine;
-  declareString(name: string, value: string): ScriptLine;
-  declareString(name: string, value: FromLoreArgs): ScriptLine;
-  declareString<T>(name: string, value: FromLoreArgsWithState<T>): ScriptLine;
-  trigger(
-    condition: `${"if" | "when"}(${string})`,
-    ...rest: EventChainLine[]
-  ): string;
-};
-
-export class ScriptHelperImpl implements ScriptHelper {
-  private _uid: number = 0;
-  private readonly cavern: PreprogrammedCavern;
-
-  constructor(cavern: PreprogrammedCavern) {
-    this.cavern = cavern;
-  }
-
+export type ScriptBuilder = {
   /**
-   * Declares an integer variable.
+   * Declares an integer variable. Returns the variable name.
    *
    * Note: I've explicitly decided not to use boolean vars in level scripts.
    * This is partially because I keep accidentally using constructs like
@@ -89,44 +80,193 @@ export class ScriptHelperImpl implements ScriptHelper {
    * to documentation, declaring a boolean in script actually just delcares an
    * int.
    */
-  declareInt(name: string, value: number) {
-    return `int ${name}=${value.toFixed()}`;
-  }
-
+  declareInt(name: string, value: number): string;
   /**
    * Declares a string variable. Takes ether a string value or parameters to
-   * determine the string from lore.
+   * determine the string from lore. Returns the variable name.
    */
-  declareString<T>(
-    name: string,
-    value: string | FromLoreArgs | FromLoreArgsWithState<T>,
+  declareString(name: string, value: string | FromLoreArgs): string;
+  declareString<T>(name: string, value: FromLoreArgsWithState<T>): string;
+  /**
+   * Declares an arrow variable. Returns the variable name.
+   */
+  declareArrow(name: string): string;
+  /**
+   * Declares a building variable. Returns the variable name.
+   */
+  declareBuilding(name: string): string;
+  /**
+   * Declares a creature variable. Returns the variable name.
+   */
+  declareCreature(name: string, creature?: Creature): string;
+  /**
+   * Runs the given events when the level starts.
+   */
+  onInit(...rest: EventChainLine[]): void;
+  /**
+   * Runs the given events once when the condition is true.
+   */
+  if(condition: string, ...rest: EventChainLine[]): void;
+  /**
+   * Runs the given events once whenever the condition is true.
+   */
+  when(condition: string, ...rest: EventChainLine[]): void;
+  /**
+   * Declares an event chain with the given name.
+   */
+  event(name: string, ...rest: EventChainLine[]): void;
+};
+
+type Trigger = {
+  kind: "if" | "when";
+  condition: string;
+  bodies: `${string};`[];
+};
+
+type BuildableScriptBuilder = ScriptBuilder & { build(): string };
+
+export function mkScriptBuilder(
+  cavern: PreprogrammedCavern,
+): BuildableScriptBuilder {
+  let uid: number = 0;
+  const declarations: string[] = [];
+  const triggers: {
+    readonly byCondition: { [condition: string]: Trigger };
+    readonly withCalls: { [call: string]: string };
+    readonly inOrder: Trigger[];
+  } = { byCondition: {}, withCalls: {}, inOrder: [] };
+  const events: string[] = [];
+
+  function declareTrigger(
+    kind: "if" | "when",
+    condition: string,
+    lines: EventChainLine[],
   ) {
-    let strVal = "";
-    if (typeof value === "string") {
-      strVal = value;
-    } else {
-      const rng: PseudorandomStream =
-        "rng" in value ? value.rng : this.cavern.dice.lore(value.die);
-      const state = {
-        ...this.cavern.lore.state,
-        ...("state" in value ? value.state : {}),
-      };
-      const formatVars = {
-        ...this.cavern.lore.formatVars,
-        ...(value.formatVars ?? {}),
-      };
-      strVal = value.pg.generate(rng, state as any, formatVars).text;
+    const body = chainFragment(...lines);
+    if (!body) {
+      return;
     }
-    return `string ${name}="${escapeString(strVal)}"`;
+    const tx: Trigger | undefined = triggers.byCondition[condition];
+    if (tx) {
+      if (tx.kind !== kind) {
+        throw new Error(
+          `Attempted to redefine trigger \`${tx.kind}(${condition})\` as a \`${kind}\` trigger`,
+        );
+      }
+      triggers.byCondition[condition].bodies.push(body);
+      return;
+    }
+    const t: Trigger = { kind, condition, bodies: [body] };
+    triggers.inOrder.push(t);
+    triggers.byCondition[condition] = t;
   }
 
-  /**
-   * Declares an anonymous event chain for the given trigger.
-   */
-  trigger(condition: Trigger, ...rest: EventChainLine[]) {
-    const name = `ec${this._uid++}`;
-    return `${condition}[${name}]\n${eventChain(name, ...rest)}`;
+  function buildTrigger({ kind, condition, bodies }: Trigger) {
+    const calls: `${string};`[] = [];
+    const extra: string[] = [];
+    bodies.forEach((body) => {
+      if (body.includes("\n")) {
+        // Body is multiple lines and needs its own event chain
+        const name = `t${uid++}`;
+        calls.push(`${name};`);
+        extra.push(eventChain(name, body));
+      } else {
+        // Body is one line and doesn't need an event chain
+        calls.push(body);
+      }
+    });
+    if (calls.length > 1) {
+      // Multiple calls: need another "wrapper" chain
+      const cb = chainFragment(...calls);
+      if (cb in triggers.withCalls) {
+        // Optimize for a specific case that comes up often with overlapping
+        // monster spawners. If there is another trigger defined that has the
+        // _exact same_ body, no need to redefine it. This won't catch all
+        // theoretical instances but that's probably fine.
+        calls.length = 1;
+        calls[0] = `${triggers.withCalls[cb]};`;
+      } else {
+        const name = `tw${uid++}`;
+        extra.unshift(eventChain(name, cb));
+        triggers.withCalls[cb] = name;
+        calls.length = 1;
+        calls[0] = `${name};`;
+      }
+    }
+    // calls is now length 1
+    return [
+      `${kind}(${condition})[${calls[0].substring(0, calls[0].length - 1)}]`,
+      ...extra,
+    ].join("\n");
   }
+
+  return {
+    build(): string {
+      if (uid > 0) {
+        throw new Error("Already used");
+      }
+      return [
+        ...declarations,
+        ...triggers.inOrder.map(buildTrigger),
+        ...events,
+      ].join("\n");
+    },
+
+    declareInt(name, value) {
+      declarations.push(`int ${name}=${value.toFixed()}`);
+      return name;
+    },
+
+    declareString<T>(
+      name: string,
+      value: string | FromLoreArgs | FromLoreArgsWithState<T>,
+    ) {
+      let strVal = "";
+      if (typeof value === "string") {
+        strVal = value;
+      } else {
+        const rng: PseudorandomStream =
+          "rng" in value ? value.rng : cavern.dice.lore(value.die);
+        const state = {
+          ...cavern.lore.state,
+          ...("state" in value ? value.state : {}),
+        };
+        const formatVars = {
+          ...cavern.lore.formatVars,
+          ...(value.formatVars ?? {}),
+        };
+        strVal = value.pg.generate(rng, state as any, formatVars).text;
+      }
+      declarations.push(`string ${name}="${sanitizeString(strVal)}"`);
+      return name;
+    },
+
+    declareArrow(name) {
+      declarations.push(`arrow ${name}`);
+      return name;
+    },
+    declareBuilding(name) {
+      declarations.push(`building ${name}`);
+      return name;
+    },
+    declareCreature(name, creature) {
+      declarations.push(`creature ${name}${creature ? `=${creature.id}` : ""}`);
+      return name;
+    },
+
+    if: (condition, ...rest) => {
+      declareTrigger("if", condition, rest);
+    },
+    when: (condition, ...rest) => {
+      declareTrigger("when", condition, rest);
+    },
+    event(name, ...rest) {
+      events.push(eventChain(name, ...rest));
+    },
+    onInit(...rest) {
+      declareTrigger("if", "time:0", rest);
+    },
+  };
 }
 
 export enum DzPriority {

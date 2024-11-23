@@ -3,12 +3,8 @@ import { LoreDie } from "../../lore/lore";
 import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
-import {
-  DzPriority,
-  scriptFragment,
-  mkVars,
-  transformPoint,
-} from "../utils/script";
+import { gObjectives } from "../utils/objectives";
+import { DzPriority, mkVars, transformPoint } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
 
 const MAX_HOPS = 3;
@@ -35,9 +31,8 @@ const LOST_BASE: Pick<
     }
     return [{ pos, priority: DzPriority.OBJECTIVE }];
   },
-  scriptGlobals: ({ sh }) =>
-    scriptFragment("# Globals: Lost HQ", sh.declareInt(gLostHq.foundHq, 0)),
-  script({ cavern, plan, sh }) {
+  scriptGlobals: ({ sb }) => sb.declareInt(gLostHq.foundHq, 0),
+  script({ cavern, plan, sb }) {
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
       cavern.ownsScriptOnDiscover[
@@ -48,23 +43,22 @@ const LOST_BASE: Pick<
       return r.pearlRadius > p.pearlRadius ? r : p;
     }).center;
 
-    const v = mkVars(`p${plan.id}LostHq`, ["messageDiscover"]);
+    const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
 
-    return scriptFragment(
-      `# P${plan.id}: Lost HQ`,
-      shouldPanMessage &&
-        sh.declareString(v.messageDiscover, {
-          die: LoreDie.foundHq,
-          pg: FOUND_HQ,
-        }),
-      sh.trigger(
-        `if(change:${transformPoint(cavern, discoPoint)})`,
+    if (shouldPanMessage) {
+      sb.declareString(v.messageDiscover, {
+        die: LoreDie.foundHq,
+        pg: FOUND_HQ,
+      });
+      sb.if(
+        `change:${transformPoint(cavern, discoPoint)}`,
         shouldPanMessage && `msg:${v.messageDiscover};`,
         shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
+        `${gObjectives.met}+=1;`,
         `wait:1;`,
         `${gLostHq.foundHq}=1;`,
-      ),
-    );
+      );
+    }
   },
 };
 
@@ -75,10 +69,11 @@ const LOST = [
     ...LOST_BASE,
     prime: getPrime(15, false),
     placeBuildings: getPlaceBuildings({}),
-    caveBid: ({ plan, hops, plans }) =>
+    caveBid: ({ cavern, plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 5 &&
       hops.length <= MAX_HOPS &&
+      plans[cavern.anchor]?.metadata?.tag !== "mobFarm" &&
       !hops.some((id) => plans[id].fluid) &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       0.5,
@@ -90,10 +85,11 @@ const LOST = [
     prime: getPrime(15, true),
     placeBuildings: getPlaceBuildings({ from: 3 }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 100 }, args),
-    caveBid: ({ plan, hops, plans }) =>
+    caveBid: ({ cavern, plan, hops, plans }) =>
       !plan.fluid &&
       plan.pearlRadius > 6 &&
       hops.length <= MAX_HOPS &&
+      plans[cavern.anchor]?.metadata?.tag !== "mobFarm" &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
       (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
   },

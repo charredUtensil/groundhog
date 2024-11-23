@@ -1,7 +1,7 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
-import { mkVars, scriptFragment, transformPoint } from "../utils/script";
+import { mkVars, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
 import { monsterSpawnScript } from "../utils/creature_spawners";
 import { Tile } from "../../models/tiles";
@@ -11,7 +11,7 @@ import { placeErosion } from "../utils/hazards";
 import { SEISMIC_BASE, gSeismic, METADATA } from "./base";
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}SE`, [`doSpawn`, "tripCount"]);
+  mkVars(`p${plan.id}SmEr`, [`doSpawn`, "tripCount"]);
 
 function getEruptPoints(
   cavern: PreprogrammedCavern,
@@ -52,48 +52,44 @@ const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
   ...SEISMIC_BASE,
   placeErosion: (args) => placeErosion(25, 2, args),
-  script: ({ cavern, plan, sh }) => {
+  script: ({ cavern, plan, sb }) => {
     const v = sVars(plan);
     const eps = getEruptPoints(cavern, plan);
     const tripsForeshadow = 10;
     const trips = 20;
 
-    return scriptFragment(
-      `# P${plan.id}: Seismic (Eruption)`,
-      sh.declareInt(v.tripCount, 0),
+    sb.declareInt(v.tripCount, 0);
+    eps.forEach((pos) => {
+      sb.when(`enter:${transformPoint(cavern, pos)}`, `${v.tripCount}+=1;`);
+      sb.if(
+        `change:${transformPoint(cavern, pos)}:${Tile.LAVA.id}`,
+        `${v.tripCount}=999;`,
+      );
+    });
+    sb.if(
+      `${v.tripCount}>=${tripsForeshadow}`,
+      `wait:random(5)(20);`,
+      `shake:1;`,
+      `${gSeismic.showMessage}+=1;`,
+    );
+    sb.if(
+      `${v.tripCount}>=${trips}`,
+      `wait:random(30)(150);`,
+      `shake:2;`,
+      `pan:${transformPoint(cavern, eps[0])};`,
+      `wait:1;`,
+      `shake:4;`,
       ...eps.map(
         (pos) =>
-          `when(enter:${transformPoint(cavern, pos)})[${v.tripCount}+=1]`,
+          `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
       ),
-      ...eps.map(
-        (pos) =>
-          `if(change:${transformPoint(cavern, pos)}:${Tile.LAVA.id})[${v.tripCount}=999]`,
-      ),
-      sh.trigger(
-        `if(${v.tripCount}>=${tripsForeshadow})`,
-        `wait:random(5)(20);`,
-        `shake:1;`,
-        `${gSeismic.showMessage}+=1;`,
-      ),
-      sh.trigger(
-        `if(${v.tripCount}>=${trips})`,
-        `wait:random(30)(150);`,
-        `shake:2;`,
-        `pan:${transformPoint(cavern, eps[0])};`,
-        `wait:1;`,
-        `shake:4;`,
-        ...eps.map(
-          (pos) =>
-            `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
-        ),
-        cavern.context.hasMonsters && `${v.doSpawn};`,
-      ),
+      cavern.context.hasMonsters && `${v.doSpawn};`,
     );
   },
   monsterSpawnScript: (args) => {
     return monsterSpawnScript(args, {
       armEvent: sVars(args.plan).doSpawn,
-      tripOnArmed: true,
+      tripOnArmed: "first",
     });
   },
 };

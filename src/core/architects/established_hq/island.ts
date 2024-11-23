@@ -15,7 +15,7 @@ import { Tile } from "../../models/tiles";
 import { RAPID_RIDER } from "../../models/vehicle";
 import { sprinkleCrystals } from "../utils/resources";
 import { Rough, mkRough } from "../utils/rough";
-import { scriptFragment, transformPoint } from "../utils/script";
+import { transformPoint } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 const T0_BUILDINGS = [TOOL_STORE, DOCKS, POWER_STATION] as const;
@@ -95,15 +95,14 @@ export const ISLAND_BASE: Pick<
     ];
     return { miners: [miner], vehicles };
   },
-  script: ({ cavern, plan }) => {
-    return scriptFragment(
-      ...plan.innerPearl
-        .flatMap((ly) => ly)
-        .filter((pos) => cavern.tiles.get(...pos)?.isWall)
-        .map((pos) => {
+  script: ({ cavern, plan, sb }) => {
+    plan.innerPearl.forEach((ly) =>
+      ly.forEach((pos) => {
+        if (cavern.tiles.get(...pos)?.isWall) {
           const tp = transformPoint(cavern, pos);
-          return `if(change:${tp})[place:${tp},${Tile.WATER.id}]`;
-        }),
+          sb.if(`change:${tp}`, `place:${tp},${Tile.WATER.id};`);
+        }
+      }),
     );
   },
 };
