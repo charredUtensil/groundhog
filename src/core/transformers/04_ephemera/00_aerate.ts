@@ -59,6 +59,9 @@ function getOrigin(cavern: PopulatedCavern): Point {
 }
 
 export default function aerate(cavern: PopulatedCavern): AeratedCavern {
+  if (cavern.oxygen !== undefined) {
+    return {...cavern, oxygen: cavern.oxygen, aerationLog: null};
+  }
   if (!cavern.context.hasAirLimit) {
     return { ...cavern, oxygen: null, aerationLog: null };
   }

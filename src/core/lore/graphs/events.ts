@@ -356,6 +356,19 @@ export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State, Format>(
   },
 );
 
-export const HINT_SELECT_LASER_GROUP = `Hint: Hold SHIFT+click to select multiple units.
-CTRL+[0-9] assigns a group of units that you can recall with [0-9].
-X activates laser mode.`;
+export const GAS_LEAK_NO_AIR = phraseGraph<State, Format>(
+  "Gas Leak - All Support Stations offline",
+  ({ pg, state, start, end, cut, skip }) => {
+    start.then(
+      skip,
+      "Careful there!",
+    ).then(
+      "Without even one Support Station online, this cavern will be " +
+      "uninhabitable very quickly.",
+    ).then(
+      "Fix it NOW or we will need to abort!"
+    ).then(end);
+  }
+)
+
+

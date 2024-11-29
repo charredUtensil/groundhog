@@ -1,4 +1,3 @@
-import ALL_GRAPHS from ".";
 import phraseGraph, { PhraseGraph } from "../utils/builder";
 import { FoundLostMinersState, State } from "../lore";
 
@@ -86,10 +85,12 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
   expect(missing).toEqual([]);
 }
 
-describe(`Graph is complete`, () => {
-  ALL_GRAPHS.forEach((pg) => {
-    test(`for ${pg.name}`, () => {
-      expectCompletion(pg);
+export default function testCompleteness(...graphs: PhraseGraph<any, any>[]) {
+  describe(`Graph is complete`, () => {
+    graphs.forEach((pg) => {
+      test(`for ${pg.name}`, () => {
+        expectCompletion(pg);
+      });
     });
-  });
-});
+  })
+};

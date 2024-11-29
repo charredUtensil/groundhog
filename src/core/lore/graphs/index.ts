@@ -17,6 +17,7 @@ import {
   FOUND_HQ,
   FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
+  GAS_LEAK_NO_AIR,
   NOMADS_SETTLED,
 } from "./events";
 import { NAME } from "./names";
@@ -41,6 +42,7 @@ const ALL_GRAPHS = [
   FOUND_HQ,
   FOUND_LOST_MINERS,
   FOUND_SLUG_NEST,
+  GAS_LEAK_NO_AIR,
   NAME,
   NOMADS_SETTLED,
   ORDERS,

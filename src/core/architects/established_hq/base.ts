@@ -146,7 +146,7 @@ export function getPlaceBuildings({
       const building = buildings[i];
       let fTile: Tile;
       if ("placeRubbleInstead" in building) {
-        fTile = Tile.RUBBLE_4;
+        fTile = Tile.RUBBLE_1;
       } else {
         fTile = Tile.FOUNDATION;
         if (dependencies.has(building.template)) {

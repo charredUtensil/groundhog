@@ -48,8 +48,7 @@ const COMMENDATIONS = [
 export const SUCCESS = phraseGraph<State & { readonly commend: boolean }, Format>(
   "Conclusion - Success",
   ({ pg, state, start, end, cut, skip }) => {
-    const coda = pg();
-    (() => {
+    const head = (() => {
       const commend = state("commend").then("Wow!", ...COMMENDATIONS);
       const hasMonsters = state("hasMonsters").then(
         ({format: {enemies}}) => `Those ${enemies} were no match for you!`,
@@ -67,7 +66,9 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }, Format
           skip,
           state("hasMonsters", "spawnHasErosion", "spawnIsGasLeak").then(despiteTheOdds),
         );
-    })()
+    })();
+    const coda = pg();
+    head
       .then("you")
       .then(
         pg("managed to", "were able to")
@@ -133,6 +134,25 @@ export const SUCCESS = phraseGraph<State & { readonly commend: boolean }, Format
       .then(skip, state("hasMonsters"))
       .then(skip, state("spawnHasErosion"))
       .then(end);
+    
+    head.then(
+      pg(
+        state("buildAndPowerGcOne").then(
+          "That Geological Center you built will be very useful to decide " +
+          "where we can mine next."),
+        state("buildAndPowerGcMultiple").then(
+          "Those Geological Centers you built are already helping us far " +
+          "beyond the reaches of this cavern."),
+      ).then(
+        skip,
+        "We already have a promising lead!",
+        ({format: {buildAndPowerGcCount}}) => `\
+With ${buildAndPowerGcCount === 1 ? 'this' : 'these'} built, we can safely \
+make our way further into the planet.`,
+      ),
+    ).then(
+      skip, state("hasMonsters")
+    ).then(coda);
   },
 );
 

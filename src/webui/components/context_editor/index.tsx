@@ -5,6 +5,7 @@ import styles from "./style.module.scss";
 import { Choice, CurveSliders, Slider } from "./controls";
 import { ArchitectsInput } from "./architects";
 import { PartialCavernContext } from "../../../core/common/context";
+import { Cavern } from "../../../core/models/cavern";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
@@ -36,17 +37,18 @@ const expectedTotalPlans = (contextWithDefaults: CavernContext) => {
 
 export function CavernContextInput({
   initialContext,
-  context,
+  cavern,
   setInitialContext,
 }: {
   initialContext: PartialCavernContext;
-  context: CavernContext | undefined;
+  cavern: Cavern | undefined;
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   return (
     <CavernContextInputInner
       initialContext={initialContext}
-      context={context ?? inferContextDefaults(initialContext)}
+      context={cavern?.context ?? inferContextDefaults(initialContext)}
+      cavern={cavern}
       setInitialContext={setInitialContext}
     />
   );
@@ -55,10 +57,12 @@ export function CavernContextInput({
 function CavernContextInputInner({
   initialContext,
   context,
+  cavern,
   setInitialContext,
 }: {
   initialContext: PartialCavernContext;
   context: CavernContext;
+  cavern: Cavern | undefined;
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -232,6 +236,16 @@ function CavernContextInputInner({
               />
             </div>
             <div className={styles.subsection}>
+              <h3>Anchor</h3>
+              <Slider
+                of={"anchorGravity"}
+                min={-3}
+                max={3}
+                step={0.1}
+                {...rest}
+              />
+            </div>
+            <div className={styles.subsection}>
               <h3>Establish</h3>
               {(
                 [
@@ -258,7 +272,7 @@ function CavernContextInputInner({
                 step={0.25}
                 {...rest}
               />
-              <ArchitectsInput {...rest} />
+              <ArchitectsInput {...rest} cavern={cavern} />
             </div>
             <div className={styles.subsection}>
               <h3>Pearl</h3>

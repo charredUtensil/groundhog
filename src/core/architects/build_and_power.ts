@@ -16,6 +16,7 @@ import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establi
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { intersectsOnly } from "./utils/intersects";
 import { gObjectives } from "./utils/objectives";
+import { getPlaceRechargeSeams } from "./utils/resources";
 import { Rough, mkRough } from "./utils/rough";
 import { EventChainLine, mkVars, transformPoint } from "./utils/script";
 
@@ -47,10 +48,10 @@ function buildAndPower(
   pgFirst: PhraseGraph<State, Format & {remainingCount: number}>,
   pgPenultimate: PhraseGraph<State, Format>,
   pgLast: PhraseGraph<State, Format>,
-  minLevel: Building["level"] = 1,
+  minLevel: Building["level"],
 ): Pick<
   Architect<BuildAndPowerMetadata>,
-  "prime" | "objectives" | "script" | "scriptGlobals"
+  "prime" | "placeRechargeSeam" | "objectives" | "script" | "scriptGlobals"
 > {
   const g = mkVars(`gBuPw${template.inspectAbbrev}`, [
     "built",
@@ -70,6 +71,7 @@ function buildAndPower(
     ]);
   return {
     prime: () => metadata,
+    placeRechargeSeam: getPlaceRechargeSeams(3),
     objectives({ cavern }) {
       const count = cavern.plans.filter(
         (plan) =>
@@ -270,7 +272,7 @@ export const BUILD_AND_POWER = [
     ...buildAndPower(SUPPORT_STATION,
        BUILD_POWER_SS_FIRST,
        BUILD_POWER_SS_PENULTIMATE,
-       BUILD_POWER_SS_LAST, 5),
+       BUILD_POWER_SS_LAST, 1),
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2 },
       { of: Rough.LAVA, width: 2, grow: 1 },
@@ -283,6 +285,7 @@ export const BUILD_AND_POWER = [
       return (
         plan.fluid === Tile.LAVA &&
         !plan.hasErosion &&
+        !plan.intersects.some((_, pi) => cavern.plans[pi].hasErosion) &&
         plan.pearlRadius > 3 &&
         plan.path.baseplates.length === 1 &&
         amd?.tag === "hq" &&

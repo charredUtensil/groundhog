@@ -118,6 +118,12 @@
       font-size: 24px;
     }
 
+    .architectCount {
+      border: none;
+      flex-shrink: 0;
+      width: 36px;
+    }
+
     .showAdvanced {
       display: flex;
       justify-content: center;

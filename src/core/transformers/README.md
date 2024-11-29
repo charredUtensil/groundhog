@@ -2,13 +2,13 @@ This directory contains all of the individual steps to "transform" a cavern from
 
 # I. Outlines
 
-Determine the rough position of the playable area of the cavern. The result of this phase is a graph of baseplates (non-overlapping regions of 2D space) connected by paths. This phase is loosely based on [AAdonaac's dungeon generation algorithm](https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm) with some modifications to make a more organic result.
+Determine the rough position of the playable area of the cavern. The result of this phase is a graph of baseplates (non-overlapping regions of 2D space) connected by paths. This phase is loosely based on [AAdonaac's dungeon generation algorithm](https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm) with some modifications to produce a more organic result.
 
 1. _Partition_: Starting with a square, slice it repeatedly into smaller rectangles, trimming off some edges at each step. The remaining rectangles become "baseplates" that later steps will build on.
 1. _Discriminate_: Choose the largest baseplates to become caves.
 1. _Triangulate_: Draw lines between the centers of the caves to create a mesh of triangles. These lines are now ambiguous paths.
 1. _Span_: Find the minimum spanning tree of paths and mark these paths as spanning. These will become halls.
-1. _Clip_: Remove some ambiguous paths that would be boring to include.
+1. _Clip_: Remove some ambiguous paths that would be "boring" to include.
 1. _Bore_: Paths so far have been straight lines connecting caves. Add some detours where these paths intersect thus-far-unused baseplates to include them.
 1. _Weave_: Choose some of the ambiguous paths to become auxilliary halls.
 
@@ -22,7 +22,7 @@ Create "plans" for the baseplates and paths that will determine how the space wi
 1. _Anchor_: Choose which plan will be the anchor and assign an architect to it.
 1. _Mod_: The anchor architect has a chance to modify the cavern in any way.
 1. _Establish_: Perform a breadth-first search of all plans, starting with the anchor. Assign architects and and determine other information based on distance from spawn.
-1. _Pearl_: Create "pearls" that determine exactly where plans will go. This is the step that ensures the caves and halls will be more "natural" shapes.
+1. _Pearl_: Create "pearls" that determine exactly where plans will go. This is the step that ensures the caves and halls will have more "natural" looking shapes.
 
 # III. Masonry
 
@@ -35,6 +35,7 @@ Place tiles and a few other related things in the map. After this phase, tiles m
 1. _Sand_: Downgrade single-tile spots of hard rock to loose rock.
 1. _Fine_: All plans add resources, buildings, and other tile types like seams, paths, and rubble. Tiles may be overritten, but plans should avoid significant changes like replacing walls with non-walls.
 1. _Annex_: Find any solid rock that can be collapsed by drilling adjacent walls. Mark these tiles as in-play.
+1. _Closer_: The anchor architect has a final chance to modify tiles.
 
 # IV. Plastic
 

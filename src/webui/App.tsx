@@ -30,6 +30,7 @@ const MAP_OVERLAY_BUTTONS: readonly {
   { of: "landslides", label: "Landslides", enabled: (c) => !!c?.landslides },
   { of: "erosion", label: "Erosion", enabled: (c) => !!c?.erosion },
   { of: "oxygen", label: "Oxygen", enabled: (c) => c?.oxygen !== undefined },
+  { of: "objectives", label: "Objectives", enabled: (c) => !!c?.objectives },
   { of: "lore", label: "Lore", enabled: (c) => !!c?.lore },
   { of: "script", label: "Script", enabled: (c) => !!c?.script },
   { of: "about", label: "About", enabled: (c) => true },
@@ -113,7 +114,7 @@ function App() {
       <div className={styles.settingsPanel}>
         <CavernContextInput
           initialContext={state.result.initialContext}
-          context={state.result.context}
+          cavern={state.result}
           setInitialContext={setInitialContext}
         />
       </div>

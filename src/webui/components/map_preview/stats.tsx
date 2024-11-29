@@ -10,6 +10,7 @@ import { Tile } from "../../../core/models/tiles";
 import { Building } from "../../../core/models/building";
 import { Vehicle } from "../../../core/models/vehicle";
 import { Creature } from "../../../core/models/creature";
+import { spellResourceGoal } from "../../../core/lore/lore";
 
 function EntitySummary({
   entities,
@@ -165,6 +166,22 @@ export default function Stats({
       }
       case "oxygen": {
         return <p>Oxygen: {cavern.oxygen?.join("/") ?? "Infinity"}</p>;
+      }
+      case "objectives": {
+        if (!cavern.objectives) {
+          return <p>none</p>
+        }
+        const resourceGoal = spellResourceGoal(cavern.objectives).resourceGoalNumbers;
+        return (<ul>
+        {
+          cavern.objectives.variables.map(({description}) => (
+            <li>{description}</li>
+          ))
+        }
+        {
+          resourceGoal && <li>Collect {resourceGoal}.</li>
+        }
+      </ul>)
       }
       default:
         return null;

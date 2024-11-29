@@ -17,11 +17,16 @@ export function objectiveGlobals({
   sb.declareInt(gObjectives.met, 0);
   sb.declareInt(gObjectives.won, 0);
   if (!resources.length) {
-    // skip
+    // No resource goals. Skip.
   } else if (resources.length === 1) {
-    sb.if(`${resources[0]}>=${objectives[resources[0]]}`, `${gObjectives.met}+=1;`)
+    // One resource goal. When met, mark objective as completed.
+    sb.if(
+      `${resources[0]}>=${objectives[resources[0]]}`,
+      `${gObjectives.met}+=1;`,
+    );
   } else {
-    sb.declareInt(gObjectives.res, 1);
+    // Multiple resource goals. Must check all are satisfied simultaneously.
+    sb.declareInt(gObjectives.res, 0);
     resources.forEach((resource) =>
       sb.when(
         `${resource}>=${objectives[resource]}`,

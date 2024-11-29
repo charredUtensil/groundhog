@@ -159,7 +159,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * If no plans return a sufficient objective, a "collect N crystals"
    * objective will be added.
    */
-  objectives(args: {
+  objectives?(args: {
     cavern: DiscoveredCavern;
   }): (Partial<Objectives> & { sufficient: boolean }) | undefined;
 

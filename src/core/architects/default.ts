@@ -59,7 +59,6 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       },
       placeErosion: (args) => placeErosion(30, 10, args),
       placeEntities: () => ({}),
-      objectives: () => undefined,
       maxSlope: undefined,
       claimEventOnDiscover: () => [],
     }) as PartialArchitect<any>,

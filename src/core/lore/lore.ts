@@ -3,6 +3,7 @@ import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
 import { filterTruthy } from "../common/utils";
 import { GEOLOGICAL_CENTER, SUPPORT_STATION } from "../models/building";
+import { Objectives } from "../models/objectives";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
@@ -105,15 +106,18 @@ function joinHuman(things: string[], conjunction: string = "and"): string {
   return `${things.slice(0, -1).join(", ")} ${conjunction} ${things[things.length - 1]}`;
 }
 
-function spellResourceGoal(cavern: AdjuredCavern) {
+export function spellResourceGoal(objectives: Objectives) {
   const a = [
-    { count: cavern.objectives.crystals, name: "Energy Crystals" },
-    { count: cavern.objectives.ore, name: "Ore" },
-    { count: cavern.objectives.studs, name: "Building Studs" },
+    { count: objectives.crystals, name: "Energy Crystals" },
+    { count: objectives.ore, name: "Ore" },
+    { count: objectives.studs, name: "Building Studs" },
   ].filter(({ count }) => count > 0);
   return {
     resourceGoal: joinHuman(
       a.map(({ count, name }) => `${spellNumber(count)} ${name}`),
+    ),
+    resourceGoalNumbers: joinHuman(
+      a.map(({ count, name }) => `${count} ${name}`),
     ),
     resourceGoalNamesOnly: joinHuman(a.map(({ name }) => name)),
   };
@@ -225,7 +229,7 @@ export class Lore {
       lostMinerCaves,
       buildAndPowerGcCount,
       buildAndPowerSsCount,
-      ...spellResourceGoal(cavern),
+      ...spellResourceGoal(cavern.objectives),
     };
   }
 

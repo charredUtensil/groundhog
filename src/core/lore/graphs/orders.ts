@@ -1,5 +1,7 @@
 import { Format, State } from "../lore";
+import { TextFn } from "../utils/base";
 import phraseGraph from "../utils/builder";
+import { listJoiner } from "../utils/list";
 
 const ORDERS = phraseGraph<State, Format>(
   "Briefing - Orders",
@@ -22,6 +24,8 @@ const ORDERS = phraseGraph<State, Format>(
 
     const tailOptional = pg(tail, end);
 
+    const joiner: TextFn<Format> = listJoiner();
+
     start
       .then(
         state("hasMonsters")
@@ -30,17 +34,16 @@ const ORDERS = phraseGraph<State, Format>(
             "defend the Rock Radier HQ",
             "build up your defenses",
             "arm your Rock Raiders",
-          )
-          .then("and"),
+          ),
         state("hasSlugs")
-          .then("defend the Rock Radier HQ", "arm your Rock Raiders")
-          .then("and"),
+          .then("defend the Rock Radier HQ", "arm your Rock Raiders"),
         pg(
           skip,
           state("spawnIsNomadOne", "spawnIsNomadsTogether"),
           state("spawnIsHq")
             .then(state("hqIsRuin", "spawnHasErosion"))
-            .then("move to a safer cavern,", "find a more suitable location,"),
+            .then("move to a safer cavern", "find a more suitable location")
+            .then(joiner),
         )
           .then(
             "build the Rock Raider HQ",
@@ -51,7 +54,8 @@ const ORDERS = phraseGraph<State, Format>(
             ),
             state("spawnIsHq").then(
               "send some Rock Raiders down to this base",
-              pg("resume mining operations and")
+              pg("resume our mining operations")
+                .then(joiner)
                 .then(collectResources)
                 .then(cut),
               state("hqIsRuin").then(
@@ -70,55 +74,69 @@ const ORDERS = phraseGraph<State, Format>(
               .then("reach the Rock Raider HQ", "locate the base")
               .then(
                 skip,
-                state("hqIsRuin").then(
-                  ", salvage what's left",
-                  ", repair it",
-                  ", get it back in working order",
+                state("hqIsRuin").then(joiner).then(
+                  "salvage what's left",
+                  "repair it",
+                  "get it back in working order",
                 ),
               ),
-          )
+          ).then(joiner)
           .then(
-            "and",
-            "and use it to",
-            ", and when you are ready,",
+            skip,
             pg(
               state("hasMonsters").then(state("hasSlugs"), skip),
               state("hasSlugs"),
             )
               .then(
-                "and keep it safe.",
-                "and make sure it is heavily defended.",
+                "keep it safe",
+                "make sure it is heavily defended",
               )
-              .then("Then,", weNeed.then(cut)),
-          ),
+          ).then(
+            ". Use it to",
+            ". When you ready,",
+            ". You must",
+            pg(". Then,").then(weNeed).then(cut),
+          )
       )
       .then(
         skip,
         collectResources.then(cut),
-        state("buildAndPowerGcOne")
-          .then("construct a Geological Center in the marked cavern")
-          .then(
-            pg(", upgrade it to Level 5, and keep it powered on.").then(
-              tail,
-              pg("Finally, ").then(collectResources).then(cut),
-              pg("Then,"),
+        pg(
+          state("buildAndPowerGcOne")
+            .then(
+              "construct a Geological Center in the marked cavern, upgrade " +
+              "it to Level 5, and keep it powered on."
             ),
-          ),
-        state("buildAndPowerGcMultiple")
+          state("buildAndPowerGcMultiple")
+            .then(
+              ({format: {buildAndPowerGcCount}}) => `\
+build a Geological Center in ${buildAndPowerGcCount === 2 ? 'both' : 'each'} of the marked caverns`,
+            )
+            .then(
+                ", upgrade them to Level 5, and keep them powered on.",
+                "and upgrade them all to Level 5. They must all be powered at the same time for the scans to work properly.",
+
+            ),
+          state("buildAndPowerSsOne")
           .then(
-            "construct a Geological Center in each of the marked caverns",
-            ({format: {buildAndPowerGcCount}}) => `build a Geological Center in ${buildAndPowerGcCount === 2 ? 'both of the' : `each of the ${buildAndPowerGcCount}`} marked caverns`,
+            "construct a Support Station in the marked cavern and find some" +
+            "way to power it.",
+            "go to the island we've chosen and build a Support Station " +
+            "there. It will need power, so build a Power Station too."
+          ),
+        state("buildAndPowerSsMultiple")
+          .then(
+            ({format: {buildAndPowerSsCount}}) => `\
+build a Support Station in ${buildAndPowerSsCount === 2 ? 'both' : 'each'} of the marked caverns`,
           )
           .then(
-            pg(
-              ", upgrade them to Level 5, and keep them powered on.",
-              "and upgrade them all to Level 5. They must all be powered at the same time for the scans to work properly.",
-            ).then(
+              ", and keep them powered on. We think this will mitigate the gas.",
+          ),
+          ).then(
               tail,
               pg("Finally,").then(collectResources).then(cut),
               pg("Then,"),
             ),
-          ),
       )
       .then(
         pg("find", "locate", "search the cavern for")

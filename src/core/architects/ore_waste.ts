@@ -73,7 +73,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       // ore. No reason to prolong this with an additional ore objective.
       return undefined;
     }
-    const studs = (getTotalOre(cavern) - ORE_OVERHEAD) * cavern.context.crystalGoalRatio / 2;
+    const studs = (getTotalOre(cavern) - ORE_OVERHEAD) * 0.12 / 2;
     return {
       studs: Math.floor(studs / 5) * 5,
       sufficient: false,

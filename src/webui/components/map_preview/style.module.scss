@@ -276,6 +276,19 @@
         stroke: red;
         fill: white;
       }
+
+      .objectives {
+        .origin {
+          stroke: white;
+          stroke-width: 3px;
+          fill: none;
+        }
+        .objective > path {
+          stroke: white;
+          stroke-width: 3px;
+          fill: none;
+        }
+      }
     }
   }
 

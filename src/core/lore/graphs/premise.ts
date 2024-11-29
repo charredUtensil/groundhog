@@ -151,8 +151,7 @@ cavern instead.`,
               "There seems to be some geomagnetic anomaly in this area and " +
                 "researching it could prove vital to our mining operations",
             ),
-          )
-          .then(""),
+          ),
         // Maybe treasure, maybe spawn is HQ.
         pg(
           pg("A recent scan", "Our most recent geological survey").then(
@@ -342,6 +341,19 @@ unnecessary risk.`,
     pg(findThem, findTheOthers)
       .then(state("spawnHasErosion"), skip)
       .then(state("hasSlugs"), skip)
+      .then(
+        skip,
+        state("spawnIsGasLeak").then(
+          "Our geologists have warned me that the air in this cavern " +
+          "contains a gas that reacts explosively with plasma, so we can't" +
+          "rely on Electric Fences."
+        ),
+        state('spawnIsOreWaste').then(
+          "This cavern has very little ore, so build only what you really need"
+        ).then("!", state("spawnIsGasLeak").then(
+          " - and no Electric Fences either. The atmosphere here would " +
+          "likely react with plasma... explosively.")),
+      )
       .then(
         skip,
         state("spawnIsBlackout")
