@@ -28,9 +28,9 @@ import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { inferContextDefaults } from "../common";
 import { mkVars } from "./utils/script";
 import {
-  HINT_SELECT_LASER_GROUP,
   MOB_FARM_NO_LONGER_BLOCKING,
 } from "../lore/graphs/events";
+import { HINT_SELECT_LASER_GROUP } from "../lore/graphs/hints";
 import { gObjectives } from "./utils/objectives";
 
 const BANLIST = [

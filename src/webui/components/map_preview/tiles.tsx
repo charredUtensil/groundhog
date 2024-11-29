@@ -104,6 +104,15 @@ function getFill(
       }
       return t.isWall ? tk(t) : "oxex";
     }
+    case "objectives": {
+      if (cavern.objectives?.crystals && (t.crystalYield > 0 || cavern.crystals?.get(x, y))) {
+        return tk(Tile.CRYSTAL_SEAM);
+      }
+      if ((cavern.objectives?.ore || cavern.objectives?.studs) && (t.oreYield > 0 || cavern.ore?.get(x, y))) {
+        return tk(Tile.ORE_SEAM);
+      }
+      return dk(t);
+    }
     case "script":
       return dk(t);
   }

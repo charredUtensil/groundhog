@@ -1,7 +1,7 @@
-import phraseGraph from "../builder";
-import { State } from "../lore";
+import phraseGraph from "../utils/builder";
+import { Format, State } from "../lore";
 
-export const SEISMIC_FORESHADOW = phraseGraph<State>(
+export const SEISMIC_FORESHADOW = phraseGraph<State, Format>(
   "Foreshadow Seismic Event",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -19,7 +19,7 @@ export const SEISMIC_FORESHADOW = phraseGraph<State>(
   },
 );
 
-export const SEISMIC_FORESHADOW_AGAIN = phraseGraph<State>(
+export const SEISMIC_FORESHADOW_AGAIN = phraseGraph<State, Format>(
   "Foreshadow Seismic Event (Again)",
   ({ pg, state, start, end, cut, skip }) => {
     start

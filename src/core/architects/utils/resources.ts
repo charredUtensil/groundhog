@@ -2,7 +2,7 @@ import { PseudorandomStream } from "../../common";
 import { MutableGrid, Grid } from "../../common/grid";
 import { Architect } from "../../models/architect";
 import { Plan } from "../../models/plan";
-import { Tile } from "../../models/tiles";
+import { Hardness, Tile } from "../../models/tiles";
 import { RoughPlasticCavern } from "../../transformers/02_masonry/01_rough";
 import { NSEW, Point, offsetBy } from "../../common/geometry";
 import { Vehicle } from "../../models/vehicle";
@@ -105,7 +105,7 @@ export function bidsForOuterPearl(args: {
     layer
       .map((item) => {
         const tile = args.tiles.get(...item) ?? Tile.SOLID_ROCK;
-        if (tile === Tile.SOLID_ROCK) {
+        if (tile.hardness >= Hardness.SOLID && tile != Tile.RECHARGE_SEAM) {
           let rechargeSeamCount = 0;
           let solidRockCount = 0;
           for (const offset of NSEW) {
@@ -113,7 +113,7 @@ export function bidsForOuterPearl(args: {
               args.tiles.get(...offsetBy(item, offset)) ?? Tile.SOLID_ROCK;
             if (neighbor === Tile.RECHARGE_SEAM) {
               rechargeSeamCount++;
-            } else if (neighbor === Tile.SOLID_ROCK) {
+            } else if (neighbor.hardness >= Hardness.SOLID) {
               solidRockCount++;
             }
           }
@@ -122,9 +122,9 @@ export function bidsForOuterPearl(args: {
           return { item, bid };
         }
         if (
-          tile === Tile.DIRT ||
-          tile === Tile.LOOSE_ROCK ||
-          tile === Tile.HARD_ROCK
+          tile.hardness === Hardness.DIRT ||
+          tile.hardness === Hardness.LOOSE ||
+          tile.hardness === Hardness.HARD
         ) {
           return { item, bid: 1 };
         }
@@ -147,7 +147,7 @@ export function bidsForOrdinaryWalls(
 ) {
   return positions.filter(([x, y]) => {
     const t = tiles.get(x, y);
-    return t === Tile.DIRT || t === Tile.LOOSE_ROCK || t === Tile.HARD_ROCK;
+    return t && (t.hardness === Hardness.DIRT || t.hardness === Hardness.LOOSE || t.hardness === Hardness.HARD);
   });
 }
 

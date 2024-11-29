@@ -97,6 +97,10 @@ export type CavernContext = {
    */
   readonly hasAirLimit: boolean;
   /**
+   * Bias toward (or against) the anchor being in the center.
+   */
+  readonly anchorGravity: number;
+  /**
    * How blobby and jagged caves should be.
    * 0 results in perfectly squashed octagons.
    * Larger values can result in oversized spaces or extremely jagged caves, up
@@ -295,6 +299,7 @@ const STANDARD_DEFAULTS = {
   optimalAuxiliaryPathCount: 2,
   randomAuxiliaryPathCount: 3,
   auxiliaryPathMinAngle: Math.PI / 4,
+  anchorGravity: 0,
   caveBaroqueness: 0.16,
   hallBaroqueness: 0.07,
   caveCrystalRichness: { base: 0.16, hops: 0.32, order: 0.32 },
