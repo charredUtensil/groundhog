@@ -30,8 +30,8 @@ import { mkVars } from "./utils/script";
 import {
   MOB_FARM_NO_LONGER_BLOCKING,
 } from "../lore/graphs/events";
-import { HINT_SELECT_LASER_GROUP } from "../lore/graphs/hints";
 import { gObjectives } from "./utils/objectives";
+import { hintSelectLaserGroup } from "./utils/hints";
 
 const BANLIST = [
   DOCKS,
@@ -160,8 +160,6 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
   },
   script({ cavern, plan, sb }) {
     const v = mkVars(`p${plan.id}MbFm`, [
-      "hintGroup",
-      "msgHintGroup",
       "msgNotBlocking",
     ]);
     const rng = cavern.dice.script(plan.id);
@@ -183,12 +181,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     // Hint to tell players about control groups. This isn't super annoying
     // under normal circumstances, but here it's almost a necessity that the
     // player have their lasers bound to a single key.
-    sb.declareInt(v.hintGroup, 0);
-    [MINING_LASER, SMLC].forEach((e) =>
-      sb.when(`${e.id}.click`, `((${e.id}>1))${v.hintGroup}=1;`),
-    );
-    sb.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP);
-    sb.if(`${v.hintGroup}>0`, `msg:${v.msgHintGroup};`);
+    hintSelectLaserGroup(sb);
   },
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {

@@ -17,17 +17,13 @@ export type AnchoredCavern = WithPlanType<
 export default function anchor(cavern: FloodedCavern): AnchoredCavern {
   const architects = encourageDisable(ARCHITECTS, cavern);
 
-  const gravities: number[] = cavern.plans
-    .map((plan) => {
-      if (plan.kind === "cave") {
-        return Math.pow(
-          Math.min(...plan.path.baseplates.map(bp => Math.hypot(...bp.center))),
-          -cavern.context.anchorGravity);
-      }
-      return 1;
-    });
-
-  console.log(gravities);
+  // const gravities: number[] = cavern.plans
+  //   .map((plan) => {
+  //     if (plan.kind === "cave") {
+  //       return Math.min(...plan.path.baseplates.map(bp => Math.hypot(...bp.center))) / cavern.context.anchorGravity;
+  //     }
+  //     return 1;
+  //   });
 
   // Choose a spawn and an architect for that spawn.
   const anchor = cavern.dice.pickSpawn.weightedChoice(
@@ -40,7 +36,7 @@ export default function anchor(cavern: FloodedCavern): AnchoredCavern {
           .filter((p) => p.kind === "cave")
           .map((plan) => ({
             item: { ...plan, architect, hops: [] },
-            bid:  (architect.anchorBid!({ cavern, plan }) || 0) * gravities[plan.id],
+            bid:  (architect.anchorBid!({ cavern, plan }) || 0), // * gravities[plan.id],
           }));
         }));
 

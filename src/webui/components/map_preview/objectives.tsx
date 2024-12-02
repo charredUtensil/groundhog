@@ -19,7 +19,7 @@ export default function ObjectivesPreview({cavern}:{cavern: Cavern}) {
           if (plan.architect?.objectives) {
             const [x, y] = plan.path!.baseplates[0].center;
             return (
-              <g transform={`translate(${x * SCALE} ${y * SCALE})`} className={styles.objective}>
+              <g key={plan.id} transform={`translate(${x * SCALE} ${y * SCALE})`} className={styles.objective}>
                 <path d={`M -10 -10 L 10 10 M -10 10 L 10 -10`} strokeWidth={5}/>
               </g>
             )

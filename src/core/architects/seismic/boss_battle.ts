@@ -215,7 +215,7 @@ const BOSS_BATTLE = [
       plan.pearlRadius >= 5 &&
       plan.path.baseplates.length === 1 &&
       !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&
-      0.1,
+      cavern.context.planWhimsy * 0.1,
   },
 ] as const satisfies readonly Architect<Metadata>[];
 

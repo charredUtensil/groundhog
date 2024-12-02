@@ -9,6 +9,7 @@ import {
   ELECTRIC_FENCE_ID,
 } from "../../models/building";
 import { gCreatures } from "../utils/creature_spawners";
+import { hintSelectLaserGroup } from "../utils/hints";
 import { gObjectives } from "../utils/objectives";
 import { mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
@@ -76,6 +77,7 @@ const GAS_LEAK_BASE: Pick<
       // Loop
       `${v.holdLoop};`,
     );
+    hintSelectLaserGroup(sb);
   },
 };
 
@@ -90,7 +92,7 @@ const GAS_LEAK = [
       cavern.context.hasAirLimit &&
       plan.lakeSize > 3 &&
       plan.pearlRadius > 3 &&
-      0.2,
+      cavern.context.anchorWhimsy * 0.2,
   },
 ] satisfies Architect<HqMetadata>[];
 

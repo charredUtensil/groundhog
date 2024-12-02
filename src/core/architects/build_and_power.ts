@@ -209,7 +209,7 @@ function bidHelper(
   max: number,
   dormant: number,
   active: number,
-): number | false {
+): number {
   let extantCount = 0;
   let unestablishedCount = 0;
   for (const p of plans) {
@@ -217,18 +217,18 @@ function bidHelper(
       unestablishedCount++;
     } else if (p.metadata?.tag === TAG) {
       if (p.metadata.template !== template) {
-        return false;
+        return 0;
       }
       extantCount += 1;
       if (extantCount >= max) {
-        return false;
+        return 0;
       }
     }
   }
   if (extantCount > 0) {
     return active;
   } else {
-    return unestablishedCount >= max * 2 && dormant;
+    return unestablishedCount >= max * 2 ? dormant : 0;
   }
 }
 
@@ -262,7 +262,7 @@ export const BUILD_AND_POWER = [
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&
-        bidHelper(plans, GEOLOGICAL_CENTER, 3, 0.04, 10)
+        cavern.context.planWhimsy * bidHelper(plans, GEOLOGICAL_CENTER, 3, 0.04, 10)
       );
     },
   },
@@ -292,7 +292,7 @@ export const BUILD_AND_POWER = [
         amd.special === 'gasLeak' &&
         hops.length > 3 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&
-        bidHelper(plans, SUPPORT_STATION, 3, 10, 5)
+        cavern.context.planWhimsy * bidHelper(plans, SUPPORT_STATION, 3, 10, 5)
       );
     },
   },

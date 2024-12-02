@@ -340,7 +340,7 @@ const LOST_MINERS = [
         (r, p) => (p.metadata?.tag === "lostMiners" ? r + 1 : r),
         0,
       ) < 4 &&
-      MULTIPLIERS[cavern.context.biome],
+      cavern.context.planWhimsy * MULTIPLIERS[cavern.context.biome],
   },
 ] as const satisfies readonly Architect<LostMinersMetadata>[];
 export default LOST_MINERS;

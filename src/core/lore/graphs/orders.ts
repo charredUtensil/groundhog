@@ -80,10 +80,10 @@ const ORDERS = phraseGraph<State, Format>(
                   "get it back in working order",
                 ),
               ),
-          ).then(joiner)
+          )
           .then(
             skip,
-            pg(
+            pg(joiner).then(
               state("hasMonsters").then(state("hasSlugs"), skip),
               state("hasSlugs"),
             )
