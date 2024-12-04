@@ -91,7 +91,7 @@ const LOST = [
       hops.length <= MAX_HOPS &&
       plans[cavern.anchor]?.metadata?.tag !== "mobFarm" &&
       !plans.some((p) => p.metadata?.tag === "hq") &&
-      (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
+      cavern.context.planWhimsy * (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
   },
 ] as const satisfies readonly Architect<HqMetadata>[];
 

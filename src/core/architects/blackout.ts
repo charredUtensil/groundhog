@@ -137,7 +137,7 @@ const BLACKOUT = [
       plan.lakeSize >= 3 &&
       plan.pearlRadius > 0 &&
       !cavern.context.hasSlugs &&
-      0.03,
+      cavern.context.anchorWhimsy * 0.03,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 export default BLACKOUT;

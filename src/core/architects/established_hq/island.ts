@@ -65,7 +65,7 @@ export const ISLAND_BASE: Pick<
     return {
       crystalsInBuildings,
       ruin: false,
-      fixedComplete: false,
+      special: null,
       tag: "hq",
     };
   },
@@ -118,12 +118,12 @@ const ISLAND = [
       { of: Rough.WATER, width: 2, grow: 2 },
       { of: Rough.MIX_FRINGE },
     ),
-    anchorBid: ({ plan }) =>
+    anchorBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.lakeSize > 3 &&
       plan.path.baseplates.length === 1 &&
       plan.pearlRadius > 5 &&
-      0.2,
+      cavern.context.anchorWhimsy * 0.2,
   },
 ] satisfies Architect<HqMetadata>[];
 

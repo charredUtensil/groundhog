@@ -1,7 +1,7 @@
-import phraseGraph from "../builder";
-import { State } from "../lore";
+import phraseGraph from "../utils/builder";
+import { Format, State } from "../lore";
 
-export const NAME = phraseGraph<State>(
+export const NAME = phraseGraph<State, Format>(
   "Mission Name",
   ({ pg, state, start, end, cut, skip }) => {
     function f({
@@ -133,6 +133,8 @@ export const NAME = phraseGraph<State>(
   },
 );
 
+// All of these suffixes are terrible references to sequels, releases,
+// re-releases, version numbers, taglines, or just random jokes.
 export const OVERRIDE_SUFFIXES = [
   "2000",
   "3000",
@@ -151,18 +153,23 @@ export const OVERRIDE_SUFFIXES = [
   "Episode One",
   "Episode Two",
   "Extended",
+  "Extremely Fungible Edition",
   "Forever",
+  "Founders Edition",
   "Gold Version",
   "Green Crystal Version",
   "HD",
   "HD 1.5 Remix",
+  "Limited Edition",
   "Millenium Edition",
   "New",
   "Now With Flavor",
   "Onyx Version",
   "Original Level, Do Not Steal",
+  "Pioneers Edition",
   "Planet U Remix",
   "Platinum Version",
+  "Power Brick Edition",
   "Premium",
   "Rebirthed",
   "Reborn",
@@ -193,8 +200,10 @@ export const OVERRIDE_SUFFIXES = [
   "Unplugged",
   "Unsanctioned",
   "Unstable",
+  "Unverified",
   "Uranium Version",
   "XP",
   "Xtreme Edition",
+  "Y2K Compliant Edition",
   "Y2K Edition",
 ];

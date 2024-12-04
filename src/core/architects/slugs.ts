@@ -142,7 +142,7 @@ const SLUGS = [
       !plan.hasErosion &&
       intersectsOnly(plans, plan, null) &&
       !plans.some((p) => p.metadata?.tag === "slugNest") &&
-      0.25,
+      cavern.context.planWhimsy * 0.25,
   },
   {
     name: "Slugs.Hall",

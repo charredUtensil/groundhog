@@ -31,6 +31,7 @@ import {
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
 import { DzPriority, ScriptBuilder } from "../architects/utils/script";
+import { FinePlasticCavern } from "../transformers/02_masonry/05_fine";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
@@ -119,6 +120,11 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
   }): void;
+  closer?(args: {
+    readonly cavern: FinePlasticCavern;
+    readonly plan: Plan<T>;
+    readonly tiles: MutableGrid<Tile>;
+  }): void;
 
   placeEntities(args: {
     readonly cavern: StrataformedCavern;
@@ -153,7 +159,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * If no plans return a sufficient objective, a "collect N crystals"
    * objective will be added.
    */
-  objectives(args: {
+  objectives?(args: {
     cavern: DiscoveredCavern;
   }): (Partial<Objectives> & { sufficient: boolean }) | undefined;
 

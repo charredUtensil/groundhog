@@ -9,9 +9,9 @@ export type AdjuredCavern = AeratedCavern & {
 
 export default function adjure(cavern: AeratedCavern): AdjuredCavern {
   const objectives = cavern.plans
-    .reduce((r: Architect<any>["objectives"][], plan) => {
+    .reduce((r: NonNullable<Architect<any>["objectives"]>[], plan) => {
       const fn = plan.architect.objectives;
-      if (!r.some((f) => Object.is(fn, f))) {
+      if (fn && !r.some((f) => Object.is(fn, f))) {
         r.push(fn);
       }
       return r;
