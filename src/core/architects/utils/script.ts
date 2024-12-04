@@ -118,9 +118,9 @@ export type ScriptBuilder = {
 };
 
 type Trigger = {
-  kind: "if" | "when";
   condition: string;
-  bodies: `${string};`[];
+  ifs: `${string};`[];
+  whens: `${string};`[];
 };
 
 type BuildableScriptBuilder = ScriptBuilder & { build(): string };
@@ -148,20 +148,34 @@ export function mkScriptBuilder(
     }
     const tx: Trigger | undefined = triggers.byCondition[condition];
     if (tx) {
-      if (tx.kind !== kind) {
-        throw new Error(
-          `Attempted to redefine trigger \`${tx.kind}(${condition})\` as a \`${kind}\` trigger`,
-        );
-      }
-      triggers.byCondition[condition].bodies.push(body);
+      triggers.byCondition[condition][`${kind}s`].push(body);
       return;
     }
-    const t: Trigger = { kind, condition, bodies: [body] };
+    const t: Trigger = kind === 'if'
+      ? { condition, ifs: [body], whens: [] }
+      : { condition, ifs: [], whens: [body] };
     triggers.inOrder.push(t);
     triggers.byCondition[condition] = t;
   }
 
-  function buildTrigger({ kind, condition, bodies }: Trigger) {
+  function buildTrigger({ condition, ifs, whens }: Trigger) {
+    if (ifs.length && whens.length) {
+      // If there are both ifs and whens, need to trigger them separately.
+      const v = `tf${uid++}`;
+      return [
+        `int ${v}=0`,
+        buildTriggerHelper('if', `${v}>0`, ifs),
+        buildTriggerHelper('when', condition, [`${v}=1;`, ...whens]),
+      ].join('\n');
+    } else if (ifs.length) {
+      return buildTriggerHelper('if', condition, ifs);
+    } else if (whens.length) {
+      return buildTriggerHelper('when', condition, whens);
+    }
+    return '';
+  }
+
+  function buildTriggerHelper(kind: 'if' | 'when', condition: Trigger['condition'], bodies: `${string};`[]) {
     const calls: `${string};`[] = [];
     const extra: string[] = [];
     bodies.forEach((body) => {
