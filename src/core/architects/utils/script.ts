@@ -151,9 +151,10 @@ export function mkScriptBuilder(
       triggers.byCondition[condition][`${kind}s`].push(body);
       return;
     }
-    const t: Trigger = kind === 'if'
-      ? { condition, ifs: [body], whens: [] }
-      : { condition, ifs: [], whens: [body] };
+    const t: Trigger =
+      kind === "if"
+        ? { condition, ifs: [body], whens: [] }
+        : { condition, ifs: [], whens: [body] };
     triggers.inOrder.push(t);
     triggers.byCondition[condition] = t;
   }
@@ -164,18 +165,22 @@ export function mkScriptBuilder(
       const v = `tf${uid++}`;
       return [
         `int ${v}=0`,
-        buildTriggerHelper('if', `${v}>0`, ifs),
-        buildTriggerHelper('when', condition, [`${v}=1;`, ...whens]),
-      ].join('\n');
+        buildTriggerHelper("if", `${v}>0`, ifs),
+        buildTriggerHelper("when", condition, [`${v}=1;`, ...whens]),
+      ].join("\n");
     } else if (ifs.length) {
-      return buildTriggerHelper('if', condition, ifs);
+      return buildTriggerHelper("if", condition, ifs);
     } else if (whens.length) {
-      return buildTriggerHelper('when', condition, whens);
+      return buildTriggerHelper("when", condition, whens);
     }
-    return '';
+    return "";
   }
 
-  function buildTriggerHelper(kind: 'if' | 'when', condition: Trigger['condition'], bodies: `${string};`[]) {
+  function buildTriggerHelper(
+    kind: "if" | "when",
+    condition: Trigger["condition"],
+    bodies: `${string};`[],
+  ) {
     const calls: `${string};`[] = [];
     const extra: string[] = [];
     bodies.forEach((body) => {
