@@ -11,7 +11,7 @@ const updateGoldenFile = async (filePath: string, actual: string) => {
 };
 
 const goldenTest = async (name: string, fn: () => string) => {
-  const filePath = path.resolve(__dirname, `${GOLDEN_DIR}/${name}.dat`);
+  const filePath = path.resolve(__dirname, GOLDEN_DIR, name);
   test(name, async () => {
     const actual = fn();
     if (process.env[UPDATE_GOLDENS]) {
