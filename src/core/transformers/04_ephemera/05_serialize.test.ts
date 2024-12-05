@@ -1,5 +1,5 @@
-import { EAST, NORTH, Point, SOUTH, WEST } from "../common/geometry";
-import { MutableGrid } from "../common/grid";
+import { EAST, NORTH, Point, SOUTH, WEST } from "../../common/geometry";
+import { MutableGrid } from "../../common/grid";
 import {
   CANTEEN,
   DOCKS,
@@ -12,8 +12,8 @@ import {
   TELEPORT_PAD,
   TOOL_STORE,
   UPGRADE_STATION,
-} from "../models/building";
-import { Cavern } from "../models/cavern";
+} from "../../models/building";
+import { Cavern } from "../../models/cavern";
 import {
   BAT,
   CreatureFactory,
@@ -22,16 +22,16 @@ import {
   ROCK_MONSTER,
   SLIMY_SLUG,
   SMALL_SPIDER,
-} from "../models/creature";
-import { Erosion, Landslide } from "../models/hazards";
-import { MinerFactory } from "../models/miner";
-import { atCenterOfTile, position } from "../models/position";
-import { Tile } from "../models/tiles";
-import discover from "../transformers/03_plastic/01_discover";
-import fence from "../transformers/03_plastic/00_fence";
-import serialize from "../transformers/04_ephemera/05_serialize";
-import goldenTest from "./golden";
-import strataflux from "../transformers/03_plastic/03_strataflux";
+} from "../../models/creature";
+import { Erosion, Landslide } from "../../models/hazards";
+import { MinerFactory } from "../../models/miner";
+import { atCenterOfTile, position } from "../../models/position";
+import { Tile } from "../../models/tiles";
+import discover from "../03_plastic/01_discover";
+import fence from "../03_plastic/00_fence";
+import serialize from "./05_serialize";
+import goldenTest from "../../test_utils/golden";
+import strataflux from "../03_plastic/03_strataflux";
 import {
   CARGO_CARRIER,
   CHROME_CRUSHER,
@@ -46,7 +46,7 @@ import {
   TUNNEL_SCOUT,
   TUNNEL_TRANSPORT,
   VehicleFactory,
-} from "../models/vehicle";
+} from "../../models/vehicle";
 
 function fill<T>(
   grid: MutableGrid<T>,
@@ -107,7 +107,7 @@ function ds(args: Partial<Cavern>) {
   ).serialized.replace(/groundHog v\S+/, "groundHog [VERSION]");
 }
 
-goldenTest("mvp", () => {
+goldenTest("mvp.dat", () => {
   const crystals = new MutableGrid<number>();
   const tiles = new MutableGrid<Tile>();
   const openCaveFlags = new MutableGrid<true>();
@@ -133,7 +133,7 @@ goldenTest("mvp", () => {
   });
 });
 
-goldenTest("building_zoo", () => {
+goldenTest("building_zoo.dat", () => {
   const tiles = new MutableGrid<Tile>();
   const openCaveFlags = new MutableGrid<true>();
 
@@ -200,7 +200,7 @@ goldenTest("building_zoo", () => {
   });
 });
 
-goldenTest("entity_zoo", () => {
+goldenTest("entity_zoo.dat", () => {
   const tiles = new MutableGrid<Tile>();
   const openCaveFlags = new MutableGrid<true>();
 
