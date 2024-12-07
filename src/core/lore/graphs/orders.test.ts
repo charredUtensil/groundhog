@@ -1,4 +1,4 @@
+import * as graphs from "./orders";
 import testCompleteness from "./completeness";
-import ORDERS from "./orders";
 
-testCompleteness(ORDERS);
+testCompleteness(graphs);

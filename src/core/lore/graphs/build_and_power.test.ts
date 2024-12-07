@@ -1,11 +1,4 @@
-import { BUILD_POWER_GC_FIRST, BUILD_POWER_GC_LAST, BUILD_POWER_GC_PENULTIMATE, BUILD_POWER_SS_FIRST, BUILD_POWER_SS_LAST, BUILD_POWER_SS_PENULTIMATE } from "./build_and_power";
+import * as graphs from "./build_and_power";
 import testCompleteness from "./completeness";
 
-testCompleteness(
-  BUILD_POWER_GC_FIRST,
-  BUILD_POWER_GC_LAST,
-  BUILD_POWER_GC_PENULTIMATE,
-  BUILD_POWER_SS_FIRST,
-  BUILD_POWER_SS_LAST,
-  BUILD_POWER_SS_PENULTIMATE,
-)
+testCompleteness(graphs);

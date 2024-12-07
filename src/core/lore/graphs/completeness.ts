@@ -1,5 +1,6 @@
 import phraseGraph, { PhraseGraph } from "../utils/builder";
 import { FoundLostMinersState, State } from "../lore";
+import ALL_GRAPHS from ".";
 
 type CombinedState = State & FoundLostMinersState & { readonly commend: true };
 
@@ -85,12 +86,21 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
   expect(missing).toEqual([]);
 }
 
-export default function testCompleteness(...graphs: PhraseGraph<any, any>[]) {
-  describe(`Graph is complete`, () => {
-    graphs.forEach((pg) => {
-      test(`for ${pg.name}`, () => {
+export default function testCompleteness(module: any) {
+  Object.values(module).forEach((pg) => {
+    if (!(pg instanceof PhraseGraph)) {
+      return;
+    }
+    describe(pg.name, () => {
+      it('is present in ALL_GRAPHS', () => {
+        // Need to use object.is here because the equality comparison takes a
+        // very long time.
+        expect(ALL_GRAPHS.filter(apg => Object.is(apg, pg)).length).toBe(1);
+      });
+
+      it('is complete', () => {
         expectCompletion(pg);
       });
     });
-  })
+  });
 };

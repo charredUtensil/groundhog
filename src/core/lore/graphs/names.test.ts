@@ -1,4 +1,4 @@
+import * as graphs from "./names";
 import testCompleteness from "./completeness";
-import { NAME } from "./names";
 
-testCompleteness(NAME);
+testCompleteness(graphs);
