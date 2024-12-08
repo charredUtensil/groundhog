@@ -1,0 +1,24 @@
+int fbz_n=0
+int fbz_m=0
+int fbz_lock=0
+int fbz_three=0
+int fbz_five=0
+string fbz_msgFizz="Fizz"
+string fbz_msgBuzz="Buzz"
+string fbz_msgFizzBuzz="Fizz Buzz"
+when(enter:1,1)[fbz_lock+=1]
+when(fbz_lock==1)[t0]
+t0::;
+pan:fbz_three,fbz_five;
+fbz_n+=1;
+fbz_m=0;
+fbz_three+=1;
+((fbz_three==3))fbz_m=1;
+((fbz_three>=3))fbz_three-=3;
+fbz_five+=1;
+((fbz_five==5))fbz_m+=2;
+((fbz_five>=5))fbz_five-=5;
+((fbz_m==1))msg:fbz_msgFizz;
+((fbz_m==2))msg:fbz_msgBuzz;
+((fbz_m==3))msg:fbz_msgFizzBuzz;
+fbz_lock=0;
