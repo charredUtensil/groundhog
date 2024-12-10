@@ -26,7 +26,7 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
   const sb = mkScriptBuilder(cavern);
   objectiveGlobals({ cavern, sb });
   creatureSpawnGlobals({ cavern, sb });
-  tileScript({cavern, sb});
+  tileScript({ cavern, sb });
   globalsFns.forEach((fn) => fn({ cavern, sb }));
   cavern.plans.forEach((plan) => plan.architect.script?.({ cavern, plan, sb }));
   if (cavern.context.hasMonsters) {

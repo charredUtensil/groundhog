@@ -26,7 +26,7 @@ const F_CANTEEN_REFINERY: Footprint = [ORIGIN, SOUTH, NORTH];
 const F_POWER_STATION: Footprint = [ORIGIN, EAST, NORTH];
 const F_SUPER_TELEPORT: Footprint = [ORIGIN, NORTH_WEST, WEST, NORTH];
 
-export const ELECTRIC_FENCE_ID = 'BuildingElectricFence_C';
+export const ELECTRIC_FENCE_ID = "BuildingElectricFence_C";
 
 /** Rotates the given footprint to match the given cardinal offset facing. */
 function rotateFootprint(footprint: Footprint, [ox, oy]: Cardinal4) {

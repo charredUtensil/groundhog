@@ -27,18 +27,18 @@ export default function anchor(cavern: FloodedCavern): AnchoredCavern {
 
   // Choose a spawn and an architect for that spawn.
   const anchor = cavern.dice.pickSpawn.weightedChoice(
-    architects
-      .flatMap((architect) => {
-        if (!architect.anchorBid) {
-          return [];
-        }
-        return cavern.plans
-          .filter((p) => p.kind === "cave")
-          .map((plan) => ({
-            item: { ...plan, architect, hops: [] },
-            bid:  (architect.anchorBid!({ cavern, plan }) || 0), // * gravities[plan.id],
-          }));
+    architects.flatMap((architect) => {
+      if (!architect.anchorBid) {
+        return [];
+      }
+      return cavern.plans
+        .filter((p) => p.kind === "cave")
+        .map((plan) => ({
+          item: { ...plan, architect, hops: [] },
+          bid: architect.anchorBid!({ cavern, plan }) || 0, // * gravities[plan.id],
         }));
+    }),
+  );
 
   const plans: (FloodedPlan | OrderedPlan)[] = [...cavern.plans];
   plans[anchor.id] = anchor;

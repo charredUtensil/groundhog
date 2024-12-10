@@ -23,19 +23,27 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
 
       // Set up nodes representing possible objectives.
       const resourceObjective = st("resourceObjective").then(end);
-      const lostMinersAndOrResourceObjective = pg(st(
-        "lostMinersOne",
-        "lostMinersTogether",
-        "lostMinersApart",
-      ).then(end, resourceObjective), resourceObjective);
-      const buildPowerGcAndOrLostMinersAndOrResourceObjective = pg(st(
-        "buildAndPowerGcOne",
-        "buildAndPowerGcMultiple",
-      ).then(end, lostMinersAndOrResourceObjective), lostMinersAndOrResourceObjective);
-      const buildPowerSsAndOrLostMinersAndOrResourceObjective = pg(st(
-        "buildAndPowerSsOne",
-        "buildAndPowerSsMultiple",
-      ).then(end, lostMinersAndOrResourceObjective), lostMinersAndOrResourceObjective);
+      const lostMinersAndOrResourceObjective = pg(
+        st("lostMinersOne", "lostMinersTogether", "lostMinersApart").then(
+          end,
+          resourceObjective,
+        ),
+        resourceObjective,
+      );
+      const buildPowerGcAndOrLostMinersAndOrResourceObjective = pg(
+        st("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(
+          end,
+          lostMinersAndOrResourceObjective,
+        ),
+        lostMinersAndOrResourceObjective,
+      );
+      const buildPowerSsAndOrLostMinersAndOrResourceObjective = pg(
+        st("buildAndPowerSsOne", "buildAndPowerSsMultiple").then(
+          end,
+          lostMinersAndOrResourceObjective,
+        ),
+        lostMinersAndOrResourceObjective,
+      );
 
       start
         // These can happen regardless of what the anchor is.
@@ -57,10 +65,12 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
             st("spawnIsMobFarm"),
           ).then(lostMinersAndOrResourceObjective),
           // Gas Leak: Optional objective to build support stations.
-          st("spawnIsHq").then(st("spawnIsGasLeak")).then(
-            buildPowerSsAndOrLostMinersAndOrResourceObjective,
-            buildPowerGcAndOrLostMinersAndOrResourceObjective,
-          ),
+          st("spawnIsHq")
+            .then(st("spawnIsGasLeak"))
+            .then(
+              buildPowerSsAndOrLostMinersAndOrResourceObjective,
+              buildPowerGcAndOrLostMinersAndOrResourceObjective,
+            ),
           // Spawn is HQ: Normal objectives.
           pg(st("spawnIsHq").then(skip, st("hqIsRuin"))).then(
             buildPowerGcAndOrLostMinersAndOrResourceObjective,
@@ -68,7 +78,12 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
           // Everything else: Normal objectives + maybe find HQ.
           pg(
             skip,
-            st("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsBlackout", "spawnIsOreWaste"),
+            st(
+              "spawnIsNomadOne",
+              "spawnIsNomadsTogether",
+              "spawnIsBlackout",
+              "spawnIsOreWaste",
+            ),
           )
             .then(skip, st("findHq").then(skip, st("hqIsRuin")))
             .then(buildPowerGcAndOrLostMinersAndOrResourceObjective),
@@ -92,15 +107,15 @@ export default function testCompleteness(module: any) {
       return;
     }
     describe(pg.name, () => {
-      it('is present in ALL_GRAPHS', () => {
+      it("is present in ALL_GRAPHS", () => {
         // Need to use object.is here because the equality comparison takes a
         // very long time.
-        expect(ALL_GRAPHS.filter(apg => Object.is(apg, pg)).length).toBe(1);
+        expect(ALL_GRAPHS.filter((apg) => Object.is(apg, pg)).length).toBe(1);
       });
 
-      it('is complete', () => {
+      it("is complete", () => {
         expectCompletion(pg);
       });
     });
   });
-};
+}

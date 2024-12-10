@@ -1,13 +1,19 @@
 import { inferContextDefaults } from "../common";
 import { Architect, BaseMetadata } from "../models/architect";
-import { ORE_REFINERY, POWER_STATION, SUPPORT_STATION, TELEPORT_PAD, TOOL_STORE } from "../models/building";
+import {
+  ORE_REFINERY,
+  POWER_STATION,
+  SUPPORT_STATION,
+  TELEPORT_PAD,
+  TOOL_STORE,
+} from "../models/building";
 import { Tile } from "../models/tiles";
 import { DefaultSpawnArchitect, PartialArchitect } from "./default";
 import { hintEjectRefineOre } from "./utils/hints";
 import { getTotalOre } from "./utils/resources";
 import { mkRough, Rough } from "./utils/rough";
 
-const METADATA = {tag: "oreWaste"} as const satisfies BaseMetadata;
+const METADATA = { tag: "oreWaste" } as const satisfies BaseMetadata;
 
 // TO DO:
 // Need a hint for when there's a lot of ore collected, but few studs.
@@ -16,20 +22,22 @@ const METADATA = {tag: "oreWaste"} as const satisfies BaseMetadata;
  * Approximately how much ore is needed to build a functional base capable
  * of producing Building Studs.
  */
-const ORE_OVERHEAD = (
+const ORE_OVERHEAD =
   // Tool Store Lv2
-  TOOL_STORE.ore + 5 +
+  TOOL_STORE.ore +
+  5 +
   // 3x Power Path
   6 +
   // TP Lv2
-  TELEPORT_PAD.ore + 5 +
+  TELEPORT_PAD.ore +
+  5 +
   // Power Station Lv2
-  POWER_STATION.ore + 5 +
+  POWER_STATION.ore +
+  5 +
   // Support Station Lv1
   SUPPORT_STATION.ore +
   // Ore Refinery Lv1
-  ORE_REFINERY.ore
-);
+  ORE_REFINERY.ore;
 
 function wasted(t: Tile) {
   if (t === Tile.DIRT) {
@@ -52,9 +60,9 @@ const BASE: PartialArchitect<typeof METADATA> = {
   mod(cavern) {
     const context = inferContextDefaults({
       caveOreRichness: {
-        base: 0.40,
-        hops: 0.20,
-        order: -0.20,
+        base: 0.4,
+        hops: 0.2,
+        order: -0.2,
       },
       caveOreSeamBias: 0.6,
       ...cavern.initialContext,
@@ -62,17 +70,22 @@ const BASE: PartialArchitect<typeof METADATA> = {
     return { ...cavern, context };
   },
   prime: () => METADATA,
-  closer({cavern, tiles}) {
+  closer({ cavern, tiles }) {
     tiles.forEach((t, x, y) => {
       const rt = wasted(t);
       // Don't overscript where there is likely to be a monster spawn trigger.
-      if (rt && !cavern.pearlOuterDex.get(x, y)?.some((ly, pi) => cavern.plans[pi].kind === 'cave' && ly < 1)) {
+      if (
+        rt &&
+        !cavern.pearlOuterDex
+          .get(x, y)
+          ?.some((ly, pi) => cavern.plans[pi].kind === "cave" && ly < 1)
+      ) {
         tiles.set(x, y, rt);
       }
     });
   },
-  objectives({cavern}) {
-    if (cavern.plans.some(p => p.metadata?.tag === 'buildAndPower')) {
+  objectives({ cavern }) {
+    if (cavern.plans.some((p) => p.metadata?.tag === "buildAndPower")) {
       // If there are build and power objectives, those will definitely consume
       // ore. No reason to prolong this with an additional ore objective.
       return undefined;
@@ -104,18 +117,20 @@ const BASE: PartialArchitect<typeof METADATA> = {
     // 4. Continuing to mine after enough resources are exposed actively makes
     //    things worse - If the player doesn't turn off crystal collection,
     //    vehicles will be distracted.
-    const studs = (getTotalOre(cavern) - ORE_OVERHEAD) * cavern.context.crystalGoalRatio / 5;
+    const studs =
+      ((getTotalOre(cavern) - ORE_OVERHEAD) * cavern.context.crystalGoalRatio) /
+      5;
     if (studs <= 0) {
       return undefined;
     }
     return {
       studs: Math.floor(studs / 5) * 5,
       sufficient: false,
-    }
+    };
   },
-  script({sb}) {
+  script({ sb }) {
     hintEjectRefineOre(sb);
-  }
+  },
 };
 
 const ORE_WASTE = [
@@ -131,7 +146,7 @@ const ORE_WASTE = [
       !plan.fluid &&
       plan.lakeSize >= 3 &&
       plan.pearlRadius > 0 &&
-      cavern.plans.reduce((r, p) => p.hasErosion ? r + 1 : r, 0) < 3 &&
+      cavern.plans.reduce((r, p) => (p.hasErosion ? r + 1 : r), 0) < 3 &&
       cavern.context.anchorWhimsy * 0.03,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];

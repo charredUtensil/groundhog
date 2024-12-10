@@ -60,24 +60,23 @@ type DieOrRng =
   | {
       rng: PseudorandomStream;
     };
-type StateFormatArgs<ST, FT> = (
+type StateFormatArgs<ST, FT> =
   | {
-    pg: PhraseGraph<State, Format>;
-  }
+      pg: PhraseGraph<State, Format>;
+    }
   | {
-    pg: PhraseGraph<State, Format & FT>;
-    format: FT;
-  }
+      pg: PhraseGraph<State, Format & FT>;
+      format: FT;
+    }
   | {
-    pg: PhraseGraph<State & ST, Format>;
-    state: ST;
-  }
+      pg: PhraseGraph<State & ST, Format>;
+      state: ST;
+    }
   | {
-    pg: PhraseGraph<State & ST, Format & FT>;
-    state: ST;
-    format: FT;
-  }
-);
+      pg: PhraseGraph<State & ST, Format & FT>;
+      state: ST;
+      format: FT;
+    };
 type FromLoreArgs<ST, FT> = DieOrRng & StateFormatArgs<ST, FT>;
 
 export type ScriptBuilder = {
@@ -95,7 +94,10 @@ export type ScriptBuilder = {
    * Declares a string variable. Takes ether a string value or parameters to
    * determine the string from lore. Returns the variable name.
    */
-  declareString<ST={}, FT={}>(name: string, value: string | FromLoreArgs<ST, FT>): string;
+  declareString<ST = {}, FT = {}>(
+    name: string,
+    value: string | FromLoreArgs<ST, FT>,
+  ): string;
   /**
    * Declares an arrow variable. Returns the variable name.
    */
@@ -245,7 +247,7 @@ export function mkScriptBuilder(
       return name;
     },
 
-    declareString<ST={}, FT={}>(
+    declareString<ST = {}, FT = {}>(
       name: string,
       value: string | FromLoreArgs<ST, FT>,
     ) {

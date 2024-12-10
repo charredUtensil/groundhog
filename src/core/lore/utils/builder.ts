@@ -26,7 +26,10 @@ class PgBuilder<StateT extends BaseState, FormatT> {
   }
 }
 
-function join<StateT extends BaseState, FormatT>(a: Phrase<StateT, FormatT>, b: Phrase<StateT, FormatT>) {
+function join<StateT extends BaseState, FormatT>(
+  a: Phrase<StateT, FormatT>,
+  b: Phrase<StateT, FormatT>,
+) {
   a.after.push(b);
   b.before.push(a);
 }
@@ -82,7 +85,7 @@ export class PgNode<StateT extends BaseState, FormatT> {
     for (const arg of args) {
       if (arg instanceof PgNode) {
         nodes.push(arg);
-      } else if (typeof arg === 'function') {
+      } else if (typeof arg === "function") {
         text.push(arg);
       } else {
         text.push(() => arg);
@@ -157,7 +160,9 @@ function sort<StateT extends BaseState, FormatT>(
   return inOrder;
 }
 
-function getReachableStates<StateT extends BaseState, FormatT>(phrase: Phrase<StateT, FormatT>) {
+function getReachableStates<StateT extends BaseState, FormatT>(
+  phrase: Phrase<StateT, FormatT>,
+) {
   const reachableAfter: { [key: string]: true } = {};
   for (const a of phrase.after) {
     Object.assign(reachableAfter, a.reachableStates);
@@ -183,7 +188,9 @@ function getReachableStates<StateT extends BaseState, FormatT>(phrase: Phrase<St
   return reachable;
 }
 
-function traverse<StateT extends BaseState, FormatT>(phrases: readonly Phrase<StateT, FormatT>[]) {
+function traverse<StateT extends BaseState, FormatT>(
+  phrases: readonly Phrase<StateT, FormatT>[],
+) {
   for (let i = phrases.length - 1; i >= 0; i--) {
     const phrase = phrases[i] as Mutable<Phrase<StateT, FormatT>>;
     phrase.reachableStates = getReachableStates(phrase);
@@ -217,7 +224,7 @@ function joinTexts<FormatT>(
   let capitalizeNext = true;
   let spaceBeforeNext = false;
   for (let index = 0; index < chosen.length; index++) {
-    const text = chosen[index]?.({chosen, index, format});
+    const text = chosen[index]?.({ chosen, index, format });
     if (!text) {
       continue;
     }
@@ -298,7 +305,9 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
       }
       chosenPhrases.push(rng.uniformChoice(continuations));
     }
-    const chosen = chosenPhrases.map((phrase) => phrase.text.length ? rng.uniformChoice(phrase.text) : null);
+    const chosen = chosenPhrases.map((phrase) =>
+      phrase.text.length ? rng.uniformChoice(phrase.text) : null,
+    );
     return joinTexts(chosen, format);
   }
 }
@@ -311,7 +320,9 @@ export default function phraseGraph<StateT extends BaseState, FormatT>(
 
   const pg = (...args: PgNodeArgs<StateT, FormatT>): PgNode<StateT, FormatT> =>
     PgNode.coerce(pgBuilder, args);
-  const state = (...args: (string & keyof StateT)[]): PgNode<StateT, FormatT> => {
+  const state = (
+    ...args: (string & keyof StateT)[]
+  ): PgNode<StateT, FormatT> => {
     const phrases = args.map((arg) => pgBuilder.phrase([], arg));
     return new PgNode(pgBuilder, phrases, phrases, false);
   };

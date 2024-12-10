@@ -54,5 +54,5 @@ export function spellNumber(n: number): string {
 }
 
 export function bothOrSpell(n: number, fn: (s: string) => string) {
-  return n === 2 ? 'both' : fn(spellNumber(n));
+  return n === 2 ? "both" : fn(spellNumber(n));
 }

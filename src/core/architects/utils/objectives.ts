@@ -30,14 +30,15 @@ export function objectiveGlobals({
     resources.forEach((resource) =>
       sb.when(
         `${resource}>=${objectives[resource]}`,
-        ...resources.map(r => r !== resource && `((${r}<${objectives[r]}))return;` as EventChainLine),
+        ...resources.map(
+          (r) =>
+            r !== resource &&
+            (`((${r}<${objectives[r]}))return;` as EventChainLine),
+        ),
         `${gObjectives.res}=1;`,
-      )
+      ),
     );
-    sb.if(
-      `${gObjectives.res}>0`,
-      `${gObjectives.met}+=1;`,
-    );
+    sb.if(`${gObjectives.res}>0`, `${gObjectives.met}+=1;`);
   }
   sb.if(`${gObjectives.met}>=${goalCount}`, `${gObjectives.won}=1;`);
 }

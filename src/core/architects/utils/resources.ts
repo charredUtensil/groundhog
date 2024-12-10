@@ -105,7 +105,7 @@ export function bidsForOuterPearl(args: {
     layer
       .map((item) => {
         const tile = args.tiles.get(...item) ?? Tile.SOLID_ROCK;
-        if (tile.hardness >= Hardness.SOLID && tile != Tile.RECHARGE_SEAM) {
+        if (tile.hardness >= Hardness.SOLID && tile !== Tile.RECHARGE_SEAM) {
           let rechargeSeamCount = 0;
           let solidRockCount = 0;
           for (const offset of NSEW) {
@@ -147,7 +147,12 @@ export function bidsForOrdinaryWalls(
 ) {
   return positions.filter(([x, y]) => {
     const t = tiles.get(x, y);
-    return t && (t.hardness === Hardness.DIRT || t.hardness === Hardness.LOOSE || t.hardness === Hardness.HARD);
+    return (
+      t &&
+      (t.hardness === Hardness.DIRT ||
+        t.hardness === Hardness.LOOSE ||
+        t.hardness === Hardness.HARD)
+    );
   });
 }
 

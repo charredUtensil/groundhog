@@ -1,5 +1,5 @@
 import { inferContextDefaults } from "../../common";
-import { GAS_LEAK_NO_AIR } from "../../lore/graphs/events";
+import { GAS_LEAK_INSUFF_AIR, GAS_LEAK_NO_AIR } from "../../lore/graphs/events";
 import { Architect } from "../../models/architect";
 import {
   TOOL_STORE,
@@ -8,15 +8,24 @@ import {
   TELEPORT_PAD,
   ELECTRIC_FENCE_ID,
 } from "../../models/building";
+import { monsterForBiome } from "../../models/creature";
 import { gCreatures } from "../utils/creature_spawners";
 import { hintSelectLaserGroup } from "../utils/hints";
 import { gObjectives } from "../utils/objectives";
 import { mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
-const T0_BUILDINGS = [TOOL_STORE, TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
+const T0_BUILDINGS = [
+  TOOL_STORE,
+  TELEPORT_PAD,
+  POWER_STATION,
+  SUPPORT_STATION,
+] as const;
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 const STARTING_BONUS_CRYSTALS = 2;
+const MONSTERS_UNTIL_RESPITE = 20;
+const RESPITE_MIN = 3 * 60;
+const RESPITE_MAX = 8 * 60;
 
 const GAS_LEAK_BASE: Pick<
   Architect<HqMetadata>,
@@ -32,7 +41,7 @@ const GAS_LEAK_BASE: Pick<
       globalHostilesCap: 4,
       ...cavern.initialContext,
     });
-    return {...cavern, context, oxygen: [500, 500]}
+    return { ...cavern, context, oxygen: [500, 500] };
   },
   prime: () => {
     return {
@@ -42,40 +51,46 @@ const GAS_LEAK_BASE: Pick<
       tag: "hq",
     };
   },
-  crystalsFromMetadata: (metadata) => STARTING_BONUS_CRYSTALS + metadata.crystalsInBuildings,
+  crystalsFromMetadata: (metadata) =>
+    STARTING_BONUS_CRYSTALS + metadata.crystalsInBuildings,
   placeBuildings: getPlaceBuildings({
     discovered: true,
     from: 2,
     templates: () => T0_BUILDINGS,
   }),
   holdCreatures: () => true,
-  script({cavern, plan, sb}) {
-    const v = mkVars(`p${plan.id}GlHq`, ['msgNoAir', 'holdLoop']);
+  script({ cavern, plan, sb }) {
+    const v = mkVars(`p${plan.id}GlHq`, [
+      "msgNoAir",
+      "msgInsuffAir",
+      "monstersCount",
+    ]);
     const rng = cavern.dice.script(plan.id);
     sb.onInit(
       `disable:${ELECTRIC_FENCE_ID};`,
       `crystals=${STARTING_BONUS_CRYSTALS};`,
-      `${v.holdLoop};`,
+      `wait:${RESPITE_MIN};`,
+      `${gCreatures.anchorHold}=0;`,
     );
-    sb.declareString(
-      v.msgNoAir, {pg: GAS_LEAK_NO_AIR, rng}
-    );
+    sb.declareString(v.msgNoAir, { pg: GAS_LEAK_NO_AIR, rng });
+    sb.declareString(v.msgInsuffAir, { pg: GAS_LEAK_INSUFF_AIR, rng });
     sb.if(
-      `${gCreatures.airMiners}==0`,
+      `${gCreatures.airMiners}<miners`,
       `((${gObjectives.won}>0))return;`,
       `wait:5;`,
-      `msg:${v.msgNoAir};`,
+      `((${gCreatures.airMiners}>0))[msg:${v.msgInsuffAir}][msg:${v.msgNoAir}];`,
     );
-    sb.event(
-      v.holdLoop,
-      // 5-10 minutes of peace
-      `wait:random(${5 * 60})(${10 * 60});`,
+    sb.declareInt(v.monstersCount, 0);
+    sb.when(
+      `${monsterForBiome(cavern.context.biome).id}.new`,
+      `${v.monstersCount}+=1;`,
+    );
+    sb.when(
+      `${v.monstersCount}==${MONSTERS_UNTIL_RESPITE}`,
       `${gCreatures.anchorHold}=0;`,
-      // 5-10 minutes of monsters
-      `wait:random(${5 * 60})(${10 * 60});`,
+      `wait:random(${RESPITE_MIN})(${RESPITE_MAX});`,
       `${gCreatures.anchorHold}=1;`,
-      // Loop
-      `${v.holdLoop};`,
+      `${v.monstersCount}=0;`,
     );
     hintSelectLaserGroup(sb);
   },
@@ -87,7 +102,7 @@ const GAS_LEAK = [
     ...BASE,
     ...GAS_LEAK_BASE,
     anchorBid: ({ cavern, plan }) =>
-      cavern.context.biome === 'lava' &&
+      cavern.context.biome === "lava" &&
       cavern.context.hasMonsters &&
       cavern.context.hasAirLimit &&
       plan.lakeSize > 3 &&

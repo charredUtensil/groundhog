@@ -201,9 +201,7 @@ export default function CavernPreview({
             cavern.openCaveFlags?.map((_, x, y) => (
               <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
             ))}
-          {mapOverlay === "objectives" && (
-            <ObjectivesPreview cavern={cavern} />
-          )}
+          {mapOverlay === "objectives" && <ObjectivesPreview cavern={cavern} />}
           {mapOverlay === "script" && (
             <ScriptOverlay
               cavern={cavern}

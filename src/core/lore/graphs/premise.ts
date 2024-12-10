@@ -37,49 +37,59 @@ const PREMISE = phraseGraph<State, Format>(
       )
       .then(pg(), state("hasGiantCave"));
 
-    const additionalHardship = listOfAny({pg},
-        state("spawnHasErosion").then(
-          "we are dangerously close to a cavern full of lava",
-          "we are concerned about nearby lava flows that could engulf this " +
-            "cavern",
-          "you will need to keep an eye on the volcanic activity in this " +
-            "cavern to avoid being buried in lava",
-        ),
-        state("spawnIsBlackout").then(
-          "the unusual magnetic properties of the rock here might interfere " +
-            "with our equipment",
-          "there are unusual magnetic readings in this cavern and we're " +
-            "concerned about the effects that might have on our equipment",
-        ),
-        state("spawnIsOreWaste").then(
-          "the rock in this cavern has very little ore",
-        ),
+    const additionalHardship = listOfAny(
+      { pg },
+      state("spawnHasErosion").then(
+        "we are concerned about nearby lava flows that could engulf this " +
+          "cavern",
+        "you will need to keep an eye on the volcanic activity in this " +
+          "cavern to avoid being buried in lava",
         pg(
-          state("hasMonsters").then(skip, state("hasSlugs")),
-          state("hasSlugs"),
-        ).then(
-          "the tunnels here are full of large creatures that threaten our operations",
-          "we are picking up signs of large creatures in the area",
-          ({format: {enemies}}) => `this cavern is inhabited by nests of ${enemies}`,
-          ({format: {enemies}}) => `we have reason to believe there are dozens of ${enemies} just out of sight`,
-        ),
-        state("spawnIsGasLeak").then(
+          "we are dangerously close to a cavern full of lava. Left " +
+            "unchecked, this whole area could be consumed by molten rock!",
+        ).then(end),
+      ),
+      state("spawnIsBlackout").then(
+        "the unusual magnetic properties of the rock here might interfere " +
+          "with our equipment",
+        "there are unusual magnetic readings in this cavern and we're " +
+          "concerned about the effects that might have on our equipment",
+      ),
+      state("spawnIsOreWaste").then(
+        "the rock in this cavern has very little ore",
+      ),
+      pg(
+        state("hasMonsters").then(skip, state("hasSlugs")),
+        state("hasSlugs"),
+      ).then(
+        "the tunnels here are full of large creatures that threaten our operations",
+        "we are picking up signs of large creatures in the area",
+        ({ format: { enemies } }) =>
+          `this cavern is inhabited by nests of ${enemies}`,
+        ({ format: { enemies } }) =>
+          `we have reason to believe there are dozens of ${enemies} just out of sight`,
+      ),
+      state("spawnIsGasLeak")
+        .then(
           "the atmosphere in this cavern contains a toxic gas that might " +
-          "explode when exposed to plasma",
-        ).then(
+            "explode when exposed to plasma",
+        )
+        .then(
           " - which means we cannot rely on Electric Fences.",
           ". While our laser weapons should be fine, a single Electric " +
-          "Fence could blast us all to Kingdom Come!"
-        ).then(end),
-        state("hqIsFixedComplete")
-          .then(
-            "the teleporters are operating in a low-power mode, so",
-          )
-          .then(
-            "you will not be able to construct any more buildings.",
-            "you must make do with the buildings that are already constructed.",
-          ).then(end),
-      ).then(".").then(end);
+            "Fence could blast us all into tiny bits of ABS.",
+        )
+        .then(end),
+      state("hqIsFixedComplete")
+        .then("the teleporters are operating in a low-power mode, so")
+        .then(
+          "you will not be able to construct any more buildings.",
+          "you must make do with the buildings that are already constructed.",
+        )
+        .then(end),
+    )
+      .then(".")
+      .then(end);
 
     // Weird case to explain: Find HQ, but the HQ is intact and there are no lost miners.
     // Blame Canada... or bureaucracy.
@@ -102,11 +112,11 @@ const PREMISE = phraseGraph<State, Format>(
         state("hasMonsters")
           .then(skip, state("hasSlugs"))
           .then(
-            ({format: {enemies}}) => `\
+            ({ format: { enemies } }) => `\
 We were all set to mine this cavern, but the team was scared off \
 by readings of ${enemies} in the area. They left in such a hurry \
 that they forgot to record where exactly the Rock Raider HQ is.`,
-            ({format: {enemies}}) => `\
+            ({ format: { enemies } }) => `\
 There should be a base near here, but it's not showing up on our \
 scanners. We hope it hasn't been destroyed by ${enemies}, but to \
 be safe, we're sending you to a nearby cavern instead.`,
@@ -115,7 +125,7 @@ be safe, we're sending you to a nearby cavern instead.`,
           "We were all set to mine this cavern, but the team was scared off " +
             "by a Slimy Slug that suddenly appeared in the middle of our HQ. " +
             "They even left without recording their location properly.",
-          ({format: {enemies}}) => `\
+          ({ format: { enemies } }) => `\
 There should be a base near here, but it's not showing up on our \
 scanners. Some interference from ${enemies} must have shut off \
 its location beacon! To be safe, we're sending you to a nearby \
@@ -246,10 +256,10 @@ cavern instead.`,
               state("hasMonsters").then(skip, state("hasSlugs")),
               state("hasSlugs"),
             ).then(
-              ({format: {enemies}}) => `
+              ({ format: { enemies } }) => `
 
 Be on the lookout for ${enemies}, especially once you start construction.`,
-              ({format: {enemies}}) => `\
+              ({ format: { enemies } }) => `\
 Use caution! There may be ${enemies} afoot and I don't want you taking any \
 unnecessary risk.`,
             ),
@@ -326,15 +336,18 @@ unnecessary risk.`,
       "we're counting on you to find them!",
       "we don't know how long they'll last out there.",
       state("hasMonsters").then(
-        ({format: {enemies}}) => `we need to find them before the ${enemies} do.`,
-        ({format: {enemies}}) => `I hope they don't meet any of the ${enemies} roaming this cavern.`,
+        ({ format: { enemies } }) =>
+          `we need to find them before the ${enemies} do.`,
+        ({ format: { enemies } }) =>
+          `I hope they don't meet any of the ${enemies} roaming this cavern.`,
       ),
     );
 
     const findTheOthers = pg(
       "we're counting on you to find the others!",
       state("hasMonsters").then(
-        ({format: {enemies}}) => `you need to find the others before the ${enemies} do.`,
+        ({ format: { enemies } }) =>
+          `you need to find the others before the ${enemies} do.`,
       ),
     );
 
@@ -345,14 +358,20 @@ unnecessary risk.`,
         skip,
         state("spawnIsGasLeak").then(
           "Our geologists have warned me that the air in this cavern " +
-          "contains a gas that reacts explosively with plasma, so we can't" +
-          "rely on Electric Fences."
+            "contains a gas that reacts explosively with plasma, so we can't" +
+            "rely on Electric Fences.",
         ),
-        state('spawnIsOreWaste').then(
-          "This cavern has very little ore, so build only what you really need"
-        ).then("!", state("spawnIsGasLeak").then(
-          " - and no Electric Fences either. The atmosphere here would " +
-          "likely react with plasma... explosively.")),
+        state("spawnIsOreWaste")
+          .then(
+            "This cavern has very little ore, so build only what you really need",
+          )
+          .then(
+            "!",
+            state("spawnIsGasLeak").then(
+              " - and no Electric Fences either. The atmosphere here would " +
+                "likely react with plasma... explosively.",
+            ),
+          ),
       )
       .then(
         skip,
@@ -415,10 +434,10 @@ unnecessary risk.`,
               "a group of our Rock Raiders ended up in an uncharted cavern.",
           ),
           state("lostMinersApart").then(
-            ({format: {lostMiners}}) => `\
+            ({ format: { lostMiners } }) => `\
 a teleporter malfunction scattered ${spellNumber(lostMiners)} of our Rock \
 Raiders throughout this cavern.`,
-            ({format: {lostMinerCaves}}) => `\
+            ({ format: { lostMinerCaves } }) => `\
 the teleporters have failed again and ${spellNumber(lostMinerCaves)} groups \
 of Rock Raiders are lost somewhere in this cavern.`,
           ),
@@ -460,7 +479,8 @@ of Rock Raiders are lost somewhere in this cavern.`,
         "An earthquake in this area has caused several cave-ins and destroyed " +
           "part of our Rock Raider HQ",
         state("hasMonsters").then(
-          ({format: {enemies}}) => `A horde of ${enemies} attacked our Rock Raider HQ`,
+          ({ format: { enemies } }) =>
+            `A horde of ${enemies} attacked our Rock Raider HQ`,
         ),
       )
       .then(

@@ -4,12 +4,7 @@ import { DefaultSpawnArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { getBuildings } from "./utils/buildings";
-import {
-  DOCKS,
-  MINING_LASER,
-  SUPER_TELEPORT,
-  TOOL_STORE,
-} from "../models/building";
+import { DOCKS, SUPER_TELEPORT, TOOL_STORE } from "../models/building";
 import { position, randomlyInTile } from "../models/position";
 import { asXY, closestTo, NSEW, offsetBy } from "../common/geometry";
 import {
@@ -20,16 +15,13 @@ import {
   LMLC,
   LOADER_DOZER,
   RAPID_RIDER,
-  SMLC,
   TUNNEL_SCOUT,
   TUNNEL_TRANSPORT,
 } from "../models/vehicle";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { inferContextDefaults } from "../common";
 import { mkVars } from "./utils/script";
-import {
-  MOB_FARM_NO_LONGER_BLOCKING,
-} from "../lore/graphs/events";
+import { MOB_FARM_NO_LONGER_BLOCKING } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
 import { hintSelectLaserGroup } from "./utils/hints";
 
@@ -159,9 +151,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     };
   },
   script({ cavern, plan, sb }) {
-    const v = mkVars(`p${plan.id}MbFm`, [
-      "msgNotBlocking",
-    ]);
+    const v = mkVars(`p${plan.id}MbFm`, ["msgNotBlocking"]);
     const rng = cavern.dice.script(plan.id);
     sb.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`));
     if (cavern.objectives.variables.length > 0) {

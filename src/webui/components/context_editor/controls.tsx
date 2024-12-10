@@ -184,7 +184,7 @@ export const Slider = ({
   );
 };
 
-export const ExponentialSlider =  ({
+export const ExponentialSlider = ({
   of,
   min,
   max,
@@ -206,7 +206,7 @@ export const ExponentialSlider =  ({
       return zeroLabel;
     }
     if (value < 0) {
-      return `1/${Math.pow(2, -value).toFixed()}`
+      return `1/${Math.pow(2, -value).toFixed()}`;
     }
     return context[of].toFixed();
   })();
@@ -228,7 +228,9 @@ export const ExponentialSlider =  ({
               "--completion": `${(100 * (value - min)) / (max - min)}%`,
             } as CSSProperties
           }
-          onChange={(ev) => update({ [of]: Math.pow(2, ev.target.valueAsNumber) })}
+          onChange={(ev) =>
+            update({ [of]: Math.pow(2, ev.target.valueAsNumber) })
+          }
         />
         {of in initialContext ? (
           <button

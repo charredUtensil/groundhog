@@ -1,6 +1,6 @@
 import { PgNode } from "./builder";
 
-export type BaseState = { [key: string]: boolean; };
+export type BaseState = { [key: string]: boolean };
 
 export type TextFn<FormatT> = (args: {
   chosen: readonly (TextFn<FormatT> | null)[];
@@ -14,7 +14,7 @@ export type Phrase<StateT extends BaseState, FormatT> = {
   readonly after: Phrase<StateT, FormatT>[];
   readonly before: Phrase<StateT, FormatT>[];
   readonly requires: (string & keyof StateT) | "start" | "end" | null;
-  readonly reachableStates: { [key: string]: boolean; };
+  readonly reachableStates: { [key: string]: boolean };
 };
 
 export type PgNodeArgs<StateT extends BaseState, FormatT> = (

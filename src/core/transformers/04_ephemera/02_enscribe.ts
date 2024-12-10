@@ -30,7 +30,7 @@ function overrideSuffix(initialContext: PartialCavernContext) {
     v = (v << 5) - v + s.charCodeAt(i);
     v |= 0;
   }
-  const rng = new PseudorandomStream((v & 0x1FFFFFFFF) >>> 1);
+  const rng = new PseudorandomStream((v & 0x1ffffffff) >>> 1);
   return rng.uniformChoice(OVERRIDE_SUFFIXES);
 }
 

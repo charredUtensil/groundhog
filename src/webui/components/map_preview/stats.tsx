@@ -169,19 +169,19 @@ export default function Stats({
       }
       case "objectives": {
         if (!cavern.objectives) {
-          return <p>none</p>
+          return <p>none</p>;
         }
-        const resourceGoal = spellResourceGoal(cavern.objectives).resourceGoalNumbers;
-        return (<ul>
-        {
-          cavern.objectives.variables.map(({description}) => (
-            <li>{description}</li>
-          ))
-        }
-        {
-          resourceGoal && <li>Collect {resourceGoal}.</li>
-        }
-      </ul>)
+        const resourceGoal = spellResourceGoal(
+          cavern.objectives,
+        ).resourceGoalNumbers;
+        return (
+          <ul>
+            {cavern.objectives.variables.map(({ description }) => (
+              <li>{description}</li>
+            ))}
+            {resourceGoal && <li>Collect {resourceGoal}.</li>}
+          </ul>
+        );
       }
       default:
         return null;

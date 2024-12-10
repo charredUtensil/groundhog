@@ -9,7 +9,11 @@ import {
 import { Format, LoreDie, State } from "../lore/lore";
 import { PhraseGraph } from "../lore/utils/builder";
 import { Architect } from "../models/architect";
-import { Building, GEOLOGICAL_CENTER, SUPPORT_STATION } from "../models/building";
+import {
+  Building,
+  GEOLOGICAL_CENTER,
+  SUPPORT_STATION,
+} from "../models/building";
 import { Plan } from "../models/plan";
 import { Tile } from "../models/tiles";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
@@ -45,7 +49,7 @@ const BASE: PartialArchitect<BuildAndPowerMetadata> = {
 
 function buildAndPower(
   template: Building["template"],
-  pgFirst: PhraseGraph<State, Format & {remainingCount: number}>,
+  pgFirst: PhraseGraph<State, Format & { remainingCount: number }>,
   pgPenultimate: PhraseGraph<State, Format>,
   pgLast: PhraseGraph<State, Format>,
   minLevel: Building["level"],
@@ -237,12 +241,12 @@ export const BUILD_AND_POWER = [
     name: "BuildAndPower.GC",
     ...BASE,
     ...buildAndPower(
-       GEOLOGICAL_CENTER,
-       BUILD_POWER_GC_FIRST,
-       BUILD_POWER_GC_PENULTIMATE,
-       BUILD_POWER_GC_LAST,
-       5
-       ),
+      GEOLOGICAL_CENTER,
+      BUILD_POWER_GC_FIRST,
+      BUILD_POWER_GC_PENULTIMATE,
+      BUILD_POWER_GC_LAST,
+      5,
+    ),
     ...mkRough(
       { of: Rough.FLOOR, width: 2, grow: 1 },
       { of: Rough.MIX_DIRT_LOOSE_ROCK, grow: 1 },
@@ -257,22 +261,26 @@ export const BUILD_AND_POWER = [
         plan.pearlRadius < 10 &&
         plan.path.baseplates.length === 1 &&
         // Incompatible with fchq or mob farm
-        !(amd?.tag === "hq" && amd.special === 'fixedComplete') &&
+        !(amd?.tag === "hq" && amd.special === "fixedComplete") &&
         !(amd?.tag === "mobFarm") &&
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&
-        cavern.context.planWhimsy * bidHelper(plans, GEOLOGICAL_CENTER, 3, 0.04, 10)
+        cavern.context.planWhimsy *
+          bidHelper(plans, GEOLOGICAL_CENTER, 3, 0.04, 10)
       );
     },
   },
   {
     name: "BuildAndPower.SS.ForGasLeak",
     ...BASE,
-    ...buildAndPower(SUPPORT_STATION,
-       BUILD_POWER_SS_FIRST,
-       BUILD_POWER_SS_PENULTIMATE,
-       BUILD_POWER_SS_LAST, 1),
+    ...buildAndPower(
+      SUPPORT_STATION,
+      BUILD_POWER_SS_FIRST,
+      BUILD_POWER_SS_PENULTIMATE,
+      BUILD_POWER_SS_LAST,
+      1,
+    ),
     ...mkRough(
       { of: Rough.ALWAYS_FLOOR, width: 2 },
       { of: Rough.LAVA, width: 2, grow: 1 },
@@ -289,7 +297,7 @@ export const BUILD_AND_POWER = [
         plan.pearlRadius > 3 &&
         plan.path.baseplates.length === 1 &&
         amd?.tag === "hq" &&
-        amd.special === 'gasLeak' &&
+        amd.special === "gasLeak" &&
         hops.length > 3 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&
         cavern.context.planWhimsy * bidHelper(plans, SUPPORT_STATION, 3, 10, 5)

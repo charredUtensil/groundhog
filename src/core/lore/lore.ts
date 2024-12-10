@@ -132,16 +132,18 @@ export class Lore {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
     const anchor = cavern.plans[cavern.anchor];
-    
-    const resourceObjective = (
-      cavern.objectives.crystals + cavern.objectives.ore + cavern.objectives.studs
-    ) > 0;
+
+    const resourceObjective =
+      cavern.objectives.crystals +
+        cavern.objectives.ore +
+        cavern.objectives.studs >
+      0;
 
     const hq = cavern.plans.find(
       (p) => p.metadata?.tag === "hq",
     ) as Plan<HqMetadata>;
     const spawnIsHq = anchor === hq;
-    const hqIsFixedComplete = hq?.metadata.special === 'fixedComplete';
+    const hqIsFixedComplete = hq?.metadata.special === "fixedComplete";
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
