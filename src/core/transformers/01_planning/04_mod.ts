@@ -1,6 +1,8 @@
 import { AnchoredCavern, OrderedPlan } from "./03_anchor";
 
-export type ModdedCavern = AnchoredCavern;
+export type ModdedCavern = AnchoredCavern & {
+  readonly oxygen?: null | readonly [number, number];
+};
 
 // In this step, the anchor architect has carte blanche to change any aspect of
 // the cavern before any plans are established. Use with caution.

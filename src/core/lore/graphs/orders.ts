@@ -1,19 +1,20 @@
-/* eslint-disable no-template-curly-in-string */
+import { Format, State } from "../lore";
+import { TextFn } from "../utils/base";
+import phraseGraph from "../utils/builder";
+import { listJoiner } from "../utils/list";
 
-import { State } from "../lore";
-import phraseGraph from "../builder";
-
-const ORDERS = phraseGraph<State>(
+const ORDERS = phraseGraph<State, Format>(
   "Briefing - Orders",
   ({ pg, state, start, end, cut, skip }) => {
     const collectResources = pg(
-      "collect ${resourceGoal}.",
-      "continue our mining operation by collecting ${resourceGoal}.",
+      ({ format: { resourceGoal } }) => `collect ${resourceGoal}.`,
+      ({ format: { resourceGoal } }) =>
+        `continue our mining operation by collecting ${resourceGoal}.`,
     );
 
     const weNeed = pg(
-      "we need ${resourceGoal}.",
-      "you need to collect ${resourceGoal}.",
+      ({ format: { resourceGoal } }) => `we need ${resourceGoal}.`,
+      ({ format: { resourceGoal } }) => `you need to collect ${resourceGoal}.`,
     );
 
     const tail = pg(
@@ -24,6 +25,8 @@ const ORDERS = phraseGraph<State>(
 
     const tailOptional = pg(tail, end);
 
+    const joiner: TextFn<Format> = listJoiner();
+
     start
       .then(
         state("hasMonsters")
@@ -32,17 +35,18 @@ const ORDERS = phraseGraph<State>(
             "defend the Rock Radier HQ",
             "build up your defenses",
             "arm your Rock Raiders",
-          )
-          .then("and"),
-        state("hasSlugs")
-          .then("defend the Rock Radier HQ", "arm your Rock Raiders")
-          .then("and"),
+          ),
+        state("hasSlugs").then(
+          "defend the Rock Radier HQ",
+          "arm your Rock Raiders",
+        ),
         pg(
           skip,
           state("spawnIsNomadOne", "spawnIsNomadsTogether"),
           state("spawnIsHq")
             .then(state("hqIsRuin", "spawnHasErosion"))
-            .then("move to a safer cavern,", "find a more suitable location,"),
+            .then("move to a safer cavern", "find a more suitable location")
+            .then(joiner),
         )
           .then(
             "build the Rock Raider HQ",
@@ -53,7 +57,8 @@ const ORDERS = phraseGraph<State>(
             ),
             state("spawnIsHq").then(
               "send some Rock Raiders down to this base",
-              pg("resume mining operations and")
+              pg("resume our mining operations")
+                .then(joiner)
                 .then(collectResources)
                 .then(cut),
               state("hqIsRuin").then(
@@ -72,55 +77,67 @@ const ORDERS = phraseGraph<State>(
               .then("reach the Rock Raider HQ", "locate the base")
               .then(
                 skip,
-                state("hqIsRuin").then(
-                  ", salvage what's left",
-                  ", repair it",
-                  ", get it back in working order",
-                ),
+                state("hqIsRuin")
+                  .then(joiner)
+                  .then(
+                    "salvage what's left",
+                    "repair it",
+                    "get it back in working order",
+                  ),
               ),
           )
           .then(
-            "and",
-            "and use it to",
-            ", and when you are ready,",
-            pg(
-              state("hasMonsters").then(state("hasSlugs"), skip),
-              state("hasSlugs"),
-            )
+            skip,
+            pg(joiner)
               .then(
-                "and keep it safe.",
-                "and make sure it is heavily defended.",
+                state("hasMonsters").then(state("hasSlugs"), skip),
+                state("hasSlugs"),
               )
-              .then("Then,", weNeed.then(cut)),
+              .then("keep it safe", "make sure it is heavily defended"),
+          )
+          .then(
+            ". Use it to",
+            ". When you're ready,",
+            ". You must",
+            pg(". Then,").then(weNeed).then(cut),
           ),
       )
       .then(
         skip,
         collectResources.then(cut),
-        state("buildAndPowerGcOne")
-          .then("construct a Geological Center in the marked cavern")
-          .then(
-            pg(", upgrade it to Level 5, and keep it powered on.").then(
-              tail,
-              pg("Finally, ").then(collectResources).then(cut),
-              pg("Then,"),
-            ),
+        pg(
+          state("buildAndPowerGcOne").then(
+            "construct a Geological Center in the marked cavern, upgrade " +
+              "it to Level 5, and keep it powered on.",
           ),
-        state("buildAndPowerGcMultiple")
-          .then(
-            "construct a Geological Center in each of the marked caverns",
-            "build a Geological Center in each of the ${buildAndPowerGcCount} marked caverns",
-          )
-          .then(
-            pg(
+          state("buildAndPowerGcMultiple")
+            .then(
+              ({ format: { buildAndPowerGcCount } }) => `\
+build a Geological Center in ${buildAndPowerGcCount === 2 ? "both" : "each"} of the marked caverns`,
+            )
+            .then(
               ", upgrade them to Level 5, and keep them powered on.",
               "and upgrade them all to Level 5. They must all be powered at the same time for the scans to work properly.",
-            ).then(
-              tail,
-              pg("Finally,").then(collectResources).then(cut),
-              pg("Then,"),
             ),
+          state("buildAndPowerSsOne").then(
+            "construct a Support Station in the marked cavern and find some" +
+              "way to power it.",
+            "go to the island we've chosen and build a Support Station " +
+              "there. It will need power, so build a Power Station too.",
           ),
+          state("buildAndPowerSsMultiple")
+            .then(
+              ({ format: { buildAndPowerSsCount } }) => `\
+build a Support Station in ${buildAndPowerSsCount === 2 ? "both" : "each"} of the marked caverns`,
+            )
+            .then(
+              ", and keep them powered on. We think this will mitigate the gas.",
+            ),
+        ).then(
+          tail,
+          pg("Finally,").then(collectResources).then(cut),
+          pg("Then,"),
+        ),
       )
       .then(
         pg("find", "locate", "search the cavern for")
@@ -138,7 +155,12 @@ const ORDERS = phraseGraph<State>(
               .then("the", "those")
               .then("lost Rock Raiders", "missing Rock Raiders"),
           )
-          .then(".", state("hasMonsters").then("before the ${enemies} do!"))
+          .then(
+            ".",
+            state("hasMonsters").then(
+              ({ format: { enemies } }) => `before the ${enemies} do!`,
+            ),
+          )
           .then(
             tailOptional,
             pg(

@@ -1,13 +1,13 @@
-import ALL_GRAPHS from ".";
-import phraseGraph, { PhraseGraph } from "../builder";
+import phraseGraph, { PhraseGraph } from "../utils/builder";
 import { FoundLostMinersState, State } from "../lore";
+import ALL_GRAPHS from ".";
 
 type CombinedState = State & FoundLostMinersState & { readonly commend: true };
 
-function expectCompletion(actual: PhraseGraph<any>) {
+function expectCompletion(actual: PhraseGraph<any, any>) {
   const keep: { [key: string]: true } = { start: true, end: true };
   actual.states.forEach((s) => (keep[s] = true));
-  const expected = phraseGraph<CombinedState>(
+  const expected = phraseGraph<CombinedState, any>(
     "Expected",
     ({ pg, state, start, end, cut, skip }) => {
       // Only define states if they exist in actual
@@ -23,15 +23,27 @@ function expectCompletion(actual: PhraseGraph<any>) {
 
       // Set up nodes representing possible objectives.
       const resourceObjective = st("resourceObjective").then(end);
-      const lostMinersAndOrResourceObjective = st(
-        "lostMinersOne",
-        "lostMinersTogether",
-        "lostMinersApart",
-      ).then(end, resourceObjective);
-      const buildPowerGcAndOrLostMinersAndOrResourceObjective = st(
-        "buildAndPowerGcOne",
-        "buildAndPowerGcMultiple",
-      ).then(end, lostMinersAndOrResourceObjective);
+      const lostMinersAndOrResourceObjective = pg(
+        st("lostMinersOne", "lostMinersTogether", "lostMinersApart").then(
+          end,
+          resourceObjective,
+        ),
+        resourceObjective,
+      );
+      const buildPowerGcAndOrLostMinersAndOrResourceObjective = pg(
+        st("buildAndPowerGcOne", "buildAndPowerGcMultiple").then(
+          end,
+          lostMinersAndOrResourceObjective,
+        ),
+        lostMinersAndOrResourceObjective,
+      );
+      const buildPowerSsAndOrLostMinersAndOrResourceObjective = pg(
+        st("buildAndPowerSsOne", "buildAndPowerSsMultiple").then(
+          end,
+          lostMinersAndOrResourceObjective,
+        ),
+        lostMinersAndOrResourceObjective,
+      );
 
       start
         // These can happen regardless of what the anchor is.
@@ -52,6 +64,13 @@ function expectCompletion(actual: PhraseGraph<any>) {
             st("spawnIsHq").then(st("hqIsFixedComplete")),
             st("spawnIsMobFarm"),
           ).then(lostMinersAndOrResourceObjective),
+          // Gas Leak: Optional objective to build support stations.
+          st("spawnIsHq")
+            .then(st("spawnIsGasLeak"))
+            .then(
+              buildPowerSsAndOrLostMinersAndOrResourceObjective,
+              buildPowerGcAndOrLostMinersAndOrResourceObjective,
+            ),
           // Spawn is HQ: Normal objectives.
           pg(st("spawnIsHq").then(skip, st("hqIsRuin"))).then(
             buildPowerGcAndOrLostMinersAndOrResourceObjective,
@@ -59,7 +78,12 @@ function expectCompletion(actual: PhraseGraph<any>) {
           // Everything else: Normal objectives + maybe find HQ.
           pg(
             skip,
-            st("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsBlackout"),
+            st(
+              "spawnIsNomadOne",
+              "spawnIsNomadsTogether",
+              "spawnIsBlackout",
+              "spawnIsOreWaste",
+            ),
           )
             .then(skip, st("findHq").then(skip, st("hqIsRuin")))
             .then(buildPowerGcAndOrLostMinersAndOrResourceObjective),
@@ -77,10 +101,21 @@ function expectCompletion(actual: PhraseGraph<any>) {
   expect(missing).toEqual([]);
 }
 
-describe(`Graph is complete`, () => {
-  ALL_GRAPHS.forEach((pg) => {
-    test(`for ${pg.name}`, () => {
-      expectCompletion(pg);
+export default function testCompleteness(module: any) {
+  Object.values(module).forEach((pg) => {
+    if (!(pg instanceof PhraseGraph)) {
+      return;
+    }
+    describe(pg.name, () => {
+      it("is present in ALL_GRAPHS", () => {
+        // Need to use object.is here because the equality comparison takes a
+        // very long time.
+        expect(ALL_GRAPHS.filter((apg) => Object.is(apg, pg)).length).toBe(1);
+      });
+
+      it("is complete", () => {
+        expectCompletion(pg);
+      });
     });
   });
-});
+}

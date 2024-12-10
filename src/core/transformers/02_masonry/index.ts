@@ -6,6 +6,7 @@ import grout from "./03_grout";
 import sand from "./04_sand";
 import fine from "./05_fine";
 import annex from "./06_annex";
+import closer from "./07_closer";
 
 export const MASONRY_TF = tf(foundation)
   .then(rough)
@@ -13,4 +14,5 @@ export const MASONRY_TF = tf(foundation)
   .then(grout)
   .then(sand)
   .then(fine)
-  .then(annex);
+  .then(annex)
+  .then(closer);

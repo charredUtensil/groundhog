@@ -119,7 +119,7 @@ const ERUPTION = [
         (_, i) =>
           plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === "seismic",
       ) &&
-      1,
+      cavern.context.planWhimsy * 1,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 

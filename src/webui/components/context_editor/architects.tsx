@@ -1,9 +1,15 @@
 import { UpdateData } from "./controls";
 import { ARCHITECTS } from "../../../core/architects";
 import styles from "./style.module.scss";
-import React from "react";
+import React, { useMemo } from "react";
+import { Cavern } from "../../../core/models/cavern";
+import { Plan } from "../../../core/models/plan";
 
-export const ArchitectsInput = ({ update, initialContext }: UpdateData) => {
+export const ArchitectsInput = ({
+  update,
+  initialContext,
+  cavern,
+}: UpdateData & { cavern: Cavern | undefined }) => {
   function updateArchitects(
     key: string,
     value: "encourage" | "disable" | undefined,
@@ -24,6 +30,16 @@ export const ArchitectsInput = ({ update, initialContext }: UpdateData) => {
     }
     update({ architects: r });
   }
+
+  const used = useMemo(() => {
+    const r: { [K: string]: number } = {};
+    (cavern?.plans as Partial<Plan<any>>[] | undefined)?.forEach(
+      (plan) =>
+        plan.architect &&
+        (r[plan.architect.name] = (r[plan.architect.name] ?? 0) + 1),
+    );
+    return r;
+  }, [cavern]);
 
   return [...ARCHITECTS].map((a) => {
     const state = initialContext.architects?.[a.name];
@@ -53,6 +69,13 @@ export const ArchitectsInput = ({ update, initialContext }: UpdateData) => {
           >
             Disable
           </button>
+          {state === "encourage" && !used[a.name] ? (
+            <div className={`${styles.architectCount} ${styles.icon}`}>
+              warning
+            </div>
+          ) : (
+            <div className={styles.architectCount}>{used[a.name]}</div>
+          )}
         </div>
       </React.Fragment>
     );

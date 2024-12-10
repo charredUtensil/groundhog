@@ -2,15 +2,25 @@ import {
   BUILD_POWER_GC_FIRST,
   BUILD_POWER_GC_LAST,
   BUILD_POWER_GC_PENULTIMATE,
+  BUILD_POWER_SS_FIRST,
+  BUILD_POWER_SS_LAST,
+  BUILD_POWER_SS_PENULTIMATE,
 } from "../lore/graphs/build_and_power";
-import { LoreDie, spellNumber } from "../lore/lore";
+import { Format, LoreDie, State } from "../lore/lore";
+import { PhraseGraph } from "../lore/utils/builder";
 import { Architect } from "../models/architect";
-import { Building, GEOLOGICAL_CENTER } from "../models/building";
+import {
+  Building,
+  GEOLOGICAL_CENTER,
+  SUPPORT_STATION,
+} from "../models/building";
 import { Plan } from "../models/plan";
+import { Tile } from "../models/tiles";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { intersectsOnly } from "./utils/intersects";
 import { gObjectives } from "./utils/objectives";
+import { getPlaceRechargeSeams } from "./utils/resources";
 import { Rough, mkRough } from "./utils/rough";
 import { EventChainLine, mkVars, transformPoint } from "./utils/script";
 
@@ -23,14 +33,29 @@ export type BuildAndPowerMetadata = {
 const BASE: PartialArchitect<BuildAndPowerMetadata> = {
   ...DefaultCaveArchitect,
   maxSlope: 15,
+  placeBuildings({ cavern, plan, openCaveFlags }) {
+    plan.innerPearl.some((ly) =>
+      ly.some((pos) => {
+        if (cavern.tiles.get(...pos)?.isWall === false) {
+          openCaveFlags.set(...pos, true);
+          return true;
+        }
+        return false;
+      }),
+    );
+    return {};
+  },
 };
 
 function buildAndPower(
   template: Building["template"],
-  minLevel: Building["level"] = 1,
+  pgFirst: PhraseGraph<State, Format & { remainingCount: number }>,
+  pgPenultimate: PhraseGraph<State, Format>,
+  pgLast: PhraseGraph<State, Format>,
+  minLevel: Building["level"],
 ): Pick<
   Architect<BuildAndPowerMetadata>,
-  "prime" | "objectives" | "script" | "scriptGlobals"
+  "prime" | "placeRechargeSeam" | "objectives" | "script" | "scriptGlobals"
 > {
   const g = mkVars(`gBuPw${template.inspectAbbrev}`, [
     "built",
@@ -50,6 +75,7 @@ function buildAndPower(
     ]);
   return {
     prime: () => metadata,
+    placeRechargeSeam: getPlaceRechargeSeams(3),
     objectives({ cavern }) {
       const count = cavern.plans.filter(
         (plan) =>
@@ -117,10 +143,9 @@ function buildAndPower(
       if (pvs.length > 1) {
         sb.declareString(g.msgA, {
           die: LoreDie.buildAndPower,
-          pg: BUILD_POWER_GC_FIRST,
-          formatVars: {
-            buildingName: template.name,
-            remainingCount: spellNumber(pvs.length - 1),
+          pg: pgFirst,
+          format: {
+            remainingCount: pvs.length - 1,
           },
         });
         sb.if(`${g.doneCount}==1`, `msg:${g.msgA};`);
@@ -128,9 +153,9 @@ function buildAndPower(
       if (pvs.length > 2) {
         sb.declareString(g.msgB, {
           die: LoreDie.buildAndPower,
-          pg: BUILD_POWER_GC_PENULTIMATE,
-          formatVars: {
-            buildingName: template.name,
+          pg: pgPenultimate,
+          format: {
+            template,
           },
         });
         sb.if(`${g.doneCount}==${pvs.length - 1}`, `msg:${g.msgB};`);
@@ -138,10 +163,7 @@ function buildAndPower(
       sb.declareInt(g.done, 0);
       sb.declareString(g.msgC, {
         die: LoreDie.buildAndPower,
-        pg: BUILD_POWER_GC_LAST,
-        formatVars: {
-          buildingName: template.name,
-        },
+        pg: pgLast,
       });
       sb.if(
         `${g.doneCount}>=${pvs.length}`,
@@ -191,7 +213,7 @@ function bidHelper(
   max: number,
   dormant: number,
   active: number,
-): number | false {
+): number {
   let extantCount = 0;
   let unestablishedCount = 0;
   for (const p of plans) {
@@ -199,44 +221,38 @@ function bidHelper(
       unestablishedCount++;
     } else if (p.metadata?.tag === TAG) {
       if (p.metadata.template !== template) {
-        return false;
+        return 0;
       }
       extantCount += 1;
       if (extantCount >= max) {
-        return false;
+        return 0;
       }
     }
   }
   if (extantCount > 0) {
     return active;
   } else {
-    return unestablishedCount >= max * 2 && dormant;
+    return unestablishedCount >= max * 2 ? dormant : 0;
   }
 }
 
 export const BUILD_AND_POWER = [
   {
-    name: "BuildAndPower.GeologicalCenter",
+    name: "BuildAndPower.GC",
     ...BASE,
-    ...buildAndPower(GEOLOGICAL_CENTER, 5),
+    ...buildAndPower(
+      GEOLOGICAL_CENTER,
+      BUILD_POWER_GC_FIRST,
+      BUILD_POWER_GC_PENULTIMATE,
+      BUILD_POWER_GC_LAST,
+      5,
+    ),
     ...mkRough(
       { of: Rough.FLOOR, width: 2, grow: 1 },
       { of: Rough.MIX_DIRT_LOOSE_ROCK, grow: 1 },
       { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.5 },
       { of: Rough.VOID, width: 0, grow: 0.5 },
     ),
-    placeBuildings({ cavern, plan, openCaveFlags }) {
-      plan.innerPearl.some((ly) =>
-        ly.some((pos) => {
-          if (cavern.tiles.get(...pos)?.isWall === false) {
-            openCaveFlags.set(...pos, true);
-            return true;
-          }
-          return false;
-        }),
-      );
-      return {};
-    },
     caveBid: ({ cavern, plans, plan, hops }) => {
       const amd = plans[cavern.anchor].metadata;
       return (
@@ -245,15 +261,46 @@ export const BUILD_AND_POWER = [
         plan.pearlRadius < 10 &&
         plan.path.baseplates.length === 1 &&
         // Incompatible with fchq or mob farm
-        !(amd?.tag === "hq" && amd.fixedComplete) &&
+        !(amd?.tag === "hq" && amd.special === "fixedComplete") &&
         !(amd?.tag === "mobFarm") &&
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
-        !hops.some((h) => {
-          const m = plans[h].metadata;
-          return m?.tag === TAG && m.template === GEOLOGICAL_CENTER;
-        }) &&
-        bidHelper(plans, GEOLOGICAL_CENTER, 3, 0.04, 10)
+        !hops.some((h) => plans[h].metadata?.tag === TAG) &&
+        cavern.context.planWhimsy *
+          bidHelper(plans, GEOLOGICAL_CENTER, 3, 0.04, 10)
+      );
+    },
+  },
+  {
+    name: "BuildAndPower.SS.ForGasLeak",
+    ...BASE,
+    ...buildAndPower(
+      SUPPORT_STATION,
+      BUILD_POWER_SS_FIRST,
+      BUILD_POWER_SS_PENULTIMATE,
+      BUILD_POWER_SS_LAST,
+      1,
+    ),
+    ...mkRough(
+      { of: Rough.ALWAYS_FLOOR, width: 2 },
+      { of: Rough.LAVA, width: 2, grow: 1 },
+      { of: Rough.MIX_LOOSE_HARD_ROCK, grow: 0.5 },
+      { of: Rough.HARD_ROCK, width: 0, grow: 0.5 },
+      { of: Rough.MIX_FRINGE },
+    ),
+    caveBid: ({ cavern, plans, plan, hops }) => {
+      const amd = plans[cavern.anchor].metadata;
+      return (
+        plan.fluid === Tile.LAVA &&
+        !plan.hasErosion &&
+        !plan.intersects.some((_, pi) => cavern.plans[pi].hasErosion) &&
+        plan.pearlRadius > 3 &&
+        plan.path.baseplates.length === 1 &&
+        amd?.tag === "hq" &&
+        amd.special === "gasLeak" &&
+        hops.length > 3 &&
+        !hops.some((h) => plans[h].metadata?.tag === TAG) &&
+        cavern.context.planWhimsy * bidHelper(plans, SUPPORT_STATION, 3, 10, 5)
       );
     },
   },
