@@ -1,3 +1,4 @@
+import { filterTruthy } from "../common/utils";
 import {
   BUILD_POWER_GC_FIRST,
   BUILD_POWER_GC_LAST,
@@ -14,6 +15,7 @@ import {
   GEOLOGICAL_CENTER,
   SUPPORT_STATION,
 } from "../models/building";
+import { Erosion } from "../models/hazards";
 import { Plan } from "../models/plan";
 import { Tile } from "../models/tiles";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
@@ -85,14 +87,15 @@ function buildAndPower(
         variables: [
           {
             condition: `${g.done}>0`,
-            description: [
+            description: filterTruthy([
               "Build and power a ",
               minLevel > 1 ? `Level ${minLevel} ` : "",
               template.name,
               " in ",
-              count > 1 ? "each" : "the",
-              " marked cave.",
-            ].join(""),
+              count == 1 && "the marked cave.",
+              count == 2 && "both marked caves.",
+              count > 2 && `all ${count} marked caves.`,
+            ]).join(""),
           },
         ],
         sufficient: true,
@@ -292,8 +295,6 @@ export const BUILD_AND_POWER = [
       const amd = plans[cavern.anchor].metadata;
       return (
         plan.fluid === Tile.LAVA &&
-        !plan.hasErosion &&
-        !plan.intersects.some((_, pi) => cavern.plans[pi].hasErosion) &&
         plan.pearlRadius > 3 &&
         plan.path.baseplates.length === 1 &&
         amd?.tag === "hq" &&
@@ -301,6 +302,24 @@ export const BUILD_AND_POWER = [
         hops.length > 3 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&
         cavern.context.planWhimsy * bidHelper(plans, SUPPORT_STATION, 3, 10, 5)
+      );
+    },
+    placeErosion: ({cavern, plan, erosion}) => {
+      const event = new Erosion(30, 10);
+      plan.innerPearl.forEach((layer, i) =>
+        {
+          if (i < 2) {
+            layer.forEach((point) => {
+              erosion.delete(...point);
+            });
+          } else if (plan.hasErosion) {
+            layer.forEach((point) => {
+              if (cavern.tiles.get(...point)?.isFluid === false) {
+                erosion.set(...point, event);
+              }
+            });
+          }
+        },
       );
     },
   },

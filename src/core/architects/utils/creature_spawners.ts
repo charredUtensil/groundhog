@@ -8,6 +8,7 @@ import {
   SLIMY_SLUG,
   monsterForBiome,
 } from "../../models/creature";
+import { DiscoveryZone } from "../../models/discovery_zone";
 import { Plan } from "../../models/plan";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
@@ -59,10 +60,12 @@ type Emerge = {
   readonly radius: number;
 };
 
-export const gCreatures = mkVars("gCreatures", [
+export const gCreatures = mkVars("gCrSp", [
   "globalCooldown",
   "airMiners",
   "anchorHold",
+  "hostilesCap",
+  "mob",
 ]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
@@ -119,6 +122,31 @@ export function creatureSpawnGlobals({
   if (cavern.anchorHoldCreatures) {
     sb.declareInt(gCreatures.anchorHold, 1);
   }
+  if (cavern.context.globalHostilesCap > 0) {
+    let asleepAtStart = 0;
+    const asleepByDz: {dz: DiscoveryZone, count: number}[] = [];
+    cavern.creatures.forEach(mob => {
+      if (mob.sleep) {
+        const vMob = `${gCreatures.mob}${mob.id}`;
+        sb.declareCreature(vMob, mob)
+        sb.if(`${vMob}.wake`, `${gCreatures.hostilesCap}-=1;`);
+        const dz = cavern.discoveryZones.get(Math.floor(mob.x), Math.floor(mob.y));
+        if (!dz) {
+          throw new Error(`Creature with id ${mob.id} starts outside a discovery zone`)
+        }
+        if (dz.openOnSpawn) {
+          asleepAtStart++;
+        } else {
+          asleepByDz[dz.id] ||= {dz, count: 0};
+          asleepByDz[dz.id].count++;
+        }
+      }
+    });
+    asleepByDz.forEach(({dz, count}) => {
+      sb.if(`change:${transformPoint(cavern, dz.triggerPoint)}`, `${gCreatures.hostilesCap}+=${count};`);
+    })
+    sb.declareInt(gCreatures.hostilesCap, cavern.context.globalHostilesCap + asleepAtStart);
+  }
 }
 
 type ScriptArgs = Parameters<NonNullable<Architect<any>["script"]>>[0];
@@ -158,6 +186,7 @@ function creatureSpawnScript(
     "doTrip",
     "doSpawn",
     "hoardTrip",
+    "maxHostiles",
     "needCrystals",
   ]);
 
@@ -211,8 +240,10 @@ function creatureSpawnScript(
     sb.event(
       v.doTrip,
       cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
-      cavern.context.globalHostilesCap > 0 &&
-        `((hostiles>=${cavern.context.globalHostilesCap - waveSize}))return;`,
+      cavern.context.globalHostilesCap > 0 && chainFragment(
+        `${sb.declareInt(v.maxHostiles, 0)}=${gCreatures.hostilesCap}-${waveSize};`,
+        `((hostiles>${v.maxHostiles}))return;`,
+      ),
       cavern.oxygen &&
         opts.needStableAir &&
         `((${gCreatures.airMiners}<miners))return;`,

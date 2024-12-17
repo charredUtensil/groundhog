@@ -23,9 +23,9 @@ const T0_BUILDINGS = [
 ] as const;
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 const STARTING_BONUS_CRYSTALS = 2;
-const MONSTERS_UNTIL_RESPITE = 20;
-const RESPITE_MIN = 3 * 60;
-const RESPITE_MAX = 8 * 60;
+const MONSTERS_UNTIL_RESPITE = 10;
+const RESPITE_MIN = 2 * 60;
+const RESPITE_MAX = 6 * 60;
 
 const GAS_LEAK_BASE: Pick<
   Architect<HqMetadata>,
@@ -87,9 +87,9 @@ const GAS_LEAK_BASE: Pick<
     );
     sb.when(
       `${v.monstersCount}==${MONSTERS_UNTIL_RESPITE}`,
-      `${gCreatures.anchorHold}=0;`,
-      `wait:random(${RESPITE_MIN})(${RESPITE_MAX});`,
       `${gCreatures.anchorHold}=1;`,
+      `wait:random(${RESPITE_MIN})(${RESPITE_MAX});`,
+      `${gCreatures.anchorHold}=0;`,
       `${v.monstersCount}=0;`,
     );
     hintSelectLaserGroup(sb);

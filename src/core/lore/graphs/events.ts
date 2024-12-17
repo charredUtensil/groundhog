@@ -290,7 +290,7 @@ export const FAILURE_BASE_DESTROYED = phraseGraph<State, Format>(
       )
       .then(
         "I don't think you can complete our mission.",
-        "That doesn't bode well for our mission.",
+        "that doesn't bode well for our mission.",
       )
       .then(
         "I'm pulling you out.",
@@ -340,7 +340,7 @@ export const BLACKOUT_END = phraseGraph<State, Format>(
       )
       .then(
         skip,
-        "The Canteen doesn't need power, so you might want to build some as " +
+        "The Canteen doesn't need power, so you might want to build one as " +
           "a backup.",
         state("hasAirLimit").then(
           "I suggest you build additional Support Stations to keep the " +
