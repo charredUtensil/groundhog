@@ -5,10 +5,12 @@ import { Architect } from "../../models/architect";
 import { SUPPORT_STATION } from "../../models/building";
 import {
   CreatureTemplate,
+  ICE_MONSTER,
+  LAVA_MONSTER,
+  ROCK_MONSTER,
   SLIMY_SLUG,
   monsterForBiome,
 } from "../../models/creature";
-import { DiscoveryZone } from "../../models/discovery_zone";
 import { Plan } from "../../models/plan";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { getDiscoveryPoint } from "./discovery";
@@ -64,7 +66,7 @@ export const gCreatures = mkVars("gCrSp", [
   "globalCooldown",
   "airMiners",
   "anchorHold",
-  "hostilesCap",
+  "active",
   "mob",
 ]);
 
@@ -123,29 +125,18 @@ export function creatureSpawnGlobals({
     sb.declareInt(gCreatures.anchorHold, 1);
   }
   if (cavern.context.globalHostilesCap > 0) {
-    let asleepAtStart = 0;
-    const asleepByDz: {dz: DiscoveryZone, count: number}[] = [];
+    sb.declareInt(gCreatures.active, 0);
     cavern.creatures.forEach(mob => {
       if (mob.sleep) {
         const vMob = `${gCreatures.mob}${mob.id}`;
         sb.declareCreature(vMob, mob)
-        sb.if(`${vMob}.wake`, `${gCreatures.hostilesCap}-=1;`);
-        const dz = cavern.discoveryZones.get(Math.floor(mob.x), Math.floor(mob.y));
-        if (!dz) {
-          throw new Error(`Creature with id ${mob.id} starts outside a discovery zone`)
-        }
-        if (dz.openOnSpawn) {
-          asleepAtStart++;
-        } else {
-          asleepByDz[dz.id] ||= {dz, count: 0};
-          asleepByDz[dz.id].count++;
-        }
+        sb.if(`${vMob}.wake`, `${gCreatures.active}+=1;`);
       }
     });
-    asleepByDz.forEach(({dz, count}) => {
-      sb.if(`change:${transformPoint(cavern, dz.triggerPoint)}`, `${gCreatures.hostilesCap}+=${count};`);
-    })
-    sb.declareInt(gCreatures.hostilesCap, cavern.context.globalHostilesCap + asleepAtStart);
+    [ROCK_MONSTER, ICE_MONSTER, LAVA_MONSTER, SLIMY_SLUG].forEach(mob => {
+      // This trigger also fires when mobs fail to spawn.
+      sb.when(`${mob.id}.dead`, `((${gCreatures.active}>0))${gCreatures.active}-=1;`);
+    });
   }
 }
 
@@ -185,8 +176,8 @@ function creatureSpawnScript(
     "doCooldown",
     "doTrip",
     "doSpawn",
+    "emerge",
     "hoardTrip",
-    "maxHostiles",
     "needCrystals",
   ]);
 
@@ -240,10 +231,8 @@ function creatureSpawnScript(
     sb.event(
       v.doTrip,
       cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
-      cavern.context.globalHostilesCap > 0 && chainFragment(
-        `${sb.declareInt(v.maxHostiles, 0)}=${gCreatures.hostilesCap}-${waveSize};`,
-        `((hostiles>${v.maxHostiles}))return;`,
-      ),
+      cavern.context.globalHostilesCap > 0 &&
+        `((hostiles>${cavern.context.globalHostilesCap - waveSize}))return;`,
       cavern.oxygen &&
         opts.needStableAir &&
         `((${gCreatures.airMiners}<miners))return;`,
@@ -271,6 +260,7 @@ function creatureSpawnScript(
   // Spawn
   sb.event(
     opts.spawnEvent ?? v.doSpawn,
+    cavern.context.globalHostilesCap > 0 && `${gCreatures.active}+=${waveSize};`,
     cavern.context.globalHostilesCooldown > 0 &&
       `${gCreatures.globalCooldown}+=1;`,
     !!opts.needCrystals?.increment &&

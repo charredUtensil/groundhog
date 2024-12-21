@@ -23,7 +23,7 @@ const T0_BUILDINGS = [
 ] as const;
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
 const STARTING_BONUS_CRYSTALS = 2;
-const GLOBAL_HOSTILES_CAP = 5;
+const GLOBAL_HOSTILES_CAP = 4;
 const MONSTERS_UNTIL_RESPITE = 10;
 const RESPITE_MIN = 4 * 60;
 const RESPITE_MAX = 7 * 60;
