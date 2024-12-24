@@ -88,6 +88,12 @@ export const NAME = phraseGraph<State, Format>(
     });
 
     f({
+      ice: ["Iceberg", "Icicle"],
+      lava: ["Igneous", "Infernal"],
+      last: ["Impact", "Incursion", "Inset", "Intrusion"],
+    });
+
+    f({
       rock: ["Lapis Lazuli", "Laterite", "Lignite", "Limestone"],
       lava: ["Lava", "Lava Lake"],
       last: ["Labyrinth", "Lair", "Lure"],
@@ -102,7 +108,7 @@ export const NAME = phraseGraph<State, Format>(
     });
 
     f({
-      ice: ["Permafrost", "Polar"],
+      ice: ["Ice Planet", "Permafrost", "Polar"],
       lava: ["Pumice", "Pyroclastic", "Pyrolite"],
       last: ["Passage", "Peril", "Pit", "Plunge", "Puzzle"],
     });

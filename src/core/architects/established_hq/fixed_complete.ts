@@ -52,6 +52,7 @@ export const FC_BASE: Pick<
     tag: "hq",
   }),
   placeBuildings: getPlaceBuildings({
+    crashOnFail: true,
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),

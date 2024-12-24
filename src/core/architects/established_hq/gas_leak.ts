@@ -12,6 +12,7 @@ import { monsterForBiome } from "../../models/creature";
 import { gCreatures } from "../utils/creature_spawners";
 import { hintSelectLaserGroup } from "../utils/hints";
 import { gObjectives } from "../utils/objectives";
+import { mkRough, Rough } from "../utils/rough";
 import { mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
@@ -26,7 +27,7 @@ const STARTING_BONUS_CRYSTALS = 2;
 const GLOBAL_HOSTILES_CAP = 4;
 const MONSTERS_UNTIL_RESPITE = 10;
 const RESPITE_MIN = 4 * 60;
-const RESPITE_MAX = 7 * 60;
+const RESPITE_MAX = 7 * 60; 
 
 const GAS_LEAK_BASE: Pick<
   Architect<HqMetadata>,
@@ -55,6 +56,7 @@ const GAS_LEAK_BASE: Pick<
   crystalsFromMetadata: (metadata) =>
     STARTING_BONUS_CRYSTALS + metadata.crystalsInBuildings,
   placeBuildings: getPlaceBuildings({
+    crashOnFail: true,
     discovered: true,
     from: 2,
     templates: () => T0_BUILDINGS,
@@ -106,6 +108,7 @@ const GAS_LEAK = [
       cavern.context.biome === "lava" &&
       cavern.context.hasMonsters &&
       cavern.context.hasAirLimit &&
+      !plan.fluid &&
       plan.lakeSize > 3 &&
       plan.pearlRadius > 3 &&
       cavern.context.anchorWhimsy * 0.2,

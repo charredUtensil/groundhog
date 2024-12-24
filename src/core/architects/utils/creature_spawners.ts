@@ -232,7 +232,7 @@ function creatureSpawnScript(
       v.doTrip,
       cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
       cavern.context.globalHostilesCap > 0 &&
-        `((hostiles>${cavern.context.globalHostilesCap - waveSize}))return;`,
+        `((${gCreatures.active}>${cavern.context.globalHostilesCap - waveSize}))return;`,
       cavern.oxygen &&
         opts.needStableAir &&
         `((${gCreatures.airMiners}<miners))return;`,

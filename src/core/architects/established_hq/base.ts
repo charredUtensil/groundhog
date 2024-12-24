@@ -76,11 +76,13 @@ function getDefaultTemplates(
 
 // Here be spaghetti
 export function getPlaceBuildings({
+  crashOnFail = false,
   discovered = false,
   from = 2,
   templates,
   omit,
 }: {
+  crashOnFail?: boolean;
   discovered?: boolean;
   from?: number;
   templates?: (rng: PseudorandomStream) => readonly Building["template"][];
@@ -136,6 +138,10 @@ export function getPlaceBuildings({
 
     // Fit the buildings.
     const buildings = getBuildings({ from, queue: bq }, args);
+    if (crashOnFail && bq.length) {
+      console.error('Failed to place buildings: %o', bq);
+      throw new Error(`Failed to place ${buildings.length} buildings`);
+    }
 
     const dependencies = new Set(
       buildings.flatMap((b) => b.template.dependencies),
