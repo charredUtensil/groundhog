@@ -8,7 +8,7 @@ import {
 } from "../../models/building";
 import { EntityPosition } from "../../models/position";
 import { Hardness, Tile } from "../../models/tiles";
-import { PopulatedCavern } from "../03_plastic/04_populate";
+import { PopulatedCavern } from "../03_plastic/05_populate";
 
 export type AeratedCavern = PopulatedCavern & {
   readonly oxygen: null | readonly [number, number];

@@ -8,10 +8,8 @@ const SCALE = 6;
 
 const SCALE_COLORS = 8;
 
-const MAX_COOLDOWN = {
-  landslides: 300,
-  erosion: 100,
-} as const;
+const MAX_EROSION = 600;
+const MAX_LANDSLIDE = 300;
 
 function tk(t: Tile) {
   return `tile${t.id}`;
@@ -80,20 +78,34 @@ function getFill(
       }
       return dk(t);
     }
-    case "erosion":
+    case "erosion": {
       if (t === Tile.WATER || t === Tile.LAVA) {
         return tk(t);
       }
-    // Fall through
-    case "landslides":
-      const cooldown = cavern[mapOverlay]?.get(x, y)?.cooldown;
-      if (cooldown) {
-        return sk(
-          (SCALE_COLORS - 1) *
-            Math.max(0, 1 - cooldown / MAX_COOLDOWN[mapOverlay]),
-        );
+      const er = cavern.erosion?.get(x, y);
+      if (!er) {
+        return dk(t);
       }
-      return dk(t);
+      if (er === true) {
+        return sk(SCALE_COLORS - 1);
+      }
+      const cooldown = er.cooldown * 4 + er.initialDelay;
+      return sk(
+        (SCALE_COLORS - 1) *
+          Math.max(0, 1 - cooldown / MAX_EROSION),
+      );
+    }
+    case "landslides": {
+      const ls = cavern.landslides?.get(x, y);
+      if (!ls) {
+        return dk(t);
+      }
+      const cooldown = ls.cooldown;
+      return sk(
+        (SCALE_COLORS - 1) *
+          Math.max(0, 1 - cooldown / MAX_LANDSLIDE),
+      );
+    }
     case "oxygen": {
       const aeration = cavern.aerationLog?.get(x, y);
       if (!aeration) {
@@ -147,13 +159,16 @@ function getTitle(
     }
     case "landslides": {
       const ls = cavern.landslides?.get(x, y);
-      return ls && `${ls.cooldown} sec cooldown`;
+      return ls && `${ls.cooldown}s`;
     }
     case "erosion": {
       const er = cavern.erosion?.get(x, y);
+      if (er === true) {
+        return null
+      }
       return (
         er &&
-        `${er.cooldown} sec cooldown + ${er.initialDelay} sec initial delay`
+        `${er.cooldown}s cooldown + ${er.initialDelay}s delay`
       );
     }
     case "discovery":

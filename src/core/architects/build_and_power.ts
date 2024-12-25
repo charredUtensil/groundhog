@@ -20,6 +20,7 @@ import { Plan } from "../models/plan";
 import { Tile } from "../models/tiles";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
+import { placeErosion } from "./utils/hazards";
 import { intersectsOnly } from "./utils/intersects";
 import { gObjectives } from "./utils/objectives";
 import { getPlaceRechargeSeams } from "./utils/resources";
@@ -304,23 +305,23 @@ export const BUILD_AND_POWER = [
         cavern.context.planWhimsy * bidHelper(plans, SUPPORT_STATION, 3, 10, 5)
       );
     },
-    placeErosion: ({cavern, plan, erosion}) => {
-      const event = new Erosion(30, 10);
+    preErode: ({cavern, plan, erosion}) => {
       plan.innerPearl.forEach((layer, i) =>
         {
           if (i < 2) {
             layer.forEach((point) => {
               erosion.delete(...point);
             });
-          } else if (plan.hasErosion) {
+          } else {
             layer.forEach((point) => {
               if (cavern.tiles.get(...point)?.isFluid === false) {
-                erosion.set(...point, event);
+                erosion.set(...point, true);
               }
             });
           }
         },
       );
     },
+    placeErosion: (args) => placeErosion(args, {cooldown: 45}),
   },
 ] as const satisfies readonly Architect<BuildAndPowerMetadata>[];

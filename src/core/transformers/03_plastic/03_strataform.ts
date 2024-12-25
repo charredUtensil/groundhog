@@ -1,6 +1,6 @@
 import { NSEW } from "../../common/geometry";
 import { Grid, MutableGrid } from "../../common/grid";
-import { DiscoveredCavern } from "./01_discover";
+import { MagmatisedCavern } from "./02_magmatize";
 
 const FENCES = [
   [-1, -1],
@@ -9,14 +9,14 @@ const FENCES = [
   [0, 0],
 ] as const;
 
-export type StrataformedCavern = DiscoveredCavern & {
+export type StrataformedCavern = MagmatisedCavern & {
   readonly height: Grid<number>;
 };
 
 /**
  * Choose a random target height for each plan.
  */
-function getPlanHeight(cavern: DiscoveredCavern): readonly (number | null)[] {
+function getPlanHeight(cavern: MagmatisedCavern): readonly (number | null)[] {
   const heightTargetRange = {
     min: -cavern.context.heightTargetRange,
     max: cavern.context.heightTargetRange,
@@ -49,7 +49,7 @@ function getPlanHeight(cavern: DiscoveredCavern): readonly (number | null)[] {
   return result;
 }
 
-function getTileHeight(cavern: DiscoveredCavern): Grid<number> {
+function getTileHeight(cavern: MagmatisedCavern): Grid<number> {
   const planHeight = getPlanHeight(cavern);
   const fluidOffset = cavern.context.heightTargetRange / -5;
   const result = new MutableGrid<number>();
@@ -57,14 +57,13 @@ function getTileHeight(cavern: DiscoveredCavern): Grid<number> {
     for (let y = cavern.top; y < cavern.bottom; y++) {
       let sum = 0;
       let count = 0;
-      let isFluid = !!cavern.tiles.get(x, y)?.isFluid;
+      let isFluid = !!(cavern.tiles.get(x, y)?.isFluid || cavern.erosion.get(x, y));
       cavern.pearlInnerDex.get(x, y)?.forEach((_, i) => {
         const h = planHeight[i];
         if (h != null) {
           sum += h;
           count++;
         }
-        isFluid ||= cavern.plans[i].hasErosion;
       });
       if (count) {
         result.set(x, y, Math.round(sum / count) + (isFluid ? fluidOffset : 0));
@@ -74,7 +73,7 @@ function getTileHeight(cavern: DiscoveredCavern): Grid<number> {
   return result;
 }
 
-function getCornerHeight(cavern: DiscoveredCavern, tileHeight: Grid<number>) {
+function getCornerHeight(cavern: MagmatisedCavern, tileHeight: Grid<number>) {
   const result = new MutableGrid<number>();
   for (let x = cavern.left; x <= cavern.right; x++) {
     for (let y = cavern.top; y <= cavern.bottom; y++) {
@@ -95,7 +94,7 @@ function getCornerHeight(cavern: DiscoveredCavern, tileHeight: Grid<number>) {
   return result;
 }
 
-function spread(cavern: DiscoveredCavern, height: Grid<number>) {
+function spread(cavern: MagmatisedCavern, height: Grid<number>) {
   const result = new MutableGrid<number>();
   for (let x = cavern.left + 1; x < cavern.right; x++) {
     for (let y = cavern.top + 1; y < cavern.bottom; y++) {
@@ -122,7 +121,7 @@ function spread(cavern: DiscoveredCavern, height: Grid<number>) {
 }
 
 export default function strataform(
-  cavern: DiscoveredCavern,
+  cavern: MagmatisedCavern,
 ): StrataformedCavern {
   if (cavern.context.heightTargetRange <= 0) {
     return { ...cavern, height: new MutableGrid() };

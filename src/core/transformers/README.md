@@ -43,6 +43,7 @@ Place other things in the map that rely on the tile placement being finalized.
 
 1. _Fence_: Determine the final bounds of the map.
 1. _Discover_: Break the map into contiguous regions of non-wall tiles. Determine which of these are open at start.
+1. _Magmatize_: Decide where erosion is allowed to be.
 1. _Strataform_: Plans determine a discrete "target height" for their tiles.
 1. _Strataflux_: Determine the final height of all tile corners within the map bounds, smoothing out the target height map determined earlier.
 1. _Populate_: Plans add miners, vehicles, landslides, erosion, and creatures (but not monster spawns).

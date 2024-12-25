@@ -19,7 +19,7 @@ import {
   SMLC,
 } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
-import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
+import { StrataformedCavern } from "../transformers/03_plastic/03_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";

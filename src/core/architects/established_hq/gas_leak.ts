@@ -12,7 +12,6 @@ import { monsterForBiome } from "../../models/creature";
 import { gCreatures } from "../utils/creature_spawners";
 import { hintSelectLaserGroup } from "../utils/hints";
 import { gObjectives } from "../utils/objectives";
-import { mkRough, Rough } from "../utils/rough";
 import { mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 

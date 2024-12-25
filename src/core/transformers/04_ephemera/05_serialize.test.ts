@@ -31,7 +31,7 @@ import discover from "../03_plastic/01_discover";
 import fence from "../03_plastic/00_fence";
 import serialize from "./05_serialize";
 import goldenTest from "../../test_utils/golden";
-import strataflux from "../03_plastic/03_strataflux";
+import strataflux from "../03_plastic/04_strataflux";
 import {
   CARGO_CARRIER,
   CHROME_CRUSHER,

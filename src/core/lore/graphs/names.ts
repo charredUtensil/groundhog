@@ -94,15 +94,15 @@ export const NAME = phraseGraph<State, Format>(
     });
 
     f({
-      rock: ["Lapis Lazuli", "Laterite", "Lignite", "Limestone"],
-      lava: ["Lava", "Lava Lake"],
+      rock: ["Lapis Lazuli", "Laterite", "Lignite", "Limestone", "Lithosphere"],
+      lava: ["Lava", "Lava Lake", "Lithic"],
       last: ["Labyrinth", "Lair", "Lure"],
     });
 
     f({
       rock: ["Marble", "Metamorphic", "Mineral", "Mudstone"],
       ice: ["Mammoth"],
-      lava: ["Magma", "Mantle", "Molten"],
+      lava: ["Mafic", "Magma", "Mantle", "Molten"],
       mid: ["Mine", "Moon"],
       last: ["Mayhem", "Maze", "Meltdown", "Menace", "Mishap"],
     });

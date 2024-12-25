@@ -20,7 +20,7 @@ import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
-import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
+import { StrataformedCavern } from "../transformers/03_plastic/03_strataform";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { DiscoveryZone } from "./discovery_zone";
@@ -124,6 +124,12 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly cavern: FinePlasticCavern;
     readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
+  }): void;
+
+  preErode(args: {
+    readonly cavern: DiscoveredCavern;
+    readonly plan: Plan<T>;
+    readonly erosion: MutableGrid<true>;
   }): void;
 
   placeEntities(args: {
