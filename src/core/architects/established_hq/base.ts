@@ -139,7 +139,7 @@ export function getPlaceBuildings({
     // Fit the buildings.
     const buildings = getBuildings({ from, queue: bq }, args);
     if (crashOnFail && bq.length) {
-      console.error('Failed to place buildings: %o', bq);
+      console.error("Failed to place buildings: %o", bq);
       throw new Error(`Failed to place ${buildings.length} buildings`);
     }
 

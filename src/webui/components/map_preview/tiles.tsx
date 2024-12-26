@@ -90,10 +90,7 @@ function getFill(
         return sk(SCALE_COLORS - 1);
       }
       const cooldown = er.cooldown * 4 + er.initialDelay;
-      return sk(
-        (SCALE_COLORS - 1) *
-          Math.max(0, 1 - cooldown / MAX_EROSION),
-      );
+      return sk((SCALE_COLORS - 1) * Math.max(0, 1 - cooldown / MAX_EROSION));
     }
     case "landslides": {
       const ls = cavern.landslides?.get(x, y);
@@ -101,10 +98,7 @@ function getFill(
         return dk(t);
       }
       const cooldown = ls.cooldown;
-      return sk(
-        (SCALE_COLORS - 1) *
-          Math.max(0, 1 - cooldown / MAX_LANDSLIDE),
-      );
+      return sk((SCALE_COLORS - 1) * Math.max(0, 1 - cooldown / MAX_LANDSLIDE));
     }
     case "oxygen": {
       const aeration = cavern.aerationLog?.get(x, y);
@@ -164,12 +158,9 @@ function getTitle(
     case "erosion": {
       const er = cavern.erosion?.get(x, y);
       if (er === true) {
-        return null
+        return null;
       }
-      return (
-        er &&
-        `${er.cooldown}s cooldown + ${er.initialDelay}s delay`
-      );
+      return er && `${er.cooldown}s cooldown + ${er.initialDelay}s delay`;
     }
     case "discovery":
       const dz = cavern.discoveryZones?.get(x, y);

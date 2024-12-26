@@ -51,11 +51,12 @@ function getEruptPoints(
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
   ...SEISMIC_BASE,
-  placeErosion: (args) => placeErosion(args, {
-    cooldown: 25,
-    initialDelay: 2,
-    initialDelayStartsExposed: 360,
-  }),
+  placeErosion: (args) =>
+    placeErosion(args, {
+      cooldown: 25,
+      initialDelay: 2,
+      initialDelayStartsExposed: 360,
+    }),
   script: ({ cavern, plan, sb }) => {
     const v = sVars(plan);
     const eps = getEruptPoints(cavern, plan);

@@ -15,7 +15,6 @@ import {
   GEOLOGICAL_CENTER,
   SUPPORT_STATION,
 } from "../models/building";
-import { Erosion } from "../models/hazards";
 import { Plan } from "../models/plan";
 import { Tile } from "../models/tiles";
 import { OrderedOrEstablishedPlan } from "../transformers/01_planning/05_establish";
@@ -93,8 +92,8 @@ function buildAndPower(
               minLevel > 1 ? `Level ${minLevel} ` : "",
               template.name,
               " in ",
-              count == 1 && "the marked cave.",
-              count == 2 && "both marked caves.",
+              count === 1 && "the marked cave.",
+              count === 2 && "both marked caves.",
               count > 2 && `all ${count} marked caves.`,
             ]).join(""),
           },
@@ -305,23 +304,21 @@ export const BUILD_AND_POWER = [
         cavern.context.planWhimsy * bidHelper(plans, SUPPORT_STATION, 3, 10, 5)
       );
     },
-    preErode: ({cavern, plan, erosion}) => {
-      plan.innerPearl.forEach((layer, i) =>
-        {
-          if (i < 2) {
-            layer.forEach((point) => {
-              erosion.delete(...point);
-            });
-          } else {
-            layer.forEach((point) => {
-              if (cavern.tiles.get(...point)?.isFluid === false) {
-                erosion.set(...point, true);
-              }
-            });
-          }
-        },
-      );
+    preErode: ({ cavern, plan, erosion }) => {
+      plan.innerPearl.forEach((layer, i) => {
+        if (i < 2) {
+          layer.forEach((point) => {
+            erosion.delete(...point);
+          });
+        } else {
+          layer.forEach((point) => {
+            if (cavern.tiles.get(...point)?.isFluid === false) {
+              erosion.set(...point, true);
+            }
+          });
+        }
+      });
     },
-    placeErosion: (args) => placeErosion(args, {cooldown: 45}),
+    placeErosion: (args) => placeErosion(args, { cooldown: 45 }),
   },
 ] as const satisfies readonly Architect<BuildAndPowerMetadata>[];

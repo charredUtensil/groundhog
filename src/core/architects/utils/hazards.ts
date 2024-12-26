@@ -44,13 +44,11 @@ export function placeLandslides(
     });
 }
 
-export function preErode(
-  {
-    cavern,
-    plan,
-    erosion,
-  }: Parameters<Architect<any>['preErode']>[0],
-) {
+export function preErode({
+  cavern,
+  plan,
+  erosion,
+}: Parameters<Architect<any>["preErode"]>[0]) {
   plan.innerPearl.forEach((layer) =>
     layer.forEach((pos) => {
       if (cavern.tiles.get(...pos)?.isFluid === false) {
@@ -61,23 +59,26 @@ export function preErode(
 }
 
 export function placeErosion(
-  {
-    cavern,
-    plan,
-    erosion,
-  }: Parameters<Architect<any>['placeErosion']>[0],
+  { cavern, plan, erosion }: Parameters<Architect<any>["placeErosion"]>[0],
   opts?: {
     cooldown?: number;
     initialDelay?: number;
     initialDelayStartsExposed?: number;
-  }
+  },
 ) {
   const event = new Erosion(opts?.cooldown ?? 30, opts?.initialDelay ?? 10);
-  const startsExposedEvent = new Erosion(opts?.cooldown ?? 30, opts?.initialDelayStartsExposed ?? 120);
+  const startsExposedEvent = new Erosion(
+    opts?.cooldown ?? 30,
+    opts?.initialDelayStartsExposed ?? 120,
+  );
   plan.innerPearl.forEach((layer) =>
     layer.forEach((pos) => {
       if (cavern.erosion.get(...pos)) {
-        const startsExposed = cavern.discoveryZones.get(...pos)?.openOnSpawn && NSEW.some((oPos) => cavern.tiles.get(...offsetBy(pos, oPos)) === Tile.LAVA);
+        const startsExposed =
+          cavern.discoveryZones.get(...pos)?.openOnSpawn &&
+          NSEW.some(
+            (oPos) => cavern.tiles.get(...offsetBy(pos, oPos)) === Tile.LAVA,
+          );
         erosion.set(...pos, startsExposed ? startsExposedEvent : event);
       }
     }),

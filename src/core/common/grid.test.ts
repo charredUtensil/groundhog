@@ -34,7 +34,7 @@ describe("grid", () => {
       expect(copy.get(1, 1)).toBe(42);
       expect(copy.get(1, 2)).toBe(14);
     });
-    
+
     it("creates an independent copy", () => {
       const grid = new MutableGrid<number>();
       grid.set(1, 1, 42);

@@ -113,7 +113,10 @@ export default function Stats({
       case "erosion": {
         const count = cavern.erosion?.size ?? 0;
         const avgCooldown = cavern.erosion
-          ? cavern.erosion.reduce((r, er) => r + (er === true ? -1 : er.cooldown), 0) / count
+          ? cavern.erosion.reduce(
+              (r, er) => r + (er === true ? -1 : er.cooldown),
+              0,
+            ) / count
           : null;
         return (
           <ul>

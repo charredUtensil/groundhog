@@ -9,7 +9,7 @@ import { EntityPosition } from "../../models/position";
 import { AnyMetadata } from "../../architects";
 import { Architect } from "../../models/architect";
 
-export type PopulatedCavern = Omit<StrataformedCavern, 'erosion'> & {
+export type PopulatedCavern = Omit<StrataformedCavern, "erosion"> & {
   readonly landslides: Grid<Landslide>;
   readonly erosion: Grid<Erosion>;
   readonly creatures: readonly Creature[];

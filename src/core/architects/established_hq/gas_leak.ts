@@ -26,7 +26,7 @@ const STARTING_BONUS_CRYSTALS = 2;
 const GLOBAL_HOSTILES_CAP = 4;
 const MONSTERS_UNTIL_RESPITE = 10;
 const RESPITE_MIN = 4 * 60;
-const RESPITE_MAX = 7 * 60; 
+const RESPITE_MAX = 7 * 60;
 
 const GAS_LEAK_BASE: Pick<
   Architect<HqMetadata>,

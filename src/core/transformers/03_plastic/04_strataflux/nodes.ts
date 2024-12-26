@@ -28,9 +28,7 @@ function getBowls(cavern: StrataformedCavern) {
     let size;
     if (tile === Tile.WATER || tile === Tile.LAVA) {
       size = 2;
-    } else if (
-      cavern.erosion.get(x, y)
-    ) {
+    } else if (cavern.erosion.get(x, y)) {
       size = 0;
     } else {
       return;

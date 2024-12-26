@@ -126,16 +126,19 @@ export function creatureSpawnGlobals({
   }
   if (cavern.context.globalHostilesCap > 0) {
     sb.declareInt(gCreatures.active, 0);
-    cavern.creatures.forEach(mob => {
+    cavern.creatures.forEach((mob) => {
       if (mob.sleep) {
         const vMob = `${gCreatures.mob}${mob.id}`;
-        sb.declareCreature(vMob, mob)
+        sb.declareCreature(vMob, mob);
         sb.if(`${vMob}.wake`, `${gCreatures.active}+=1;`);
       }
     });
-    [ROCK_MONSTER, ICE_MONSTER, LAVA_MONSTER, SLIMY_SLUG].forEach(mob => {
+    [ROCK_MONSTER, ICE_MONSTER, LAVA_MONSTER, SLIMY_SLUG].forEach((mob) => {
       // This trigger also fires when mobs fail to spawn.
-      sb.when(`${mob.id}.dead`, `((${gCreatures.active}>0))${gCreatures.active}-=1;`);
+      sb.when(
+        `${mob.id}.dead`,
+        `((${gCreatures.active}>0))${gCreatures.active}-=1;`,
+      );
     });
   }
 }
@@ -260,7 +263,8 @@ function creatureSpawnScript(
   // Spawn
   sb.event(
     opts.spawnEvent ?? v.doSpawn,
-    cavern.context.globalHostilesCap > 0 && `${gCreatures.active}+=${waveSize};`,
+    cavern.context.globalHostilesCap > 0 &&
+      `${gCreatures.active}+=${waveSize};`,
     cavern.context.globalHostilesCooldown > 0 &&
       `${gCreatures.globalCooldown}+=1;`,
     !!opts.needCrystals?.increment &&

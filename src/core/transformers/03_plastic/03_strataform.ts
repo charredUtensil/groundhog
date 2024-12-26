@@ -57,7 +57,9 @@ function getTileHeight(cavern: MagmatisedCavern): Grid<number> {
     for (let y = cavern.top; y < cavern.bottom; y++) {
       let sum = 0;
       let count = 0;
-      let isFluid = !!(cavern.tiles.get(x, y)?.isFluid || cavern.erosion.get(x, y));
+      let isFluid = !!(
+        cavern.tiles.get(x, y)?.isFluid || cavern.erosion.get(x, y)
+      );
       cavern.pearlInnerDex.get(x, y)?.forEach((_, i) => {
         const h = planHeight[i];
         if (h != null) {
