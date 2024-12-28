@@ -28,7 +28,7 @@ export default function HeightPreview({ height }: { height: Grid<number> }) {
             width={1}
             height={1}
           >
-            <title>{h}</title>
+            <title>{h.toFixed()}</title>
           </rect>
         );
       })}

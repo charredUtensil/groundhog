@@ -1,0 +1,21 @@
+.progressBar {
+  position: absolute;
+  width: 100%;
+  height: 12px;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    var(--palette-accent) 0%,
+    var(--palette-accent) var(--progress),
+    transparent var(--progress),
+    transparent 100%
+  );
+  font-size: 8px;
+  white-space-collapse: preserve-spaces;
+  line-height: 12px;
+  transition: height 200ms ease-out;
+  z-index: 2;
+  &.completed {
+    height: 0;
+  }
+}

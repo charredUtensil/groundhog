@@ -106,7 +106,6 @@
       }
 
       .baseplate {
-        font-family: var(--font-tiny);
         font-size: 8px;
 
         .fg {
@@ -152,7 +151,6 @@
         & > text {
           fill: var(--fg-color);
           opacity: var(--fg-opacity);
-          font-family: var(--font-tiny);
           font-size: 12px;
         }
       }

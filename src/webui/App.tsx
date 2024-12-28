@@ -14,6 +14,7 @@ import ErrorPreview from "./components/popovers/error";
 import { filterTruthy } from "../core/common/utils";
 import { PartialCavernContext } from "../core/common/context";
 import { TfResult } from "../core/common/transform";
+import ProgressBar from "./components/progress_bar";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -87,7 +88,7 @@ function App() {
     } catch (e: unknown) {
       console.error(e);
       const error = e instanceof Error ? e : new Error("unknown error");
-      setState({ ...state, next: null, progress: 0, error });
+      setState({ ...state, next: null, error });
     }
   }, [state]);
 
@@ -134,16 +135,6 @@ function App() {
             showPearls={showPearls}
           />
         )}
-        {autoGenerate && state.progress !== undefined && (
-          <div
-            className={`${styles.progressBar} ${state.progress < 1 ? "" : styles.complete}`}
-            style={
-              {
-                "--progress": `${(state.progress * 100).toFixed()}%`,
-              } as CSSProperties
-            }
-          />
-        )}
         {mapOverlay === "about" && <About />}
         {mapOverlay === "lore" && <LorePreview {...state.result} />}
         {state.error && (
@@ -153,9 +144,7 @@ function App() {
             context={state.result?.context}
           />
         )}
-        {!autoGenerate && state.name && (
-          <div className={styles.stepName}>{state.name}</div>
-        )}
+        <ProgressBar {...state} />
         <div className={styles.controls}>
           {state.next ? (
             <>
