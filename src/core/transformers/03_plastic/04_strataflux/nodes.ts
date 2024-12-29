@@ -2,7 +2,7 @@ import { Mutable } from "../../../common";
 import { NSEW, Point } from "../../../common/geometry";
 import { Grid, MutableGrid } from "../../../common/grid";
 import { Tile } from "../../../models/tiles";
-import { StrataformedCavern } from "../02_strataform";
+import { StrataformedCavern } from "../03_strataform";
 import { CORNER_OFFSETS, HEIGHT_MAX, HEIGHT_MIN } from "./base";
 import getEdgeMap from "./edges";
 
@@ -26,13 +26,9 @@ function getBowls(cavern: StrataformedCavern) {
   const result = new MutableGrid<number>();
   cavern.tiles.forEach((tile, x, y) => {
     let size;
-    if (tile === Tile.WATER) {
+    if (tile === Tile.WATER || tile === Tile.LAVA) {
       size = 2;
-    } else if (tile === Tile.LAVA) {
-      size = 2;
-    } else if (
-      cavern.pearlInnerDex.get(x, y)?.some((_, i) => cavern.plans[i].hasErosion)
-    ) {
+    } else if (cavern.erosion.get(x, y)) {
       size = 0;
     } else {
       return;

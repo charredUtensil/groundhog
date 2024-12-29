@@ -20,7 +20,7 @@ import { EntityPosition } from "./position";
 import { Objectives } from "./objectives";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
 import { Vehicle, VehicleFactory } from "./vehicle";
-import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
+import { StrataformedCavern } from "../transformers/03_plastic/03_strataform";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { DiscoveryZone } from "./discovery_zone";
@@ -31,6 +31,7 @@ import {
   OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
 import { DzPriority, ScriptBuilder } from "../architects/utils/script";
+import { FinePlasticCavern } from "../transformers/02_masonry/05_fine";
 
 export type BaseMetadata = { readonly tag: string } | undefined;
 
@@ -119,6 +120,17 @@ export type BaseArchitect<T extends BaseMetadata> = {
     readonly plan: Plan<T>;
     readonly tiles: MutableGrid<Tile>;
   }): void;
+  closer?(args: {
+    readonly cavern: FinePlasticCavern;
+    readonly plan: Plan<T>;
+    readonly tiles: MutableGrid<Tile>;
+  }): void;
+
+  preErode(args: {
+    readonly cavern: DiscoveredCavern;
+    readonly plan: Plan<T>;
+    readonly erosion: MutableGrid<true>;
+  }): void;
 
   placeEntities(args: {
     readonly cavern: StrataformedCavern;
@@ -153,7 +165,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * If no plans return a sufficient objective, a "collect N crystals"
    * objective will be added.
    */
-  objectives(args: {
+  objectives?(args: {
     cavern: DiscoveredCavern;
   }): (Partial<Objectives> & { sufficient: boolean }) | undefined;
 

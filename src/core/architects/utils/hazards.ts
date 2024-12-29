@@ -1,6 +1,9 @@
+import { NSEW, offsetBy } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
+import { Architect } from "../../models/architect";
 import { Erosion, Landslide } from "../../models/hazards";
 import { Plan } from "../../models/plan";
+import { Tile } from "../../models/tiles";
 import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
 
 const BETA_SUM = 10;
@@ -31,37 +34,53 @@ export function placeLandslides(
         cavern.tiles.get(...point)?.canLandslide &&
         rng.chance(spread),
     )
-    .forEach((point) => {
+    .forEach((pos) => {
       const cooldown = rng.betaInt({
         ...cooldownRange,
         a: BETA_SUM * spread,
         b: BETA_SUM * (1 - spread),
       });
-      landslides.set(...point, new Landslide(cooldown));
+      landslides.set(...pos, new Landslide(cooldown));
     });
 }
 
+export function preErode({
+  cavern,
+  plan,
+  erosion,
+}: Parameters<Architect<any>["preErode"]>[0]) {
+  plan.innerPearl.forEach((layer) =>
+    layer.forEach((pos) => {
+      if (cavern.tiles.get(...pos)?.isFluid === false) {
+        erosion.set(...pos, true);
+      }
+    }),
+  );
+}
+
 export function placeErosion(
-  cooldown: number,
-  initialDelay: number,
-  {
-    cavern,
-    plan,
-    erosion,
-  }: {
-    cavern: DiscoveredCavern;
-    plan: Plan<any>;
-    erosion: MutableGrid<Erosion>;
+  { cavern, plan, erosion }: Parameters<Architect<any>["placeErosion"]>[0],
+  opts?: {
+    cooldown?: number;
+    initialDelay?: number;
+    initialDelayStartsExposed?: number;
   },
 ) {
-  if (plan.hasErosion) {
-    const event = new Erosion(cooldown, initialDelay);
-    plan.innerPearl.forEach((layer) =>
-      layer.forEach((point) => {
-        if (cavern.tiles.get(...point)?.isFluid === false) {
-          erosion.set(...point, event);
-        }
-      }),
-    );
-  }
+  const event = new Erosion(opts?.cooldown ?? 30, opts?.initialDelay ?? 10);
+  const startsExposedEvent = new Erosion(
+    opts?.cooldown ?? 30,
+    opts?.initialDelayStartsExposed ?? 120,
+  );
+  plan.innerPearl.forEach((layer) =>
+    layer.forEach((pos) => {
+      if (cavern.erosion.get(...pos)) {
+        const startsExposed =
+          cavern.discoveryZones.get(...pos)?.openOnSpawn &&
+          NSEW.some(
+            (oPos) => cavern.tiles.get(...offsetBy(pos, oPos)) === Tile.LAVA,
+          );
+        erosion.set(...pos, startsExposed ? startsExposedEvent : event);
+      }
+    }),
+  );
 }

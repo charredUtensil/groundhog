@@ -48,10 +48,11 @@ export const FC_BASE: Pick<
   prime: () => ({
     crystalsInBuildings: T0_CRYSTALS,
     ruin: false,
-    fixedComplete: true,
+    special: "fixedComplete",
     tag: "hq",
   }),
   placeBuildings: getPlaceBuildings({
+    crashOnFail: true,
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),
@@ -86,7 +87,8 @@ const FIXED_COMPLETE = [
     name: "Hq.FixedComplete",
     ...BASE,
     ...FC_BASE,
-    anchorBid: ({ plan }) => !plan.fluid && plan.pearlRadius > 6 && 0.1,
+    anchorBid: ({ cavern, plan }) =>
+      !plan.fluid && plan.pearlRadius > 6 && cavern.context.anchorWhimsy * 0.1,
   },
 ] as const satisfies readonly Architect<HqMetadata>[];
 

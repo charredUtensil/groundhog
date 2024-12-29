@@ -4,7 +4,7 @@ import { filterTruthy } from "../../common/utils";
 import { Plan } from "../../models/plan";
 import { EntityPosition, position } from "../../models/position";
 import { Tile } from "../../models/tiles";
-import { StrataformedCavern } from "../../transformers/03_plastic/02_strataform";
+import { StrataformedCavern } from "../../transformers/03_plastic/03_strataform";
 
 export function pickPoint(
   plan: Plan<any>,

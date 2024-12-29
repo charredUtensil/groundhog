@@ -145,12 +145,12 @@ const TREASURE = [
       { of: Rough.LOOSE_ROCK, shrink: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
     ),
-    caveBid: ({ plans, plan }) =>
+    caveBid: ({ cavern, plans, plan }) =>
       !plan.fluid &&
       plan.path.baseplates.length === 1 &&
       isDeadEnd(plan) &&
       intersectsOnly(plans, plan, null) &&
-      0.5,
+      cavern.context.planWhimsy * 0.5,
   },
   {
     name: "Treasure.Hoard.Sealed",
@@ -160,11 +160,11 @@ const TREASURE = [
       { of: Rough.ALWAYS_LOOSE_ROCK },
       { of: Rough.ALWAYS_HARD_ROCK, grow: 0.5 },
     ),
-    caveBid: ({ plan }) =>
+    caveBid: ({ cavern, plan }) =>
       !plan.fluid &&
       plan.path.baseplates.length === 1 &&
       isDeadEnd(plan) &&
-      0.5,
+      cavern.context.planWhimsy * 0.5,
   },
   {
     name: "Treasure.Rich.Open",
@@ -215,13 +215,13 @@ const TREASURE = [
       { of: Rough.LOOSE_ROCK, shrink: 1 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
     ),
-    caveBid: ({ plans, plan }) =>
+    caveBid: ({ cavern, plans, plan }) =>
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 3 &&
       plan.path.baseplates.length >= 1 &&
       isDeadEnd(plan) &&
       intersectsOnly(plans, plan, null) &&
-      0.5,
+      cavern.context.planWhimsy * 0.5,
   },
   {
     name: "Treasure.Rich.Lava.Island",
@@ -248,13 +248,13 @@ const TREASURE = [
       { of: Rough.BRIDGE_ON_LAVA, width: 2, grow: 3 },
       { of: Rough.HARD_ROCK, grow: 0.5 },
     ),
-    caveBid: ({ plans, plan }) =>
+    caveBid: ({ cavern, plans, plan }) =>
       plan.fluid === Tile.LAVA &&
       plan.pearlRadius > 3 &&
       plan.path.baseplates.length >= 1 &&
       isDeadEnd(plan) &&
       intersectsOnly(plans, plan, null) &&
-      0.5,
+      cavern.context.planWhimsy * 0.5,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 export default TREASURE;

@@ -19,14 +19,14 @@ import {
   SMLC,
 } from "../models/vehicle";
 import { DiscoveredCavern } from "../transformers/03_plastic/01_discover";
-import { StrataformedCavern } from "../transformers/03_plastic/02_strataform";
+import { StrataformedCavern } from "../transformers/03_plastic/03_strataform";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
 import { isDeadEnd } from "./utils/intersects";
 import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import { check, DzPriority, mkVars, transformPoint } from "./utils/script";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
-import { LoreDie, spellNumber } from "../lore/lore";
+import { LoreDie } from "../lore/lore";
 import {
   FOUND_ALL_LOST_MINERS,
   FOUND_LM_BREADCRUMB,
@@ -281,8 +281,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
           foundMinersOne: plan.metadata.minersCount <= 1,
           foundMinersTogether: plan.metadata.minersCount > 1,
         },
-        formatVars: {
-          foundMinersCount: spellNumber(plan.metadata.minersCount),
+        format: {
+          foundMiners: plan.metadata.minersCount,
         },
       });
     }
@@ -302,8 +302,8 @@ const BASE: PartialArchitect<LostMinersMetadata> = {
       sb.declareString(v.msgFoundBreadcrumb, {
         rng,
         pg: FOUND_LM_BREADCRUMB,
-        formatVars: {
-          vehicleName: breadcrumb!.template.name,
+        format: {
+          vehicle: breadcrumb!,
         },
       });
       sb.if(
@@ -340,7 +340,7 @@ const LOST_MINERS = [
         (r, p) => (p.metadata?.tag === "lostMiners" ? r + 1 : r),
         0,
       ) < 4 &&
-      MULTIPLIERS[cavern.context.biome],
+      cavern.context.planWhimsy * MULTIPLIERS[cavern.context.biome],
   },
 ] as const satisfies readonly Architect<LostMinersMetadata>[];
 export default LOST_MINERS;

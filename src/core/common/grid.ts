@@ -24,6 +24,10 @@ export class MutableGrid<T> {
     this.data.set(`${x},${y}`, value);
   }
 
+  delete(x: number, y: number): boolean {
+    return this.data.delete(`${x},${y}`);
+  }
+
   get size(): number {
     return this.data.size;
   }
@@ -74,4 +78,4 @@ export class MutableGrid<T> {
   }
 }
 
-export type Grid<T> = Omit<MutableGrid<T>, "set">;
+export type Grid<T> = Omit<MutableGrid<T>, "set" | "delete">;

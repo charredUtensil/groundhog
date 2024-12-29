@@ -7,10 +7,10 @@ import clip from "./04_clip";
 import bore from "./05_bore";
 import weave from "./06_weave";
 
-export const OUTLINE_TF = tf(partition)
-  .then(discriminate)
-  .then(triangulate)
-  .then(span)
-  .then(clip)
-  .then(bore)
-  .then(weave);
+export const OUTLINE_TF = tf(partition, "Partitioning target space")
+  .then(discriminate, "Discriminating baseplates")
+  .then(triangulate, "Triangulating paths")
+  .then(span, "Spanning path graph")
+  .then(clip, "Clipping boring paths")
+  .then(bore, "Boring interesting paths")
+  .then(weave, "Weaving best paths");

@@ -6,9 +6,9 @@ import program from "./04_program";
 import serialize from "./05_serialize";
 import preprogram from "./03_preprogram";
 
-export const EPHEMERA_TF = tf(aerate)
-  .then(adjure)
-  .then(enscribe)
-  .then(preprogram)
-  .then(program)
-  .then(serialize);
+export const EPHEMERA_TF = tf(aerate, "Aerating cavern")
+  .then(adjure, "Adjuring objectives")
+  .then(enscribe, "Enscribing briefing")
+  .then(preprogram, "Preparing to write scripts")
+  .then(program, "Writing scripts")
+  .then(serialize, "Writing file contents");

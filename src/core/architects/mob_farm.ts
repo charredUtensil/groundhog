@@ -4,12 +4,7 @@ import { DefaultSpawnArchitect, PartialArchitect } from "./default";
 import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { getBuildings } from "./utils/buildings";
-import {
-  DOCKS,
-  MINING_LASER,
-  SUPER_TELEPORT,
-  TOOL_STORE,
-} from "../models/building";
+import { DOCKS, SUPER_TELEPORT, TOOL_STORE } from "../models/building";
 import { position, randomlyInTile } from "../models/position";
 import { asXY, closestTo, NSEW, offsetBy } from "../common/geometry";
 import {
@@ -20,18 +15,15 @@ import {
   LMLC,
   LOADER_DOZER,
   RAPID_RIDER,
-  SMLC,
   TUNNEL_SCOUT,
   TUNNEL_TRANSPORT,
 } from "../models/vehicle";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { inferContextDefaults } from "../common";
 import { mkVars } from "./utils/script";
-import {
-  HINT_SELECT_LASER_GROUP,
-  MOB_FARM_NO_LONGER_BLOCKING,
-} from "../lore/graphs/events";
+import { MOB_FARM_NO_LONGER_BLOCKING } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
+import { hintSelectLaserGroup } from "./utils/hints";
 
 const BANLIST = [
   DOCKS,
@@ -159,11 +151,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     };
   },
   script({ cavern, plan, sb }) {
-    const v = mkVars(`p${plan.id}MbFm`, [
-      "hintGroup",
-      "msgHintGroup",
-      "msgNotBlocking",
-    ]);
+    const v = mkVars(`p${plan.id}MbFm`, ["msgNotBlocking"]);
     const rng = cavern.dice.script(plan.id);
     sb.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`));
     if (cavern.objectives.variables.length > 0) {
@@ -183,12 +171,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     // Hint to tell players about control groups. This isn't super annoying
     // under normal circumstances, but here it's almost a necessity that the
     // player have their lasers bound to a single key.
-    sb.declareInt(v.hintGroup, 0);
-    [MINING_LASER, SMLC].forEach((e) =>
-      sb.when(`${e.id}.click`, `((${e.id}>1))${v.hintGroup}=1;`),
-    );
-    sb.declareString(v.msgHintGroup, HINT_SELECT_LASER_GROUP);
-    sb.if(`${v.hintGroup}>0`, `msg:${v.msgHintGroup};`);
+    hintSelectLaserGroup(sb);
   },
   monsterSpawnScript: (args) =>
     monsterSpawnScript(args, {

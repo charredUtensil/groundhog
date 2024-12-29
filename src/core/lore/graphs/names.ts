@@ -1,7 +1,7 @@
-import phraseGraph from "../builder";
-import { State } from "../lore";
+import phraseGraph from "../utils/builder";
+import { Format, State } from "../lore";
 
-export const NAME = phraseGraph<State>(
+export const NAME = phraseGraph<State, Format>(
   "Mission Name",
   ({ pg, state, start, end, cut, skip }) => {
     function f({
@@ -88,21 +88,27 @@ export const NAME = phraseGraph<State>(
     });
 
     f({
-      rock: ["Lapis Lazuli", "Laterite", "Lignite", "Limestone"],
-      lava: ["Lava", "Lava Lake"],
+      ice: ["Iceberg", "Icicle"],
+      lava: ["Igneous", "Infernal"],
+      last: ["Impact", "Incursion", "Inset", "Intrusion"],
+    });
+
+    f({
+      rock: ["Lapis Lazuli", "Laterite", "Lignite", "Limestone", "Lithosphere"],
+      lava: ["Lava", "Lava Lake", "Lithic"],
       last: ["Labyrinth", "Lair", "Lure"],
     });
 
     f({
       rock: ["Marble", "Metamorphic", "Mineral", "Mudstone"],
       ice: ["Mammoth"],
-      lava: ["Magma", "Mantle", "Molten"],
+      lava: ["Mafic", "Magma", "Mantle", "Molten"],
       mid: ["Mine", "Moon"],
       last: ["Mayhem", "Maze", "Meltdown", "Menace", "Mishap"],
     });
 
     f({
-      ice: ["Permafrost", "Polar"],
+      ice: ["Ice Planet", "Permafrost", "Polar"],
       lava: ["Pumice", "Pyroclastic", "Pyrolite"],
       last: ["Passage", "Peril", "Pit", "Plunge", "Puzzle"],
     });
@@ -133,6 +139,8 @@ export const NAME = phraseGraph<State>(
   },
 );
 
+// All of these suffixes are terrible references to sequels, releases,
+// re-releases, version numbers, taglines, or just random jokes.
 export const OVERRIDE_SUFFIXES = [
   "2000",
   "3000",
@@ -151,18 +159,23 @@ export const OVERRIDE_SUFFIXES = [
   "Episode One",
   "Episode Two",
   "Extended",
+  "Extremely Fungible Edition",
   "Forever",
+  "Founders Edition",
   "Gold Version",
   "Green Crystal Version",
   "HD",
   "HD 1.5 Remix",
+  "Limited Edition",
   "Millenium Edition",
   "New",
   "Now With Flavor",
   "Onyx Version",
   "Original Level, Do Not Steal",
+  "Pioneers Edition",
   "Planet U Remix",
   "Platinum Version",
+  "Power Brick Edition",
   "Premium",
   "Rebirthed",
   "Reborn",
@@ -193,8 +206,10 @@ export const OVERRIDE_SUFFIXES = [
   "Unplugged",
   "Unsanctioned",
   "Unstable",
+  "Unverified",
   "Uranium Version",
   "XP",
   "Xtreme Edition",
+  "Y2K Compliant Edition",
   "Y2K Edition",
 ];

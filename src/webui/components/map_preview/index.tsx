@@ -18,6 +18,7 @@ import HeightPreview from "./height";
 import Stats from "./stats";
 import PlansPreview from "./plan";
 import ScriptPreview, { ScriptOverlay } from "./script_preview";
+import ObjectivesPreview from "./objectives";
 
 export type MapOverlay =
   | "about"
@@ -28,6 +29,7 @@ export type MapOverlay =
   | "height"
   | "landslides"
   | "lore"
+  | "objectives"
   | "ore"
   | "overview"
   | "oxygen"
@@ -199,6 +201,7 @@ export default function CavernPreview({
             cavern.openCaveFlags?.map((_, x, y) => (
               <OpenCaveFlagPreview key={`${x},${y}`} x={x} y={y} />
             ))}
+          {mapOverlay === "objectives" && <ObjectivesPreview cavern={cavern} />}
           {mapOverlay === "script" && (
             <ScriptOverlay
               cavern={cavern}

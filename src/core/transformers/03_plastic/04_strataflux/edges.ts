@@ -1,5 +1,5 @@
 import { Grid, MutableGrid } from "../../../common/grid";
-import { StrataformedCavern } from "../02_strataform";
+import { StrataformedCavern } from "../03_strataform";
 
 type Edge = {
   readonly to: readonly [number, number];
@@ -109,7 +109,6 @@ function getTileSlopes(cavern: StrataformedCavern): Grid<number> {
   );
   const maxSlopeForPlan = cavern.plans.map((plan) =>
     Math.min(
-      plan.hasErosion ? 0 : Infinity,
       plan.architect.maxSlope ?? Infinity,
       plan.kind === "cave"
         ? cavern.context.caveMaxSlope

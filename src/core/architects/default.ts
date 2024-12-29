@@ -4,7 +4,7 @@ import { position } from "../models/position";
 import { Tile } from "../models/tiles";
 import { getBuildings } from "./utils/buildings";
 import { sprinkleSlugHoles } from "./utils/creatures";
-import { placeErosion, placeLandslides } from "./utils/hazards";
+import { placeErosion, placeLandslides, preErode } from "./utils/hazards";
 import {
   getPlaceRechargeSeams,
   sprinkleCrystals,
@@ -48,6 +48,7 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
       placeSlugHoles(args) {
         return sprinkleSlugHoles(args);
       },
+      preErode: (args) => preErode(args),
       placeLandslides: (args) => {
         if (
           args.cavern.dice
@@ -57,9 +58,8 @@ export const [DefaultCaveArchitect, DefaultHallArchitect] = (
           placeLandslides(args.cavern.context[landslideCooldownRange], args);
         }
       },
-      placeErosion: (args) => placeErosion(30, 10, args),
+      placeErosion: (args) => placeErosion(args),
       placeEntities: () => ({}),
-      objectives: () => undefined,
       maxSlope: undefined,
       claimEventOnDiscover: () => [],
     }) as PartialArchitect<any>,

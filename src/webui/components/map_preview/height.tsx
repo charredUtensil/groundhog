@@ -4,7 +4,7 @@ import styles from "./style.module.scss";
 import {
   HEIGHT_MAX,
   HEIGHT_MIN,
-} from "../../../core/transformers/03_plastic/03_strataflux/base";
+} from "../../../core/transformers/03_plastic/04_strataflux/base";
 
 const SCALE = 6;
 
@@ -28,7 +28,7 @@ export default function HeightPreview({ height }: { height: Grid<number> }) {
             width={1}
             height={1}
           >
-            <title>{h}</title>
+            <title>{h.toFixed()}</title>
           </rect>
         );
       })}

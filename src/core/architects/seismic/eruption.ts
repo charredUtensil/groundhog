@@ -51,7 +51,12 @@ function getEruptPoints(
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
   ...SEISMIC_BASE,
-  placeErosion: (args) => placeErosion(25, 2, args),
+  placeErosion: (args) =>
+    placeErosion(args, {
+      cooldown: 25,
+      initialDelay: 2,
+      initialDelayStartsExposed: 360,
+    }),
   script: ({ cavern, plan, sb }) => {
     const v = sVars(plan);
     const eps = getEruptPoints(cavern, plan);
@@ -119,7 +124,7 @@ const ERUPTION = [
         (_, i) =>
           plans[i].fluid === Tile.WATER || plans[i].metadata?.tag === "seismic",
       ) &&
-      1,
+      cavern.context.planWhimsy * 1,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 

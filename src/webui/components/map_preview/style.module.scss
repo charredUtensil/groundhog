@@ -106,7 +106,6 @@
       }
 
       .baseplate {
-        font-family: var(--font-tiny);
         font-size: 8px;
 
         .fg {
@@ -152,7 +151,6 @@
         & > text {
           fill: var(--fg-color);
           opacity: var(--fg-opacity);
-          font-family: var(--font-tiny);
           font-size: 12px;
         }
       }
@@ -275,6 +273,19 @@
       .openCaveFlag {
         stroke: red;
         fill: white;
+      }
+
+      .objectives {
+        .origin {
+          stroke: white;
+          stroke-width: 3px;
+          fill: none;
+        }
+        .objective > path {
+          stroke: white;
+          stroke-width: 3px;
+          fill: none;
+        }
       }
     }
   }

@@ -2,7 +2,8 @@ import { HqMetadata } from "../architects/established_hq/base";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
 import { filterTruthy } from "../common/utils";
-import { GEOLOGICAL_CENTER } from "../models/building";
+import { GEOLOGICAL_CENTER, SUPPORT_STATION } from "../models/building";
+import { Objectives } from "../models/objectives";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
 import { AdjuredCavern } from "../transformers/04_ephemera/01_adjure";
@@ -10,6 +11,7 @@ import { FAILURE, SUCCESS } from "./graphs/conclusions";
 import { NAME } from "./graphs/names";
 import ORDERS from "./graphs/orders";
 import PREMISE from "./graphs/premise";
+import { spellNumber } from "./utils/numbers";
 
 export type State = {
   readonly floodedWithWater: boolean;
@@ -35,9 +37,13 @@ export type State = {
   readonly hasGiantCave: boolean;
   readonly buildAndPowerGcOne: boolean;
   readonly buildAndPowerGcMultiple: boolean;
+  readonly buildAndPowerSsOne: boolean;
+  readonly buildAndPowerSsMultiple: boolean;
   readonly hasAirLimit: boolean;
   readonly spawnIsMobFarm: boolean;
   readonly spawnIsBlackout: boolean;
+  readonly spawnIsGasLeak: boolean;
+  readonly spawnIsOreWaste: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -45,11 +51,12 @@ export type FoundLostMinersState = State & {
   readonly foundMinersTogether: boolean;
 };
 
-type FormatVars = {
-  readonly buildAndPowerGcCount: string;
+export type Format = {
+  readonly buildAndPowerGcCount: number;
+  readonly buildAndPowerSsCount: number;
   readonly enemies: string;
-  readonly lostMinersCount: string;
-  readonly lostMinerCavesCount: string;
+  readonly lostMiners: number;
+  readonly lostMinerCaves: number;
   readonly resourceGoal: string;
   readonly resourceGoalNamesOnly: string;
 };
@@ -99,70 +106,18 @@ function joinHuman(things: string[], conjunction: string = "and"): string {
   return `${things.slice(0, -1).join(", ")} ${conjunction} ${things[things.length - 1]}`;
 }
 
-const ONES = [
-  "one",
-  "two",
-  "three",
-  "four",
-  "five",
-  "six",
-  "seven",
-  "eight",
-  "nine",
-  "ten",
-  "eleven",
-  "twelve",
-  "thirteen",
-  "fourteen",
-  "fifteen",
-  "sixteen",
-  "seventeen",
-  "eighteen",
-  "nineteen",
-];
-const TENS = [
-  "twenty",
-  "thirty",
-  "forty",
-  "fifty",
-  "sixty",
-  "seventy",
-  "eighty",
-  "ninety",
-];
-
-export function spellNumber(n: number): string {
-  if (n > 999 || n < 0) {
-    return n.toString();
-  }
-  if (n === 0) {
-    return "zero";
-  }
-  const result: string[] = [];
-  if (n >= 100) {
-    result.push(`${spellNumber(Math.floor(n / 100))} hundred`);
-    n %= 100;
-  }
-  if (n >= 20) {
-    result.push(TENS[Math.floor(n / 10) - 2]);
-    n %= 10;
-  }
-  if (n > 0) {
-    result.push(ONES[n - 1]);
-    n = 0;
-  }
-  return result.join(" ");
-}
-
-function spellResourceGoal(cavern: AdjuredCavern) {
+export function spellResourceGoal(objectives: Objectives) {
   const a = [
-    { count: cavern.objectives.crystals, name: "Energy Crystals" },
-    { count: cavern.objectives.ore, name: "Ore" },
-    { count: cavern.objectives.studs, name: "Building Studs" },
+    { count: objectives.crystals, name: "Energy Crystals" },
+    { count: objectives.ore, name: "Ore" },
+    { count: objectives.studs, name: "Building Studs" },
   ].filter(({ count }) => count > 0);
   return {
     resourceGoal: joinHuman(
       a.map(({ count, name }) => `${spellNumber(count)} ${name}`),
+    ),
+    resourceGoalNumbers: joinHuman(
+      a.map(({ count, name }) => `${count} ${name}`),
     ),
     resourceGoalNamesOnly: joinHuman(a.map(({ name }) => name)),
   };
@@ -170,7 +125,7 @@ function spellResourceGoal(cavern: AdjuredCavern) {
 
 export class Lore {
   readonly state: State;
-  readonly formatVars: FormatVars;
+  readonly format: Format;
   constructor(cavern: AdjuredCavern) {
     const fluidType = floodedWith(cavern);
 
@@ -178,11 +133,17 @@ export class Lore {
 
     const anchor = cavern.plans[cavern.anchor];
 
+    const resourceObjective =
+      cavern.objectives.crystals +
+        cavern.objectives.ore +
+        cavern.objectives.studs >
+      0;
+
     const hq = cavern.plans.find(
       (p) => p.metadata?.tag === "hq",
     ) as Plan<HqMetadata>;
     const spawnIsHq = anchor === hq;
-    const hqIsFixedComplete = hq?.metadata.fixedComplete;
+    const hqIsFixedComplete = hq?.metadata.special === "fixedComplete";
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
 
@@ -190,6 +151,14 @@ export class Lore {
       (r, p) =>
         p.metadata?.tag === "buildAndPower" &&
         p.metadata.template === GEOLOGICAL_CENTER
+          ? r + 1
+          : r,
+      0,
+    );
+    const buildAndPowerSsCount = cavern.plans.reduce(
+      (r, p) =>
+        p.metadata?.tag === "buildAndPower" &&
+        p.metadata.template === SUPPORT_STATION
           ? r + 1
           : r,
       0,
@@ -219,10 +188,7 @@ export class Lore {
       lostMinersOne: lostMiners === 1,
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
-      resourceObjective:
-        cavern.objectives.crystals > 0 ||
-        cavern.objectives.ore > 0 ||
-        cavern.objectives.studs > 0,
+      resourceObjective,
       hasMonsters: cavern.context.hasMonsters,
       hasSlugs: cavern.context.hasSlugs,
       spawnHasErosion: anchor.hasErosion,
@@ -240,9 +206,13 @@ export class Lore {
       hasGiantCave,
       buildAndPowerGcOne: buildAndPowerGcCount === 1,
       buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
+      buildAndPowerSsOne: buildAndPowerSsCount === 1,
+      buildAndPowerSsMultiple: buildAndPowerSsCount > 1,
       hasAirLimit: !!cavern.oxygen,
       spawnIsMobFarm: anchor.metadata?.tag === "mobFarm",
       spawnIsBlackout: anchor.metadata?.tag === "blackout",
+      spawnIsGasLeak: spawnIsHq && hq.metadata.special === "gasLeak",
+      spawnIsOreWaste: anchor.metadata?.tag === "oreWaste",
     };
 
     const enemies = filterTruthy([
@@ -255,37 +225,38 @@ export class Lore {
       cavern.context.hasSlugs && "Slimy Slugs",
     ]).join(" and ");
 
-    this.formatVars = {
+    this.format = {
       enemies,
-      lostMinersCount: spellNumber(lostMiners),
-      lostMinerCavesCount: spellNumber(lostMinerCaves),
-      buildAndPowerGcCount: spellNumber(buildAndPowerGcCount),
-      ...spellResourceGoal(cavern),
+      lostMiners,
+      lostMinerCaves,
+      buildAndPowerGcCount,
+      buildAndPowerSsCount,
+      ...spellResourceGoal(cavern.objectives),
     };
   }
 
   briefings(dice: DiceBox) {
     return {
-      name: NAME.generate(dice.lore(LoreDie.name), this.state, this.formatVars),
+      name: NAME.generate(dice.lore(LoreDie.name), this.state, this.format),
       premise: PREMISE.generate(
         dice.lore(LoreDie.premise),
         this.state,
-        this.formatVars,
+        this.format,
       ),
       orders: ORDERS.generate(
         dice.lore(LoreDie.orders),
         this.state,
-        this.formatVars,
+        this.format,
       ),
       success: SUCCESS.generate(
         dice.lore(LoreDie.success),
         { ...this.state, commend: true },
-        this.formatVars,
+        this.format,
       ),
       failure: FAILURE.generate(
         dice.lore(LoreDie.failure),
         this.state,
-        this.formatVars,
+        this.format,
       ),
     };
   }

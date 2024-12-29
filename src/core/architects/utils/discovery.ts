@@ -12,7 +12,7 @@ export function getDiscoveryPoint(
       const point = layer[j];
       const dz = cavern.discoveryZones.get(...point);
       if (dz) {
-        return dz.openOnSpawn ? undefined : point;
+        return dz.openOnSpawn ? undefined : dz.triggerPoint;
       }
     }
   }

@@ -3,6 +3,7 @@ import { mkScriptBuilder } from "../../architects/utils/script";
 import { Architect } from "../../models/architect";
 import { PreprogrammedCavern } from "./03_preprogram";
 import { objectiveGlobals } from "../../architects/utils/objectives";
+import { tileScript } from "../../architects/utils/tile_scripts";
 
 export type ProgrammedCavern = PreprogrammedCavern & {
   readonly script: string;
@@ -25,6 +26,7 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
   const sb = mkScriptBuilder(cavern);
   objectiveGlobals({ cavern, sb });
   creatureSpawnGlobals({ cavern, sb });
+  tileScript({ cavern, sb });
   globalsFns.forEach((fn) => fn({ cavern, sb }));
   cavern.plans.forEach((plan) => plan.architect.script?.({ cavern, plan, sb }));
   if (cavern.context.hasMonsters) {
