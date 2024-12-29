@@ -13,9 +13,9 @@
   font-size: 8px;
   white-space-collapse: preserve-spaces;
   line-height: 12px;
-  transition: height 200ms ease-out;
   z-index: 2;
   &.completed {
-    height: 0;
+    bottom: -12px;
+    transition: bottom 200ms ease-out;
   }
 }

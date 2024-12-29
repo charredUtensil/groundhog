@@ -46,9 +46,8 @@ export default function Stats({
         return (
           <>
             {cavern.levelName && <h1>{cavern.levelName}</h1>}
-            {cavern.briefing?.intro && (
-              <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
-            )}
+            <p>{cavern.fileName ?? cavern.initialContext.seed.toString(16)}</p>
+            <p>{cavern.briefing?.intro ?? "No briefing yet..."}</p>
           </>
         );
       case "tiles":
@@ -172,7 +171,7 @@ export default function Stats({
       }
       case "objectives": {
         if (!cavern.objectives) {
-          return <p>none</p>;
+          return <p>No objectives yet...</p>;
         }
         const resourceGoal = spellResourceGoal(
           cavern.objectives,

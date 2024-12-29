@@ -34,8 +34,11 @@ class TfBuilder<T, In extends T, Out extends T> {
       nextStepName: i < this.steps.length ? this.steps[i].name : 'done'
     };
   }
-  first(result: In): TfResult<T, In> {
+  start(result: In): TfResult<T, In> {
     return this.mkResult(result, 0);
+  }
+  first(result: In): TfResult<T, T> {
+    return this.start(result).next!();
   }
   chain<ThatT, ThatOut extends ThatT>(
     that: TfBuilder<ThatT | Out, Out, ThatOut>,
