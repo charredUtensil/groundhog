@@ -42,7 +42,7 @@ function getDownloadLink(serializedData: string) {
 }
 
 function getStateForInitialContext(initialContext: PartialCavernContext) {
-  return CAVERN_TF.first({ initialContext });
+  return CAVERN_TF.start({ initialContext });
 }
 
 type State = TfResult<Cavern, Cavern> & {
@@ -73,14 +73,6 @@ function App() {
   const [showPearls, setShowPearls] = useState(false);
 
   const biome = state.result.context?.biome;
-
-  function playPause() {
-    if (autoGenerate) {
-      setAutoGenerate(false);
-    } else {
-      setAutoGenerate(true);
-    }
-  }
 
   const step = useCallback(() => {
     try {
@@ -144,12 +136,12 @@ function App() {
             context={state.result?.context}
           />
         )}
-        <ProgressBar {...state} />
+        <ProgressBar autoGenerate={autoGenerate} {...state} />
         <div className={styles.controls}>
           {state.next ? (
             <>
               {!autoGenerate && <button onClick={step}>step</button>}
-              <button onClick={playPause}>
+              <button onClick={() => setAutoGenerate(v => !v)}>
                 {autoGenerate ? "pause" : "play_arrow"}
               </button>
             </>

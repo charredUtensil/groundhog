@@ -11,17 +11,23 @@ const SCALE_COLORS = 8;
 const MAX_EROSION = 600;
 const MAX_LANDSLIDE = 300;
 
+// tk - Use color used for tile in LRR radar screen
 function tk(t: Tile) {
   return `tile${t.id}`;
 }
 
+// dk - Lowlight in order to highlight other things
+const DK = {
+  [Tile.WATER.id]: "dwater",
+  [Tile.LAVA.id]: "dlava",
+  [Tile.SOLID_ROCK.id]: "dsolid",
+} as {[K: number]: string | undefined};
+
 function dk(t: Tile) {
-  if (t === Tile.WATER || t === Tile.LAVA) {
-    return "dfluid";
-  }
-  return t.isWall ? "dwall" : "dfloor";
+  return DK[t.id] ?? (t.isWall ? "dwall" : "dfloor");
 }
 
+// sk - Scaled values
 function sk(s: number) {
   return `scale${Math.min(Math.floor(s), SCALE_COLORS - 1)}`;
 }

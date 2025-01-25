@@ -1,9 +1,20 @@
 import React, { CSSProperties } from 'react';
 import styles from './style.module.scss';
 
-export default function ProgressBar({completedSteps, totalSteps, nextStepName}: {completedSteps: number, totalSteps: number, nextStepName: string}) {
-  const progress = `${(((completedSteps - 1) / (totalSteps - 1)) * 100).toFixed()}%`;
+export default function ProgressBar(
+  {autoGenerate, completedSteps, totalSteps, lastStepName, nextStepName}: 
+  {autoGenerate: boolean, completedSteps: number, totalSteps: number, lastStepName: string, nextStepName: string}) {
+  const progress = `${(completedSteps / totalSteps * 100).toFixed()}%`;
   const completed = completedSteps >= totalSteps;
+  const text = (() => {
+    if (completed) {
+      return "100% \u2022 Done!"
+    }
+    if (autoGenerate) {
+      return `${progress.padStart(4)} \u2022 ${nextStepName}...`;
+    }
+    return `Finished ${lastStepName} \u2022 Next: ${nextStepName}`;
+  })();
   return (
     <div
       className={`${styles.progressBar} ${completed ? styles.completed : ""}`}
@@ -13,7 +24,8 @@ export default function ProgressBar({completedSteps, totalSteps, nextStepName}: 
         } as CSSProperties
       }
     >
-      {completed ?  "100% Done!" : `${progress.padStart(4)} ${nextStepName}...`}
+      <div className={styles.empty}>{text}</div>
+      <div className={styles.filled}>{text}</div>
     </div>
   )
 }
