@@ -15,9 +15,6 @@ import { mkRough, Rough } from "./utils/rough";
 
 const METADATA = { tag: "oreWaste" } as const satisfies BaseMetadata;
 
-// TO DO:
-// Need a hint for when there's a lot of ore collected, but few studs.
-
 /**
  * Approximately how much ore is needed to build a functional base capable
  * of producing Building Studs.

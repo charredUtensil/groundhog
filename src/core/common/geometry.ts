@@ -17,7 +17,7 @@ export const SOUTH_WEST = [-1, 1] as const;
 export const WEST = [-1, 0] as const;
 export const NORTH_WEST = [-1, -1] as const;
 
-export const NSEW = [NORTH, SOUTH, EAST, WEST] as const;
+export const NSEW = [NORTH, SOUTH, EAST, WEST] as const satisfies Cardinal4[];
 export const NEIGHBORS8 = [
   NORTH,
   NORTH_EAST,
@@ -27,7 +27,7 @@ export const NEIGHBORS8 = [
   SOUTH_WEST,
   WEST,
   NORTH_WEST,
-] as const;
+] as const satisfies Cardinal8[];
 
 export function isAdjacent4(a: Point, b: Point) {
   return (
