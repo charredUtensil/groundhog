@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
   CavernContextInput,
@@ -141,7 +141,7 @@ function App() {
           {state.next ? (
             <>
               {!autoGenerate && <button onClick={step}>step</button>}
-              <button onClick={() => setAutoGenerate(v => !v)}>
+              <button onClick={() => setAutoGenerate((v) => !v)}>
                 {autoGenerate ? "pause" : "play_arrow"}
               </button>
             </>

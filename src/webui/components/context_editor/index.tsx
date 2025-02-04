@@ -290,8 +290,20 @@ function CavernContextInputInner({
             </div>
             <div className={styles.subsection}>
               <h3>Pearl</h3>
-              <Slider of="caveBaroqueness" min={0} max={0.8} percent {...rest} />
-              <Slider of="hallBaroqueness" min={0} max={0.8} percent {...rest} />
+              <Slider
+                of="caveBaroqueness"
+                min={0}
+                max={0.8}
+                percent
+                {...rest}
+              />
+              <Slider
+                of="hallBaroqueness"
+                min={0}
+                max={0.8}
+                percent
+                {...rest}
+              />
             </div>
           </div>
           <div className={styles.section}>
@@ -382,7 +394,13 @@ function CavernContextInputInner({
             </div>
             <div className={styles.subsection}>
               <h3>Adjure</h3>
-              <Slider of="crystalGoalRatio" min={0} max={0.9} percent {...rest} />
+              <Slider
+                of="crystalGoalRatio"
+                min={0}
+                max={0.9}
+                percent
+                {...rest}
+              />
             </div>
             <div className={styles.subsection}>
               <h3>Enscribe</h3>

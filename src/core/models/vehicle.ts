@@ -16,7 +16,7 @@ const JOBS = {
   land: "JobDriver",
   air: "JobPilot",
   sea: "JobSailor",
-} as const satisfies {[K: string]: Loadout};
+} as const satisfies { [K: string]: Loadout };
 
 export class VehicleTemplate {
   readonly id: string;

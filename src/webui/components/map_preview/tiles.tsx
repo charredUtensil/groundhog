@@ -21,7 +21,7 @@ const DK = {
   [Tile.WATER.id]: "dwater",
   [Tile.LAVA.id]: "dlava",
   [Tile.SOLID_ROCK.id]: "dsolid",
-} as {[K: number]: string | undefined};
+} as { [K: number]: string | undefined };
 
 function dk(t: Tile) {
   return DK[t.id] ?? (t.isWall ? "dwall" : "dfloor");
