@@ -1,5 +1,6 @@
 import { Point } from "../common/geometry";
 import { Grid } from "../common/grid";
+import { Loadout } from "./miner";
 import { EntityPosition, serializePosition } from "./position";
 
 type Upgrade =
@@ -15,7 +16,7 @@ const JOBS = {
   land: "JobDriver",
   air: "JobPilot",
   sea: "JobSailor",
-} as const;
+} as const satisfies { [K: string]: Loadout };
 
 export class VehicleTemplate {
   readonly id: string;

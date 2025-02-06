@@ -1,6 +1,6 @@
 import { PseudorandomStream } from "../../../common";
 import { Grid, MutableGrid } from "../../../common/grid";
-import { StrataformedCavern } from "../02_strataform";
+import { StrataformedCavern } from "../03_strataform";
 import getNodes, { HeightNode } from "./nodes";
 
 // The "strataflux" algorithm is particularly complex mostly because it

@@ -4,12 +4,12 @@ import { Creature, CreatureFactory } from "../../models/creature";
 import { Miner, MinerFactory } from "../../models/miner";
 import { Plan } from "../../models/plan";
 import { Vehicle, VehicleFactory } from "../../models/vehicle";
-import { StrataformedCavern } from "./02_strataform";
+import { StrataformedCavern } from "./03_strataform";
 import { EntityPosition } from "../../models/position";
 import { AnyMetadata } from "../../architects";
 import { Architect } from "../../models/architect";
 
-export type PopulatedCavern = StrataformedCavern & {
+export type PopulatedCavern = Omit<StrataformedCavern, "erosion"> & {
   readonly landslides: Grid<Landslide>;
   readonly erosion: Grid<Erosion>;
   readonly creatures: readonly Creature[];

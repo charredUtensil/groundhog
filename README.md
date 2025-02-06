@@ -2,10 +2,12 @@
 is a procedural map generator for
 [Manic Miners](https://manicminers.baraklava.com/)
 
-# Running
-
 For most people, just use the web application
 [hosted on GitHub Pages](https://charredutensil.github.io/groundhog/).
+
+# Development
+
+## Running
 
 If you have a clever idea for getting the files from the Downloads folder
 to the Manic Miners level folder, please let me know.
@@ -14,19 +16,19 @@ To run locally, run `yarn install` and `yarn start`, which will launch the
 React application at `localhost:3000`. I use Linux for my dev machine and have
 no desire to test this setup on Windows, so your results may vary.
 
-# Testing
+## Testing
 
 Run Jest tests with `yarn test`. Some of the tests are "goldens" that
 test what a cavern serializes to. These can be automatically updated by
 running `UPDATE_GOLDENS=1 yarn test`.
 
-# Deploying
+## Deploying
 
 groundHog should deploy automatically when the main branch is updated via a
 [GitHub action](https://github.com/charredUtensil/groundhog/actions/workflows/release.yml)
 as long as all tests are passing.
 
-# Contributing
+## Contributing
 
 I am on the Manic Miners Discord. Ping me if you're interested in contributing
 and I can offer advice and/or suggestions. PRs are welcomed. Please run
@@ -64,13 +66,19 @@ nearly enough Manic Miners levels in existence to train the AI on what makes a
 level *winnable*, and the system requirements would far exceed Manic Miners
 itself, even on max graphics settings - or cost money per level generated.
 
+A significant portion of this codebase (about 15%) is dedicated to writing copy
+for level briefings and random events throughout. This is the one case where
+generative AI would probably be much easier and potentially yield better
+results - but I'm stubborn.
+
 I have been using Gemini to do some limited code generation (mostly for tests)
 and for translating Python code from
 [Hognose](https://github.com/charredUtensil/hognose).
 
 ## How does it work?
 
-See the documentation [here](./src/core/transformers) for an overview.
+See the documentation [here](./src/core/transformers) for an overview of the
+step-by-step procedure.
 
 ## Can I use this as a template to build my custom Manic Miners level on?
 

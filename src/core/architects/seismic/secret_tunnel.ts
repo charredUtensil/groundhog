@@ -82,12 +82,12 @@ const SECRET_TUNNEL = [
     name: "Seismic.SecretTunnel",
     ...BASE,
     ...mkRough({ of: Rough.SOLID_ROCK }, { of: Rough.VOID, grow: 1 }),
-    hallBid: ({ plan, plans }) =>
+    hallBid: ({ cavern, plan, plans }) =>
       !plan.fluid &&
       plan.path.kind === "auxiliary" &&
       plan.path.exclusiveSnakeDistance > 1 &&
       !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&
-      0.75,
+      cavern.context.planWhimsy * 0.75,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];
 

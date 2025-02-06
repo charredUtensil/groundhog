@@ -1,9 +1,10 @@
-/* eslint-disable no-template-curly-in-string */
+import { Creature } from "../../models/creature";
+import { Vehicle } from "../../models/vehicle";
+import { Format, FoundLostMinersState, State } from "../lore";
+import phraseGraph from "../utils/builder";
+import { bothOrSpell, spellNumber } from "../utils/numbers";
 
-import { FoundLostMinersState, State } from "../lore";
-import phraseGraph from "../builder";
-
-export const FOUND_HOARD = phraseGraph<State>(
+export const FOUND_HOARD = phraseGraph<State, Format>(
   "Found Crystal Hoard",
   ({ pg, state, start, end, cut, skip }) => {
     // Assume there is a collect_resources goal, and assume that goal requires
@@ -28,7 +29,8 @@ export const FOUND_HOARD = phraseGraph<State>(
         ),
         state("hasMonsters").then(
           "I hope we can collect these without attracting too much attention.",
-          "Be careful, Cadet! This is surely enough to attract those ${enemies}.",
+          ({ format: { enemies } }) => `\
+Be careful, Cadet! This is surely enough to attract those ${enemies}.`,
         ),
       )
       .then(state("treasureCaveOne", "treasureCaveMany"), skip)
@@ -37,7 +39,7 @@ export const FOUND_HOARD = phraseGraph<State>(
   },
 );
 
-export const FOUND_HQ = phraseGraph<State>(
+export const FOUND_HQ = phraseGraph<State, Format>(
   "Found HQ",
   ({ pg, state, start, end, cut, skip }) => {
     const positive_greeting = start.then(
@@ -69,7 +71,8 @@ export const FOUND_HQ = phraseGraph<State>(
           ". Once the base is safe,",
           pg(
             "before the monsters find it too!",
-            "and keep it safe from those ${enemies}!",
+            ({ format: { enemies } }) =>
+              `and keep it safe from those ${enemies}!`,
             "and hope those monsters don't cause any more damage!",
           )
             .then(
@@ -84,6 +87,8 @@ export const FOUND_HQ = phraseGraph<State>(
         pg(
           state("buildAndPowerGcOne").then("build that Geological Center"),
           state("buildAndPowerGcMultiple").then("build the Geological Centers"),
+          state("buildAndPowerSsOne").then("build that Support Station"),
+          state("buildAndPowerSsMultiple").then("build the Support Station"),
         ).then(pg("and"), pg("!").then(tail)),
       )
       .then(
@@ -95,21 +100,26 @@ export const FOUND_HQ = phraseGraph<State>(
         ).then(tail),
         state("resourceObjective")
           .then(
-            "collect ${resourceGoal}.",
-            "get those ${resourceGoalNamesOnly}.",
+            ({ format: { resourceGoal } }) => `collect ${resourceGoal}.`,
+            ({ format: { resourceGoalNamesOnly } }) =>
+              `get those ${resourceGoalNamesOnly}.`,
           )
           .then(end),
       );
   },
 );
 
-export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
+export const FOUND_LM_BREADCRUMB = phraseGraph<
+  State,
+  Format & { vehicle: Vehicle }
+>(
   "Found Vehicle left by Lost Miners",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
-        "Look! A ${vehicleName}!",
-        "You found a missing ${vehicleName}!",
+        ({ format: { vehicle } }) => `Look! A ${vehicle.template.name}!`,
+        ({ format: { vehicle } }) =>
+          `You found a missing ${vehicle.template.name}!`,
         "Hmm. That doesn't belong there.",
       )
       .then(
@@ -122,55 +132,69 @@ export const FOUND_LM_BREADCRUMB = phraseGraph<State>(
   },
 );
 
-export const FOUND_LOST_MINERS = phraseGraph<FoundLostMinersState>(
-  "Found Lost Miners",
-  ({ pg, state, start, end, cut, skip }) => {
-    start
-      .then(
-        state("foundMinersOne").then(
-          "Look! It's one of the lost Rock Radiers!",
-          "You found a lost Rock Raider!",
-          "You found one of the lost Rock Raiders!",
-        ),
-        state("foundMinersTogether").then(
-          "Look at that! ${foundMinersCount} of the lost Rock Raiders are here, safely together.",
-          "That's ${foundMinersCount} Rock Raiders found!",
-          "You found ${foundMinersCount} of them here!",
-        ),
-      )
-      .then(skip, "Keep going!", "Keep searching, Cadet.")
-      .then("We need to find all ${lostMinersCount} before we can leave.")
-      .then(end);
-  },
-);
+export const FOUND_LOST_MINERS = phraseGraph<
+  FoundLostMinersState,
+  Format & { foundMiners: number }
+>("Found Lost Miners", ({ pg, state, start, end, cut, skip }) => {
+  start
+    .then(
+      state("foundMinersOne").then(
+        "Look! It's one of the lost Rock Radiers!",
+        "You found a lost Rock Raider!",
+        "You found one of the lost Rock Raiders!",
+      ),
+      state("foundMinersTogether").then(
+        ({ format: { foundMiners } }) => `\
+Look at that! ${spellNumber(foundMiners)} of the lost Rock Raiders are here, \
+safely together.`,
+        ({ format: { foundMiners } }) => `\
+That's ${spellNumber(foundMiners)} Rock Raiders found!`,
+        ({ format: { foundMiners } }) => `\
+You found ${spellNumber(foundMiners)} of them here!`,
+      ),
+    )
+    .then(skip, "Keep going!", "Keep searching, Cadet.")
+    .then(
+      ({ format: { lostMiners } }) => `\
+We need to find ${bothOrSpell(lostMiners, (s) => `all ${s}`)} before we can leave.`,
+    )
+    .then(end);
+});
 
-export const FOUND_ALL_LOST_MINERS = phraseGraph<State>(
+export const FOUND_ALL_LOST_MINERS = phraseGraph<State, Format>(
   "Found All Lost Miners",
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(
-        "And that makes ${lostMinersCount} Rock Raiders found!",
-        "You found all ${lostMinersCount} Rock Raiders!",
-        "That's all ${lostMinersCount} Rock Raiders found!",
+        ({ format: { lostMiners } }) =>
+          `And that makes ${spellNumber(lostMiners)} Rock Raiders found!`,
+        ({ format: { lostMiners } }) =>
+          `You found ${bothOrSpell(lostMiners, (s) => `all ${s}`)} Rock Raiders!`,
+        ({ format: { lostMiners } }) =>
+          `That's all ${bothOrSpell(lostMiners, (s) => `all ${s}`)} Rock Raiders found!`,
         state("lostMinersOne").then(
           "Look! It's the lost Rock Raider!",
           "You found the missing Rock Raider!",
         ),
         state("lostMinersTogether").then(
-          "The ${lostMinersCount} Rock Raiders are right here, safe and sound!",
-          "You found all ${lostMinersCount} Rock Raiders!",
+          ({ format: { lostMiners } }) => `\
+${bothOrSpell(lostMiners, (s) => `the ${s}`)} Rock Raiders are right here, safe and sound!`,
+          ({ format: { lostMiners } }) =>
+            `You found ${bothOrSpell(lostMiners, (s) => `all ${s}`)} Rock Raiders!`,
           "That's all of the missing Rock Raiders found!",
         ),
       )
       .then(
         skip,
-        state("resourceObjective").then("Now, collect ${resourceGoal}."),
+        state("resourceObjective").then(
+          ({ format: { resourceGoal } }) => `Now, collect ${resourceGoal}.`,
+        ),
       )
       .then(end);
   },
 );
 
-export const NOMADS_SETTLED = phraseGraph<State>(
+export const NOMADS_SETTLED = phraseGraph<State, Format>(
   "Nomads have settled",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -183,8 +207,9 @@ export const NOMADS_SETTLED = phraseGraph<State>(
           .then(skip, state("resourceObjective"))
           .then("Now, go find those lost Rock Raiders!"),
         state("resourceObjective").then(
-          "Now, collect ${resourceGoal}.",
-          "Those ${resourceGoalNamesOnly} are as good as ours!",
+          ({ format: { resourceGoal } }) => `Now, collect ${resourceGoal}.`,
+          ({ format: { resourceGoalNamesOnly } }) =>
+            `Those ${resourceGoalNamesOnly} are as good as ours!`,
         ),
       )
       .then(skip, state("hasMonsters"))
@@ -199,27 +224,33 @@ export const NOMADS_SETTLED = phraseGraph<State>(
         state("lostMinersTogether", "lostMinersApart")
           .then(skip, state("resourceObjective"))
           .then("finding those lost Rock Raiders!"),
-        state("resourceObjective").then("collecting ${resourceGoal}!"),
+        state("resourceObjective").then(
+          ({ format: { resourceGoal } }) => `collecting ${resourceGoal}!`,
+        ),
       )
       .then(
         skip,
         state("hasMonsters").then(
           skip,
-          "Don't forget to build plenty of Electric Fences in case those " +
-            "${enemies} come.",
-          "Just keep an eye out for those ${enemies}.",
+          ({ format: { enemies } }) => `\
+Don't forget to build plenty of Electric Fences in case those ${enemies} come.`,
+          ({ format: { enemies } }) =>
+            `Just keep an eye out for those ${enemies}.`,
         ),
       )
       .then(end);
 
     start
-      .then("With your Support Station built, you can move on to building")
       .then(
-        state("buildAndPowerGcOne").then(
-          "that Geological Center! Be sure to place it in the cavern marked " +
-            "with an arrow.",
+        pg("With your Support Station built, you can move on to building").then(
+          state("buildAndPowerGcOne").then(
+            "that Geological Center! Be sure to place it in the cavern marked " +
+              "with an arrow.",
+          ),
+          state("buildAndPowerGcMultiple").then("those Geological Centers!"),
         ),
-        state("buildAndPowerGcMultiple").then("those Geological Centers!"),
+        // Can't have Support Station objective with nomads yet.
+        state("buildAndPowerSsOne", "buildAndPowerSsMultiple").then("FAIL!!"),
       )
       .then(skip, state("resourceObjective"))
       .then(
@@ -231,7 +262,7 @@ export const NOMADS_SETTLED = phraseGraph<State>(
   },
 );
 
-export const FOUND_SLUG_NEST = phraseGraph<State>(
+export const FOUND_SLUG_NEST = phraseGraph<State, Format>(
   "Found Slimy Slug Nest",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -249,7 +280,7 @@ export const FOUND_SLUG_NEST = phraseGraph<State>(
   },
 );
 
-export const FAILURE_BASE_DESTROYED = phraseGraph<State>(
+export const FAILURE_BASE_DESTROYED = phraseGraph<State, Format>(
   "Base Destroyed - Mission Failure",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -259,7 +290,7 @@ export const FAILURE_BASE_DESTROYED = phraseGraph<State>(
       )
       .then(
         "I don't think you can complete our mission.",
-        "That doesn't bode well for our mission.",
+        "that doesn't bode well for our mission.",
       )
       .then(
         "I'm pulling you out.",
@@ -270,22 +301,22 @@ export const FAILURE_BASE_DESTROYED = phraseGraph<State>(
   },
 );
 
-export const BOSS_ENEMY_DEFEATED = phraseGraph<State>(
-  "Boss Enemy Defeated",
-  ({ pg, state, start, end, cut, skip }) => {
-    start
-      .then(
-        "Good work!",
-        "Your Rock Raiders made short work of that ${enemy}.",
-        "That's a relief!",
-        "I was worried for a minute there.",
-      )
-      .then(skip, "")
-      .then(end);
-  },
-);
+export const BOSS_ENEMY_DEFEATED = phraseGraph<
+  State,
+  Format & { enemy: Creature }
+>("Boss Enemy Defeated", ({ pg, state, start, end, cut, skip }) => {
+  start
+    .then(
+      "Good work!",
+      ({ format: { enemy } }) =>
+        `Your Rock Raiders made short work of that ${enemy.template.name}.`,
+      "That's a relief!",
+      "I was worried for a minute there.",
+    )
+    .then(end);
+});
 
-export const BLACKOUT_START = phraseGraph<State>(
+export const BLACKOUT_START = phraseGraph<State, Format>(
   "Blackout Start",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -299,7 +330,7 @@ export const BLACKOUT_START = phraseGraph<State>(
   },
 );
 
-export const BLACKOUT_END = phraseGraph<State>(
+export const BLACKOUT_END = phraseGraph<State, Format>(
   "Blackout End",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -309,7 +340,7 @@ export const BLACKOUT_END = phraseGraph<State>(
       )
       .then(
         skip,
-        "The Canteen doesn't need power, so you might want to build some as " +
+        "The Canteen doesn't need power, so you might want to build one as " +
           "a backup.",
         state("hasAirLimit").then(
           "I suggest you build additional Support Stations to keep the " +
@@ -320,7 +351,7 @@ export const BLACKOUT_END = phraseGraph<State>(
   },
 );
 
-export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State>(
+export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State, Format>(
   "Mob Farm no longer blocking",
   ({ pg, state, start, end, cut, skip }) => {
     start
@@ -341,6 +372,30 @@ export const MOB_FARM_NO_LONGER_BLOCKING = phraseGraph<State>(
   },
 );
 
-export const HINT_SELECT_LASER_GROUP = `Hint: Hold SHIFT+click to select multiple units.
-CTRL+[0-9] assigns a group of units that you can recall with [0-9].
-X activates laser mode.`;
+export const GAS_LEAK_NO_AIR = phraseGraph<State, Format>(
+  "Gas Leak - All Support Stations offline",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(skip, "Careful there!", "Oh no!", "This isn't good.")
+      .then(
+        "Without even one Support Station online, this cavern will be " +
+          "uninhabitable very quickly.",
+      )
+      .then("Fix it NOW or we will need to abort!")
+      .then(end);
+  },
+);
+
+export const GAS_LEAK_INSUFF_AIR = phraseGraph<State, Format>(
+  "Gas Leak - Support Stations Insufficient",
+  ({ pg, state, start, end, cut, skip }) => {
+    start
+      .then(skip, "Careful there!", "Oh no!", "This isn't good.")
+      .then(
+        "Our Support Stations can't keep up and this cavern will be " +
+          "uninhabitable very quickly.",
+      )
+      .then("Fix it NOW or we will need to abort!")
+      .then(end);
+  },
+);

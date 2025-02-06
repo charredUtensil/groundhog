@@ -5,6 +5,9 @@ import { Architect } from "../../models/architect";
 import { SUPPORT_STATION } from "../../models/building";
 import {
   CreatureTemplate,
+  ICE_MONSTER,
+  LAVA_MONSTER,
+  ROCK_MONSTER,
   SLIMY_SLUG,
   monsterForBiome,
 } from "../../models/creature";
@@ -59,10 +62,12 @@ type Emerge = {
   readonly radius: number;
 };
 
-export const gCreatures = mkVars("gCreatures", [
+export const gCreatures = mkVars("gCrSp", [
   "globalCooldown",
   "airMiners",
   "anchorHold",
+  "active",
+  "mob",
 ]);
 
 function getEmerges(plan: Plan<any>): Emerge[] {
@@ -119,6 +124,23 @@ export function creatureSpawnGlobals({
   if (cavern.anchorHoldCreatures) {
     sb.declareInt(gCreatures.anchorHold, 1);
   }
+  if (cavern.context.globalHostilesCap > 0) {
+    sb.declareInt(gCreatures.active, 0);
+    cavern.creatures.forEach((mob) => {
+      if (mob.sleep) {
+        const vMob = `${gCreatures.mob}${mob.id}`;
+        sb.declareCreature(vMob, mob);
+        sb.if(`${vMob}.wake`, `${gCreatures.active}+=1;`);
+      }
+    });
+    [ROCK_MONSTER, ICE_MONSTER, LAVA_MONSTER, SLIMY_SLUG].forEach((mob) => {
+      // This trigger also fires when mobs fail to spawn.
+      sb.when(
+        `${mob.id}.dead`,
+        `((${gCreatures.active}>0))${gCreatures.active}-=1;`,
+      );
+    });
+  }
 }
 
 type ScriptArgs = Parameters<NonNullable<Architect<any>["script"]>>[0];
@@ -157,6 +179,7 @@ function creatureSpawnScript(
     "doCooldown",
     "doTrip",
     "doSpawn",
+    "emerge",
     "hoardTrip",
     "needCrystals",
   ]);
@@ -212,7 +235,7 @@ function creatureSpawnScript(
       v.doTrip,
       cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
       cavern.context.globalHostilesCap > 0 &&
-        `((hostiles>=${cavern.context.globalHostilesCap - waveSize}))return;`,
+        `((${gCreatures.active}>${cavern.context.globalHostilesCap - waveSize}))return;`,
       cavern.oxygen &&
         opts.needStableAir &&
         `((${gCreatures.airMiners}<miners))return;`,
@@ -240,6 +263,8 @@ function creatureSpawnScript(
   // Spawn
   sb.event(
     opts.spawnEvent ?? v.doSpawn,
+    cavern.context.globalHostilesCap > 0 &&
+      `${gCreatures.active}+=${waveSize};`,
     cavern.context.globalHostilesCooldown > 0 &&
       `${gCreatures.globalCooldown}+=1;`,
     !!opts.needCrystals?.increment &&

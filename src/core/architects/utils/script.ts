@@ -1,8 +1,8 @@
 import { Point } from "../../common/geometry";
 import { PseudorandomStream } from "../../common/prng";
 import { Falsy } from "../../common/utils";
-import { FormatVars, PhraseGraph } from "../../lore/builder";
-import { LoreDie, State } from "../../lore/lore";
+import { PhraseGraph } from "../../lore/utils/builder";
+import { Format, LoreDie, State } from "../../lore/lore";
 import { Creature } from "../../models/creature";
 import { FencedCavern } from "../../transformers/03_plastic/00_fence";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
@@ -60,15 +60,24 @@ type DieOrRng =
   | {
       rng: PseudorandomStream;
     };
-type FromLoreArgs = DieOrRng & {
-  pg: PhraseGraph<State>;
-  formatVars?: FormatVars;
-};
-type FromLoreArgsWithState<T> = DieOrRng & {
-  pg: PhraseGraph<State & T>;
-  state: T;
-  formatVars?: FormatVars;
-};
+type StateFormatArgs<ST, FT> =
+  | {
+      pg: PhraseGraph<State, Format>;
+    }
+  | {
+      pg: PhraseGraph<State, Format & FT>;
+      format: FT;
+    }
+  | {
+      pg: PhraseGraph<State & ST, Format>;
+      state: ST;
+    }
+  | {
+      pg: PhraseGraph<State & ST, Format & FT>;
+      state: ST;
+      format: FT;
+    };
+type FromLoreArgs<ST, FT> = DieOrRng & StateFormatArgs<ST, FT>;
 
 export type ScriptBuilder = {
   /**
@@ -85,8 +94,10 @@ export type ScriptBuilder = {
    * Declares a string variable. Takes ether a string value or parameters to
    * determine the string from lore. Returns the variable name.
    */
-  declareString(name: string, value: string | FromLoreArgs): string;
-  declareString<T>(name: string, value: FromLoreArgsWithState<T>): string;
+  declareString<ST = {}, FT = {}>(
+    name: string,
+    value: string | FromLoreArgs<ST, FT>,
+  ): string;
   /**
    * Declares an arrow variable. Returns the variable name.
    */
@@ -236,9 +247,9 @@ export function mkScriptBuilder(
       return name;
     },
 
-    declareString<T>(
+    declareString<ST = {}, FT = {}>(
       name: string,
-      value: string | FromLoreArgs | FromLoreArgsWithState<T>,
+      value: string | FromLoreArgs<ST, FT>,
     ) {
       let strVal = "";
       if (typeof value === "string") {
@@ -249,12 +260,12 @@ export function mkScriptBuilder(
         const state = {
           ...cavern.lore.state,
           ...("state" in value ? value.state : {}),
-        };
-        const formatVars = {
-          ...cavern.lore.formatVars,
-          ...(value.formatVars ?? {}),
-        };
-        strVal = value.pg.generate(rng, state as any, formatVars).text;
+        } as State & ST;
+        const format = {
+          ...cavern.lore.format,
+          ...("format" in value ? value.format : {}),
+        } as Format & FT;
+        strVal = value.pg.generate(rng, state, format);
       }
       declarations.push(`string ${name}="${sanitizeString(strVal)}"`);
       return name;

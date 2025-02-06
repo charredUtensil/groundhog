@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import { CavernContext, inferContextDefaults } from "../../../core/common";
 import { MAX_PLUS_ONE } from "../../../core/common/prng";
 import styles from "./style.module.scss";
-import { Choice, CurveSliders, Slider } from "./controls";
+import { Choice, CurveSliders, ExponentialSlider, Slider } from "./controls";
 import { ArchitectsInput } from "./architects";
 import { PartialCavernContext } from "../../../core/common/context";
+import { Cavern } from "../../../core/models/cavern";
 
 const INITIAL_SEED = Date.now() % MAX_PLUS_ONE;
 
@@ -36,17 +37,18 @@ const expectedTotalPlans = (contextWithDefaults: CavernContext) => {
 
 export function CavernContextInput({
   initialContext,
-  context,
+  cavern,
   setInitialContext,
 }: {
   initialContext: PartialCavernContext;
-  context: CavernContext | undefined;
+  cavern: Cavern | undefined;
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   return (
     <CavernContextInputInner
       initialContext={initialContext}
-      context={context ?? inferContextDefaults(initialContext)}
+      context={cavern?.context ?? inferContextDefaults(initialContext)}
+      cavern={cavern}
       setInitialContext={setInitialContext}
     />
   );
@@ -55,10 +57,12 @@ export function CavernContextInput({
 function CavernContextInputInner({
   initialContext,
   context,
+  cavern,
   setInitialContext,
 }: {
   initialContext: PartialCavernContext;
   context: CavernContext;
+  cavern: Cavern | undefined;
   setInitialContext: React.Dispatch<React.SetStateAction<PartialCavernContext>>;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -232,7 +236,32 @@ function CavernContextInputInner({
               />
             </div>
             <div className={styles.subsection}>
+              <h3>Anchor</h3>
+              <ExponentialSlider
+                of={"anchorGravity"}
+                min={-7}
+                max={7}
+                step={0.5}
+                {...rest}
+              />
+              <ExponentialSlider
+                of={"anchorWhimsy"}
+                min={-7}
+                max={7}
+                step={0.5}
+                {...rest}
+              />
+            </div>
+            <div className={styles.subsection}>
               <h3>Establish</h3>
+              <ExponentialSlider
+                of={"planWhimsy"}
+                min={-7}
+                max={7}
+                step={0.5}
+                {...rest}
+              />
+              <ArchitectsInput {...rest} cavern={cavern} />
               {(
                 [
                   "caveCrystalRichness",
@@ -258,12 +287,23 @@ function CavernContextInputInner({
                 step={0.25}
                 {...rest}
               />
-              <ArchitectsInput {...rest} />
             </div>
             <div className={styles.subsection}>
               <h3>Pearl</h3>
-              <Slider of="caveBaroqueness" min={0} max={1} percent {...rest} />
-              <Slider of="hallBaroqueness" min={0} max={1} percent {...rest} />
+              <Slider
+                of="caveBaroqueness"
+                min={0}
+                max={0.8}
+                percent
+                {...rest}
+              />
+              <Slider
+                of="hallBaroqueness"
+                min={0}
+                max={0.8}
+                percent
+                {...rest}
+              />
             </div>
           </div>
           <div className={styles.section}>
@@ -354,7 +394,13 @@ function CavernContextInputInner({
             </div>
             <div className={styles.subsection}>
               <h3>Adjure</h3>
-              <Slider of="crystalGoalRatio" min={0} max={1} percent {...rest} />
+              <Slider
+                of="crystalGoalRatio"
+                min={0}
+                max={0.9}
+                percent
+                {...rest}
+              />
             </div>
             <div className={styles.subsection}>
               <h3>Enscribe</h3>

@@ -183,3 +183,66 @@ export const Slider = ({
     </>
   );
 };
+
+export const ExponentialSlider = ({
+  of,
+  min,
+  max,
+  step,
+  zeroLabel,
+  update,
+  initialContext,
+  context,
+}: {
+  of: KeysMatching<CavernContext, number>;
+  min: number;
+  max: number;
+  step?: number;
+  zeroLabel?: string;
+} & UpdateData) => {
+  const value = Math.log2(context[of]);
+  const label = (() => {
+    if (zeroLabel && value === 0) {
+      return zeroLabel;
+    }
+    if (value < 0) {
+      return `1/${Math.pow(2, -value).toFixed()}`;
+    }
+    return context[of].toFixed();
+  })();
+  return (
+    <>
+      <p>
+        {of}: {label}
+      </p>
+      <div className={styles.inputRow}>
+        <input
+          className={styles.slider}
+          type="range"
+          min={min}
+          max={max}
+          step={step || 1}
+          value={value}
+          style={
+            {
+              "--completion": `${(100 * (value - min)) / (max - min)}%`,
+            } as CSSProperties
+          }
+          onChange={(ev) =>
+            update({ [of]: Math.pow(2, ev.target.valueAsNumber) })
+          }
+        />
+        {of in initialContext ? (
+          <button
+            className={`${styles.icon} ${styles.override}`}
+            onClick={() => update({ [of]: undefined })}
+          >
+            undo
+          </button>
+        ) : (
+          <div className={`${styles.icon} ${styles.invisible}`} />
+        )}
+      </div>
+    </>
+  );
+};

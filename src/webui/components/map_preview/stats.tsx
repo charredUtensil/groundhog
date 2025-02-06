@@ -10,6 +10,7 @@ import { Tile } from "../../../core/models/tiles";
 import { Building } from "../../../core/models/building";
 import { Vehicle } from "../../../core/models/vehicle";
 import { Creature } from "../../../core/models/creature";
+import { spellResourceGoal } from "../../../core/lore/lore";
 
 function EntitySummary({
   entities,
@@ -45,9 +46,8 @@ export default function Stats({
         return (
           <>
             {cavern.levelName && <h1>{cavern.levelName}</h1>}
-            {cavern.briefing?.intro && (
-              <p>{cavern.briefing.intro.replace(/\n/g, "\u00B6")}</p>
-            )}
+            <p>{cavern.fileName ?? cavern.initialContext.seed.toString(16)}</p>
+            <p>{cavern.briefing?.intro ?? "No briefing yet..."}</p>
           </>
         );
       case "tiles":
@@ -112,7 +112,10 @@ export default function Stats({
       case "erosion": {
         const count = cavern.erosion?.size ?? 0;
         const avgCooldown = cavern.erosion
-          ? cavern.erosion.reduce((r, ls) => r + ls.cooldown, 0) / count
+          ? cavern.erosion.reduce(
+              (r, er) => r + (er === true ? -1 : er.cooldown),
+              0,
+            ) / count
           : null;
         return (
           <ul>
@@ -128,7 +131,7 @@ export default function Stats({
               {cavern.tiles?.reduce((r, t) => (t === Tile.LAVA ? r + 1 : r), 0)}
             </li>
             <li>Erosion: {count}</li>
-            {avgCooldown && (
+            {avgCooldown && avgCooldown > 0 && (
               <li>Avg Cooldown: {avgCooldown.toFixed(2)} seconds</li>
             )}
           </ul>
@@ -165,6 +168,22 @@ export default function Stats({
       }
       case "oxygen": {
         return <p>Oxygen: {cavern.oxygen?.join("/") ?? "Infinity"}</p>;
+      }
+      case "objectives": {
+        if (!cavern.objectives) {
+          return <p>No objectives yet...</p>;
+        }
+        const resourceGoal = spellResourceGoal(
+          cavern.objectives,
+        ).resourceGoalNumbers;
+        return (
+          <ul>
+            {cavern.objectives.variables.map(({ description }) => (
+              <li>{description}</li>
+            ))}
+            {resourceGoal && <li>Collect {resourceGoal}.</li>}
+          </ul>
+        );
       }
       default:
         return null;

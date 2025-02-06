@@ -43,7 +43,9 @@
   --pvw-entfriend: yellow;
   --pvw-entenemy: red;
   // Default tile overlays
-  --pvw-dfluid: #080022;
+  --pvw-dlava: #912e00;
+  --pvw-dwater: #00195f;
+  --pvw-dsolid: transparent;
   --pvw-dfloor: #180032;
   --pvw-dwall: #2d004b;
   // Tile overlays indicating numeric qty (ore, ec, landslideness...)
@@ -106,7 +108,6 @@
       }
 
       .baseplate {
-        font-family: var(--font-tiny);
         font-size: 8px;
 
         .fg {
@@ -152,7 +153,6 @@
         & > text {
           fill: var(--fg-color);
           opacity: var(--fg-opacity);
-          font-family: var(--font-tiny);
           font-size: 12px;
         }
       }
@@ -275,6 +275,19 @@
       .openCaveFlag {
         stroke: red;
         fill: white;
+      }
+
+      .objectives {
+        .origin {
+          stroke: white;
+          stroke-width: 3px;
+          fill: none;
+        }
+        .objective > path {
+          stroke: white;
+          stroke-width: 3px;
+          fill: none;
+        }
       }
     }
   }

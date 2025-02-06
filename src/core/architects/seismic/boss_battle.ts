@@ -95,7 +95,7 @@ const BASE: PartialArchitect<Metadata> = {
       for (const pos of plan.innerPearl[i]) {
         if (tiles.get(...pos) === Tile.FLOOR) {
           found = true;
-          tiles.set(...pos, Tile.LANDSLIDE_RUBBLE_4);
+          tiles.set(...pos, Tile.WASTE_RUBBLE_4);
         }
       }
       if (!found) {
@@ -215,7 +215,7 @@ const BOSS_BATTLE = [
       plan.pearlRadius >= 5 &&
       plan.path.baseplates.length === 1 &&
       !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&
-      0.1,
+      cavern.context.planWhimsy * 0.1,
   },
 ] as const satisfies readonly Architect<Metadata>[];
 

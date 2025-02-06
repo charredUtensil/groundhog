@@ -8,22 +8,26 @@ const SCALE = 6;
 
 const SCALE_COLORS = 8;
 
-const MAX_COOLDOWN = {
-  landslides: 300,
-  erosion: 100,
-} as const;
+const MAX_EROSION = 600;
+const MAX_LANDSLIDE = 300;
 
+// tk - Use color used for tile in LRR radar screen
 function tk(t: Tile) {
   return `tile${t.id}`;
 }
 
+// dk - Lowlight in order to highlight other things
+const DK = {
+  [Tile.WATER.id]: "dwater",
+  [Tile.LAVA.id]: "dlava",
+  [Tile.SOLID_ROCK.id]: "dsolid",
+} as { [K: number]: string | undefined };
+
 function dk(t: Tile) {
-  if (t === Tile.WATER || t === Tile.LAVA) {
-    return "dfluid";
-  }
-  return t.isWall ? "dwall" : "dfloor";
+  return DK[t.id] ?? (t.isWall ? "dwall" : "dfloor");
 }
 
+// sk - Scaled values
 function sk(s: number) {
   return `scale${Math.min(Math.floor(s), SCALE_COLORS - 1)}`;
 }
@@ -80,20 +84,28 @@ function getFill(
       }
       return dk(t);
     }
-    case "erosion":
+    case "erosion": {
       if (t === Tile.WATER || t === Tile.LAVA) {
         return tk(t);
       }
-    // Fall through
-    case "landslides":
-      const cooldown = cavern[mapOverlay]?.get(x, y)?.cooldown;
-      if (cooldown) {
-        return sk(
-          (SCALE_COLORS - 1) *
-            Math.max(0, 1 - cooldown / MAX_COOLDOWN[mapOverlay]),
-        );
+      const er = cavern.erosion?.get(x, y);
+      if (!er) {
+        return dk(t);
       }
-      return dk(t);
+      if (er === true) {
+        return sk(SCALE_COLORS - 1);
+      }
+      const cooldown = er.cooldown * 4 + er.initialDelay;
+      return sk((SCALE_COLORS - 1) * Math.max(0, 1 - cooldown / MAX_EROSION));
+    }
+    case "landslides": {
+      const ls = cavern.landslides?.get(x, y);
+      if (!ls) {
+        return dk(t);
+      }
+      const cooldown = ls.cooldown;
+      return sk((SCALE_COLORS - 1) * Math.max(0, 1 - cooldown / MAX_LANDSLIDE));
+    }
     case "oxygen": {
       const aeration = cavern.aerationLog?.get(x, y);
       if (!aeration) {
@@ -103,6 +115,21 @@ function getFill(
         return "oxhc";
       }
       return t.isWall ? tk(t) : "oxex";
+    }
+    case "objectives": {
+      if (
+        cavern.objectives?.crystals &&
+        (t.crystalYield > 0 || cavern.crystals?.get(x, y))
+      ) {
+        return tk(Tile.CRYSTAL_SEAM);
+      }
+      if (
+        (cavern.objectives?.ore || cavern.objectives?.studs) &&
+        (t.oreYield > 0 || cavern.ore?.get(x, y))
+      ) {
+        return tk(Tile.ORE_SEAM);
+      }
+      return dk(t);
     }
     case "script":
       return dk(t);
@@ -132,14 +159,14 @@ function getTitle(
     }
     case "landslides": {
       const ls = cavern.landslides?.get(x, y);
-      return ls && `${ls.cooldown} sec cooldown`;
+      return ls && `${ls.cooldown}s`;
     }
     case "erosion": {
       const er = cavern.erosion?.get(x, y);
-      return (
-        er &&
-        `${er.cooldown} sec cooldown + ${er.initialDelay} sec initial delay`
-      );
+      if (er === true) {
+        return null;
+      }
+      return er && `${er.cooldown}s cooldown + ${er.initialDelay}s delay`;
     }
     case "discovery":
       const dz = cavern.discoveryZones?.get(x, y);

@@ -29,8 +29,8 @@ import { mkRough, Rough } from "../utils/rough";
 export type HqMetadata = {
   readonly tag: "hq";
   readonly ruin: boolean;
-  readonly fixedComplete: boolean;
   readonly crystalsInBuildings: number;
+  readonly special: null | "fixedComplete" | "gasLeak";
 };
 
 const DESTROY_PATH_CHANCE = 0.62;
@@ -47,7 +47,7 @@ export function getPrime(
       min: 3,
       max: maxCrystals,
     });
-    return { crystalsInBuildings, ruin, fixedComplete: false, tag: "hq" };
+    return { crystalsInBuildings, ruin, special: null, tag: "hq" };
   };
 }
 
@@ -76,11 +76,13 @@ function getDefaultTemplates(
 
 // Here be spaghetti
 export function getPlaceBuildings({
+  crashOnFail = false,
   discovered = false,
   from = 2,
   templates,
   omit,
 }: {
+  crashOnFail?: boolean;
   discovered?: boolean;
   from?: number;
   templates?: (rng: PseudorandomStream) => readonly Building["template"][];
@@ -136,6 +138,10 @@ export function getPlaceBuildings({
 
     // Fit the buildings.
     const buildings = getBuildings({ from, queue: bq }, args);
+    if (crashOnFail && bq.length) {
+      console.error("Failed to place buildings: %o", bq);
+      throw new Error(`Failed to place ${buildings.length} buildings`);
+    }
 
     const dependencies = new Set(
       buildings.flatMap((b) => b.template.dependencies),
@@ -146,7 +152,7 @@ export function getPlaceBuildings({
       const building = buildings[i];
       let fTile: Tile;
       if ("placeRubbleInstead" in building) {
-        fTile = Tile.RUBBLE_4;
+        fTile = Tile.RUBBLE_1;
       } else {
         fTile = Tile.FOUNDATION;
         if (dependencies.has(building.template)) {
@@ -165,7 +171,7 @@ export function getPlaceBuildings({
           args.tiles.set(
             ...point,
             asRuin && rng.chance(DESTROY_PATH_CHANCE)
-              ? Tile.LANDSLIDE_RUBBLE_4
+              ? Tile.WASTE_RUBBLE_4
               : Tile.POWER_PATH,
           );
         }
@@ -196,10 +202,10 @@ export function getPlaceBuildings({
               rng.betaChoice(
                 [
                   Tile.FLOOR,
-                  Tile.LANDSLIDE_RUBBLE_1,
-                  Tile.LANDSLIDE_RUBBLE_2,
-                  Tile.LANDSLIDE_RUBBLE_3,
-                  Tile.LANDSLIDE_RUBBLE_4,
+                  Tile.WASTE_RUBBLE_1,
+                  Tile.WASTE_RUBBLE_2,
+                  Tile.WASTE_RUBBLE_3,
+                  Tile.WASTE_RUBBLE_4,
                 ],
                 { a: 1, b: 4 },
               ),

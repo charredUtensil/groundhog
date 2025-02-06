@@ -8,7 +8,7 @@ import {
 } from "../../models/building";
 import { EntityPosition } from "../../models/position";
 import { Hardness, Tile } from "../../models/tiles";
-import { PopulatedCavern } from "../03_plastic/04_populate";
+import { PopulatedCavern } from "../03_plastic/05_populate";
 
 export type AeratedCavern = PopulatedCavern & {
   readonly oxygen: null | readonly [number, number];
@@ -59,6 +59,9 @@ function getOrigin(cavern: PopulatedCavern): Point {
 }
 
 export default function aerate(cavern: PopulatedCavern): AeratedCavern {
+  if (cavern.oxygen !== undefined) {
+    return { ...cavern, oxygen: cavern.oxygen, aerationLog: null };
+  }
   if (!cavern.context.hasAirLimit) {
     return { ...cavern, oxygen: null, aerationLog: null };
   }

@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
   CavernContextInput,
@@ -14,6 +14,7 @@ import ErrorPreview from "./components/popovers/error";
 import { filterTruthy } from "../core/common/utils";
 import { PartialCavernContext } from "../core/common/context";
 import { TfResult } from "../core/common/transform";
+import ProgressBar from "./components/progress_bar";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -30,6 +31,7 @@ const MAP_OVERLAY_BUTTONS: readonly {
   { of: "landslides", label: "Landslides", enabled: (c) => !!c?.landslides },
   { of: "erosion", label: "Erosion", enabled: (c) => !!c?.erosion },
   { of: "oxygen", label: "Oxygen", enabled: (c) => c?.oxygen !== undefined },
+  { of: "objectives", label: "Objectives", enabled: (c) => !!c?.objectives },
   { of: "lore", label: "Lore", enabled: (c) => !!c?.lore },
   { of: "script", label: "Script", enabled: (c) => !!c?.script },
   { of: "about", label: "About", enabled: (c) => true },
@@ -40,7 +42,7 @@ function getDownloadLink(serializedData: string) {
 }
 
 function getStateForInitialContext(initialContext: PartialCavernContext) {
-  return CAVERN_TF.first({ initialContext });
+  return CAVERN_TF.start({ initialContext });
 }
 
 type State = TfResult<Cavern, Cavern> & {
@@ -72,21 +74,13 @@ function App() {
 
   const biome = state.result.context?.biome;
 
-  function playPause() {
-    if (autoGenerate) {
-      setAutoGenerate(false);
-    } else {
-      setAutoGenerate(true);
-    }
-  }
-
   const step = useCallback(() => {
     try {
       setState(state.next!());
     } catch (e: unknown) {
       console.error(e);
       const error = e instanceof Error ? e : new Error("unknown error");
-      setState({ ...state, next: null, progress: 0, error });
+      setState({ ...state, next: null, error });
     }
   }, [state]);
 
@@ -113,7 +107,7 @@ function App() {
       <div className={styles.settingsPanel}>
         <CavernContextInput
           initialContext={state.result.initialContext}
-          context={state.result.context}
+          cavern={state.result}
           setInitialContext={setInitialContext}
         />
       </div>
@@ -133,16 +127,6 @@ function App() {
             showPearls={showPearls}
           />
         )}
-        {autoGenerate && state.progress !== undefined && (
-          <div
-            className={`${styles.progressBar} ${state.progress < 1 ? "" : styles.complete}`}
-            style={
-              {
-                "--progress": `${(state.progress * 100).toFixed()}%`,
-              } as CSSProperties
-            }
-          />
-        )}
         {mapOverlay === "about" && <About />}
         {mapOverlay === "lore" && <LorePreview {...state.result} />}
         {state.error && (
@@ -152,14 +136,12 @@ function App() {
             context={state.result?.context}
           />
         )}
-        {!autoGenerate && state.name && (
-          <div className={styles.stepName}>{state.name}</div>
-        )}
+        <ProgressBar autoGenerate={autoGenerate} {...state} />
         <div className={styles.controls}>
           {state.next ? (
             <>
               {!autoGenerate && <button onClick={step}>step</button>}
-              <button onClick={playPause}>
+              <button onClick={() => setAutoGenerate((v) => !v)}>
                 {autoGenerate ? "pause" : "play_arrow"}
               </button>
             </>
