@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/groundhog/static/css/main.359c1b8f.css",
-    "main.js": "/groundhog/static/js/main.82926193.js",
+    "main.css": "/groundhog/static/css/main.c8210489.css",
+    "main.js": "/groundhog/static/js/main.153ba6c7.js",
     "index.html": "/groundhog/index.html",
-    "main.359c1b8f.css.map": "/groundhog/static/css/main.359c1b8f.css.map",
-    "main.82926193.js.map": "/groundhog/static/js/main.82926193.js.map"
+    "main.c8210489.css.map": "/groundhog/static/css/main.c8210489.css.map",
+    "main.153ba6c7.js.map": "/groundhog/static/js/main.153ba6c7.js.map"
   },
   "entrypoints": [
-    "static/css/main.359c1b8f.css",
-    "static/js/main.82926193.js"
+    "static/css/main.c8210489.css",
+    "static/js/main.153ba6c7.js"
   ]
 }
