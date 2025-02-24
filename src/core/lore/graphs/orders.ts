@@ -42,7 +42,7 @@ const ORDERS = phraseGraph<State, Format>(
         ),
         pg(
           skip,
-          state("spawnIsNomadOne", "spawnIsNomadsTogether"),
+          state("nomadsOne", "nomadsMany"),
           state("spawnIsHq")
             .then(state("hqIsRuin", "spawnHasErosion"))
             .then("move to a safer cavern", "find a more suitable location")

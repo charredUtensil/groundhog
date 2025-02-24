@@ -7,7 +7,8 @@ import {
   BUILD_POWER_SS_LAST,
   BUILD_POWER_SS_PENULTIMATE,
 } from "../lore/graphs/build_and_power";
-import { Format, LoreDie, State } from "../lore/lore";
+import { Format, State } from "../lore/lore";
+import { LoreDie } from "../common/prng";
 import { PhraseGraph } from "../lore/utils/builder";
 import { Architect } from "../models/architect";
 import {
@@ -266,6 +267,7 @@ export const BUILD_AND_POWER = [
         // Incompatible with fchq or mob farm
         !(amd?.tag === "hq" && amd.special === "fixedComplete") &&
         !(amd?.tag === "mobFarm") &&
+        !(amd?.tag === "pandora") &&
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&

@@ -26,27 +26,72 @@ type CreatureSpawnerArgs = {
   readonly creature: CreatureTemplate;
   readonly rng: PseudorandomStream;
 
-  readonly meanWaveSize?: number;
-  readonly spawnRate?: number;
+  /** The number of creatures to spawn at a time. */
   readonly waveSize?: number;
+  /**
+   * If supplied, the _average_ number of creatures to spawn at a time.
+   * Will vary up or down slightly based on RNG.
+   */
+  readonly meanWaveSize?: number;
+  /**
+   * The number of creatures to spawn per minute, assuming constant retriggers.
+   */
+  readonly spawnRate?: number;
 
+  /**
+   * How does this spawner become re-armed after firing?
+   * - `none`: It doesn't.
+   * - `automatic`: After monsters spawn and a "cooldown" timer has completed.
+   * - `hoard`: Same as automatic, but only if monsters have reached the center
+   *   of the plan.
+   */
   readonly reArmMode: ReArmMode;
 
+  /**
+   * If supplied, the X,Y,and Radius of the `emerge:` events that will actually
+   * spawn the creatures.
+   */
   readonly emerges?: readonly Emerge[];
-} & (
-  | {
-      readonly reArmMode: "none";
-      readonly spawnEvent: string;
-    }
-  | {
-      readonly armEvent?: string;
-      readonly initialCooldown?: { min: number; max: number };
-      readonly needCrystals?: { base: number; increment?: number };
-      readonly needStableAir?: boolean;
-      readonly tripOnArmed?: "first" | "always";
-      readonly tripPoints?: readonly Point[];
-    }
-);
+
+  /**
+   * The name of the event used to arm the spawner, to be called from an
+   * external script. If omitted, a name will be generated.
+   */
+  readonly armEvent?: string;
+  /**
+   * The name of the event used to spawn the spawner, to be called from an
+   * external script. If omitted, a name will be generated.
+   */
+  readonly spawnEvent?: string;
+
+  /**
+   * The min/max time, in seconds, to wait between when this spawner is
+   * initially enabled (usually on discover or at level start) and when the
+   * spawner is armed for the first time.
+   */
+  readonly initialCooldown?: { min: number; max: number };
+  /**
+   * If included, this spawner will not activate if the player has less than
+   * `base` crystals. If an `increment` is included, every time a spawn occurs,
+   * the crystal requirement increases to `current crystals + increment`.
+   */
+  readonly needCrystals?: { base: number; increment?: number };
+  /**
+   * If included, this spawner will not activate if the player's air supply is
+   * decreasing. That is - this is an air level and the player has more miners
+   * than their current powered support stations can support.
+   */
+  readonly needStableAir?: boolean;
+  /**
+   * When the spawner is armed, trip automatically
+   */
+  readonly tripOnArmed?: "first" | "always";
+  /**
+   * The points that will trip the spawner. Defaults to the plan's first outer
+   * pearl layer.
+   */
+  readonly tripPoints?: readonly Point[];
+};
 
 export type ReArmMode = "none" | "automatic" | "hoard";
 
@@ -204,7 +249,7 @@ function creatureSpawnScript(
     waveSize,
   );
 
-  if (!opts.spawnEvent) {
+  if (opts.reArmMode !== 'none') {
     // Arm
     sb.declareInt(v.arm, ArmState.DISARMED);
     const body: EventChainLine[] = [
@@ -245,7 +290,7 @@ function creatureSpawnScript(
         `((${gCreatures.globalCooldown}>0))return;`,
       `((${v.arm}==${ArmState.ARMED}))${v.arm}=${ArmState.FIRE};`,
     );
-    sb.when(`${v.arm}==${ArmState.FIRE}`, `${v.doSpawn};`);
+    sb.when(`${v.arm}==${ArmState.FIRE}`, `${opts.spawnEvent ?? v.doSpawn};`);
   }
 
   // Hoard mode must be "manually" re-armed by a monster visiting the hoard

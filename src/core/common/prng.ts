@@ -81,7 +81,7 @@ export class PseudorandomStream {
   }
 }
 
-/**
+/*
  * DO NOT RE-ORDER THIS ENUM!
  * ALWAYS APPEND NEW ENTRIES TO THE END!
  *
@@ -106,7 +106,7 @@ enum Die {
   placeErosion,
   placeEntities,
   lore,
-  _,
+  mod,
   script,
   monsterSpawnScript,
   brace,
@@ -114,6 +114,24 @@ enum Die {
   placeSlugHoles,
   slugSpawnScript,
 }
+
+export enum LoreDie {
+  premise = 0,
+  orders,
+  success,
+  failure,
+  foundHoard,
+  foundHq,
+  foundAllLostMiners,
+  nomadsSettled,
+  foundSlugNest,
+  name,
+  failureBaseDestroyed,
+  buildAndPower,
+  seismicForeshadow,
+  pandora,
+}
+
 
 /**
  * A box of pseudo-random streams. Streams are separated into "kinds" - each one
@@ -176,6 +194,7 @@ export class DiceBox {
   }
 
   pickArchitect = (id: number) => this.prng(Die.pickArchitect, id);
+  mod = (id: number) => this.prng(Die.mod, id);
   prime = (id: number) => this.prng(Die.prime, id);
   pearl = (id: number) => this.prng(Die.pearl, id);
   rough = (id: number) => this.prng(Die.rough, id);
@@ -194,7 +213,7 @@ export class DiceBox {
   placeErosion = (id: number) => this.prng(Die.placeErosion, id);
   placeEntities = (id: number) => this.prng(Die.placeEntities, id);
 
-  lore = (id: number) => this.prng(Die.lore, id);
+  lore = (id: LoreDie) => this.prng(Die.lore, id);
 
   get height() {
     return this.prng(Die.height, 0);

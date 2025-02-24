@@ -1,6 +1,7 @@
 import { HqMetadata } from "../architects/established_hq/base";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
+import { LoreDie } from "../common/prng";
 import { filterTruthy } from "../common/utils";
 import { GEOLOGICAL_CENTER, SUPPORT_STATION } from "../models/building";
 import { Objectives } from "../models/objectives";
@@ -25,8 +26,8 @@ export type State = {
   readonly spawnHasErosion: boolean;
   readonly spawnIsHq: boolean;
   readonly hqIsFixedComplete: boolean;
-  readonly spawnIsNomadOne: boolean;
-  readonly spawnIsNomadsTogether: boolean;
+  readonly nomadsOne: boolean;
+  readonly nomadsMany: boolean;
   readonly findHq: boolean;
   readonly hqIsRuin: boolean;
   readonly treasureCaveOne: boolean;
@@ -40,10 +41,11 @@ export type State = {
   readonly buildAndPowerSsOne: boolean;
   readonly buildAndPowerSsMultiple: boolean;
   readonly hasAirLimit: boolean;
-  readonly spawnIsMobFarm: boolean;
-  readonly spawnIsBlackout: boolean;
-  readonly spawnIsGasLeak: boolean;
-  readonly spawnIsOreWaste: boolean;
+  readonly anchorIsMobFarm: boolean;
+  readonly anchorIsBlackout: boolean;
+  readonly anchorIsGasLeak: boolean;
+  readonly anchorIsOreWaste: boolean;
+  readonly anchorIsPandora: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -57,25 +59,10 @@ export type Format = {
   readonly enemies: string;
   readonly lostMiners: number;
   readonly lostMinerCaves: number;
+  readonly monsters: string;
   readonly resourceGoal: string;
   readonly resourceGoalNamesOnly: string;
 };
-
-export enum LoreDie {
-  premise = 0,
-  orders,
-  success,
-  failure,
-  foundHoard,
-  foundHq,
-  foundAllLostMiners,
-  nomadsSettled,
-  foundSlugNest,
-  name,
-  failureBaseDestroyed,
-  buildAndPower,
-  seismicForeshadow,
-}
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
   let lava = 0;
@@ -132,6 +119,7 @@ export class Lore {
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
     const anchor = cavern.plans[cavern.anchor];
+    const spawn = cavern.plans.find(p => !p.hops.length)!;
 
     const resourceObjective =
       cavern.objectives.crystals +
@@ -141,8 +129,9 @@ export class Lore {
 
     const hq = cavern.plans.find(
       (p) => p.metadata?.tag === "hq",
-    ) as Plan<HqMetadata>;
-    const spawnIsHq = anchor === hq;
+    ) as Plan<HqMetadata> | undefined;
+    const anchorIsHq = Object.is(anchor, hq);
+    const spawnIsHq = Object.is(spawn, hq);
     const hqIsFixedComplete = hq?.metadata.special === "fixedComplete";
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
@@ -164,10 +153,12 @@ export class Lore {
       0,
     );
 
-    const nomads =
-      anchor.metadata?.tag === "nomads"
-        ? (anchor.metadata.minersCount as number)
-        : 0;
+    const nomads = cavern.plans.reduce((r, p) =>
+      spawn.metadata?.tag === "nomads"
+        ? r + (spawn.metadata.minersCount as number)
+        : r,
+      0,
+    );
 
     const treasures = cavern.plans.reduce(
       (r, plan) => (plan.metadata?.tag === "treasure" ? r + 1 : r),
@@ -182,6 +173,8 @@ export class Lore {
         plan.pearlRadius * 4 > cavern.context.targetSize,
     );
 
+    const hasMonsters = cavern.context.hasMonsters;
+
     this.state = {
       floodedWithWater: fluidType === Tile.WATER,
       floodedWithLava: fluidType === Tile.LAVA,
@@ -189,15 +182,15 @@ export class Lore {
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       lostMinersApart: lostMinerCaves > 1,
       resourceObjective,
-      hasMonsters: cavern.context.hasMonsters,
+      hasMonsters,
       hasSlugs: cavern.context.hasSlugs,
-      spawnHasErosion: anchor.hasErosion,
+      spawnHasErosion: spawn.hasErosion,
       spawnIsHq,
       findHq,
       hqIsFixedComplete,
       hqIsRuin,
-      spawnIsNomadOne: nomads === 1,
-      spawnIsNomadsTogether: nomads > 1,
+      nomadsOne: nomads === 1,
+      nomadsMany: nomads > 1,
       treasureCaveOne: treasures === 1,
       treasureCaveMany: treasures > 1,
       rockBiome: cavern.context.biome === "rock",
@@ -209,23 +202,25 @@ export class Lore {
       buildAndPowerSsOne: buildAndPowerSsCount === 1,
       buildAndPowerSsMultiple: buildAndPowerSsCount > 1,
       hasAirLimit: !!cavern.oxygen,
-      spawnIsMobFarm: anchor.metadata?.tag === "mobFarm",
-      spawnIsBlackout: anchor.metadata?.tag === "blackout",
-      spawnIsGasLeak: spawnIsHq && hq.metadata.special === "gasLeak",
-      spawnIsOreWaste: anchor.metadata?.tag === "oreWaste",
+      anchorIsMobFarm: anchor.metadata?.tag === "mobFarm",
+      anchorIsBlackout: anchor.metadata?.tag === "blackout",
+      anchorIsGasLeak: anchorIsHq && hq!.metadata.special === "gasLeak",
+      anchorIsOreWaste: anchor.metadata?.tag === "oreWaste",
+      anchorIsPandora: anchor.metadata?.tag === "pandora",
     };
 
+    const monsters = {
+      rock: "Rock Monsters",
+      ice: "Ice Monsters",
+      lava: "Lava Monsters",
+    }[cavern.context.biome];
     const enemies = filterTruthy([
-      cavern.context.hasMonsters &&
-        {
-          rock: "Rock Monsters",
-          ice: "Ice Monsters",
-          lava: "Lava Monsters",
-        }[cavern.context.biome],
+      hasMonsters && monsters,
       cavern.context.hasSlugs && "Slimy Slugs",
     ]).join(" and ");
 
     this.format = {
+      monsters,
       enemies,
       lostMiners,
       lostMinerCaves,

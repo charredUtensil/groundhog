@@ -69,7 +69,7 @@ export const NAME = phraseGraph<State, Format>(
     });
 
     f({
-      rock: ["Fault Line", "Fissure", "Flint"],
+      rock: ["Fault Line", "Final", "Fissure", "Flint"],
       ice: ["Frostbite", "Frosty"],
       last: ["Folly", "Frenzy", "Fury"],
     });
@@ -166,6 +166,8 @@ export const OVERRIDE_SUFFIXES = [
   "Green Crystal Version",
   "HD",
   "HD 1.5 Remix",
+  "Inspired by True Events",
+  "Into Darkness",
   "Limited Edition",
   "Millenium Edition",
   "New",
@@ -193,9 +195,11 @@ export const OVERRIDE_SUFFIXES = [
   "Revolutions",
   "Ruby Version",
   "Sapphire Version",
+  "Shadow Operation",
   "Silver Version",
   "Slug Armor Edition",
   "Special Edition",
+  "The Beginning",
   "Unhinged",
   "Unglued",
   "Ungrounded",

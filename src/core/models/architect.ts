@@ -4,6 +4,7 @@ import { Plan } from "./plan";
 import {
   EstablishedPlan,
   OrderedOrEstablishedPlan,
+  OrderedPlan,
 } from "../transformers/01_planning/05_establish";
 import { ArchitectedPlan } from "../transformers/01_planning/05_establish";
 import {
@@ -28,7 +29,6 @@ import { Point } from "../common/geometry";
 import { ModdedCavern } from "../transformers/01_planning/04_mod";
 import {
   AnchoredCavern,
-  OrderedPlan,
 } from "../transformers/01_planning/03_anchor";
 import { DzPriority, ScriptBuilder } from "../architects/utils/script";
 import { FinePlasticCavern } from "../transformers/02_masonry/05_fine";

@@ -8,7 +8,7 @@ import { monsterSpawnScript } from "./utils/creature_spawners";
 import { bidsForOrdinaryWalls, sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
 import { gLostMiners } from "./lost_miners";
-import { LoreDie } from "../lore/lore";
+import { LoreDie } from "../common/prng";
 import { FOUND_HOARD } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
@@ -64,7 +64,7 @@ const HOARD: typeof BASE = {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      return { creatures: placeSleepingMonsters(args, rng, count) };
+      return { creatures: placeSleepingMonsters(args, {rng, count}) };
     }
     return {};
   },
@@ -201,7 +201,7 @@ const TREASURE = [
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
         const count = Math.ceil(args.plan.monsterWaveSize / 2);
-        return { creatures: placeSleepingMonsters(args, rng, count, "inner") };
+        return { creatures: placeSleepingMonsters(args, {rng, count, placement: "inner"}) };
       }
       return {};
     },

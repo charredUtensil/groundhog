@@ -1,5 +1,5 @@
 import { FOUND_HQ } from "../../lore/graphs/events";
-import { LoreDie } from "../../lore/lore";
+import { LoreDie } from "../../common/prng";
 import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";

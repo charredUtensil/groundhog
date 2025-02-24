@@ -42,7 +42,7 @@ const SIMPLE_HALL = [
     placeEntities(args) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      return { creatures: placeSleepingMonsters(args, rng, count) };
+      return { creatures: placeSleepingMonsters(args, {rng, count}) };
     },
   },
   {
@@ -122,7 +122,7 @@ const SIMPLE_HALL = [
     placeEntities(args) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      return { creatures: placeSleepingMonsters(args, rng, count) };
+      return { creatures: placeSleepingMonsters(args, {rng, count}) };
     },
   },
 ] as const satisfies readonly Architect<undefined>[];

@@ -219,7 +219,7 @@ export default function PlansPreview({
             {"architect" in plan && plan.architect?.name ? (
               <>
                 {plan.architect.name}
-                {!plan.hops.length && "*"} {plan.id}
+                {!plan.hops?.length && "*"} {plan.id}
               </>
             ) : (
               <>{plan.id}</>

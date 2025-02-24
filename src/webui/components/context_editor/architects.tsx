@@ -69,7 +69,7 @@ export const ArchitectsInput = ({
           >
             Disable
           </button>
-          {state === "encourage" && !used[a.name] ? (
+          {state === "encourage" && !used[a.name] && cavern?.plans?.some(p => 'architect' in p) ? (
             <div className={`${styles.architectCount} ${styles.icon}`}>
               warning
             </div>

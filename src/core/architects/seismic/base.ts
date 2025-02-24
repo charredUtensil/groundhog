@@ -2,7 +2,7 @@ import {
   SEISMIC_FORESHADOW,
   SEISMIC_FORESHADOW_AGAIN,
 } from "../../lore/graphs/seismic";
-import { LoreDie } from "../../lore/lore";
+import { LoreDie } from "../../common/prng";
 import { Architect, BaseMetadata } from "../../models/architect";
 import { mkVars } from "../utils/script";
 

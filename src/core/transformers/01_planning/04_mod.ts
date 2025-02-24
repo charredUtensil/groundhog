@@ -1,4 +1,4 @@
-import { AnchoredCavern, OrderedPlan } from "./03_anchor";
+import { AnchoredCavern } from "./03_anchor";
 
 export type ModdedCavern = AnchoredCavern & {
   readonly oxygen?: null | readonly [number, number];
@@ -13,6 +13,6 @@ export type ModdedCavern = AnchoredCavern & {
 //   "used" up to this point like lake counts.
 
 export default function mod(cavern: AnchoredCavern): ModdedCavern {
-  const architect = (cavern.plans[cavern.anchor] as OrderedPlan).architect!;
+  const architect = (cavern.plans[cavern.anchor]).architect!;
   return architect.mod ? architect.mod(cavern) : cavern;
 }

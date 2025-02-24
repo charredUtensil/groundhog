@@ -22,7 +22,7 @@ import { Loadout, Miner } from "../models/miner";
 import { filterTruthy, pairEach } from "../common/utils";
 import { plotLine } from "../common/geometry";
 import { gLostHq } from "./established_hq/lost";
-import { LoreDie } from "../lore/lore";
+import { LoreDie } from "../common/prng";
 import { NOMADS_SETTLED } from "../lore/graphs/events";
 import { gCreatures } from "./utils/creature_spawners";
 

@@ -1,3 +1,4 @@
+import { Mutable } from "../common";
 import { Architect, BaseMetadata } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
 import { position } from "../models/position";
@@ -80,15 +81,18 @@ export const DefaultSpawnArchitect: PartialArchitect<any> = {
       args.tiles.set(x, y, Tile.FOUNDATION),
     );
     args.openCaveFlags.set(...toolStore.foundation[0], true);
-    return {
+    const result: Mutable<ReturnType<Architect<any>['placeBuildings']>> = {
       buildings: [toolStore],
-      cameraPosition: position({
+    };
+    if (args.plan.id === args.cavern.anchor) {
+      result.cameraPosition = position({
         x: toolStore.x,
         y: toolStore.y,
         yaw: toolStore.yaw + Math.PI * 0.75,
         pitch: Math.PI / 4,
-      }),
-    };
+      });
+    }
+    return result;
   },
   maxSlope: 15,
 };

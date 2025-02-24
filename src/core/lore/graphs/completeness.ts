@@ -59,30 +59,26 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
         .then(st("foundMinersOne", "foundMinersTogether"))
         // Break down the lore based on possible anchors.
         .then(
-          // FCHQ and Mob Farm: buildpower objectives are not available.
           pg(
             st("spawnIsHq").then(st("hqIsFixedComplete")),
-            st("spawnIsMobFarm"),
+            st("anchorIsMobFarm", "anchorIsPandora"),
           ).then(lostMinersAndOrResourceObjective),
-          // Gas Leak: Optional objective to build support stations.
           st("spawnIsHq")
-            .then(st("spawnIsGasLeak"))
+            .then(st("anchorIsGasLeak"))
             .then(
               buildPowerSsAndOrLostMinersAndOrResourceObjective,
               buildPowerGcAndOrLostMinersAndOrResourceObjective,
             ),
-          // Spawn is HQ: Normal objectives.
           pg(st("spawnIsHq").then(skip, st("hqIsRuin"))).then(
             buildPowerGcAndOrLostMinersAndOrResourceObjective,
           ),
-          // Everything else: Normal objectives + maybe find HQ.
           pg(
             skip,
             st(
-              "spawnIsNomadOne",
-              "spawnIsNomadsTogether",
-              "spawnIsBlackout",
-              "spawnIsOreWaste",
+              "anchorIsBlackout",
+              "anchorIsOreWaste",
+              "nomadsOne",
+              "nomadsMany",
             ),
           )
             .then(skip, st("findHq").then(skip, st("hqIsRuin")))

@@ -4,14 +4,14 @@ import { FloodedCavern, FloodedPlan } from "./02_flood";
 import encourageDisable from "./utils";
 import { WithPlanType } from "./utils";
 
-export type OrderedPlan = FloodedPlan & {
+export type PartiallyEstablishedPlan = FloodedPlan & {
   architect?: Architect<any>;
-  hops: readonly number[];
-};
+  hops?: readonly never[];
+}
 
 export type AnchoredCavern = WithPlanType<
   FloodedCavern,
-  FloodedPlan | OrderedPlan
+  PartiallyEstablishedPlan
 > & { anchor: number };
 
 export default function anchor(cavern: FloodedCavern): AnchoredCavern {
@@ -40,7 +40,7 @@ export default function anchor(cavern: FloodedCavern): AnchoredCavern {
     }),
   );
 
-  const plans: (FloodedPlan | OrderedPlan)[] = [...cavern.plans];
+  const plans: PartiallyEstablishedPlan[] = [...cavern.plans];
   plans[anchor.id] = anchor;
 
   return { ...cavern, anchor: anchor.id, plans };

@@ -20,21 +20,24 @@ const PLACEMENT_FN = {
 
 export function placeSleepingMonsters(
   args: Parameters<Architect<any>["placeEntities"]>[0],
-  rng: PseudorandomStream,
-  count: number,
-  placement: "outer" | "inner" = "outer",
+  opts: {
+    rng: PseudorandomStream,
+    count: number,
+    placement?: "outer" | "inner",
+    from?: number,
+    to?: number,
+    force?: boolean
+  },
 ): Creature[] {
-  if (!args.cavern.context.hasMonsters) {
+  if (!(opts.force || args.cavern.context.hasMonsters)) {
     return [];
   }
   const template = monsterForBiome(args.cavern.context.biome);
   const filterFn = TILE_CAN_HAVE_MONSTER[args.cavern.context.biome];
-  return PLACEMENT_FN[placement](
+  return PLACEMENT_FN[opts.placement ?? 'outer'](
     args.cavern,
     args.plan,
-    count,
-    rng,
-    filterFn,
+    {...opts, filterFn},
   ).map((pos) =>
     args.creatureFactory.create({
       ...pos,

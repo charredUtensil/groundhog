@@ -25,6 +25,7 @@ import {
 } from "./events";
 import { NAME } from "./names";
 import ORDERS from "./orders";
+import { DID_SPAWN_HOARD, DID_SPAWN_ROGUE, DID_SPAWN_SEAM, WARN_APPROACHING_HOARD } from "./pandora";
 import PREMISE from "./premise";
 import { SEISMIC_FORESHADOW, SEISMIC_FORESHADOW_AGAIN } from "./seismic";
 
@@ -38,6 +39,9 @@ const ALL_GRAPHS = [
   BUILD_POWER_SS_FIRST,
   BUILD_POWER_SS_LAST,
   BUILD_POWER_SS_PENULTIMATE,
+  DID_SPAWN_HOARD,
+  DID_SPAWN_ROGUE,
+  DID_SPAWN_SEAM,
   FAILURE_BASE_DESTROYED,
   FAILURE,
   FOUND_ALL_LOST_MINERS,
@@ -56,5 +60,6 @@ const ALL_GRAPHS = [
   SEISMIC_FORESHADOW,
   SEISMIC_FORESHADOW_AGAIN,
   SUCCESS,
+  WARN_APPROACHING_HOARD,
 ] as const;
 export default ALL_GRAPHS;
