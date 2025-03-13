@@ -3,6 +3,7 @@ import { Point } from "../../common/geometry";
 import { CollapseUnion } from "../../common/utils";
 import { Architect } from "../../models/architect";
 import { SUPPORT_STATION } from "../../models/building";
+import { getAnchor } from "../../models/cavern";
 import {
   CreatureTemplate,
   ICE_MONSTER,
@@ -91,6 +92,8 @@ type CreatureSpawnerArgs = {
    * pearl layer.
    */
   readonly tripPoints?: readonly Point[];
+
+  readonly force?: boolean;
 };
 
 export type ReArmMode = "none" | "automatic" | "hoard";
@@ -194,25 +197,32 @@ export function monsterSpawnScript(
   args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
-  creatureSpawnScript(args, {
-    creature: monsterForBiome(args.cavern.context.biome),
-    reArmMode: "automatic",
-    rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
-    ...opts,
-  });
+  if (opts?.force || (
+    args.cavern.context.hasMonsters &&
+    getAnchor(args.cavern).metadata?.tag !== 'pandora')
+  ) {
+    creatureSpawnScript(args, {
+      creature: monsterForBiome(args.cavern.context.biome),
+      reArmMode: "automatic",
+      rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
+      ...opts,
+    });
+  }
 }
 
 export function slugSpawnScript(
   args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
-  creatureSpawnScript(args, {
-    creature: SLIMY_SLUG,
-    needCrystals: { base: 1 },
-    reArmMode: "automatic",
-    rng: args.cavern.dice.slugSpawnScript(args.plan.id),
-    ...opts,
-  });
+  if (opts?.force || args.cavern.context.hasSlugs) {
+    creatureSpawnScript(args, {
+      creature: SLIMY_SLUG,
+      needCrystals: { base: 1 },
+      reArmMode: "automatic",
+      rng: args.cavern.dice.slugSpawnScript(args.plan.id),
+      ...opts,
+    });
+  }
 }
 
 function creatureSpawnScript(

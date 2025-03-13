@@ -28,6 +28,7 @@
     "gen": "tsx bin/groundhog-gen",
     "architect-stats": "tsx bin/architect-stats",
     "lore-dump": "tsx bin/lore-dump",
+    "mermaidify": "tsx bin/mermaidify",
     "update-goldens": "UPDATE_GOLDENS=1 react-scripts test --all --watchAll=false"
   },
   "eslintConfig": {

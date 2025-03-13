@@ -6,16 +6,17 @@ import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { monsterSpawnScript } from "./utils/creature_spawners";
 import { sprinkleCrystals } from "./utils/resources";
 import { placeSleepingMonsters } from "./utils/creatures";
+import { getAnchor } from "../models/cavern";
 
 const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
   placeSlugHoles() {},
   monsterSpawnScript(args) {
     if (args.cavern.context.biome === "ice" && args.plan.fluid === Tile.LAVA) {
-      return undefined;
+      return;
     }
     if (args.cavern.context.biome === "lava" && args.plan.fluid !== Tile.LAVA) {
-      return undefined;
+      return;
     }
     return monsterSpawnScript(args);
   },

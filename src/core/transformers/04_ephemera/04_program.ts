@@ -29,16 +29,12 @@ export default function program(cavern: PreprogrammedCavern): ProgrammedCavern {
   tileScript({ cavern, sb });
   globalsFns.forEach((fn) => fn({ cavern, sb }));
   cavern.plans.forEach((plan) => plan.architect.script?.({ cavern, plan, sb }));
-  if (cavern.context.hasMonsters) {
-    cavern.plans.forEach((plan) =>
-      plan.architect.monsterSpawnScript?.({ cavern, plan, sb }),
-    );
-  }
-  if (cavern.context.hasSlugs) {
-    cavern.plans.forEach((plan) =>
-      plan.architect.slugSpawnScript?.({ cavern, plan, sb }),
-    );
-  }
+  cavern.plans.forEach((plan) =>
+    plan.architect.monsterSpawnScript?.({ cavern, plan, sb }),
+  );
+  cavern.plans.forEach((plan) =>
+    plan.architect.slugSpawnScript?.({ cavern, plan, sb }),
+  );
 
   const script = sb.build();
   return { ...cavern, script };

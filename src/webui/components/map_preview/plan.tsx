@@ -9,15 +9,6 @@ import { MapOverlay } from ".";
 
 const SCALE = 6;
 
-function getGClassName(plan: Partial<Plan<any>>) {
-  const r = [styles.plan];
-  plan.kind && r.push(styles[`${plan.kind}Kind`]);
-  plan.path?.kind && r.push(styles[`${plan.path.kind}PathKind`]);
-  plan.fluid && r.push(styles[`fluid${plan.fluid.id}`]);
-  plan.hasErosion && r.push("hasErosion");
-  return r.join(" ");
-}
-
 function drawRadius(pearlRadius: number) {
   return pearlRadius + 1;
 }
@@ -128,6 +119,19 @@ export default function PlansPreview({
     return null;
   }
 
+  function getGClassName(plan: Partial<Plan<any>>) {
+    return filterTruthy([
+      styles.plan,
+      plan.kind && styles[`${plan.kind}Kind`],
+      plan.path?.kind && styles[`${plan.path.kind}PathKind`],
+      plan.fluid && styles[`fluid${plan.fluid.id}`],
+      plan.hasErosion && styles["hasErosion"],
+      (plan.architect?.script || plan.architect?.scriptGlobals) && styles["hasScript"],
+      plan.id === cavern.anchor && styles["isAnchor"],
+    ]).join(" ");
+  }
+
+  // First, determine the center coordinate for all plans.
   const planCoords: Point[] = [];
   cavern.plans.forEach((plan) => {
     const bp = plan.path.baseplates;
@@ -143,9 +147,11 @@ export default function PlansPreview({
     }
   });
 
+  // Sort plans horizontally and split into two even columns.
   const right = [...cavern.plans];
   right.sort((a, b) => planCoords[b.id][0] - planCoords[a.id][0]);
   const left = right.splice(Math.floor(right.length / 2));
+  // Sort plans vertically.
   right.sort((a, b) => planCoords[a.id][1] - planCoords[b.id][1]);
   left.sort(
     (a, b) =>

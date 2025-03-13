@@ -12,6 +12,7 @@ import { LoreDie } from "../common/prng";
 import { FOUND_HOARD } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
 import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
+import { getAnchor } from "../models/cavern";
 
 const METADATA = {
   tag: "treasure",
@@ -35,7 +36,7 @@ const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
 
 const shouldIncludeHoardScript = (cavern: PreprogrammedCavern) =>
   cavern.objectives.crystals &&
-  cavern.plans[cavern.anchor].metadata?.tag !== "mobFarm";
+  getAnchor(cavern).metadata?.tag !== "mobFarm";
 
 const HOARD: typeof BASE = {
   ...BASE,

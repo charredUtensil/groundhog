@@ -326,10 +326,18 @@ unnecessary risk.`,
     greeting.then(state('anchorIsPandora')).then(
       "We've located an unusual cavern with a massive cache of Energy " +
       "Crystals. Of course, it couldn't be that easy - the cavern has more " +
-      "monsters than we've seen before."
-    ).then("\n").then(
+      "monsters than we've ever seen before!",
+      ({ format: { monsters } }) =>
+        "The bounty before your eyes is one of the largest loose crystal " +
+        "deposits I've ever seen, and it is, unfortunately, guarded by an " +
+        `army of ${monsters}.`,
+    ).then(
       "Our scouts report they seem a bit shy and probably won't bother us " +
-      "unless we disturb the Energy Crystals here."
+      "unless we disturb the Energy Crystals here.",
+      ({ format: { monsters } }) =>
+        `Early scouting of this area suggests the ${monsters} are fairly ` +
+        "docile and won't attack as long as we aren't disturbing their food " +
+        "source."
     ).then(
       skip,
       state("hasSlugs").then("The Slimy Slugs here might be a problem, though.")
@@ -579,6 +587,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
     // A joke from early in development of Hognose, here as an easter egg.
     start
       .then(state("hasGiantCave"))
+      .then(skip, state("floodedWithWater", "floodedWithLava"))
       .then(
         "We've got news for you, Rock Raider! Our geological scanners have " +
           'discovered a nearby cave approximately the size of "yes".',
@@ -586,6 +595,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
       .then(skip, state("hasMonsters"))
       .then(skip, state("hasSlugs"))
       .then(skip, state("spawnHasErosion"))
+      .then(skip, state("spawnIsHq", "findHq"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
       .then(
         skip,
@@ -593,6 +603,23 @@ of Rock Raiders are lost somewhere in this cavern.`,
       )
       .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
       .then(end);
+    
+      
+    // I had to.
+    start
+      .then(state("floodedWithWater"))
+      .then(state("lostMinersOne"))
+      .then(state("spawnIsHq"))
+      .then(
+        "A man has fallen into the river under Planet U!\n\n" +
+        "Build the Docks! Build the Rapid Rider and off to the rescue. " +
+        "Follow the shoreline! Find the missing Rock Raider!"
+      )
+      .then(skip, state("hasMonsters"))
+      .then(skip, state("hasSlugs"))
+      .then(skip, state("spawnHasErosion"))
+      .then(skip, state("treasureCaveOne", "treasureCaveMany"))
+      .then(end)
   },
 );
 export default PREMISE;

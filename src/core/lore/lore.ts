@@ -4,6 +4,7 @@ import { DiceBox } from "../common";
 import { LoreDie } from "../common/prng";
 import { filterTruthy } from "../common/utils";
 import { GEOLOGICAL_CENTER, SUPPORT_STATION } from "../models/building";
+import { getAnchor } from "../models/cavern";
 import { Objectives } from "../models/objectives";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
@@ -118,7 +119,7 @@ export class Lore {
 
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
-    const anchor = cavern.plans[cavern.anchor];
+    const anchor = getAnchor(cavern);
     const spawn = cavern.plans.find(p => !p.hops.length)!;
 
     const resourceObjective =

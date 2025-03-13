@@ -1,8 +1,7 @@
-import { getSyntheticTrailingComments, transform } from "typescript";
 import { CavernContext } from "../common";
 import { Architect, BaseMetadata } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
-import { monsterForBiome, SLIMY_SLUG } from "../models/creature";
+import { monsterForBiome } from "../models/creature";
 import { position } from "../models/position";
 import { Tile } from "../models/tiles";
 import { PartiallyEstablishedPlan } from "../transformers/01_planning/03_anchor";
@@ -13,28 +12,31 @@ import { gCreatures, monsterSpawnScript } from "./utils/creature_spawners";
 import { placeSleepingMonsters } from "./utils/creatures";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { sprinkleCrystals } from "./utils/resources";
-import { mkRough, Rough, roughReplace } from "./utils/rough";
-import { chainFragment, mkVars, transformPoint } from "./utils/script";
+import { mkRough, Rough } from "./utils/rough";
+import { mkVars, transformPoint } from "./utils/script";
 import { LoreDie } from "../common/prng";
 import { DID_SPAWN_HOARD, DID_SPAWN_ROGUE, DID_SPAWN_SEAM, WARN_APPROACHING_HOARD } from "../lore/graphs/pandora";
+import { getAnchor } from "../models/cavern";
+import { Plan } from "../models/plan";
 
 const METADATA = {
   tag: 'pandora',
 } as const satisfies BaseMetadata;
 
 const g = mkVars(`gPandora`, [
-  'approachingHoard',
   'didSpawnSeam',
   'msgApproachingHoard',
   'msgDidSpawnSeam',
   'msgDidSpawnHoard',
   'msgDidSpawnRogue',
   'onDisturbed',
-  'roll', 
-  'spawnHoard',
+  'roll',
   'willSpawnHoard',
   'willSpawnRogue',
 ]);
+
+const sVars = (plan: Plan<any>) =>
+  mkVars(`p${plan.id}Pa`, ['approachingHoard', 'spawnHoard'])
 
 const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
@@ -42,7 +44,6 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   mod(cavern) {
     const context: CavernContext = {
       ...cavern.context,
-      hasMonsters: false,
       caveCrystalSeamBias: Math.max(0.6, cavern.initialContext.caveCrystalSeamBias ?? 0)
     };
     const plans = [...cavern.plans];
@@ -61,7 +62,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     debugger;
     const spawn = cavern.dice.mod(0).weightedChoice(bids.filter(({dist}) => dist === maxDist));
     plans[spawn.id] = spawn;
-    const anchor = {...cavern.plans[cavern.anchor]} as PartiallyEstablishedPlan;
+    const anchor = {...getAnchor(cavern)} as PartiallyEstablishedPlan;
     delete anchor.hops;
     plans[anchor.id] = anchor;
     return {...cavern, context, plans};
@@ -120,21 +121,19 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     cavern.tiles.forEach((t, ...pos) => {
       if (t.id === Tile.CRYSTAL_SEAM.id) {
         const tp = transformPoint(cavern, pos);
-        sb.when(
+        sb.if(
           `drill:${tp}`,
           `wait:random(1)(4);`,
-          cavern.context.globalHostilesCap > 0 && chainFragment(
+          cavern.context.globalHostilesCap > 0 &&
             `((${gCreatures.active}>=${cavern.context.globalHostilesCap}))return;`,
-            `${gCreatures.active}+=1;`,
-          ),
           `emerge:${tp},A,${monsterId},5;`,
           `${g.didSpawnSeam}+=1;`
         )
       }
     });
     sb.if(
-      `${g.didSpawnSeam}==1`,
-      `msg:${sb.declareString(g.msgDidSpawnSeam, {pg: DID_SPAWN_SEAM, die: LoreDie.pandora})})};`
+      `${g.didSpawnSeam}>=1`,
+      `msg:${sb.declareString(g.msgDidSpawnSeam, {pg: DID_SPAWN_SEAM, die: LoreDie.pandora})};`
     );
 
     // onDisturbed
@@ -145,7 +144,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     );
     sb.when(
       `${monsterId}.dead`,
-      // Ignore any monster that was not killed.
+      // Ignore any monster that was not attacked.
       `((lastcreature.hp>0))return;`,
       `${g.onDisturbed};`,
     );
@@ -164,6 +163,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
 
     // spawnRogue
     // Spawn 1 monster somewhere in the level at random
+    sb.declareInt(g.willSpawnRogue, 0);
     const hw = Math.floor((cavern.right - cavern.left) / 2);
     const hh = Math.floor((cavern.bottom - cavern.top) / 2);
     sb.when(
@@ -174,20 +174,13 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       `emerge:${hh},${hw},A,${monsterId},${Math.max(hw, hh)};`,
     );
     sb.if(
-      `${g.willSpawnRogue}==1`,
+      `${g.willSpawnRogue}>=1`,
       `msg:${sb.declareString(g.msgDidSpawnRogue, {pg: DID_SPAWN_ROGUE, die: LoreDie.pandora})};`,
     );
 
     // spawnHoard
     // Spawns monsters in the hoard chamber (handled by monster spawner)
-    sb.when(
-      `${g.willSpawnHoard}>=1`,
-      `${g.spawnHoard};`
-    );
-    sb.if(
-      `${g.willSpawnHoard}==1`,
-      `msg:${sb.declareString(g.msgDidSpawnHoard, {pg: DID_SPAWN_HOARD, die: LoreDie.pandora})})};`,
-    );
+    sb.declareInt(g.willSpawnHoard, 0);
   },
   objectives: ({cavern}) => ({
     crystals: Math.floor((cavern.plans[cavern.anchor].crystals * 0.33) / 5) * 5,
@@ -195,21 +188,32 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   }),
   script({cavern, plan, sb}) {
     const rng = cavern.dice.script(plan.id);
+    const v = sVars(plan);
 
-    // Monsters were disabled, so monsterSpawnScript will not run.
-    monsterSpawnScript({cavern, plan, sb}, {
-      spawnEvent: g.spawnHoard,
-      spawnRate: 40,
-      tripPoints: plan.innerPearl[plan.innerPearl.length - 3],
-    });
-
-    sb.declareInt(g.approachingHoard, 0);
-    plan.outerPearl[2].map(pos => sb.if(`enter:${transformPoint(cavern, pos)}`, `${g.approachingHoard}=1;`));
+    sb.declareInt(v.approachingHoard, 0);
+    plan.outerPearl[2].filter(pos => cavern.tiles.get(...pos)).map(pos => sb.if(`enter:${transformPoint(cavern, pos)}`, `${v.approachingHoard}=1;`));
     sb.if(
-      `${g.approachingHoard}=1`, 
+      `${v.approachingHoard}>0`, 
       `msg:${sb.declareString(g.msgApproachingHoard, {pg: WARN_APPROACHING_HOARD, rng})};`,
     );
+
+    sb.when(
+      `${g.willSpawnHoard}>=1`,
+      `${v.spawnHoard};`
+    );
+    sb.if(
+      `${g.willSpawnHoard}>=1`,
+      'wait:2;',
+      `msg:${sb.declareString(g.msgDidSpawnHoard, {pg: DID_SPAWN_HOARD, die: LoreDie.pandora})};`,
+      `pan:${transformPoint(cavern, plan.path.baseplates[0].center)};`,
+    );
   },
+  monsterSpawnScript: (args) => monsterSpawnScript(args, {
+    spawnEvent: sVars(args.plan).spawnHoard,
+    spawnRate: 40,
+    tripPoints: args.plan.innerPearl[args.plan.innerPearl.length - 3],
+    force: true,
+  }),
   slugSpawnScript: () => {},
 }
 
@@ -266,7 +270,7 @@ const PANDORA = [
       !plan.fluid &&
       intersectsOnly(cavern.plans, plan, null) &&
       plan.pearlRadius > 5 &&
-      cavern.context.anchorWhimsy * 0.03,
+      cavern.context.anchorWhimsy * 0.1,
   },
   {
     name: "Pandora.Minihoard",

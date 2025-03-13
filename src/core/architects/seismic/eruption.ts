@@ -9,6 +9,7 @@ import { plotLine, Point } from "../../common/geometry";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { placeErosion } from "../utils/hazards";
 import { SEISMIC_BASE, gSeismic, METADATA } from "./base";
+import { getAnchor } from "../../models/cavern";
 
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}SmEr`, [`doSpawn`, "tripCount"]);
@@ -46,6 +47,10 @@ function getEruptPoints(
     }
   }
   return result;
+}
+
+function wantSpawnMonsters(cavern: PreprogrammedCavern) {
+  return cavern.context.hasMonsters && getAnchor(cavern).metadata?.tag !== 'pandora';
 }
 
 const BASE: PartialArchitect<typeof METADATA> = {
@@ -88,15 +93,13 @@ const BASE: PartialArchitect<typeof METADATA> = {
         (pos) =>
           `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
       ),
-      cavern.context.hasMonsters && `${v.doSpawn};`,
+      wantSpawnMonsters(cavern) && `${v.doSpawn};`,
     );
   },
-  monsterSpawnScript: (args) => {
-    return monsterSpawnScript(args, {
-      armEvent: sVars(args.plan).doSpawn,
-      tripOnArmed: "first",
-    });
-  },
+  monsterSpawnScript: (args) => wantSpawnMonsters(args.cavern) && monsterSpawnScript(args, {
+    armEvent: sVars(args.plan).doSpawn,
+    tripOnArmed: "first",
+  }),
 };
 
 const ERUPTION = [
