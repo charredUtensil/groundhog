@@ -175,6 +175,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     );
     sb.if(
       `${g.willSpawnRogue}>=1`,
+      'wait:5;',
       `msg:${sb.declareString(g.msgDidSpawnRogue, {pg: DID_SPAWN_ROGUE, die: LoreDie.pandora})};`,
     );
 
@@ -209,7 +210,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     );
   },
   monsterSpawnScript: (args) => monsterSpawnScript(args, {
-    spawnEvent: sVars(args.plan).spawnHoard,
+    tripEvent: sVars(args.plan).spawnHoard,
     spawnRate: 40,
     tripPoints: args.plan.innerPearl[args.plan.innerPearl.length - 3],
     force: true,

@@ -1,10 +1,17 @@
 import { Format, State } from "../lore";
 import phraseGraph from "../utils/builder";
 
+const PREFIX = [
+  'Oh dear.',
+  'Uh-oh!',
+  'Oh no!',
+  'Be careful.'
+] as const;
+
 export const DID_SPAWN_SEAM = phraseGraph<State, Format>(
   "Pandora - Did spawn monster from seam",
   ({ pg, state, start, end, cut, skip }) => {
-    start.then('Oh dear.', skip).then(
+    start.then(...PREFIX, skip).then(
       "Drilling that Energy Crystal Seam must have upset them.",
       "Try to avoid drilling those seams! The monsters here don't like it.",
     ).then(end);
@@ -14,7 +21,7 @@ export const DID_SPAWN_SEAM = phraseGraph<State, Format>(
 export const DID_SPAWN_ROGUE = phraseGraph<State, Format>(
   "Pandora - Did spawn rogue monster",
   ({ pg, state, start, end, cut, skip }) => {
-    start.then('Oh dear.', skip).then(
+    start.then(...PREFIX, skip).then(
       ({format: {monsters}}) => `Attacking the ${monsters} only upsets them!`,
       'It seems attacking them attracts more monsters.',
     ).then(end);
@@ -24,9 +31,9 @@ export const DID_SPAWN_ROGUE = phraseGraph<State, Format>(
 export const DID_SPAWN_HOARD = phraseGraph<State, Format>(
   "Pandora - Did spawn hoard",
   ({ pg, state, start, end, cut, skip }) => {
-    start.then('Oh dear.', skip).then(
+    start.then(...PREFIX, skip).then(
       "We've upset the hoard.",
-      "We've triggered some kind of feast. ",
+      "The monsters have started a feast. ",
     ).then(end);
   }
 );

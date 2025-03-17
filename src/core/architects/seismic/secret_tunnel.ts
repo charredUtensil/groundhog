@@ -68,7 +68,9 @@ const BASE: PartialArchitect<typeof METADATA> = {
     const ebps = [bps[0], bps[bps.length - 1]];
     return monsterSpawnScript(args, {
       reArmMode: "none",
-      spawnEvent: sVars(args.plan).doSpawn,
+      armEvent: sVars(args.plan).doSpawn,
+      tripOnArmed: "first",
+      tripPoints: [],
       emerges: ebps.map((bp) => {
         const [x, y] = bp.center;
         return { x: Math.floor(x), y: Math.floor(y), radius: bp.pearlRadius };

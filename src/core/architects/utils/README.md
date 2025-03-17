@@ -1,3 +1,22 @@
+# Scripting Patterns
+
+## Mutex
+
+```
+int mtx=0
+when(...)[mtx+=1]
+when(mtx==1)[ev]
+ev::;
+...do something
+mtx=0;
+
+```
+
+Guards code to ensure it is only run once at a time, and drops all other
+attempts to execute it. Replacing the last line with `((mtx>1))[mtx=1][mtx=1];`
+will make the code trigger again if there was any attempt to trigger it during
+execution. 
+
 # Creature Spawners
 
 Randomly spawning monsters at arbitrary points throughout the level is likely
@@ -6,6 +25,8 @@ dedicating _most_ of the scripting toward monster spawning. The goal is a
 system that spawns monsters:
 
 - Using the existing dungeon generatin algorithm as much as possible.
+- With special provisions for certain areas that allows some to be "safe" but
+  others to be particularly dangerous.
 - In defined "waves" of multiple monsters to deal with at once, between lulls
   where no monster spawns.
 - Vaguely close to where the player is actually "playing" in the level.
@@ -99,6 +120,23 @@ Otherwise, it becomes _exhausted_.
 
 The spawner is done and will no longer fire.
 
-## Globals
+## Options
 
 ...
+
+## Globals
+
+Monster spawners use a few global variables to track spawn states.
+
+- `globalCooldown` is a mutex that prevents two different monster spawners
+  from triggering too quickly in succession. Absent if there is no
+  `globalHostilesCooldown` set in `Context`.
+- `airMiners` tracks how many miners are currently supported by Support
+  Stations. Absent if this is not an air level.
+- `anchorHold` is used to allow the anchor to prevent monster spawns. It is not
+  set by the creature spawners, but by the anchor itself.
+- `active` counts the number of creatures that are currently alive and awake.
+  Manic Miners has a macro `hostiles` that approximates this, but includes
+  creatures that are sleeping and thus aren't actually a threat. Creature
+  spawners may refuse to fire if there are too many active threats. Absent if
+  there is no `globalHostilesCap` set in `Context`.
