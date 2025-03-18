@@ -5,6 +5,9 @@ type Bounds = {
   bottom: number;
 };
 
+/**
+ * A two dimensional sparse grid of data.
+ */
 export class MutableGrid<T> {
   private data: Map<`${number},${number}`, T>;
 
@@ -78,4 +81,5 @@ export class MutableGrid<T> {
   }
 }
 
+/** A read-only two dimensional sparse grid of data. */
 export type Grid<T> = Omit<MutableGrid<T>, "set" | "delete">;

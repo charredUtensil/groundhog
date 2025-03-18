@@ -12,6 +12,11 @@ type VarType<T extends string> = {
   [p in T]: string;
 };
 
+/**
+ * Creates an object that contains strings with the given prefix. For example,
+ * `mkVars('foo', ['bar', 'baz'])` returns `{bar: 'foo_bar', baz: 'foo_baz'}`.
+ * This helps with type-checking.
+ */
 export function mkVars<T extends string>(
   prefix: string,
   keys: readonly T[],
@@ -21,6 +26,11 @@ export function mkVars<T extends string>(
   return r as VarType<T>;
 }
 
+/**
+ * Given a point in GroundHog's coordinate system, translate it to a point that
+ * can be used in MMScript. This means adding the fence as an offset and
+ * presenting a string in [Y,X] format.
+ */
 export function transformPoint(
   cavern: FencedCavern,
   [x, y]: Point,

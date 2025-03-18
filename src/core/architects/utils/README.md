@@ -1,3 +1,22 @@
+# Scripting Patterns
+
+## Mutex
+
+```
+int mtx=0
+when(...)[mtx+=1]
+when(mtx==1)[ev]
+ev::;
+...do something
+mtx=0;
+
+```
+
+Guards code to ensure it is only run once at a time, and drops all other
+attempts to execute it. Replacing the last line with `((mtx>1))[mtx=1][mtx=1];`
+will make the code trigger again if there was any attempt to trigger it during
+execution. 
+
 # Creature Spawners
 
 Randomly spawning monsters at arbitrary points throughout the level is likely
@@ -5,7 +24,9 @@ to cause gameplay that is Not Fun. Groundhog attempts to combat this by
 dedicating _most_ of the scripting toward monster spawning. The goal is a
 system that spawns monsters:
 
-- Using the existing dungeon generatin algorithm as much as possible.
+- Using the existing dungeon generation algorithm as much as possible.
+- With special provisions for certain areas that allows some to be "safe" but
+  others to be particularly dangerous.
 - In defined "waves" of multiple monsters to deal with at once, between lulls
   where no monster spawns.
 - Vaguely close to where the player is actually "playing" in the level.
@@ -36,6 +57,14 @@ graph TD;
     Cooldown-->Armed;
     Cooldown-->Exhausted;
 ```
+
+However, architects may override these by providing an `armEvent` or
+`tripEvent` that explicitly moves the spawner into that state regardless what
+state it is currently in.
+
+It should be noted that each spawner uses an `arm` variable to track the
+spawner state, but due to the somewhat frustrating nature of MMScript, the
+states don't exactly line up with the theoretical state machine.
 
 ### Disarmed
 
@@ -99,6 +128,6 @@ Otherwise, it becomes _exhausted_.
 
 The spawner is done and will no longer fire.
 
-## Globals
+## Options
 
-...
+See code comments for `CreatureSpawnerArgs` that explain additional settings.
