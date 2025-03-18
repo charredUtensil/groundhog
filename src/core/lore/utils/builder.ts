@@ -95,8 +95,10 @@ export class PgNode<StateT extends BaseState, FormatT> {
       const p = [pgBuilder.phrase(text)];
       return new PgNode(pgBuilder, p, p, false);
     }
-    const heads = nodes.flatMap((n) => n.heads).sort((a, b) => a.id - b.id);
-    const tails = nodes.flatMap((n) => n.tails).sort((a, b) => a.id - b.id);
+    const heads = nodes.reduce(
+      (r: Phrase<StateT, FormatT>[], n) => merge(r, n.heads), []);
+    const tails = nodes.reduce(
+      (r: Phrase<StateT, FormatT>[], n) => merge(r, n.tails), []);
     const skip = nodes.some((n) => n.skip);
     if (text.length > 0) {
       const phrase = pgBuilder.phrase(text);

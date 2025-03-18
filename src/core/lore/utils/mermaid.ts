@@ -3,7 +3,6 @@ import { filterTruthy } from "../../common/utils";
 import { Creature, ROCK_MONSTER } from "../../models/creature";
 import { atCenterOfTile } from "../../models/position";
 import { HOVER_SCOUT, Vehicle } from "../../models/vehicle";
-import { Format } from "../lore";
 import { PhraseGraph } from "./builder";
 
 const enemy: Creature = {
