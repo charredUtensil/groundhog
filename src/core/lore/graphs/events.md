@@ -72,10 +72,10 @@ P2 --> P6
 P2 --> P8
 P3["[lostMinersTogether]"]
 P3 --> P4
-P4["&bull; the one Rock Raiders are right here, safe and sound!<br/>&bull; You found all one Rock Raiders!<br/>&bull; That's all of the missing Rock Raiders found!"]
+P4["&bull; the three Rock Raiders are right here, safe and sound!<br/>&bull; You found all three Rock Raiders!<br/>&bull; That's all of the missing Rock Raiders found!"]
 P4 --> P6
 P4 --> P8
-P5["&bull; And that makes one Rock Raiders found!<br/>&bull; You found all one Rock Raiders!<br/>&bull; That's all all one Rock Raiders found!"]
+P5["&bull; And that makes three Rock Raiders found!<br/>&bull; You found all three Rock Raiders!<br/>&bull; That's all all three Rock Raiders found!"]
 P5 --> P6
 P5 --> P8
 P6["[resourceObjective]"]
@@ -256,7 +256,7 @@ P4 --> P5
 P4 --> P6
 P5["&bull; Keep going!<br/>&bull; Keep searching, Cadet."]
 P5 --> P6
-P6["We need to find all one before we can leave."]
+P6["We need to find all three before we can leave."]
 P6 --> P7
 P7["[end]"]
 ```

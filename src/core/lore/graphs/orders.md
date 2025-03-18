@@ -336,7 +336,7 @@ P66 --> P121
 P66 --> P125
 P67["[lostMinersApart]"]
 P67 --> P68
-P68["&bull; a teleporter malfunction scattered one of our Rock Raiders throughout this cavern.<br/>&bull; the teleporters have failed again and one groups of Rock Raiders are lost somewhere in this cavern."]
+P68["&bull; a teleporter malfunction scattered three of our Rock Raiders throughout this cavern.<br/>&bull; the teleporters have failed again and three groups of Rock Raiders are lost somewhere in this cavern."]
 P68 --> P87
 P68 --> P89
 P68 --> P119

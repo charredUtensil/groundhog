@@ -58,7 +58,7 @@ P15["[lostMinersTogether]"]
 P15 --> P17
 P16["[lostMinersApart]"]
 P16 --> P17
-P17["&bull; find the lost Rock Raiders<br/>&bull; find all one lost Rock Raiders"]
+P17["&bull; find the lost Rock Raiders<br/>&bull; find all three lost Rock Raiders"]
 P17 --> P18
 P17 --> P21
 P18["and"]
@@ -193,7 +193,7 @@ P23["[lostMinersTogether]"]
 P23 --> P25
 P24["[lostMinersApart]"]
 P24 --> P25
-P25["&bull; find the lost Rock Raiders<br/>&bull; find all one lost Rock Raiders"]
+P25["&bull; find the lost Rock Raiders<br/>&bull; find all three lost Rock Raiders"]
 P25 --> P26
 P25 --> P29
 P25 --> P68
@@ -284,7 +284,7 @@ P51["[lostMinersTogether]"]
 P51 --> P53
 P52["[lostMinersApart]"]
 P52 --> P53
-P53["&bull; found the lost Rock Raiders<br/>&bull; located the lost Rock Raiders<br/>&bull; found all one Rock Raiders"]
+P53["&bull; found the lost Rock Raiders<br/>&bull; located the lost Rock Raiders<br/>&bull; found all three Rock Raiders"]
 P53 --> P54
 P53 --> P56
 P53 --> P57
