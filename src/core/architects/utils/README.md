@@ -24,7 +24,7 @@ to cause gameplay that is Not Fun. Groundhog attempts to combat this by
 dedicating _most_ of the scripting toward monster spawning. The goal is a
 system that spawns monsters:
 
-- Using the existing dungeon generatin algorithm as much as possible.
+- Using the existing dungeon generation algorithm as much as possible.
 - With special provisions for certain areas that allows some to be "safe" but
   others to be particularly dangerous.
 - In defined "waves" of multiple monsters to deal with at once, between lulls
@@ -57,6 +57,14 @@ graph TD;
     Cooldown-->Armed;
     Cooldown-->Exhausted;
 ```
+
+However, architects may override these by providing an `armEvent` or
+`tripEvent` that explicitly moves the spawner into that state regardless what
+state it is currently in.
+
+It should be noted that each spawner uses an `arm` variable to track the
+spawner state, but due to the somewhat frustrating nature of MMScript, the
+states don't exactly line up with the theoretical state machine.
 
 ### Disarmed
 
@@ -122,21 +130,4 @@ The spawner is done and will no longer fire.
 
 ## Options
 
-...
-
-## Globals
-
-Monster spawners use a few global variables to track spawn states.
-
-- `globalCooldown` is a mutex that prevents two different monster spawners
-  from triggering too quickly in succession. Absent if there is no
-  `globalHostilesCooldown` set in `Context`.
-- `airMiners` tracks how many miners are currently supported by Support
-  Stations. Absent if this is not an air level.
-- `anchorHold` is used to allow the anchor to prevent monster spawns. It is not
-  set by the creature spawners, but by the anchor itself.
-- `active` counts the number of creatures that are currently alive and awake.
-  Manic Miners has a macro `hostiles` that approximates this, but includes
-  creatures that are sleeping and thus aren't actually a threat. Creature
-  spawners may refuse to fire if there are too many active threats. Absent if
-  there is no `globalHostilesCap` set in `Context`.
+See code comments for `CreatureSpawnerArgs` that explain additional settings.

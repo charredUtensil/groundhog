@@ -84,7 +84,7 @@ type CreatureSpawnerArgs = {
    */
   readonly needStableAir?: boolean;
   /**
-   * When the spawner is armed, trip automatically
+   * When the spawner is armed, trip automatically.
    */
   readonly tripOnArmed?: "first" | "always";
   /**
@@ -92,7 +92,11 @@ type CreatureSpawnerArgs = {
    * pearl layer.
    */
   readonly tripPoints?: readonly Point[];
-
+  /**
+   * There are circumstances that remove all monster spawners except those used
+   * for a specific purpose. Right now, this is limited to the `pandora` anchor
+   * but may expand in the future. `force` removes the restriction.
+   */
   readonly force?: boolean;
 };
 
@@ -102,7 +106,6 @@ enum ArmState {
   DISARMED = 0,
   ARMED,
   FIRE,
-  COOLDOWN,
 }
 
 type Emerge = {
@@ -112,10 +115,34 @@ type Emerge = {
 };
 
 export const gCreatures = mkVars("gCrSp", [
+  /**
+   * A mutex that prevents two different monster spawners from triggering too
+   * quickly in succession. Absent if there is no `globalHostilesCooldown` set
+   * in `Context`.
+   */
   "globalCooldown",
+  /**
+   * Tracks how many miners are currently supported by Support Stations. Absent
+   * if this is not an air level.
+   */
   "airMiners",
+  /**
+   * Used to allow the anchor to prevent monster spawns. It is not set by the
+   * creature spawners, but by the anchor itself.
+   */
   "anchorHold",
+  /**
+   * Counts the number of creatures that are currently alive and awake. Manic
+   * Miners has a macro `hostiles` that approximates this, but includes
+   * creatures that are sleeping and thus aren't actually a threat. Creature
+   * spawners may refuse to fire if there are too many active threats. Absent
+   * if there is no `globalHostilesCap` set in `Context`.
+   */
   "active",
+  /**
+   * Used to store the initial monsters that are asleep in order to facilitate
+   * the `active` computation above.
+   */
   "mob",
 ]);
 
