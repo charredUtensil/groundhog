@@ -34,105 +34,105 @@ P0 --> P69
 P0 --> P71
 P1["[rockBiome]"]
 P1 --> P2
-P2["Amethyst<br/>Andesite<br/>Anthracite<br/>Argillite"]
+P2["&bull; Amethyst<br/>&bull; Andesite<br/>&bull; Anthracite<br/>&bull; Argillite"]
 P2 --> P7
 P3["[iceBiome]"]
 P3 --> P4
-P4["Arctic<br/>Avalanche"]
+P4["&bull; Arctic<br/>&bull; Avalanche"]
 P4 --> P7
 P5["[lavaBiome]"]
 P5 --> P6
-P6["Asbestos<br/>Ashen"]
+P6["&bull; Asbestos<br/>&bull; Ashen"]
 P6 --> P7
-P7["Abyss<br/>Action<br/>Alley<br/>Attack"]
+P7["&bull; Abyss<br/>&bull; Action<br/>&bull; Alley<br/>&bull; Attack"]
 P7 --> P75
 P8["[rockBiome]"]
 P8 --> P9
-P9["Basalt<br/>Basanite<br/>Bauxite<br/>Boulder<br/>Breccia<br/>Bullion"]
+P9["&bull; Basalt<br/>&bull; Basanite<br/>&bull; Bauxite<br/>&bull; Boulder<br/>&bull; Breccia<br/>&bull; Bullion"]
 P9 --> P12
 P10["[iceBiome]"]
 P10 --> P11
 P11["Blizzard"]
 P11 --> P12
-P12["Balance<br/>Blitz<br/>Breach<br/>Break<br/>Bonanza<br/>Burrow"]
+P12["&bull; Balance<br/>&bull; Blitz<br/>&bull; Breach<br/>&bull; Break<br/>&bull; Bonanza<br/>&bull; Burrow"]
 P12 --> P75
 P13["[rockBiome]"]
 P13 --> P14
-P14["Chalk<br/>Claystone<br/>Core<br/>Crystal"]
+P14["&bull; Chalk<br/>&bull; Claystone<br/>&bull; Core<br/>&bull; Crystal"]
 P14 --> P19
 P15["[iceBiome]"]
 P15 --> P16
-P16["Chilly<br/>Cold"]
+P16["&bull; Chilly<br/>&bull; Cold"]
 P16 --> P19
 P17["[lavaBiome]"]
 P17 --> P18
-P18["Caldera<br/>Cinder"]
+P18["&bull; Caldera<br/>&bull; Cinder"]
 P18 --> P19
-P19["Calamity<br/>Caper<br/>Cavern<br/>Chaos<br/>Conflict<br/>Conundrum<br/>Cruise"]
+P19["&bull; Calamity<br/>&bull; Caper<br/>&bull; Cavern<br/>&bull; Chaos<br/>&bull; Conflict<br/>&bull; Conundrum<br/>&bull; Cruise"]
 P19 --> P75
 P20["[rockBiome]"]
 P20 --> P21
-P21["Diamond<br/>Diorite<br/>Dolomite<br/>Dunite"]
+P21["&bull; Diamond<br/>&bull; Diorite<br/>&bull; Dolomite<br/>&bull; Dunite"]
 P21 --> P24
 P22["[iceBiome]"]
 P22 --> P23
-P23["Dichoric<br/>Drift"]
+P23["&bull; Dichoric<br/>&bull; Drift"]
 P23 --> P24
-P24["Depths<br/>Dash<br/>Descent<br/>Despair<br/>Drive"]
+P24["&bull; Depths<br/>&bull; Dash<br/>&bull; Descent<br/>&bull; Despair<br/>&bull; Drive"]
 P24 --> P75
 P25["[rockBiome]"]
 P25 --> P26
-P26["Emerald<br/>Evaporite"]
+P26["&bull; Emerald<br/>&bull; Evaporite"]
 P26 --> P29
 P27["[lavaBiome]"]
 P27 --> P28
 P28["Ember"]
 P28 --> P29
-P29["Enigma<br/>Eruption<br/>Excavation<br/>Express"]
+P29["&bull; Enigma<br/>&bull; Eruption<br/>&bull; Excavation<br/>&bull; Express"]
 P29 --> P75
 P30["[rockBiome]"]
 P30 --> P31
-P31["Fault Line<br/>Final<br/>Fissure<br/>Flint"]
+P31["&bull; Fault Line<br/>&bull; Final<br/>&bull; Fissure<br/>&bull; Flint"]
 P31 --> P34
 P32["[iceBiome]"]
 P32 --> P33
-P33["Frostbite<br/>Frosty"]
+P33["&bull; Frostbite<br/>&bull; Frosty"]
 P33 --> P34
-P34["Folly<br/>Frenzy<br/>Fury"]
+P34["&bull; Folly<br/>&bull; Frenzy<br/>&bull; Fury"]
 P34 --> P75
 P35["[rockBiome]"]
 P35 --> P36
-P36["Garnet<br/>Giga Granite<br/>Gneiss<br/>Granite<br/>Gritstone<br/>Gypsum"]
+P36["&bull; Garnet<br/>&bull; Giga Granite<br/>&bull; Gneiss<br/>&bull; Granite<br/>&bull; Gritstone<br/>&bull; Gypsum"]
 P36 --> P39
 P37["[iceBiome]"]
 P37 --> P38
-P38["Giga Glacier<br/>Glacial<br/>Glacier"]
+P38["&bull; Giga Glacier<br/>&bull; Glacial<br/>&bull; Glacier"]
 P38 --> P39
-P39["Gauntlet<br/>Getaway"]
+P39["&bull; Gauntlet<br/>&bull; Getaway"]
 P39 --> P75
 P40["[iceBiome]"]
 P40 --> P41
-P41["Iceberg<br/>Icicle"]
+P41["&bull; Iceberg<br/>&bull; Icicle"]
 P41 --> P44
 P42["[lavaBiome]"]
 P42 --> P43
-P43["Igneous<br/>Infernal"]
+P43["&bull; Igneous<br/>&bull; Infernal"]
 P43 --> P44
-P44["Impact<br/>Incursion<br/>Inset<br/>Intrusion"]
+P44["&bull; Impact<br/>&bull; Incursion<br/>&bull; Inset<br/>&bull; Intrusion"]
 P44 --> P75
 P45["[rockBiome]"]
 P45 --> P46
-P46["Lapis Lazuli<br/>Laterite<br/>Lignite<br/>Limestone<br/>Lithosphere"]
+P46["&bull; Lapis Lazuli<br/>&bull; Laterite<br/>&bull; Lignite<br/>&bull; Limestone<br/>&bull; Lithosphere"]
 P46 --> P49
 P47["[lavaBiome]"]
 P47 --> P48
-P48["Lava<br/>Lava Lake<br/>Lithic"]
+P48["&bull; Lava<br/>&bull; Lava Lake<br/>&bull; Lithic"]
 P48 --> P49
-P49["Labyrinth<br/>Lair<br/>Lure"]
+P49["&bull; Labyrinth<br/>&bull; Lair<br/>&bull; Lure"]
 P49 --> P75
 P50["[rockBiome]"]
 P50 --> P51
-P51["Marble<br/>Metamorphic<br/>Mineral<br/>Mudstone"]
+P51["&bull; Marble<br/>&bull; Metamorphic<br/>&bull; Mineral<br/>&bull; Mudstone"]
 P51 --> P56
 P51 --> P57
 P52["[iceBiome]"]
@@ -142,50 +142,50 @@ P53 --> P56
 P53 --> P57
 P54["[lavaBiome]"]
 P54 --> P55
-P55["Mafic<br/>Magma<br/>Mantle<br/>Molten"]
+P55["&bull; Mafic<br/>&bull; Magma<br/>&bull; Mantle<br/>&bull; Molten"]
 P55 --> P56
 P55 --> P57
-P56["Mine<br/>Moon"]
+P56["&bull; Mine<br/>&bull; Moon"]
 P56 --> P57
-P57["Mayhem<br/>Maze<br/>Meltdown<br/>Menace<br/>Mishap"]
+P57["&bull; Mayhem<br/>&bull; Maze<br/>&bull; Meltdown<br/>&bull; Menace<br/>&bull; Mishap"]
 P57 --> P75
 P58["[iceBiome]"]
 P58 --> P59
-P59["Ice Planet<br/>Permafrost<br/>Polar"]
+P59["&bull; Ice Planet<br/>&bull; Permafrost<br/>&bull; Polar"]
 P59 --> P62
 P60["[lavaBiome]"]
 P60 --> P61
-P61["Pumice<br/>Pyroclastic<br/>Pyrolite"]
+P61["&bull; Pumice<br/>&bull; Pyroclastic<br/>&bull; Pyrolite"]
 P61 --> P62
-P62["Passage<br/>Peril<br/>Pit<br/>Plunge<br/>Puzzle"]
+P62["&bull; Passage<br/>&bull; Peril<br/>&bull; Pit<br/>&bull; Plunge<br/>&bull; Puzzle"]
 P62 --> P75
 P63["[rockBiome]"]
 P63 --> P64
-P64["Sandstone<br/>Schist<br/>Sedimentary<br/>Seismic<br/>Shale<br/>Silica<br/>Silt<br/>Slate<br/>Stalactite"]
+P64["&bull; Sandstone<br/>&bull; Schist<br/>&bull; Sedimentary<br/>&bull; Seismic<br/>&bull; Shale<br/>&bull; Silica<br/>&bull; Silt<br/>&bull; Slate<br/>&bull; Stalactite"]
 P64 --> P67
 P64 --> P68
 P65["[iceBiome]"]
 P65 --> P66
-P66["Snowdrift<br/>Sub-Zero"]
+P66["&bull; Snowdrift<br/>&bull; Sub-Zero"]
 P66 --> P67
 P66 --> P68
 P67["Shaft"]
 P67 --> P68
-P68["Scramble<br/>Shock<br/>Showdown<br/>Slide"]
+P68["&bull; Scramble<br/>&bull; Shock<br/>&bull; Showdown<br/>&bull; Slide"]
 P68 --> P75
 P69["[rockBiome]"]
 P69 --> P70
-P70["Tuff<br/>Turbidite<br/>Twilight"]
+P70["&bull; Tuff<br/>&bull; Turbidite<br/>&bull; Twilight"]
 P70 --> P73
 P70 --> P74
 P71["[iceBiome]"]
 P71 --> P72
-P72["Taiga<br/>Titanic<br/>Tundra"]
+P72["&bull; Taiga<br/>&bull; Titanic<br/>&bull; Tundra"]
 P72 --> P73
 P72 --> P74
 P73["Tunnel"]
 P73 --> P74
-P74["Tempest<br/>Terror<br/>Trouble"]
+P74["&bull; Tempest<br/>&bull; Terror<br/>&bull; Trouble"]
 P74 --> P75
 P75["[end]"]
 ```

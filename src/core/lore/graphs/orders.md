@@ -12,17 +12,17 @@ P0 --> P9
 P0 --> P52
 P0 --> P209
 P0 --> P225
-P1["Our mining operations have been going smoothly, and we are ready to move on to the next cavern.<br/>There is nothing out of the ordinary to report today.<br/>Things have been quiet and I hope they should remain that way, Cadet!"]
+P1["&bull; Our mining operations have been going smoothly, and we are ready to move on to the next cavern.<br/>&bull; There is nothing out of the ordinary to report today.<br/>&bull; Things have been quiet and I hope they should remain that way, Cadet!"]
 P1 --> P234
 P2["[floodedWithWater]"]
 P2 --> P3
-P3["Are you ready to set sail?<br/>I hope you packed your lifejacket, Cadet."]
+P3["&bull; Are you ready to set sail?<br/>&bull; I hope you packed your lifejacket, Cadet."]
 P3 --> P7
 P4["[floodedWithLava]"]
 P4 --> P5
-P5["I hope you're not afraid of a little heat!<br/>You'd better keep your cool with this one!"]
+P5["&bull; I hope you're not afraid of a little heat!<br/>&bull; You'd better keep your cool with this one!"]
 P5 --> P7
-P6["Are you ready for the next mission?<br/>Welcome back, Cadet.<br/>I hope you're prepared for this one, Cadet.<br/>Up and at 'em, Cadet!<br/>Cadet, are you up for some more action?"]
+P6["&bull; Are you ready for the next mission?<br/>&bull; Welcome back, Cadet.<br/>&bull; I hope you're prepared for this one, Cadet.<br/>&bull; Up and at 'em, Cadet!<br/>&bull; Cadet, are you up for some more action?"]
 P6 --> P7
 P7["\\n\n"]
 P7 --> P8
@@ -130,7 +130,7 @@ P18 --> P19
 P18 --> P20
 P19["[hasSlugs]"]
 P19 --> P20
-P20["We were all set to mine this cavern, but the team was scared off by readings of {enemies} in the area. They left in such a hurry that they forgot to record where exactly the Rock Raider HQ is.<br/>There should be a base near here, but it's not showing up on our scanners. We hope it hasn't been destroyed by {enemies}, but to be safe, we're sending you to a nearby cavern instead."]
+P20["&bull; We were all set to mine this cavern, but the team was scared off by readings of {enemies} in the area. They left in such a hurry that they forgot to record where exactly the Rock Raider HQ is.<br/>&bull; There should be a base near here, but it's not showing up on our scanners. We hope it hasn't been destroyed by {enemies}, but to be safe, we're sending you to a nearby cavern instead."]
 P20 --> P234
 P21["[buildAndPowerGcOne]"]
 P21 --> P23
@@ -155,9 +155,9 @@ P24 --> P28
 P25["We're sending you to a cavern deep within the planet."]
 P25 --> P26
 P25 --> P28
-P26["Our long-range scanners<br/>The scanners up on the L.M.S. Explorer"]
+P26["&bull; Our long-range scanners<br/>&bull; The scanners up on the L.M.S. Explorer"]
 P26 --> P27
-P27["are unable to penetrate the geology in this area and we need some way to amplify them. That's where you come in - we need a team to scan the area manually<br/>have been unreliable at this depth and we'd like to understand the area better"]
+P27["&bull; are unable to penetrate the geology in this area and we need some way to amplify them. That's where you come in - we need a team to scan the area manually<br/>&bull; have been unreliable at this depth and we'd like to understand the area better"]
 P27 --> P45
 P27 --> P46
 P27 --> P122
@@ -171,23 +171,23 @@ P29 --> P46
 P29 --> P122
 P29 --> P161
 P29 --> P163
-P30["A recent scan<br/>Our most recent geological survey"]
+P30["&bull; A recent scan<br/>&bull; Our most recent geological survey"]
 P30 --> P31
-P31["found<br/>has discovered<br/>has indicated"]
+P31["&bull; found<br/>&bull; has discovered<br/>&bull; has indicated"]
 P31 --> P34
 P31 --> P36
 P31 --> P38
 P31 --> P40
-P32["We<br/>The scanners<br/>The scanners aboard the L.M.S. Explorer"]
+P32["&bull; We<br/>&bull; The scanners<br/>&bull; The scanners aboard the L.M.S. Explorer"]
 P32 --> P33
-P33["have found<br/>have located<br/>have discovered"]
+P33["&bull; have found<br/>&bull; have located<br/>&bull; have discovered"]
 P33 --> P34
 P33 --> P36
 P33 --> P38
 P33 --> P40
 P34["[treasureCaveOne]"]
 P34 --> P35
-P35["a large Energy Crystal signature near here<br/>a nearby cave with an abundance of Energy Crystals"]
+P35["&bull; a large Energy Crystal signature near here<br/>&bull; a nearby cave with an abundance of Energy Crystals"]
 P35 --> P45
 P35 --> P46
 P35 --> P122
@@ -195,7 +195,7 @@ P35 --> P161
 P35 --> P163
 P36["[treasureCaveMany]"]
 P36 --> P37
-P37["large deposits of Energy Crystals in this cavern<br/>a cave system with an abundance of Energy Crystals"]
+P37["&bull; large deposits of Energy Crystals in this cavern<br/>&bull; a cave system with an abundance of Energy Crystals"]
 P37 --> P45
 P37 --> P46
 P37 --> P122
@@ -217,7 +217,7 @@ P40 --> P161
 P40 --> P163
 P41["[anchorIsBlackout]"]
 P41 --> P42
-P42["We found a cavern with unusual geomagnetic properties. We believe it will have plenty of Energy Crystals<br/>We're sending you to a cavern deep within the planet where we've been picking up unusual magnetic readings"]
+P42["&bull; We found a cavern with unusual geomagnetic properties. We believe it will have plenty of Energy Crystals<br/>&bull; We're sending you to a cavern deep within the planet where we've been picking up unusual magnetic readings"]
 P42 --> P43
 P42 --> P44
 P42 --> P45
@@ -239,7 +239,7 @@ P44 --> P161
 P44 --> P163
 P45["."]
 P45 --> P234
-P46[". \\n\nHowever,<br/>. \\n\nUnfortunately,<br/>. \\n\nUnfortunately for us,<br/>. \\n\nThe bad news?<br/>. Use caution!<br/>, but proceed with caution!\\n\n<br/>, but this is no walk in the park."]
+P46["&bull; . \\n\nHowever,<br/>&bull; . \\n\nUnfortunately,<br/>&bull; . \\n\nUnfortunately for us,<br/>&bull; . \\n\nThe bad news?<br/>&bull; . Use caution!<br/>&bull; , but proceed with caution!\\n\n<br/>&bull; , but this is no walk in the park."]
 P46 --> P47
 P46 --> P135
 P46 --> P139
@@ -250,7 +250,7 @@ P46 --> P150
 P46 --> P154
 P47["[findHq]"]
 P47 --> P48
-P48["we already sent another team down here before, and they failed miserably. You should be able to find their Rock Raider HQ nearby<br/>you aren't the first to attempt this mission. You'll find an existing base somewhere in the viscinity"]
+P48["&bull; we already sent another team down here before, and they failed miserably. You should be able to find their Rock Raider HQ nearby<br/>&bull; you aren't the first to attempt this mission. You'll find an existing base somewhere in the viscinity"]
 P48 --> P49
 P48 --> P51
 P49["[hqIsRuin]"]
@@ -259,7 +259,7 @@ P50[" - or what's left of it at least."]
 P50 --> P121
 P51["."]
 P51 --> P121
-P52["Things have been going smoothly... until now!<br/>Bad news, Cadet!<br/>We need your help, Cadet.<br/>Oh, dear."]
+P52["&bull; Things have been going smoothly... until now!<br/>&bull; Bad news, Cadet!<br/>&bull; We need your help, Cadet.<br/>&bull; Oh, dear."]
 P52 --> P53
 P53["\\n\n"]
 P53 --> P54
@@ -298,7 +298,7 @@ P56["[spawnIsHq]"]
 P56 --> P58
 P57["[findHq]"]
 P57 --> P58
-P58["We established our Rock Raider HQ, but<br/>We constructed our base and were ready to begin mining. Unfortunately,"]
+P58["&bull; We established our Rock Raider HQ, but<br/>&bull; We constructed our base and were ready to begin mining. Unfortunately,"]
 P58 --> P59
 P58 --> P61
 P58 --> P63
@@ -308,19 +308,19 @@ P58 --> P90
 P58 --> P91
 P59["[nomadsOne]"]
 P59 --> P60
-P60["a teleporter malfunction sent this Rock Raider to an uncharted cavern.<br/>the teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.<br/>one of our Rock Raiders was accidentally sent to the wrong cavern!"]
+P60["&bull; a teleporter malfunction sent this Rock Raider to an uncharted cavern.<br/>&bull; the teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.<br/>&bull; one of our Rock Raiders was accidentally sent to the wrong cavern!"]
 P60 --> P119
 P60 --> P121
 P60 --> P125
 P61["[nomadsMany]"]
 P61 --> P62
-P62["a teleporter malfunction sent a group of our Rock Raiders to an uncharted cavern.<br/>the teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern."]
+P62["&bull; a teleporter malfunction sent a group of our Rock Raiders to an uncharted cavern.<br/>&bull; the teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern."]
 P62 --> P119
 P62 --> P121
 P62 --> P125
 P63["[lostMinersOne]"]
 P63 --> P64
-P64["a teleporter malfunction sent one of our Rock Raiders to a cavern near here.<br/>the teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.<br/>one of our Rock Raiders was accidentally sent to the wrong cavern!"]
+P64["&bull; a teleporter malfunction sent one of our Rock Raiders to a cavern near here.<br/>&bull; the teleporter on the L.M.S. Explorer has been acting up again and one of our Rock Raiders is trapped in an uncharted cavern.<br/>&bull; one of our Rock Raiders was accidentally sent to the wrong cavern!"]
 P64 --> P87
 P64 --> P89
 P64 --> P119
@@ -328,7 +328,7 @@ P64 --> P121
 P64 --> P125
 P65["[lostMinersTogether]"]
 P65 --> P66
-P66["a teleporter malfunction sent a group of our Rock Raiders to a cavern near here.<br/>the teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern."]
+P66["&bull; a teleporter malfunction sent a group of our Rock Raiders to a cavern near here.<br/>&bull; the teleporter on the L.M.S. Explorer has been acting up again and a group of our Rock Raiders ended up in an uncharted cavern."]
 P66 --> P87
 P66 --> P89
 P66 --> P119
@@ -336,7 +336,7 @@ P66 --> P121
 P66 --> P125
 P67["[lostMinersApart]"]
 P67 --> P68
-P68["a teleporter malfunction scattered one of our Rock Raiders throughout this cavern.<br/>the teleporters have failed again and one groups of Rock Raiders are lost somewhere in this cavern."]
+P68["&bull; a teleporter malfunction scattered one of our Rock Raiders throughout this cavern.<br/>&bull; the teleporters have failed again and one groups of Rock Raiders are lost somewhere in this cavern."]
 P68 --> P87
 P68 --> P89
 P68 --> P119
@@ -378,7 +378,7 @@ P75 --> P76
 P76["A horde of {enemies} attacked our Rock Raider HQ"]
 P76 --> P78
 P76 --> P126
-P77["Recent seismic activity has damaged our Rock Raider HQ<br/>An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ"]
+P77["&bull; Recent seismic activity has damaged our Rock Raider HQ<br/>&bull; An earthquake in this area has caused several cave-ins and destroyed part of our Rock Raider HQ"]
 P77 --> P78
 P77 --> P126
 P78[", and"]
@@ -416,7 +416,7 @@ P82 --> P150
 P82 --> P154
 P83["[lostMinersTogether]"]
 P83 --> P84
-P84["a group of Rock Raidiers are missing.<br/>a group of Rock Raidiers are trapped somewhere in the cavern."]
+P84["&bull; a group of Rock Raidiers are missing.<br/>&bull; a group of Rock Raidiers are trapped somewhere in the cavern."]
 P84 --> P87
 P84 --> P89
 P84 --> P121
@@ -429,7 +429,7 @@ P84 --> P150
 P84 --> P154
 P85["[lostMinersApart]"]
 P85 --> P86
-P86["some of our Rock Raidiers are missing.<br/>our Rock Raiders are trapped throughout the cavern."]
+P86["&bull; some of our Rock Raidiers are missing.<br/>&bull; our Rock Raiders are trapped throughout the cavern."]
 P86 --> P87
 P86 --> P89
 P86 --> P121
@@ -442,7 +442,7 @@ P86 --> P150
 P86 --> P154
 P87["[hasMonsters]"]
 P87 --> P88
-P88["we need to find them before the {enemies} do.<br/>I hope they don't meet any of the {enemies} roaming this cavern."]
+P88["&bull; we need to find them before the {enemies} do.<br/>&bull; I hope they don't meet any of the {enemies} roaming this cavern."]
 P88 --> P105
 P88 --> P106
 P88 --> P107
@@ -451,7 +451,7 @@ P88 --> P114
 P88 --> P206
 P88 --> P207
 P88 --> P234
-P89["we're counting on you to find them!<br/>we don't know how long they'll last out there."]
+P89["&bull; we're counting on you to find them!<br/>&bull; we don't know how long they'll last out there."]
 P89 --> P105
 P89 --> P106
 P89 --> P107
@@ -578,9 +578,9 @@ P118[". Perhaps while you're down there, you can extend the range of our scanner
 P118 --> P234
 P119["[hqIsFixedComplete]"]
 P119 --> P120
-P120["While the teleporters have been repaired, they are operating in a low-power mode and cannot send down any buildings.<br/>We cannot risk running the teleporters at full power, so you will have to make do with the buildings that are already there."]
+P120["&bull; While the teleporters have been repaired, they are operating in a low-power mode and cannot send down any buildings.<br/>&bull; We cannot risk running the teleporters at full power, so you will have to make do with the buildings that are already there."]
 P120 --> P121
-P121["Also,<br/>If that wasn't hard enough,<br/>It gets worse:"]
+P121["&bull; Also,<br/>&bull; If that wasn't hard enough,<br/>&bull; It gets worse:"]
 P121 --> P135
 P121 --> P139
 P121 --> P142
@@ -590,10 +590,10 @@ P121 --> P150
 P121 --> P154
 P122["[spawnIsHq]"]
 P122 --> P123
-P123[", and we have established our Rock Raider HQ.<br/>, and our HQ is ready to go!"]
+P123["&bull; , and we have established our Rock Raider HQ.<br/>&bull; , and our HQ is ready to go!"]
 P123 --> P124
 P123 --> P234
-P124["\\n\nHowever,<br/>\\n\nUnfortunately,<br/>\\n\nUnfortunately for us,<br/>\\n\nThe bad news?<br/>Don't be fooled, though.<br/>I do ask that you be careful down there!"]
+P124["&bull; \\n\nHowever,<br/>&bull; \\n\nUnfortunately,<br/>&bull; \\n\nUnfortunately for us,<br/>&bull; \\n\nThe bad news?<br/>&bull; Don't be fooled, though.<br/>&bull; I do ask that you be careful down there!"]
 P124 --> P135
 P124 --> P139
 P124 --> P142
@@ -601,7 +601,7 @@ P124 --> P145
 P124 --> P147
 P124 --> P150
 P124 --> P154
-P125["Our engineers have assured us the teleporters have been repaired, but<br/>While the teleporters are back in working order,"]
+P125["&bull; Our engineers have assured us the teleporters have been repaired, but<br/>&bull; While the teleporters are back in working order,"]
 P125 --> P135
 P125 --> P139
 P125 --> P142
@@ -609,7 +609,7 @@ P125 --> P145
 P125 --> P147
 P125 --> P150
 P125 --> P154
-P126[". We were able to evacuate in time<br/>. All of our Rock Raiders made it out<br/>. We evacuated the cavern<br/>. Everyone evacuated safely"]
+P126["&bull; . We were able to evacuate in time<br/>&bull; . All of our Rock Raiders made it out<br/>&bull; . We evacuated the cavern<br/>&bull; . Everyone evacuated safely"]
 P126 --> P127
 P126 --> P133
 P127["[findHq]"]
@@ -618,7 +618,7 @@ P127 --> P130
 P127 --> P132
 P128["[nomadsOne]"]
 P128 --> P129
-P129[", but we can't get you any closer than this.<br/>, but we cannot risk teleporting you in any closer than this.<br/>, and we want you to return to the base and salvage what's left of it."]
+P129["&bull; , but we can't get you any closer than this.<br/>&bull; , but we cannot risk teleporting you in any closer than this.<br/>&bull; , and we want you to return to the base and salvage what's left of it."]
 P129 --> P135
 P129 --> P139
 P129 --> P142
@@ -629,7 +629,7 @@ P129 --> P154
 P129 --> P234
 P130["[nomadsMany]"]
 P130 --> P131
-P131[", and you'll be leading the salvage team.<br/>, and this is the team that will restore our operations."]
+P131["&bull; , and you'll be leading the salvage team.<br/>&bull; , and this is the team that will restore our operations."]
 P131 --> P135
 P131 --> P139
 P131 --> P142
@@ -638,7 +638,7 @@ P131 --> P147
 P131 --> P150
 P131 --> P154
 P131 --> P234
-P132[", but this is as close as we can get for now.<br/>, but without the homing beacon we don't want to risk teleporting anyone directly inside."]
+P132["&bull; , but this is as close as we can get for now.<br/>&bull; , but without the homing beacon we don't want to risk teleporting anyone directly inside."]
 P132 --> P135
 P132 --> P139
 P132 --> P142
@@ -649,7 +649,7 @@ P132 --> P154
 P132 --> P234
 P133["[spawnIsHq]"]
 P133 --> P134
-P134[", but this is all that's left.<br/>and now we need to pick up the pieces and try again."]
+P134["&bull; , but this is all that's left.<br/>&bull; and now we need to pick up the pieces and try again."]
 P134 --> P135
 P134 --> P139
 P134 --> P142
@@ -663,7 +663,7 @@ P135 --> P136
 P135 --> P137
 P136["we are dangerously close to a cavern full of lava. Left unchecked, this whole area could be consumed by molten rock!"]
 P136 --> P234
-P137["we are concerned about nearby lava flows that could engulf this cavern<br/>you will need to keep an eye on the volcanic activity in this cavern to avoid being buried in lava"]
+P137["&bull; we are concerned about nearby lava flows that could engulf this cavern<br/>&bull; you will need to keep an eye on the volcanic activity in this cavern to avoid being buried in lava"]
 P137 --> P138
 P137 --> P141
 P137 --> P144
@@ -674,7 +674,7 @@ P138["and"]
 P138 --> P139
 P139["[anchorIsBlackout]"]
 P139 --> P140
-P140["the unusual magnetic properties of the rock here might interfere with our equipment<br/>there are unusual magnetic readings in this cavern and we're concerned about the effects that might have on our equipment"]
+P140["&bull; the unusual magnetic properties of the rock here might interfere with our equipment<br/>&bull; there are unusual magnetic readings in this cavern and we're concerned about the effects that might have on our equipment"]
 P140 --> P141
 P140 --> P144
 P140 --> P149
@@ -699,7 +699,7 @@ P146["[hasSlugs]"]
 P146 --> P148
 P147["[hasSlugs]"]
 P147 --> P148
-P148["the tunnels here are full of large creatures that threaten our operations<br/>we are picking up signs of large creatures in the area<br/>this cavern is inhabited by nests of {enemies}<br/>we have reason to believe there are dozens of {enemies} just out of sight"]
+P148["&bull; the tunnels here are full of large creatures that threaten our operations<br/>&bull; we are picking up signs of large creatures in the area<br/>&bull; this cavern is inhabited by nests of {enemies}<br/>&bull; we have reason to believe there are dozens of {enemies} just out of sight"]
 P148 --> P149
 P148 --> P153
 P148 --> P157
@@ -709,7 +709,7 @@ P150["[anchorIsGasLeak]"]
 P150 --> P151
 P151["the atmosphere in this cavern contains a toxic gas that might explode when exposed to plasma"]
 P151 --> P152
-P152[" - which means we cannot rely on Electric Fences.<br/>. While our laser weapons should be fine, a single Electric Fence could blast us all into tiny bits of ABS."]
+P152["&bull;  - which means we cannot rely on Electric Fences.<br/>&bull; . While our laser weapons should be fine, a single Electric Fence could blast us all into tiny bits of ABS."]
 P152 --> P234
 P153["and"]
 P153 --> P154
@@ -717,15 +717,15 @@ P154["[hqIsFixedComplete]"]
 P154 --> P155
 P155["the teleporters are operating in a low-power mode, so"]
 P155 --> P156
-P156["you will not be able to construct any more buildings.<br/>you must make do with the buildings that are already constructed."]
+P156["&bull; you will not be able to construct any more buildings.<br/>&bull; you must make do with the buildings that are already constructed."]
 P156 --> P234
 P157["."]
 P157 --> P234
 P158["[hasSlugs]"]
 P158 --> P159
-P159["We were all set to mine this cavern, but the team was scared off by a Slimy Slug that suddenly appeared in the middle of our HQ. They even left without recording their location properly.<br/>There should be a base near here, but it's not showing up on our scanners. Some interference from {enemies} must have shut off its location beacon! To be safe, we're sending you to a nearby cavern instead."]
+P159["&bull; We were all set to mine this cavern, but the team was scared off by a Slimy Slug that suddenly appeared in the middle of our HQ. They even left without recording their location properly.<br/>&bull; There should be a base near here, but it's not showing up on our scanners. Some interference from {enemies} must have shut off its location beacon! To be safe, we're sending you to a nearby cavern instead."]
 P159 --> P234
-P160["A forward team has established Rock Raider HQ in the viscinity, but we haven't had the means to use it yet.<br/>There should be a base near here primed and ready for our mining operations, but our teleporters are unable to get a lock on it for some reason.<br/>We've had our eyes on this region and were all set to mine here. Unfortunately, the signed copy of Form 27b-6 went missing below a desk, we forgot about it, and now we aren't exactly sure where that base is."]
+P160["&bull; A forward team has established Rock Raider HQ in the viscinity, but we haven't had the means to use it yet.<br/>&bull; There should be a base near here primed and ready for our mining operations, but our teleporters are unable to get a lock on it for some reason.<br/>&bull; We've had our eyes on this region and were all set to mine here. Unfortunately, the signed copy of Form 27b-6 went missing below a desk, we forgot about it, and now we aren't exactly sure where that base is."]
 P160 --> P234
 P161["[nomadsOne]"]
 P161 --> P162
@@ -736,7 +736,7 @@ P162 --> P169
 P162 --> P234
 P163["[nomadsMany]"]
 P163 --> P164
-P164[". We haven't yet chosen where to establish our base, so I'm leaving that decision to you.<br/>, and I've picked this team to decide where to build our HQ."]
+P164["&bull; . We haven't yet chosen where to establish our base, so I'm leaving that decision to you.<br/>&bull; , and I've picked this team to decide where to build our HQ."]
 P164 --> P165
 P164 --> P167
 P164 --> P169
@@ -748,16 +748,16 @@ P166["[hasSlugs]"]
 P166 --> P168
 P167["[hasSlugs]"]
 P167 --> P168
-P168["\\n\nBe on the lookout for {enemies}, especially once you start construction.<br/>Use caution! There may be {enemies} afoot and I don't want you taking any unnecessary risk."]
+P168["&bull; \\n\nBe on the lookout for {enemies}, especially once you start construction.<br/>&bull; Use caution! There may be {enemies} afoot and I don't want you taking any unnecessary risk."]
 P168 --> P169
 P168 --> P234
 P169["[spawnHasErosion]"]
 P169 --> P234
 P170["[anchorIsMobFarm]"]
 P170 --> P171
-P171["We discovered this incredible cave with the abundance of Energy Crystals you now see before you.<br/>As you can see, we have located a cave with an absurd number of Energy Crystals."]
+P171["&bull; We discovered this incredible cave with the abundance of Energy Crystals you now see before you.<br/>&bull; As you can see, we have located a cave with an absurd number of Energy Crystals."]
 P171 --> P172
-P172["We meant to teleport you onto that island, but something is interfering with the signal.<br/>That many Energy Crystals in one place seems to be interfering with our teleporters."]
+P172["&bull; We meant to teleport you onto that island, but something is interfering with the signal.<br/>&bull; That many Energy Crystals in one place seems to be interfering with our teleporters."]
 P172 --> P173
 P173["We are extremely limited in what vehicles we can send down to you, so you'll have to get the crystals some other way."]
 P173 --> P174
@@ -813,15 +813,15 @@ P185[". We believe they are stranded in a nearby cavern"]
 P185 --> P188
 P186["[lostMinersOne]"]
 P186 --> P187
-P187["One of our Rock Raiders was teleported to another cavern somewhere near here<br/>One of our Rock Raiders didn't come down with the group. They should be somewhere nearby"]
+P187["&bull; One of our Rock Raiders was teleported to another cavern somewhere near here<br/>&bull; One of our Rock Raiders didn't come down with the group. They should be somewhere nearby"]
 P187 --> P188
-P188["and we're counting on you to rescue them!<br/>. I know I can count on you to reach them.<br/>."]
+P188["&bull; and we're counting on you to rescue them!<br/>&bull; . I know I can count on you to reach them.<br/>&bull; ."]
 P188 --> P234
 P189["[anchorIsPandora]"]
 P189 --> P190
-P190["We've located an unusual cavern with a massive cache of Energy Crystals. Of course, it couldn't be that easy - the cavern has more monsters than we've ever seen before!<br/>The bounty before your eyes is one of the largest loose crystal deposits I've ever seen, and it is, unfortunately, guarded by an army of {monsters}."]
+P190["&bull; We've located an unusual cavern with a massive cache of Energy Crystals. Of course, it couldn't be that easy - the cavern has more monsters than we've ever seen before!<br/>&bull; The bounty before your eyes is one of the largest loose crystal deposits I've ever seen, and it is, unfortunately, guarded by an army of {monsters}."]
 P190 --> P191
-P191["Our scouts report they seem a bit shy and probably won't bother us unless we disturb the Energy Crystals here.<br/>Early scouting of this area suggests the {monsters} are fairly docile and won't attack as long as we aren't disturbing their food source."]
+P191["&bull; Our scouts report they seem a bit shy and probably won't bother us unless we disturb the Energy Crystals here.<br/>&bull; Early scouting of this area suggests the {monsters} are fairly docile and won't attack as long as we aren't disturbing their food source."]
 P191 --> P192
 P191 --> P194
 P191 --> P196
@@ -880,7 +880,7 @@ P203 --> P204
 P203 --> P234
 P204["[hasMonsters]"]
 P204 --> P234
-P205[", so be prepared for anything.<br/>, so be careful down there!"]
+P205["&bull; , so be prepared for anything.<br/>&bull; , so be careful down there!"]
 P205 --> P234
 P206["[buildAndPowerGcOne]"]
 P206 --> P208

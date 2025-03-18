@@ -24,8 +24,8 @@ const vehicle: Vehicle = {
 };
 
 const MOCK_FORMAT = {
-  buildAndPowerGcCount: 1,
-  buildAndPowerSsCount: 1,
+  buildAndPowerGcCount: 3,
+  buildAndPowerSsCount: 3,
   enemy,
   enemies: "{enemies}",
   lostMiners: 1,
@@ -38,11 +38,13 @@ const MOCK_FORMAT = {
 
 export function mermaidify(pg: PhraseGraph<any, typeof MOCK_FORMAT>) {
   const ph = pg.phrases.flatMap(phrase => {
-    const t = phrase.text.map(
-      (fn, i) => fn({chosen: phrase.text, index: i, format: MOCK_FORMAT}).replace('\n', '\\n')
-    ).join('<br/>');
-    const r = phrase.requires ? `[${phrase.requires}]` : '';
-    const label = filterTruthy([t, r]).join('<br/>');
+    const texts = [
+      ...phrase.text.map(
+        (fn, i) => fn({chosen: phrase.text, index: i, format: MOCK_FORMAT}).replace('\n', '\\n')
+      ),
+      ...(phrase.requires ? [`[${phrase.requires}]`] : []),
+    ]
+    const label = texts.map(t => texts.length > 1 ? `&bull; ${t}` : t).join('<br/>');
     return filterTruthy([
       label && `P${phrase.id}[${JSON.stringify(label)}]`,
       ...phrase.after.map(a => `P${phrase.id} --> P${a.id}`)

@@ -5,9 +5,9 @@ flowchart TD;
 P0["[start]"]
 P0 --> P1
 P0 --> P2
-P1["Oh, dear.<br/>Bad luck!"]
+P1["&bull; Oh, dear.<br/>&bull; Bad luck!"]
 P1 --> P2
-P2["You didn't<br/>You couldn't<br/>You were unable to<br/>We were counting on you to"]
+P2["&bull; You didn't<br/>&bull; You couldn't<br/>&bull; You were unable to<br/>&bull; We were counting on you to"]
 P2 --> P3
 P2 --> P5
 P2 --> P8
@@ -25,7 +25,7 @@ P4 --> P18
 P4 --> P21
 P5["[buildAndPowerGcMultiple]"]
 P5 --> P6
-P6["build one Geological Centers"]
+P6["build three Geological Centers"]
 P6 --> P7
 P6 --> P12
 P6 --> P18
@@ -41,7 +41,7 @@ P9 --> P18
 P9 --> P21
 P10["[buildAndPowerSsMultiple]"]
 P10 --> P11
-P11["build one Support Stations"]
+P11["build three Support Stations"]
 P11 --> P12
 P11 --> P18
 P11 --> P21
@@ -58,14 +58,14 @@ P15["[lostMinersTogether]"]
 P15 --> P17
 P16["[lostMinersApart]"]
 P16 --> P17
-P17["find the lost Rock Raiders<br/>find all one lost Rock Raiders"]
+P17["&bull; find the lost Rock Raiders<br/>&bull; find all one lost Rock Raiders"]
 P17 --> P18
 P17 --> P21
 P18["and"]
 P18 --> P19
 P19["[resourceObjective]"]
 P19 --> P20
-P20["collect all {resource goal}<br/>get the {resource goal} we needed"]
+P20["&bull; collect all {resource goal}<br/>&bull; get the {resource goal} we needed"]
 P20 --> P21
 P21["."]
 P21 --> P22
@@ -98,7 +98,7 @@ P0 --> P61
 P0 --> P63
 P1["[commend]"]
 P1 --> P2
-P2["Wow!<br/>Well done!<br/>Good work!<br/>Outstanding!<br/>I knew you could do it, Cadet!<br/>You're very good at this, Cadet!<br/>Your efforts have been outstanding!<br/>We were right to count on you, Cadet!"]
+P2["&bull; Wow!<br/>&bull; Well done!<br/>&bull; Good work!<br/>&bull; Outstanding!<br/>&bull; I knew you could do it, Cadet!<br/>&bull; You're very good at this, Cadet!<br/>&bull; Your efforts have been outstanding!<br/>&bull; We were right to count on you, Cadet!"]
 P2 --> P5
 P2 --> P6
 P2 --> P7
@@ -107,7 +107,7 @@ P2 --> P61
 P2 --> P63
 P3["[hasMonsters]"]
 P3 --> P4
-P4["Those {enemies} were no match for you!<br/>You had nothing to fear from those {enemies}!"]
+P4["&bull; Those {enemies} were no match for you!<br/>&bull; You had nothing to fear from those {enemies}!"]
 P4 --> P5
 P4 --> P6
 P4 --> P7
@@ -121,7 +121,7 @@ P6["[spawnHasErosion]"]
 P6 --> P8
 P7["[anchorIsGasLeak]"]
 P7 --> P8
-P8["Despite the odds,<br/>In the face of danger,<br/>Even with the odds against you,"]
+P8["&bull; Despite the odds,<br/>&bull; In the face of danger,<br/>&bull; Even with the odds against you,"]
 P8 --> P9
 P8 --> P61
 P8 --> P63
@@ -137,7 +137,7 @@ P9 --> P49
 P9 --> P51
 P9 --> P52
 P9 --> P58
-P10["managed to<br/>were able to"]
+P10["&bull; managed to<br/>&bull; were able to"]
 P10 --> P11
 P10 --> P13
 P10 --> P16
@@ -156,7 +156,7 @@ P12 --> P29
 P12 --> P68
 P13["[buildAndPowerGcMultiple]"]
 P13 --> P14
-P14["build one Geological Centers"]
+P14["build three Geological Centers"]
 P14 --> P15
 P14 --> P20
 P14 --> P26
@@ -174,7 +174,7 @@ P17 --> P29
 P17 --> P68
 P18["[buildAndPowerSsMultiple]"]
 P18 --> P19
-P19["build one Support Stations"]
+P19["build three Support Stations"]
 P19 --> P20
 P19 --> P26
 P19 --> P29
@@ -193,7 +193,7 @@ P23["[lostMinersTogether]"]
 P23 --> P25
 P24["[lostMinersApart]"]
 P24 --> P25
-P25["find the lost Rock Raiders<br/>find all one lost Rock Raiders"]
+P25["&bull; find the lost Rock Raiders<br/>&bull; find all one lost Rock Raiders"]
 P25 --> P26
 P25 --> P29
 P25 --> P68
@@ -201,7 +201,7 @@ P26["and"]
 P26 --> P27
 P27["[resourceObjective]"]
 P27 --> P28
-P28["collect all {resource goal}<br/>get the {resource goal} we needed"]
+P28["&bull; collect all {resource goal}<br/>&bull; get the {resource goal} we needed"]
 P28 --> P29
 P28 --> P68
 P29["[hasMonsters]"]
@@ -223,7 +223,7 @@ P33["and"]
 P33 --> P34
 P34["[hqIsRuin]"]
 P34 --> P35
-P35["repaired the Rock Raider HQ<br/>restored our mining operations"]
+P35["&bull; repaired the Rock Raider HQ<br/>&bull; restored our mining operations"]
 P35 --> P36
 P35 --> P39
 P35 --> P42
@@ -235,7 +235,7 @@ P36["and"]
 P36 --> P37
 P37["[buildAndPowerGcOne]"]
 P37 --> P38
-P38["constructed the Geological Center<br/>built the Geological Center where we needed it"]
+P38["&bull; constructed the Geological Center<br/>&bull; built the Geological Center where we needed it"]
 P38 --> P39
 P38 --> P42
 P38 --> P45
@@ -246,7 +246,7 @@ P39["and"]
 P39 --> P40
 P40["[buildAndPowerGcMultiple]"]
 P40 --> P41
-P41["built one Geological Centers"]
+P41["built three Geological Centers"]
 P41 --> P42
 P41 --> P45
 P41 --> P48
@@ -256,7 +256,7 @@ P42["and"]
 P42 --> P43
 P43["[buildAndPowerSsOne]"]
 P43 --> P44
-P44["constructed the Support Station<br/>built the Support Station where we needed it"]
+P44["&bull; constructed the Support Station<br/>&bull; built the Support Station where we needed it"]
 P44 --> P45
 P44 --> P48
 P44 --> P57
@@ -265,7 +265,7 @@ P45["and"]
 P45 --> P46
 P46["[buildAndPowerSsMultiple]"]
 P46 --> P47
-P47["built one Support Stations"]
+P47["built three Support Stations"]
 P47 --> P48
 P47 --> P57
 P47 --> P60
@@ -275,7 +275,7 @@ P48 --> P51
 P48 --> P52
 P49["[lostMinersOne]"]
 P49 --> P50
-P50["found the lost Rock Raider<br/>located the lost Rock Raider"]
+P50["&bull; found the lost Rock Raider<br/>&bull; located the lost Rock Raider"]
 P50 --> P54
 P50 --> P56
 P50 --> P57
@@ -284,14 +284,14 @@ P51["[lostMinersTogether]"]
 P51 --> P53
 P52["[lostMinersApart]"]
 P52 --> P53
-P53["found the lost Rock Raiders<br/>located the lost Rock Raiders<br/>found all one Rock Raiders"]
+P53["&bull; found the lost Rock Raiders<br/>&bull; located the lost Rock Raiders<br/>&bull; found all one Rock Raiders"]
 P53 --> P54
 P53 --> P56
 P53 --> P57
 P53 --> P60
 P54["[resourceObjective]"]
 P54 --> P55
-P55[". You even collected {resource goal}!<br/>. Collecting {resource goal} was no small feat either!"]
+P55["&bull; . You even collected {resource goal}!<br/>&bull; . Collecting {resource goal} was no small feat either!"]
 P55 --> P67
 P56[", safe and sound."]
 P56 --> P67
@@ -299,7 +299,7 @@ P57["and"]
 P57 --> P58
 P58["[resourceObjective]"]
 P58 --> P59
-P59["collected {resource goal}<br/>collected all {resource goal}<br/>got all {resource goal}"]
+P59["&bull; collected {resource goal}<br/>&bull; collected all {resource goal}<br/>&bull; got all {resource goal}"]
 P59 --> P60
 P60["."]
 P60 --> P67
@@ -315,7 +315,7 @@ P64["Those Geological Centers you built are already helping us far beyond the re
 P64 --> P65
 P64 --> P66
 P64 --> P67
-P65["We already have a promising lead!<br/>With this built, we can safely make our way further into the planet."]
+P65["&bull; We already have a promising lead!<br/>&bull; With these built, we can safely make our way further into the planet."]
 P65 --> P66
 P65 --> P67
 P66["[hasMonsters]"]
@@ -328,7 +328,7 @@ P69 --> P70
 P69 --> P72
 P70["[commend]"]
 P70 --> P71
-P71["Keep up the good work, Cadet!<br/>You make this look rather easy, Cadet!<br/>Well done!<br/>Good work!<br/>Outstanding!<br/>I knew you could do it, Cadet!<br/>You're very good at this, Cadet!<br/>Your efforts have been outstanding!<br/>We were right to count on you, Cadet!"]
+P71["&bull; Keep up the good work, Cadet!<br/>&bull; You make this look rather easy, Cadet!<br/>&bull; Well done!<br/>&bull; Good work!<br/>&bull; Outstanding!<br/>&bull; I knew you could do it, Cadet!<br/>&bull; You're very good at this, Cadet!<br/>&bull; Your efforts have been outstanding!<br/>&bull; We were right to count on you, Cadet!"]
 P71 --> P72
 P72["Mission Complete!"]
 P72 --> P73

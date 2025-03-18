@@ -4,7 +4,7 @@
 flowchart TD;
 P0["[start]"]
 P0 --> P1
-P1["The power is back, but it's hard to tell how long it will last.<br/>The anomaly has disappeared for now."]
+P1["&bull; The power is back, but it's hard to tell how long it will last.<br/>&bull; The anomaly has disappeared for now."]
 P1 --> P2
 P1 --> P4
 P1 --> P5
@@ -24,9 +24,9 @@ flowchart TD;
 P0["[start]"]
 P0 --> P1
 P0 --> P2
-P1["Hmmm -<br/>Oh no!<br/>This isn't good."]
+P1["&bull; Hmmm -<br/>&bull; Oh no!<br/>&bull; This isn't good."]
 P1 --> P2
-P2["the magnetic shifts are interfering with our Power Station.<br/>the anomaly disabled our Power Station.<br/>our Energy Crystals aren't able to power our HQ right now."]
+P2["&bull; the magnetic shifts are interfering with our Power Station.<br/>&bull; the anomaly disabled our Power Station.<br/>&bull; our Energy Crystals aren't able to power our HQ right now."]
 P2 --> P3
 P3["[end]"]
 ```
@@ -37,7 +37,7 @@ P3["[end]"]
 flowchart TD;
 P0["[start]"]
 P0 --> P1
-P1["Good work!<br/>Your Rock Raiders made short work of that Rock Monster.<br/>That's a relief!<br/>I was worried for a minute there."]
+P1["&bull; Good work!<br/>&bull; Your Rock Raiders made short work of that Rock Monster.<br/>&bull; That's a relief!<br/>&bull; I was worried for a minute there."]
 P1 --> P2
 P2["[end]"]
 ```
@@ -48,11 +48,11 @@ P2["[end]"]
 flowchart TD;
 P0["[start]"]
 P0 --> P1
-P1["With your base destroyed,<br/>Oh no! The Rock Raider HQ is in ruins, and"]
+P1["&bull; With your base destroyed,<br/>&bull; Oh no! The Rock Raider HQ is in ruins, and"]
 P1 --> P2
-P2["I don't think you can complete our mission.<br/>that doesn't bode well for our mission."]
+P2["&bull; I don't think you can complete our mission.<br/>&bull; that doesn't bode well for our mission."]
 P2 --> P3
-P3["I'm pulling you out.<br/>We're teleporting everyone out.<br/>I'm ordering you to evacuate immedately!"]
+P3["&bull; I'm pulling you out.<br/>&bull; We're teleporting everyone out.<br/>&bull; I'm ordering you to evacuate immedately!"]
 P3 --> P4
 P4["[end]"]
 ```
@@ -67,15 +67,15 @@ P0 --> P3
 P0 --> P5
 P1["[lostMinersOne]"]
 P1 --> P2
-P2["Look! It's the lost Rock Raider!<br/>You found the missing Rock Raider!"]
+P2["&bull; Look! It's the lost Rock Raider!<br/>&bull; You found the missing Rock Raider!"]
 P2 --> P6
 P2 --> P8
 P3["[lostMinersTogether]"]
 P3 --> P4
-P4["the one Rock Raiders are right here, safe and sound!<br/>You found all one Rock Raiders!<br/>That's all of the missing Rock Raiders found!"]
+P4["&bull; the one Rock Raiders are right here, safe and sound!<br/>&bull; You found all one Rock Raiders!<br/>&bull; That's all of the missing Rock Raiders found!"]
 P4 --> P6
 P4 --> P8
-P5["And that makes one Rock Raiders found!<br/>You found all one Rock Raiders!<br/>That's all all one Rock Raiders found!"]
+P5["&bull; And that makes one Rock Raiders found!<br/>&bull; You found all one Rock Raiders!<br/>&bull; That's all all one Rock Raiders found!"]
 P5 --> P6
 P5 --> P8
 P6["[resourceObjective]"]
@@ -91,25 +91,25 @@ P8["[end]"]
 flowchart TD;
 P0["[start]"]
 P0 --> P1
-P1["Wow! This ought to do it!<br/>You've found quite the haul here.<br/>Our intel was accurate. Look at all those Energy Crystals!"]
+P1["&bull; Wow! This ought to do it!<br/>&bull; You've found quite the haul here.<br/>&bull; Our intel was accurate. Look at all those Energy Crystals!"]
 P1 --> P2
 P1 --> P3
 P1 --> P5
-P2["Now, transport these Energy Crystals back to your base.<br/>Bring this to your base to complete our mission!<br/>Get this back to your base."]
+P2["&bull; Now, transport these Energy Crystals back to your base.<br/>&bull; Bring this to your base to complete our mission!<br/>&bull; Get this back to your base."]
 P2 --> P7
 P2 --> P8
 P2 --> P9
 P2 --> P10
 P3["[treasureCaveMany]"]
 P3 --> P4
-P4["With this, we have enough to complete our mission!<br/>Collect all the Energy Crystals you've found and complete our mission!"]
+P4["&bull; With this, we have enough to complete our mission!<br/>&bull; Collect all the Energy Crystals you've found and complete our mission!"]
 P4 --> P7
 P4 --> P8
 P4 --> P9
 P4 --> P10
 P5["[hasMonsters]"]
 P5 --> P6
-P6["I hope we can collect these without attracting too much attention.<br/>Be careful, Cadet! This is surely enough to attract those {enemies}."]
+P6["&bull; I hope we can collect these without attracting too much attention.<br/>&bull; Be careful, Cadet! This is surely enough to attract those {enemies}."]
 P6 --> P7
 P6 --> P8
 P6 --> P9
@@ -132,12 +132,12 @@ flowchart TD;
 P0["[start]"]
 P0 --> P1
 P0 --> P2
-P1["Our Rock Raider HQ is safe and sound!<br/>Way to go, Cadet!"]
+P1["&bull; Our Rock Raider HQ is safe and sound!<br/>&bull; Way to go, Cadet!"]
 P1 --> P3
-P2["You found the Rock Raider HQ.<br/>There it is!"]
+P2["&bull; You found the Rock Raider HQ.<br/>&bull; There it is!"]
 P2 --> P3
 P2 --> P4
-P3["Now, <br/>Now you should be able to"]
+P3["&bull; Now, <br/>&bull; Now you should be able to"]
 P3 --> P11
 P3 --> P13
 P3 --> P15
@@ -148,10 +148,10 @@ P3 --> P24
 P3 --> P27
 P4["[hasMonsters]"]
 P4 --> P5
-P5["Shore up the base defenses<br/>Now, get some Electric Fences up"]
+P5["&bull; Shore up the base defenses<br/>&bull; Now, get some Electric Fences up"]
 P5 --> P6
 P5 --> P10
-P6["before the monsters find it too!<br/>and keep it safe from those {enemies}!<br/>and hope those monsters don't cause any more damage!"]
+P6["&bull; before the monsters find it too!<br/>&bull; and keep it safe from those {enemies}!<br/>&bull; and hope those monsters don't cause any more damage!"]
 P6 --> P7
 P6 --> P8
 P6 --> P9
@@ -166,7 +166,7 @@ P8 --> P29
 P9["[lostMinersApart]"]
 P9 --> P26
 P9 --> P29
-P10[". We need this base secure if we're going to<br/>. Once the base is safe,"]
+P10["&bull; . We need this base secure if we're going to<br/>&bull; . Once the base is safe,"]
 P10 --> P11
 P10 --> P13
 P10 --> P15
@@ -219,7 +219,7 @@ P26["[resourceObjective]"]
 P26 --> P29
 P27["[resourceObjective]"]
 P27 --> P28
-P28["collect {resource goal}.<br/>get those {resource goal names}."]
+P28["&bull; collect {resource goal}.<br/>&bull; get those {resource goal names}."]
 P28 --> P29
 P29["[end]"]
 ```
@@ -230,9 +230,9 @@ P29["[end]"]
 flowchart TD;
 P0["[start]"]
 P0 --> P1
-P1["Look! A Hover Scout!<br/>You found a missing Hover Scout!<br/>Hmm. That doesn't belong there."]
+P1["&bull; Look! A Hover Scout!<br/>&bull; You found a missing Hover Scout!<br/>&bull; Hmm. That doesn't belong there."]
 P1 --> P2
-P2["They must be nearby.<br/>They must have passed this way.<br/>They should be close.<br/>You must be getting warmer."]
+P2["&bull; They must be nearby.<br/>&bull; They must have passed this way.<br/>&bull; They should be close.<br/>&bull; You must be getting warmer."]
 P2 --> P3
 P3["[end]"]
 ```
@@ -246,15 +246,15 @@ P0 --> P1
 P0 --> P3
 P1["[foundMinersOne]"]
 P1 --> P2
-P2["Look! It's one of the lost Rock Radiers!<br/>You found a lost Rock Raider!<br/>You found one of the lost Rock Raiders!"]
+P2["&bull; Look! It's one of the lost Rock Radiers!<br/>&bull; You found a lost Rock Raider!<br/>&bull; You found one of the lost Rock Raiders!"]
 P2 --> P5
 P2 --> P6
 P3["[foundMinersTogether]"]
 P3 --> P4
-P4["Look at that!  of the lost Rock Raiders are here, safely together.<br/>That's  Rock Raiders found!<br/>You found  of them here!"]
+P4["&bull; Look at that!  of the lost Rock Raiders are here, safely together.<br/>&bull; That's  Rock Raiders found!<br/>&bull; You found  of them here!"]
 P4 --> P5
 P4 --> P6
-P5["Keep going!<br/>Keep searching, Cadet."]
+P5["&bull; Keep going!<br/>&bull; Keep searching, Cadet."]
 P5 --> P6
 P6["We need to find all one before we can leave."]
 P6 --> P7
@@ -267,9 +267,9 @@ P7["[end]"]
 flowchart TD;
 P0["[start]"]
 P0 --> P1
-P1["I don't like the look of this.<br/>Look at that!<br/>Oh, dear.<br/>This could be a problem!"]
+P1["&bull; I don't like the look of this.<br/>&bull; Look at that!<br/>&bull; Oh, dear.<br/>&bull; This could be a problem!"]
 P1 --> P2
-P2["It must be a nest of Slimy Slugs!<br/>We need to keep these Slimy Slugs at bay."]
+P2["&bull; It must be a nest of Slimy Slugs!<br/>&bull; We need to keep these Slimy Slugs at bay."]
 P2 --> P3
 P3["[end]"]
 ```
@@ -281,7 +281,7 @@ flowchart TD;
 P0["[start]"]
 P0 --> P1
 P0 --> P2
-P1["Careful there!<br/>Oh no!<br/>This isn't good."]
+P1["&bull; Careful there!<br/>&bull; Oh no!<br/>&bull; This isn't good."]
 P1 --> P2
 P2["Our Support Stations can't keep up and this cavern will be uninhabitable very quickly."]
 P2 --> P3
@@ -297,7 +297,7 @@ flowchart TD;
 P0["[start]"]
 P0 --> P1
 P0 --> P2
-P1["Careful there!<br/>Oh no!<br/>This isn't good."]
+P1["&bull; Careful there!<br/>&bull; Oh no!<br/>&bull; This isn't good."]
 P1 --> P2
 P2["Without even one Support Station online, this cavern will be uninhabitable very quickly."]
 P2 --> P3
@@ -340,7 +340,7 @@ P0 --> P12
 P0 --> P24
 P0 --> P29
 P0 --> P30
-P1["This seems like as good a place as any.<br/>Well done, Cadet."]
+P1["&bull; This seems like as good a place as any.<br/>&bull; Well done, Cadet."]
 P1 --> P2
 P1 --> P5
 P1 --> P6
@@ -366,7 +366,7 @@ P8 --> P11
 P8 --> P37
 P9["[resourceObjective]"]
 P9 --> P10
-P10["Now, collect {resource goal}.<br/>Those {resource goal names} are as good as ours!"]
+P10["&bull; Now, collect {resource goal}.<br/>&bull; Those {resource goal names} are as good as ours!"]
 P10 --> P11
 P10 --> P37
 P11["[hasMonsters]"]
@@ -403,7 +403,7 @@ P21 --> P37
 P22["[hasMonsters]"]
 P22 --> P23
 P22 --> P37
-P23["Don't forget to build plenty of Electric Fences in case those {enemies} come.<br/>Just keep an eye out for those {enemies}."]
+P23["&bull; Don't forget to build plenty of Electric Fences in case those {enemies} come.<br/>&bull; Just keep an eye out for those {enemies}."]
 P23 --> P37
 P24["With your Support Station built, you can move on to building"]
 P24 --> P25
