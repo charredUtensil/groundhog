@@ -73,18 +73,24 @@ const SIMPLE_CAVE = [
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, width: 0, grow: 0.5 },
-      { of: roughReplace({
-        dirt: Tile.FLOOR,
-        looseRock: Tile.FLOOR,
-        hardRock: Tile.FLOOR,
-        solidRock: Tile.LOOSE_ROCK,
-      }), grow: 0.5 },
-      { of: roughReplace({
-        dirt: Tile.FLOOR,
-        looseRock: Tile.FLOOR,
-        hardRock: Tile.FLOOR,
-        solidRock: Tile.DIRT,
-      }), grow: 1 },
+      {
+        of: roughReplace({
+          dirt: Tile.FLOOR,
+          looseRock: Tile.FLOOR,
+          hardRock: Tile.FLOOR,
+          solidRock: Tile.LOOSE_ROCK,
+        }),
+        grow: 0.5,
+      },
+      {
+        of: roughReplace({
+          dirt: Tile.FLOOR,
+          looseRock: Tile.FLOOR,
+          hardRock: Tile.FLOOR,
+          solidRock: Tile.DIRT,
+        }),
+        grow: 1,
+      },
       { of: Rough.AT_MOST_LOOSE_ROCK },
       { of: Rough.AT_MOST_HARD_ROCK },
       { of: Rough.VOID, width: 0, grow: 0.5 },

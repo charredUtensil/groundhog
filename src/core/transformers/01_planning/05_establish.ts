@@ -25,7 +25,7 @@ export type EstablishedPlan<T extends BaseMetadata> = ArchitectedPlan<T> & {
   readonly ore: number;
 };
 
-export type OrderedPlan = Omit<PartiallyEstablishedPlan, 'hops'> & {
+export type OrderedPlan = Omit<PartiallyEstablishedPlan, "hops"> & {
   hops: readonly number[];
 };
 
@@ -39,7 +39,9 @@ export type EstablishedCavern = WithPlanType<
 >;
 
 // Sort the plans in a breadth-first search order and log the hops they take.
-export function orderPlans(plans: readonly PartiallyEstablishedPlan[]): OrderedPlan[] {
+export function orderPlans(
+  plans: readonly PartiallyEstablishedPlan[],
+): OrderedPlan[] {
   const queue = plans.filter((plan) => "hops" in plan) as OrderedPlan[];
   const isQueued: true[] = [];
   queue.forEach((plan) => (isQueued[plan.id] = true));
@@ -52,9 +54,7 @@ export function orderPlans(plans: readonly PartiallyEstablishedPlan[]): OrderedP
 
     const neighbors = plan.intersects
       .map((b, id) => (b ? id : -1))
-      .filter(
-        (id) => id >= 0 && !isQueued[id] && plans[id].kind !== plan.kind,
-      );
+      .filter((id) => id >= 0 && !isQueued[id] && plans[id].kind !== plan.kind);
     neighbors.forEach((id) => (isQueued[id] = true));
     queue.push(
       ...neighbors.map((id) => ({

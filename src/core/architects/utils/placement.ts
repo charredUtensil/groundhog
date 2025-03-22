@@ -31,15 +31,27 @@ export function circumferencePositions(
   cavern: StrataformedCavern,
   plan: Plan<any>,
   opts: {
-    count: number,
-    rng: PseudorandomStream,
-    filterFn: (x: number, y: number, t: Tile) => boolean,
-    from?: number,
-    to?: number,
-  }
+    count: number;
+    rng: PseudorandomStream;
+    filterFn: (x: number, y: number, t: Tile) => boolean;
+    from?: number;
+    to?: number;
+  },
 ): EntityPosition[] {
-  for (let ly = opts.to ?? (plan.innerPearl.length - 2); ly >= (opts.from ?? 0); ly--) {
-    const r = positionsHelper(cavern, plan, opts.count, opts.rng, opts.filterFn, ly, ly + 1);
+  for (
+    let ly = opts.to ?? plan.innerPearl.length - 2;
+    ly >= (opts.from ?? 0);
+    ly--
+  ) {
+    const r = positionsHelper(
+      cavern,
+      plan,
+      opts.count,
+      opts.rng,
+      opts.filterFn,
+      ly,
+      ly + 1,
+    );
     if (r.length) {
       return r;
     }
@@ -51,15 +63,27 @@ export function innerPositions(
   cavern: StrataformedCavern,
   plan: Plan<any>,
   opts: {
-    count: number,
-    rng: PseudorandomStream,
-    filterFn: (x: number, y: number, t: Tile) => boolean,
-    from?: number,
-    to?: number,
-  }
+    count: number;
+    rng: PseudorandomStream;
+    filterFn: (x: number, y: number, t: Tile) => boolean;
+    from?: number;
+    to?: number;
+  },
 ): EntityPosition[] {
-  for (let ly = opts.from ?? 1; ly < (opts.to ?? plan.innerPearl.length); ly++) {
-    const r = positionsHelper(cavern, plan, opts.count, opts.rng, opts.filterFn, ly, ly - 1);
+  for (
+    let ly = opts.from ?? 1;
+    ly < (opts.to ?? plan.innerPearl.length);
+    ly++
+  ) {
+    const r = positionsHelper(
+      cavern,
+      plan,
+      opts.count,
+      opts.rng,
+      opts.filterFn,
+      ly,
+      ly - 1,
+    );
     if (r.length) {
       return r;
     }

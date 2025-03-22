@@ -126,7 +126,8 @@ export default function PlansPreview({
       plan.path?.kind && styles[`${plan.path.kind}PathKind`],
       plan.fluid && styles[`fluid${plan.fluid.id}`],
       plan.hasErosion && styles["hasErosion"],
-      (plan.architect?.script || plan.architect?.scriptGlobals) && styles["hasScript"],
+      (plan.architect?.script || plan.architect?.scriptGlobals) &&
+        styles["hasScript"],
       plan.id === cavern.anchor && styles["isAnchor"],
     ]).join(" ");
   }

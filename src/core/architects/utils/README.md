@@ -15,7 +15,7 @@ mtx=0;
 Guards code to ensure it is only run once at a time, and drops all other
 attempts to execute it. Replacing the last line with `((mtx>1))[mtx=1][mtx=1];`
 will make the code trigger again if there was any attempt to trigger it during
-execution. 
+execution.
 
 # Creature Spawners
 
@@ -30,7 +30,7 @@ system that spawns monsters:
 - In defined "waves" of multiple monsters to deal with at once, between lulls
   where no monster spawns.
 - Vaguely close to where the player is actually "playing" in the level.
-- In a way that is not *quite* predictable and seems somewhat random at first
+- In a way that is not _quite_ predictable and seems somewhat random at first
   glance.
 - Without creating too much overhead in terms of lines of script.
 
@@ -44,7 +44,6 @@ but the defaults are described here first.
 ## States
 
 Each spawner follows the same basic state transition:
-
 
 ```mermaid
 graph TD;

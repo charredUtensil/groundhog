@@ -2,9 +2,7 @@ import * as build_and_power from "../src/core/lore/graphs/build_and_power";
 import * as conclusions from "../src/core/lore/graphs/conclusions";
 import * as events from "../src/core/lore/graphs/events";
 import * as names from "../src/core/lore/graphs/names";
-import * as orders from "../src/core/lore/graphs/orders";
 import * as pandora from "../src/core/lore/graphs/pandora";
-import * as premise from "../src/core/lore/graphs/premise";
 import * as seismic from "../src/core/lore/graphs/seismic";
 
 import { PhraseGraph } from "../src/core/lore/utils/builder";
@@ -18,9 +16,7 @@ const MODULES = [
   conclusions,
   events,
   names,
-  orders,
   pandora,
-  premise,
   seismic,
 ] as const;
 
@@ -44,11 +40,11 @@ function main() {
       if (!(pg instanceof PhraseGraph)) {
         return '';
       }
-      return `## ${pg.name}\n\n${mermaidify(pg)}`;
-    }).filter(content => content !== '').join('\n\n');
+      return `## ${pg.name}\n\n${mermaidify(pg)}\n`;
+    }).filter(content => content).join('\n');
 
     if (contents) {
-      const modulePath = Object.keys(require.cache).find(key => modulesMatch(require.cache[key]?.exports, module));
+      const modulePath = Object.keys(require.cache).find(key => modulesMatch(require.cache[key]?.exports, module))!;
       const directory = path.dirname(modulePath);
       const fileName = path.basename(modulePath, '.ts') + '.md';
       const filePath = path.join(directory, fileName);

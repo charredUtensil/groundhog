@@ -1,4 +1,4 @@
-import { EAST, NORTH } from "../../common/geometry";
+import { EAST } from "../../common/geometry";
 import { filterTruthy } from "../../common/utils";
 import { Creature, ROCK_MONSTER } from "../../models/creature";
 import { atCenterOfTile } from "../../models/position";
@@ -6,15 +6,15 @@ import { HOVER_SCOUT, Vehicle } from "../../models/vehicle";
 import { PhraseGraph } from "./builder";
 
 const enemy: Creature = {
-  ...atCenterOfTile({x: 0, y: 0, facing: EAST}),
+  ...atCenterOfTile({ x: 0, y: 0, facing: EAST }),
   id: 0,
   planId: 0,
   template: ROCK_MONSTER,
   sleep: false,
-}
+};
 
 const vehicle: Vehicle = {
-  ...atCenterOfTile({x: 0, y: 0, facing: EAST}),
+  ...atCenterOfTile({ x: 0, y: 0, facing: EAST }),
   id: 0,
   driverId: null,
   essential: false,
@@ -37,18 +37,23 @@ const MOCK_FORMAT = {
 } as const;
 
 export function mermaidify(pg: PhraseGraph<any, typeof MOCK_FORMAT>) {
-  const ph = pg.phrases.flatMap(phrase => {
+  const ph = pg.phrases.flatMap((phrase) => {
     const texts = [
-      ...phrase.text.map(
-        (fn, i) => fn({chosen: phrase.text, index: i, format: MOCK_FORMAT}).replace('\n', '\\n')
+      ...phrase.text.map((fn, i) =>
+        fn({ chosen: phrase.text, index: i, format: MOCK_FORMAT }).replace(
+          "\n",
+          "\\n",
+        ),
       ),
       ...(phrase.requires ? [`[${phrase.requires}]`] : []),
-    ]
-    const label = texts.map(t => texts.length > 1 ? `&bull; ${t}` : t).join('<br/>');
+    ];
+    const label = texts
+      .map((t) => (texts.length > 1 ? `&bull; ${t}` : t))
+      .join("<br/>");
     return filterTruthy([
       label && `P${phrase.id}[${JSON.stringify(label)}]`,
-      ...phrase.after.map(a => `P${phrase.id} --> P${a.id}`)
+      ...phrase.after.map((a) => `P${phrase.id} --> P${a.id}`),
     ]);
   });
-  return `\`\`\`mermaid\nflowchart TD;\n${ph.join('\n')}\n\`\`\``
+  return `\`\`\`mermaid\nflowchart TD;\n${ph.join("\n")}\n\`\`\``;
 }

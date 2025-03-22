@@ -35,8 +35,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
 const g = mkVars("gHoard", ["lock", "message", "crystalsAvailable"]);
 
 const shouldIncludeHoardScript = (cavern: PreprogrammedCavern) =>
-  cavern.objectives.crystals &&
-  getAnchor(cavern).metadata?.tag !== "mobFarm";
+  cavern.objectives.crystals && getAnchor(cavern).metadata?.tag !== "mobFarm";
 
 const HOARD: typeof BASE = {
   ...BASE,
@@ -65,7 +64,7 @@ const HOARD: typeof BASE = {
     if (args.plan.pearlRadius > 3) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize / 2);
-      return { creatures: placeSleepingMonsters(args, {rng, count}) };
+      return { creatures: placeSleepingMonsters(args, { rng, count }) };
     }
     return {};
   },
@@ -202,7 +201,13 @@ const TREASURE = [
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       if (args.cavern.context.biome === "ice" && rng.chance(0.5)) {
         const count = Math.ceil(args.plan.monsterWaveSize / 2);
-        return { creatures: placeSleepingMonsters(args, {rng, count, placement: "inner"}) };
+        return {
+          creatures: placeSleepingMonsters(args, {
+            rng,
+            count,
+            placement: "inner",
+          }),
+        };
       }
       return {};
     },

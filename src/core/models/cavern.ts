@@ -15,6 +15,8 @@ export type PlannedCavern = PearledCavern;
 
 export type Cavern = CollapseUnion<AnyTfResultOf<typeof CAVERN_TF>>;
 
-export function getAnchor<T>(cavern: Cavern & {readonly plans: readonly T[], readonly anchor: number}): T & {readonly architect: Architect<any>} {
+export function getAnchor<T>(
+  cavern: Cavern & { readonly plans: readonly T[]; readonly anchor: number },
+): T & { readonly architect: Architect<any> } {
   return cavern.plans[cavern.anchor] as any;
 }

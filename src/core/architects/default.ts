@@ -81,7 +81,7 @@ export const DefaultSpawnArchitect: PartialArchitect<any> = {
       args.tiles.set(x, y, Tile.FOUNDATION),
     );
     args.openCaveFlags.set(...toolStore.foundation[0], true);
-    const result: Mutable<ReturnType<Architect<any>['placeBuildings']>> = {
+    const result: Mutable<ReturnType<Architect<any>["placeBuildings"]>> = {
       buildings: [toolStore],
     };
     if (args.plan.id === args.cavern.anchor) {

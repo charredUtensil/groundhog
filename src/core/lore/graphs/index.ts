@@ -25,7 +25,12 @@ import {
 } from "./events";
 import { NAME } from "./names";
 import ORDERS from "./orders";
-import { DID_SPAWN_HOARD, DID_SPAWN_ROGUE, DID_SPAWN_SEAM, WARN_APPROACHING_HOARD } from "./pandora";
+import {
+  DID_SPAWN_HOARD,
+  DID_SPAWN_ROGUE,
+  DID_SPAWN_SEAM,
+  WARN_APPROACHING_HOARD,
+} from "./pandora";
 import PREMISE from "./premise";
 import { SEISMIC_FORESHADOW, SEISMIC_FORESHADOW_AGAIN } from "./seismic";
 

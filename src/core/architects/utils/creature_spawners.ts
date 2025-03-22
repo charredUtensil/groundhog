@@ -93,9 +93,10 @@ type CreatureSpawnerArgs = {
    */
   readonly tripPoints?: readonly Point[];
   /**
-   * There are circumstances that remove all monster spawners except those used
-   * for a specific purpose. Right now, this is limited to the `pandora` anchor
-   * but may expand in the future. `force` removes the restriction.
+   * By default, monster spawners will be skipped if `wantNormalMonsterSpawns`
+   * returns false, and slug spawners will be skipped if `context.hasSlugs` is
+   * false.
+   * Setting `force` to true removes this restriction.
    */
   readonly force?: boolean;
 };
@@ -219,15 +220,20 @@ export function creatureSpawnGlobals({
   }
 }
 
+export function wantNormalMonsterSpawns(cavern: PreprogrammedCavern) {
+  return (
+    cavern.context.hasMonsters && getAnchor(cavern).metadata?.tag !== "pandora"
+  );
+}
+
 type ScriptArgs = Parameters<NonNullable<Architect<any>["script"]>>[0];
 
 export function monsterSpawnScript(
   args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
-  if (opts?.force || (
-    args.cavern.context.hasMonsters &&
-    getAnchor(args.cavern).metadata?.tag !== 'pandora')
+  if (
+    opts?.force || wantNormalMonsterSpawns(args.cavern)
   ) {
     creatureSpawnScript(args, {
       creature: monsterForBiome(args.cavern.context.biome),

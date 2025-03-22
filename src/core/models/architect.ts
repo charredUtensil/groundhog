@@ -27,9 +27,7 @@ import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
 import { DiscoveryZone } from "./discovery_zone";
 import { Point } from "../common/geometry";
 import { ModdedCavern } from "../transformers/01_planning/04_mod";
-import {
-  AnchoredCavern,
-} from "../transformers/01_planning/03_anchor";
+import { AnchoredCavern } from "../transformers/01_planning/03_anchor";
 import { DzPriority, ScriptBuilder } from "../architects/utils/script";
 import { FinePlasticCavern } from "../transformers/02_masonry/05_fine";
 

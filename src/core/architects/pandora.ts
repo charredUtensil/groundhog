@@ -15,28 +15,33 @@ import { sprinkleCrystals } from "./utils/resources";
 import { mkRough, Rough } from "./utils/rough";
 import { mkVars, transformPoint } from "./utils/script";
 import { LoreDie } from "../common/prng";
-import { DID_SPAWN_HOARD, DID_SPAWN_ROGUE, DID_SPAWN_SEAM, WARN_APPROACHING_HOARD } from "../lore/graphs/pandora";
+import {
+  DID_SPAWN_HOARD,
+  DID_SPAWN_ROGUE,
+  DID_SPAWN_SEAM,
+  WARN_APPROACHING_HOARD,
+} from "../lore/graphs/pandora";
 import { getAnchor } from "../models/cavern";
 import { Plan } from "../models/plan";
 
 const METADATA = {
-  tag: 'pandora',
+  tag: "pandora",
 } as const satisfies BaseMetadata;
 
 const g = mkVars(`gPandora`, [
-  'didSpawnSeam',
-  'msgApproachingHoard',
-  'msgDidSpawnSeam',
-  'msgDidSpawnHoard',
-  'msgDidSpawnRogue',
-  'onDisturbed',
-  'roll',
-  'willSpawnHoard',
-  'willSpawnRogue',
+  "didSpawnSeam",
+  "msgApproachingHoard",
+  "msgDidSpawnSeam",
+  "msgDidSpawnHoard",
+  "msgDidSpawnRogue",
+  "onDisturbed",
+  "roll",
+  "willSpawnHoard",
+  "willSpawnRogue",
 ]);
 
 const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}Pa`, ['approachingHoard', 'spawnHoard'])
+  mkVars(`p${plan.id}Pa`, ["approachingHoard", "spawnHoard"]);
 
 const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
@@ -44,28 +49,35 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   mod(cavern) {
     const context: CavernContext = {
       ...cavern.context,
-      caveCrystalSeamBias: Math.max(0.6, cavern.initialContext.caveCrystalSeamBias ?? 0)
+      caveCrystalSeamBias: Math.max(
+        0.6,
+        cavern.initialContext.caveCrystalSeamBias ?? 0,
+      ),
     };
     const plans = [...cavern.plans];
-    const inOrder = orderPlans(plans)
-    const bids = 
-    SIMPLE_SPAWN.flatMap((architect) => {
+    const inOrder = orderPlans(plans);
+    const bids = SIMPLE_SPAWN.flatMap((architect) => {
       return inOrder
         .filter((p) => p.kind === "cave" && p.hops.length > 0)
         .map((plan) => ({
           dist: plan.hops.length,
           item: { ...plan, architect, hops: [] },
-          bid: (architect.anchorBid({ cavern, plan }) || 0),
+          bid: architect.anchorBid({ cavern, plan }) || 0,
         }));
     });
-    const maxDist = bids.reduce((r, bid) => bid.bid > 0 ? Math.max(bid.dist, r) : r, 0);
+    const maxDist = bids.reduce(
+      (r, bid) => (bid.bid > 0 ? Math.max(bid.dist, r) : r),
+      0,
+    );
     debugger;
-    const spawn = cavern.dice.mod(0).weightedChoice(bids.filter(({dist}) => dist === maxDist));
+    const spawn = cavern.dice
+      .mod(0)
+      .weightedChoice(bids.filter(({ dist }) => dist === maxDist));
     plans[spawn.id] = spawn;
-    const anchor = {...getAnchor(cavern)} as PartiallyEstablishedPlan;
+    const anchor = { ...getAnchor(cavern) } as PartiallyEstablishedPlan;
     delete anchor.hops;
     plans[anchor.id] = anchor;
-    return {...cavern, context, plans};
+    return { ...cavern, context, plans };
   },
   prime: () => METADATA,
   placeBuildings({ cavern, plan, openCaveFlags }) {
@@ -81,22 +93,27 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     return {};
   },
   placeCrystals(args) {
-    const points = args.plan.innerPearl.flat().filter(pos => {
+    const points = args.plan.innerPearl.flat().filter((pos) => {
       const t = args.tiles.get(...pos);
       return t && !t.isWall && !t.isFluid;
     });
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
     sprinkleCrystals(args, {
-      getRandomTile: () => rng.betaChoice(points, {a: 0.8, b: 1.5}),
+      getRandomTile: () => rng.betaChoice(points, { a: 0.8, b: 1.5 }),
       seamBias: 0,
     });
   },
   placeOre: () => {},
   placeSlugHoles: () => {},
   placeLandslides: () => {},
-  placeEntities({cavern, plan}) {
+  placeEntities({ cavern, plan }) {
     const [cx, cy] = plan.innerPearl[0][0];
-    const ts = cavern.buildings.find(b => b.template === TOOL_STORE && cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))?.openOnSpawn)!;
+    const ts = cavern.buildings.find(
+      (b) =>
+        b.template === TOOL_STORE &&
+        cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))
+          ?.openOnSpawn,
+    )!;
     return {
       cameraPosition: position({
         x: cx,
@@ -106,13 +123,15 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       }),
     };
   },
-  scriptGlobals({cavern, sb}) {
+  scriptGlobals({ cavern, sb }) {
     // On start: Pan from hoard to Tool Store.
-    const ts = cavern.buildings.find(b => b.template === TOOL_STORE && cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))?.openOnSpawn)!;
-    sb.if(
-      `time:5`,
-      `pan:${transformPoint(cavern, [ts.x, ts.y])};`,
-    );
+    const ts = cavern.buildings.find(
+      (b) =>
+        b.template === TOOL_STORE &&
+        cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))
+          ?.openOnSpawn,
+    )!;
+    sb.if(`time:5`, `pan:${transformPoint(cavern, [ts.x, ts.y])};`);
 
     const monsterId = monsterForBiome(cavern.context.biome).id;
 
@@ -127,21 +146,18 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
           cavern.context.globalHostilesCap > 0 &&
             `((${gCreatures.active}>=${cavern.context.globalHostilesCap}))return;`,
           `emerge:${tp},A,${monsterId},5;`,
-          `${g.didSpawnSeam}+=1;`
-        )
+          `${g.didSpawnSeam}+=1;`,
+        );
       }
     });
     sb.if(
       `${g.didSpawnSeam}>=1`,
-      `msg:${sb.declareString(g.msgDidSpawnSeam, {pg: DID_SPAWN_SEAM, die: LoreDie.pandora})};`
+      `msg:${sb.declareString(g.msgDidSpawnSeam, { pg: DID_SPAWN_SEAM, die: LoreDie.pandora })};`,
     );
 
     // onDisturbed
     // When monsters wake or die, spawn more monsters.
-    sb.when(
-      `${monsterId}.wake`,
-      `${g.onDisturbed};`,
-    );
+    sb.when(`${monsterId}.wake`, `${g.onDisturbed};`);
     sb.when(
       `${monsterId}.dead`,
       // Ignore any monster that was not attacked.
@@ -158,7 +174,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       `((${g.roll}>75))return;`,
       // 10% chance to spawn an entire hoard
       // Otherwise spawn one rogue monster
-      `((${g.roll}>10))[${g.willSpawnRogue}+=1][${g.willSpawnHoard}+=1];`
+      `((${g.roll}>10))[${g.willSpawnRogue}+=1][${g.willSpawnHoard}+=1];`,
     );
 
     // spawnRogue
@@ -169,68 +185,73 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     sb.when(
       `${g.willSpawnRogue}>=1`,
       `wait:random(1)(5);`,
-      cavern.context.globalHostilesCap > 0 &&
-        `${gCreatures.active}+=1;`,
+      cavern.context.globalHostilesCap > 0 && `${gCreatures.active}+=1;`,
       `emerge:${hh},${hw},A,${monsterId},${Math.max(hw, hh)};`,
     );
     sb.if(
       `${g.willSpawnRogue}>=1`,
-      'wait:5;',
-      `msg:${sb.declareString(g.msgDidSpawnRogue, {pg: DID_SPAWN_ROGUE, die: LoreDie.pandora})};`,
+      "wait:5;",
+      `msg:${sb.declareString(g.msgDidSpawnRogue, { pg: DID_SPAWN_ROGUE, die: LoreDie.pandora })};`,
     );
 
     // spawnHoard
     // Spawns monsters in the hoard chamber (handled by monster spawner)
     sb.declareInt(g.willSpawnHoard, 0);
   },
-  objectives: ({cavern}) => ({
+  objectives: ({ cavern }) => ({
     crystals: Math.floor((cavern.plans[cavern.anchor].crystals * 0.33) / 5) * 5,
     sufficient: false,
   }),
-  script({cavern, plan, sb}) {
+  script({ cavern, plan, sb }) {
     const rng = cavern.dice.script(plan.id);
     const v = sVars(plan);
 
     sb.declareInt(v.approachingHoard, 0);
-    plan.outerPearl[2].filter(pos => cavern.tiles.get(...pos)).map(pos => sb.if(`enter:${transformPoint(cavern, pos)}`, `${v.approachingHoard}=1;`));
+    plan.outerPearl[2]
+      .filter((pos) => cavern.tiles.get(...pos))
+      .map((pos) =>
+        sb.if(
+          `enter:${transformPoint(cavern, pos)}`,
+          `${v.approachingHoard}=1;`,
+        ),
+      );
     sb.if(
-      `${v.approachingHoard}>0`, 
-      `msg:${sb.declareString(g.msgApproachingHoard, {pg: WARN_APPROACHING_HOARD, rng})};`,
+      `${v.approachingHoard}>0`,
+      `msg:${sb.declareString(g.msgApproachingHoard, { pg: WARN_APPROACHING_HOARD, rng })};`,
     );
 
-    sb.when(
-      `${g.willSpawnHoard}>=1`,
-      `${v.spawnHoard};`
-    );
+    sb.when(`${g.willSpawnHoard}>=1`, `${v.spawnHoard};`);
     sb.if(
       `${g.willSpawnHoard}>=1`,
-      'wait:2;',
-      `msg:${sb.declareString(g.msgDidSpawnHoard, {pg: DID_SPAWN_HOARD, die: LoreDie.pandora})};`,
+      "wait:2;",
+      `msg:${sb.declareString(g.msgDidSpawnHoard, { pg: DID_SPAWN_HOARD, die: LoreDie.pandora })};`,
       `pan:${transformPoint(cavern, plan.path.baseplates[0].center)};`,
     );
   },
-  monsterSpawnScript: (args) => monsterSpawnScript(args, {
-    tripEvent: sVars(args.plan).spawnHoard,
-    spawnRate: 40,
-    tripPoints: args.plan.innerPearl[args.plan.innerPearl.length - 3],
-    force: true,
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      tripEvent: sVars(args.plan).spawnHoard,
+      spawnRate: 40,
+      tripPoints: args.plan.innerPearl[args.plan.innerPearl.length - 3],
+      force: true,
+    }),
   slugSpawnScript: () => {},
-}
+};
 
-function withPocket(pocketLayer: number, {
-  roughExtent,
-  rough,
-}: Pick<Architect<any>, "roughExtent" | "rough">): Pick<
-  Architect<any>,
-  "roughExtent" | "rough"
-> {
+function withPocket(
+  pocketLayer: number,
+  { roughExtent, rough }: Pick<Architect<any>, "roughExtent" | "rough">,
+): Pick<Architect<any>, "roughExtent" | "rough"> {
   const roughWithPocket: Architect<any>["rough"] = (args) => {
     rough(args);
 
-    const pocketHall = args.plan.intersects.reduce((r, _, i) => r >= 0 ? r : i, -1);
-    args.cavern.plans[pocketHall].innerPearl[0].forEach(pos => {
-      const ly = args.cavern.pearlInnerDex.get(...pos)![args.plan.id] ?? Infinity;
+    const pocketHall = args.plan.intersects.reduce(
+      (r, _, i) => (r >= 0 ? r : i),
+      -1,
+    );
+    args.cavern.plans[pocketHall].innerPearl[0].forEach((pos) => {
+      const ly =
+        args.cavern.pearlInnerDex.get(...pos)![args.plan.id] ?? Infinity;
       if (ly <= pocketLayer && args.tiles.get(...pos)?.isWall !== false) {
         args.tiles.set(...pos, Tile.FLOOR);
       }
@@ -244,15 +265,22 @@ const miniHoardBase = (pocketLayer: number): PartialArchitect<undefined> => ({
   crystalsToPlace: ({ plan }) => plan.crystalRichness * plan.perimeter * 2,
   placeEntities(args) {
     const rng = args.cavern.dice.placeEntities(args.plan.id);
-    const creatures = placeSleepingMonsters(args, {rng, count: 3, to: pocketLayer - 1, force: true});
-    return {creatures};
+    const creatures = placeSleepingMonsters(args, {
+      rng,
+      count: 3,
+      to: pocketLayer - 1,
+      force: true,
+    });
+    return { creatures };
   },
   placeCrystals(args) {
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
-    const tiles = args.plan.innerPearl[pocketLayer].filter(pos => args.tiles.get(...pos)?.isWall)
+    const tiles = args.plan.innerPearl[pocketLayer].filter(
+      (pos) => args.tiles.get(...pos)?.isWall,
+    );
     sprinkleCrystals(args, {
       getRandomTile: () => rng.uniformChoice(tiles),
-      seamBias: 1
+      seamBias: 1,
     });
   },
 });
@@ -262,7 +290,7 @@ const PANDORA = [
     name: "Pandora.Hoard",
     ...HOARD_BASE,
     ...mkRough(
-      { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1},
+      { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
       { of: Rough.ALWAYS_HARD_ROCK },
       { of: Rough.AT_LEAST_HARD_ROCK },
     ),
@@ -276,16 +304,19 @@ const PANDORA = [
   {
     name: "Pandora.Minihoard",
     ...miniHoardBase(2),
-    ...withPocket(4, mkRough(
-      { of: Rough.ALWAYS_FLOOR, width: 2 },
-      { of: Rough.ALWAYS_HARD_ROCK },
-      { of: Rough.ALWAYS_SOLID_ROCK },
-      { of: Rough.FLOOR, grow: 1 },
-      { of: Rough.MIX_DIRT_LOOSE_ROCK, width: 0, grow: 0.5 },
-      { of: Rough.MIX_FRINGE },
-    )),
+    ...withPocket(
+      4,
+      mkRough(
+        { of: Rough.ALWAYS_FLOOR, width: 2 },
+        { of: Rough.ALWAYS_HARD_ROCK },
+        { of: Rough.ALWAYS_SOLID_ROCK },
+        { of: Rough.FLOOR, grow: 1 },
+        { of: Rough.MIX_DIRT_LOOSE_ROCK, width: 0, grow: 0.5 },
+        { of: Rough.MIX_FRINGE },
+      ),
+    ),
     caveBid: ({ cavern, plan, plans }) =>
-      plans[cavern.anchor].metadata?.tag === 'pandora' &&
+      plans[cavern.anchor].metadata?.tag === "pandora" &&
       !plan.fluid &&
       intersectsOnly(cavern.plans, plan, null) &&
       plan.pearlRadius > 4 &&
@@ -301,7 +332,7 @@ const PANDORA = [
       { of: Rough.MIX_FRINGE },
     ),
     caveBid: ({ cavern, plan, plans }) =>
-      plans[cavern.anchor].metadata?.tag === 'pandora' &&
+      plans[cavern.anchor].metadata?.tag === "pandora" &&
       !plan.fluid &&
       isDeadEnd(plan) &&
       plan.pearlRadius > 2 &&
@@ -310,15 +341,18 @@ const PANDORA = [
   {
     name: "Pandora.Minihoard.Island",
     ...miniHoardBase(2),
-    ...withPocket(4, mkRough(
-      { of: Rough.ALWAYS_FLOOR, width: 2 },
-      { of: Rough.ALWAYS_HARD_ROCK },
-      { of: Rough.ALWAYS_SOLID_ROCK },
-      { of: Rough.WATER, grow: 1 },
-      { of: Rough.MIX_FRINGE },
-    )),
+    ...withPocket(
+      4,
+      mkRough(
+        { of: Rough.ALWAYS_FLOOR, width: 2 },
+        { of: Rough.ALWAYS_HARD_ROCK },
+        { of: Rough.ALWAYS_SOLID_ROCK },
+        { of: Rough.WATER, grow: 1 },
+        { of: Rough.MIX_FRINGE },
+      ),
+    ),
     caveBid: ({ cavern, plan, plans }) =>
-      plans[cavern.anchor].metadata?.tag === 'pandora' &&
+      plans[cavern.anchor].metadata?.tag === "pandora" &&
       plan.fluid === Tile.WATER &&
       plan.pearlRadius > 5 &&
       cavern.context.anchorWhimsy * 4,

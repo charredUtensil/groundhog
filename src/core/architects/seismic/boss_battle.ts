@@ -189,10 +189,11 @@ const BASE: PartialArchitect<Metadata> = {
       `${v.doArm};`,
     );
   },
-  monsterSpawnScript: (args) => monsterSpawnScript(args, {
-    armEvent: sVars(args.plan).doArm,
-    tripOnArmed: "first",
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      armEvent: sVars(args.plan).doArm,
+      tripOnArmed: "first",
+    }),
 };
 
 const BOSS_BATTLE = [
@@ -210,7 +211,7 @@ const BOSS_BATTLE = [
     caveBid: ({ cavern, plan, plans }) =>
       !plan.fluid &&
       cavern.context.hasMonsters &&
-      plans[cavern.anchor].metadata?.tag !== 'pandora' &&
+      plans[cavern.anchor].metadata?.tag !== "pandora" &&
       plan.pearlRadius >= 5 &&
       plan.path.baseplates.length === 1 &&
       !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&

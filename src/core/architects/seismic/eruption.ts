@@ -3,7 +3,7 @@ import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
 import { mkVars, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
-import { monsterSpawnScript } from "../utils/creature_spawners";
+import { monsterSpawnScript, wantNormalMonsterSpawns } from "../utils/creature_spawners";
 import { Tile } from "../../models/tiles";
 import { plotLine, Point } from "../../common/geometry";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
@@ -49,10 +49,6 @@ function getEruptPoints(
   return result;
 }
 
-function wantSpawnMonsters(cavern: PreprogrammedCavern) {
-  return cavern.context.hasMonsters && getAnchor(cavern).metadata?.tag !== 'pandora';
-}
-
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
   ...SEISMIC_BASE,
@@ -93,13 +89,14 @@ const BASE: PartialArchitect<typeof METADATA> = {
         (pos) =>
           `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
       ),
-      wantSpawnMonsters(cavern) && `${v.doSpawn};`,
+      wantNormalMonsterSpawns(cavern) && `${v.doSpawn};`,
     );
   },
-  monsterSpawnScript: (args) => wantSpawnMonsters(args.cavern) && monsterSpawnScript(args, {
-    armEvent: sVars(args.plan).doSpawn,
-    tripOnArmed: "first",
-  }),
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
+      armEvent: sVars(args.plan).doSpawn,
+      tripOnArmed: "first",
+    }),
 };
 
 const ERUPTION = [

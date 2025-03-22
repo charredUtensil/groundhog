@@ -25,7 +25,15 @@ export type AnyMetadata =
   | LostMinersMetadata
   | NomadsMetadata
   | MobFarmMetadata
-  | { tag: "blackout" | "oreWaste" | "pandora" | "seismic" | "slugNest" | "treasure" };
+  | {
+      tag:
+        | "blackout"
+        | "oreWaste"
+        | "pandora"
+        | "seismic"
+        | "slugNest"
+        | "treasure";
+    };
 
 export const ARCHITECTS = [
   ...BLACKOUT,

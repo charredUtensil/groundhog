@@ -7,7 +7,7 @@ import { WithPlanType } from "./utils";
 export type PartiallyEstablishedPlan = FloodedPlan & {
   architect?: Architect<any>;
   hops?: readonly never[];
-}
+};
 
 export type AnchoredCavern = WithPlanType<
   FloodedCavern,

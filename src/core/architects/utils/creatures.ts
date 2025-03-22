@@ -21,27 +21,31 @@ const PLACEMENT_FN = {
 } as const;
 
 export function placeSleepingMonsters(
-  {cavern, plan, creatureFactory}: Parameters<Architect<any>["placeEntities"]>[0],
+  {
+    cavern,
+    plan,
+    creatureFactory,
+  }: Parameters<Architect<any>["placeEntities"]>[0],
   opts: {
-    rng: PseudorandomStream,
-    count: number,
-    placement?: "outer" | "inner",
-    from?: number,
-    to?: number,
-    force?: boolean
+    rng: PseudorandomStream;
+    count: number;
+    placement?: "outer" | "inner";
+    from?: number;
+    to?: number;
+    force?: boolean;
   },
 ): Creature[] {
-  if (opts.force || (
-    cavern.context.hasMonsters &&
-    getAnchor(cavern).metadata?.tag !== 'pandora'
-  )) {
+  if (
+    opts.force ||
+    (cavern.context.hasMonsters &&
+      getAnchor(cavern).metadata?.tag !== "pandora")
+  ) {
     const template = monsterForBiome(cavern.context.biome);
     const filterFn = TILE_CAN_HAVE_MONSTER[cavern.context.biome];
-    return PLACEMENT_FN[opts.placement ?? 'outer'](
-      cavern,
-      plan,
-      {...opts, filterFn},
-    ).map((pos) =>
+    return PLACEMENT_FN[opts.placement ?? "outer"](cavern, plan, {
+      ...opts,
+      filterFn,
+    }).map((pos) =>
       creatureFactory.create({
         ...pos,
         planId: plan.id,
@@ -50,7 +54,7 @@ export function placeSleepingMonsters(
       }),
     );
   }
- return [];
+  return [];
 }
 
 export function sprinkleSlugHoles(

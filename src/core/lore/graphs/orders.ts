@@ -35,11 +35,11 @@ const ORDERS = phraseGraph<State, Format>(
             "defend the Rock Radier HQ",
             "build up your defenses",
             "arm your Rock Raiders",
-          ).then(joiner),
-        state("hasSlugs").then(
-          "defend the Rock Radier HQ",
-          "arm your Rock Raiders",
-        ).then(joiner),
+          )
+          .then(joiner),
+        state("hasSlugs")
+          .then("defend the Rock Radier HQ", "arm your Rock Raiders")
+          .then(joiner),
         pg(
           skip,
           state("nomadsOne", "nomadsMany"),

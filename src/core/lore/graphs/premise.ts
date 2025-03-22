@@ -323,46 +323,43 @@ unnecessary risk.`,
       )
       .then(end);
 
-    greeting.then(state('anchorIsPandora')).then(
-      "We've located an unusual cavern with a massive cache of Energy " +
-      "Crystals. Of course, it couldn't be that easy - the cavern has more " +
-      "monsters than we've ever seen before!",
-      ({ format: { monsters } }) =>
-        "The bounty before your eyes is one of the largest loose crystal " +
-        "deposits I've ever seen, and it is, unfortunately, guarded by an " +
-        `army of ${monsters}.`,
-    ).then(
-      "Our scouts report they seem a bit shy and probably won't bother us " +
-      "unless we disturb the Energy Crystals here.",
-      ({ format: { monsters } }) =>
-        `Early scouting of this area suggests the ${monsters} are fairly ` +
-        "docile and won't attack as long as we aren't disturbing their food " +
-        "source."
-    ).then(
-      skip,
-      state("hasSlugs").then("The Slimy Slugs here might be a problem, though.")
-    ).then(
-      skip,
-      pg(
-        state("lostMinersOne").then("\n\nOne of the scouts"),
-        state("lostMinersTogether", "lostMinersApart").then("\n\nThe team"),
-      ).then(
-        "hasn't reported back yet, so we're sending you to find them."
-      ),
-    ).then(
-      skip,
-      state('treasureCaveOne'),
-      state('treasureCaveMany'),
-    ).then(
-      skip,
-      state('spawnHasErosion'),
-    ).then(
-      skip,
-      state('hasGiantCave'),
-    ).then(
-      skip,
-      state('hasMonsters'),
-    ).then(end);
+    greeting
+      .then(state("anchorIsPandora"))
+      .then(
+        "We've located an unusual cavern with a massive cache of Energy " +
+          "Crystals. Of course, it couldn't be that easy - the cavern has more " +
+          "monsters than we've ever seen before!",
+        ({ format: { monsters } }) =>
+          "The bounty before your eyes is one of the largest loose crystal " +
+          "deposits I've ever seen, and it is, unfortunately, guarded by an " +
+          `army of ${monsters}.`,
+      )
+      .then(
+        "Our scouts report they seem a bit shy and probably won't bother us " +
+          "unless we disturb the Energy Crystals here.",
+        ({ format: { monsters } }) =>
+          `Early scouting of this area suggests the ${monsters} are fairly ` +
+          "docile and won't attack as long as we aren't disturbing their food " +
+          "source.",
+      )
+      .then(
+        skip,
+        state("hasSlugs").then(
+          "The Slimy Slugs here might be a problem, though.",
+        ),
+      )
+      .then(
+        skip,
+        pg(
+          state("lostMinersOne").then("\n\nOne of the scouts"),
+          state("lostMinersTogether", "lostMinersApart").then("\n\nThe team"),
+        ).then("hasn't reported back yet, so we're sending you to find them."),
+      )
+      .then(skip, state("treasureCaveOne"), state("treasureCaveMany"))
+      .then(skip, state("spawnHasErosion"))
+      .then(skip, state("hasGiantCave"))
+      .then(skip, state("hasMonsters"))
+      .then(end);
 
     const negativeGreeting = pg(
       greeting,
@@ -597,14 +594,10 @@ of Rock Raiders are lost somewhere in this cavern.`,
       .then(skip, state("spawnHasErosion"))
       .then(skip, state("spawnIsHq", "findHq"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-      .then(
-        skip,
-        state("nomadsOne", "nomadsMany", "anchorIsBlackout"),
-      )
+      .then(skip, state("nomadsOne", "nomadsMany", "anchorIsBlackout"))
       .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
       .then(end);
-    
-      
+
     // I had to.
     start
       .then(state("floodedWithWater"))
@@ -612,14 +605,14 @@ of Rock Raiders are lost somewhere in this cavern.`,
       .then(state("spawnIsHq"))
       .then(
         "A man has fallen into the river under Planet U!\n\n" +
-        "Build the Docks! Build the Rapid Rider and off to the rescue. " +
-        "Follow the shoreline! Find the missing Rock Raider!"
+          "Build the Docks! Build the Rapid Rider and off to the rescue. " +
+          "Follow the shoreline! Find the missing Rock Raider!",
       )
       .then(skip, state("hasMonsters"))
       .then(skip, state("hasSlugs"))
       .then(skip, state("spawnHasErosion"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-      .then(end)
+      .then(end);
   },
 );
 export default PREMISE;

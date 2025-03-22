@@ -132,7 +132,7 @@ export enum LoreDie {
   pandora,
 }
 
-const SEALED = Symbol('sealed');
+const SEALED = Symbol("sealed");
 
 /**
  * A box of pseudo-random streams. Streams are separated into "kinds" - each one
@@ -183,7 +183,9 @@ export class DiceBox {
   }
 
   seal() {
-    this.boxes.forEach(box => box.rngs.forEach((_, i) => box.rngs[i] = SEALED));
+    this.boxes.forEach((box) =>
+      box.rngs.forEach((_, i) => (box.rngs[i] = SEALED)),
+    );
   }
 
   get partition() {
