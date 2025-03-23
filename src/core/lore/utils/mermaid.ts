@@ -41,7 +41,7 @@ export function mermaidify(pg: PhraseGraph<any, typeof MOCK_FORMAT>) {
     const texts = [
       ...phrase.text.map((fn, i) =>
         fn({ chosen: phrase.text, index: i, format: MOCK_FORMAT }).replace(
-          "\n",
+          /\n/g,
           "\\n",
         ),
       ),
