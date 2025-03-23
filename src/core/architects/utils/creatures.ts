@@ -4,7 +4,6 @@ import { Architect } from "../../models/architect";
 import { getAnchor } from "../../models/cavern";
 import { Creature, monsterForBiome } from "../../models/creature";
 import { Tile } from "../../models/tiles";
-import { StrataformedCavern } from "../../transformers/03_plastic/03_strataform";
 import { circumferencePositions, innerPositions } from "./placement";
 
 const TILE_CAN_HAVE_MONSTER = {

@@ -3,13 +3,15 @@ import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
 import { mkVars, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
-import { monsterSpawnScript, wantNormalMonsterSpawns } from "../utils/creature_spawners";
+import {
+  monsterSpawnScript,
+  wantNormalMonsterSpawns,
+} from "../utils/creature_spawners";
 import { Tile } from "../../models/tiles";
 import { plotLine, Point } from "../../common/geometry";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
 import { placeErosion } from "../utils/hazards";
 import { SEISMIC_BASE, gSeismic, METADATA } from "./base";
-import { getAnchor } from "../../models/cavern";
 
 const sVars = (plan: Plan<any>) =>
   mkVars(`p${plan.id}SmEr`, [`doSpawn`, "tripCount"]);

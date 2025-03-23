@@ -232,9 +232,7 @@ export function monsterSpawnScript(
   args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
-  if (
-    opts?.force || wantNormalMonsterSpawns(args.cavern)
-  ) {
+  if (opts?.force || wantNormalMonsterSpawns(args.cavern)) {
     creatureSpawnScript(args, {
       creature: monsterForBiome(args.cavern.context.biome),
       reArmMode: "automatic",
