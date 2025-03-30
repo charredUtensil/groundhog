@@ -250,6 +250,8 @@ function joinTexts<FormatT>(
   return r.join("");
 }
 
+export class NoContinuationError extends Error {}
+
 export class PhraseGraph<StateT extends BaseState, FormatT> {
   readonly name: string;
   private readonly start: Phrase<StateT, FormatT>;
@@ -299,13 +301,7 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
         (a) => reachedState in a.reachableStates,
       );
       if (continuations.length === 0) {
-        console.log(
-          "%o: No continutation has %s at phrase %o",
-          this,
-          reachedState,
-          phrase,
-        );
-        throw new Error(
+        throw new NoContinuationError(
           `${this.name}: No continuation has ${reachedState} at phrase ${phrase.id}`,
         );
       }

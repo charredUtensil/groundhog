@@ -3,7 +3,6 @@
 // This script generates a large number of caverns until architects have been
 // assigned, then reports statistics on how common the architects are.
 
-import "dotenv/config";
 import { inferContextDefaults } from "../src/core/common";
 import { CAVERN_TF } from "../src/core/transformers";
 import { AnyTfResultOf } from "../src/core/common/transform";
@@ -11,6 +10,7 @@ import { CollapseUnion, filterTruthy } from "../src/core/common/utils";
 import { MAX_PLUS_ONE } from "../src/core/common/prng";
 import { ARCHITECTS } from "../src/core/architects";
 import { Architect } from "../src/core/models/architect";
+import { getFlags } from "../src/core/common/flags";
 
 type Concordance = { [K: string]: number };
 
@@ -146,25 +146,23 @@ function draw(stats: Stats, count: number, totalCount: number) {
   );
 }
 
-function main() {
-  const firstSeed = parseInt(process.env.FIRST_SEED ?? 'EFE63E54', 16);
-  const totalCount = parseInt(process.env.TOTAL_COUNT ?? '10000', 10);
+function main({ firstSeed, totalCount }: { firstSeed: number, totalCount: number}) {
   const stats: Stats = {};
   ARCHITECTS.forEach(architect => {
     stats[architect.name] = {
       counts: [],
       lastSeen: -1,
       lastNotSeen: -1,
-    }
+    };
   });
 
-  for (var i = 0; i < totalCount; i++) {
+  for (let i = 0; i < totalCount; i++) {
     const seed = (firstSeed + i) % MAX_PLUS_ONE;
     const concordanceInSeed = gen(seed);
     ARCHITECTS.forEach(architect => {
-      const a = stats[architect.name]
+      const a = stats[architect.name];
       const timesArchitectInSeed = concordanceInSeed[architect.name] ?? 0;
-      for (var j = 0; j < timesArchitectInSeed; j++) {
+      for (let j = 0; j < timesArchitectInSeed; j++) {
         a.counts[j] = (a.counts[j] ?? 0) + 1;
       }
       if (timesArchitectInSeed > 0) {
@@ -180,4 +178,25 @@ function main() {
   draw(stats, totalCount, totalCount);
 }
 
-main();
+const args = getFlags({
+  args: process.argv.slice(2),
+  usage: "USAGE: yarn architect-stats [FLAGS]\nBuilds many maps up to the Establish step and logs stats on architects used.",
+  options: {
+    firstSeed: {
+      type: 'string',
+      short: 's',
+      default: 'EFE63E54',
+      help: 'The first seed to check.',
+      parse: it => parseInt(it, 16),
+    },
+    totalCount: {
+      type: 'string',
+      short: 'c',
+      default: '10000',
+      help: 'The number of seeds to check.',
+      parse: it => parseInt(it, 10),
+    },
+  },
+});
+
+main(args);

@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+echo "Presubmit: Running mermaidify...";
+mermaidify || exit 1;
+
 echo "Presubmit: Running Prettier...";
 prettier --write src || exit 1;
 
