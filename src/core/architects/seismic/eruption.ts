@@ -1,7 +1,7 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
-import { mkVars, transformPoint } from "../utils/script";
+import { EventChainLine, mkVars, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
 import {
   monsterSpawnScript,
@@ -89,7 +89,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `shake:4;`,
       ...eps.map(
         (pos) =>
-          `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
+          `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies EventChainLine,
       ),
       wantNormalMonsterSpawns(cavern) && `${v.doSpawn};`,
     );

@@ -20,7 +20,7 @@ import {
 } from "../models/vehicle";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
 import { inferContextDefaults } from "../common";
-import { mkVars } from "./utils/script";
+import { EventChainLine, mkVars } from "./utils/script";
 import { MOB_FARM_NO_LONGER_BLOCKING } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
 import { hintSelectLaserGroup } from "./utils/hints";
@@ -153,7 +153,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
   script({ cavern, plan, sb }) {
     const v = mkVars(`p${plan.id}MbFm`, ["msgNotBlocking"]);
     const rng = cavern.dice.script(plan.id);
-    sb.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies `${string};`));
+    sb.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies EventChainLine));
     if (cavern.objectives.variables.length > 0) {
       sb.declareString(v.msgNotBlocking, {
         rng,
@@ -164,7 +164,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
       sb.if(
         `crystals>=${cavern.objectives.crystals}`,
         `wait:5;`,
-        ...BANLIST.map((t) => `enable:${t.id};` satisfies `${string};`),
+        ...BANLIST.map((t) => `enable:${t.id};` satisfies EventChainLine),
         `((${gObjectives.won}==0))msg:${v.msgNotBlocking};`,
       );
     }

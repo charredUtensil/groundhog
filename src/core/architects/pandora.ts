@@ -3,7 +3,7 @@ import { Architect, BaseMetadata } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
 import { monsterForBiome } from "../models/creature";
 import { position } from "../models/position";
-import { Tile } from "../models/tiles";
+import { Hardness, Tile } from "../models/tiles";
 import { PartiallyEstablishedPlan } from "../transformers/01_planning/03_anchor";
 import { orderPlans } from "../transformers/01_planning/05_establish";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
@@ -13,7 +13,7 @@ import { placeSleepingMonsters } from "./utils/creatures";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { sprinkleCrystals } from "./utils/resources";
 import { mkRough, Rough } from "./utils/rough";
-import { mkVars, transformPoint } from "./utils/script";
+import { chainFragment, EventChainLine, mkVars, transformPoint } from "./utils/script";
 import { LoreDie } from "../common/prng";
 import {
   DID_SPAWN_HOARD,
@@ -23,10 +23,13 @@ import {
 } from "../lore/graphs/pandora";
 import { getAnchor } from "../models/cavern";
 import { Plan } from "../models/plan";
+import { Point } from "../common/geometry";
 
 const METADATA = {
   tag: "pandora",
 } as const satisfies BaseMetadata;
+
+const INSET = 3;
 
 const g = mkVars(`gPandora`, [
   "didSpawnSeam",
@@ -40,8 +43,15 @@ const g = mkVars(`gPandora`, [
   "willSpawnRogue",
 ]);
 
-const sVars = (plan: Plan<any>) =>
-  mkVars(`p${plan.id}Pa`, ["approachingHoard", "spawnHoard"]);
+const sVars = (plan: Plan<any>) => mkVars(`p${plan.id}Pa`, [
+  "approachingHoard",
+  "checkCrystals",
+  "doCollapse",
+  "lyDidCollapse",
+  "lyWillCollapse",
+  "maybeCollapse",
+  "spawnHoard",
+]);
 
 const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
@@ -93,14 +103,15 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     return {};
   },
   placeCrystals(args) {
-    const points = args.plan.innerPearl.flat().filter((pos) => {
+    const extent = args.plan.innerPearl.length - INSET;
+    const points = args.plan.innerPearl.flatMap((ly, i) => i < extent ? ly : []).filter((pos) => {
       const t = args.tiles.get(...pos);
-      return t && !t.isWall && !t.isFluid;
+      return t && t.hardness < Hardness.HARD;
     });
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
     sprinkleCrystals(args, {
       getRandomTile: () => rng.betaChoice(points, { a: 0.8, b: 1.5 }),
-      seamBias: 0,
+      seamBias: -1,
     });
   },
   placeOre: () => {},
@@ -123,6 +134,10 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       }),
     };
   },
+  objectives: ({ cavern }) => ({
+    crystals: Math.floor((cavern.plans[cavern.anchor].crystals * 0.33) / 5) * 5,
+    sufficient: false,
+  }),
   scriptGlobals({ cavern, sb }) {
     // On start: Pan from hoard to Tool Store.
     const ts = cavern.buildings.find(
@@ -198,10 +213,6 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     // Spawns monsters in the hoard chamber (handled by monster spawner)
     sb.declareInt(g.willSpawnHoard, 0);
   },
-  objectives: ({ cavern }) => ({
-    crystals: Math.floor((cavern.plans[cavern.anchor].crystals * 0.33) / 5) * 5,
-    sufficient: false,
-  }),
   script({ cavern, plan, sb }) {
     const rng = cavern.dice.script(plan.id);
     const v = sVars(plan);
@@ -226,6 +237,68 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       "wait:2;",
       `msg:${sb.declareString(g.msgDidSpawnHoard, { pg: DID_SPAWN_HOARD, die: LoreDie.pandora })};`,
       `pan:${transformPoint(cavern, plan.path.baseplates[0].center)};`,
+    );
+
+    const layers = plan.innerPearl.map((ly, i) => {
+      let wallCrystals = 0;
+      let floorCrystals = 0;
+      const walls: Point[] = [];
+      const floors: Point[] = [];
+      if (i < plan.innerPearl.length - INSET) {
+        ly.forEach(pos => {
+          if (cavern.tiles.get(...pos)?.isWall) {
+            walls.push(pos);
+            wallCrystals += cavern.crystals.get(...pos) ?? 0
+          } else {
+            floors.push(pos);
+            floorCrystals += cavern.crystals.get(...pos) ?? 0
+          }
+        });
+      }
+      return {
+        wallCrystals,
+        floorCrystals,
+        walls,
+        floors,
+      };
+    });
+
+    const crystalMin = Math.min(
+      20,
+      layers.reduce((r, {floorCrystals}) => r + floorCrystals, 0)
+    );
+    sb.onInit(`${v.checkCrystals};`);
+    sb.event(
+      v.checkCrystals,
+      `((Crystal_C<${crystalMin}))${v.maybeCollapse};`,
+      `wait:10;`,
+      `${v.checkCrystals};`,
+    );
+    let outerLayer = -1;
+    layers.some(({walls, wallCrystals}, i) => {
+      if (wallCrystals > 0 && walls.length > 0) {
+        sb.event(
+          `${v.doCollapse}${i}`,
+          'wait:2;',
+          'shake:2;',
+          ...walls.flatMap((pos, j) => chainFragment(
+            `drill:${transformPoint(cavern, pos)};`,
+            (j % 5) === 4 && i < walls.length - 1 && 'wait:0.4;',
+          )),
+          'wait:1;',
+          `${v.lyDidCollapse}=${i};`,
+        );
+        return false;
+      }
+      outerLayer = i;
+      sb.declareInt(v.lyWillCollapse, i);
+      sb.declareInt(v.lyDidCollapse, i);
+      return true;
+    }) || (() => {throw new Error("Failed to reach outer layer.");})();
+    sb.event(
+      v.maybeCollapse,
+      `((${v.lyWillCollapse}>=${v.lyDidCollapse}))[${v.lyWillCollapse}-=1][return];`,
+      ...layers.map((_, i) => i < outerLayer ? `((${v.lyWillCollapse}==${i}))${v.doCollapse}${i};` satisfies EventChainLine : null)
     );
   },
   monsterSpawnScript: (args) =>
@@ -290,7 +363,8 @@ const PANDORA = [
     name: "Pandora.Hoard",
     ...HOARD_BASE,
     ...mkRough(
-      { of: Rough.ALWAYS_FLOOR, width: 2, grow: 1 },
+      { of: Rough.ALWAYS_DIRT, grow: 1 },
+      { of: Rough.ALWAYS_FLOOR, width: 2 },
       { of: Rough.ALWAYS_HARD_ROCK },
       { of: Rough.AT_LEAST_HARD_ROCK },
     ),

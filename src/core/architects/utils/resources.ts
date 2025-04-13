@@ -8,6 +8,32 @@ import { NSEW, Point, offsetBy } from "../../common/geometry";
 import { Vehicle } from "../../models/vehicle";
 import { Building } from "../../models/building";
 
+type SprinkleOpts = {
+  /**
+   * The total amount of the resource to place.
+   * Defaults to the quantity decided for the Plan when it was Established.
+   */
+  count?: number;
+  /**
+   * A function that returns a point where the resource can be placed.
+   * Defaults to defaultGetRandomTile.
+   */
+  getRandomTile?: () => Point;
+  /**
+   * The chance a seam will be placed instead of a single resource.
+   * Seams will only be placed if:
+   * - The tile chosen is an ordinary wall (D/LR/HR/SR).
+   * - This would not cause more than `count` of the resource to exist.
+   * 
+   * Ordinary walls are upgraded to seams if they contain 4 or more of the
+   * relevant resource, regardless of seam bias. Setting this value to -1
+   * disables this behavior.
+   * 
+   * Defaults to the relevant value from `Context`.
+   */
+  seamBias?: number;
+}
+
 function seamable(tile: Tile) {
   switch (tile) {
     case Tile.SOLID_ROCK:
@@ -30,37 +56,35 @@ function sprinkle(
   seam: Tile,
   count: number,
 ) {
-  for (let remaining = count; remaining > 0; remaining--) {
-    const [x, y] = getRandomTile();
-    const t = tiles.get(x, y);
+  const SEAM_YIELD = 4;
+  for (let remaining = count; remaining > 0;) {
+    const pos = getRandomTile();
+    const t = tiles.get(...pos);
     if (
-      remaining >= 4 &&
-      (!t || (seamable(t) && seamBias > 0 && rng.chance(seamBias)))
+      remaining >= SEAM_YIELD &&
+      (!t || (seamBias > 0 && seamable(t) && rng.chance(seamBias)))
     ) {
-      tiles.set(x, y, seam);
-      remaining -= 3;
+      tiles.set(...pos, seam);
+      remaining -= SEAM_YIELD;
       continue;
     }
     if (!t) {
-      tiles.set(x, y, Tile.LOOSE_ROCK);
+      tiles.set(...pos, Tile.LOOSE_ROCK);
     }
-    const r = resource.get(x, y) ?? 0;
-    if (r >= 3 && seamable(t ?? Tile.LOOSE_ROCK)) {
-      tiles.set(x, y, seam);
-      resource.set(x, y, r - 3);
+    const r = (resource.get(...pos) ?? 0) + 1;
+    if (r >= SEAM_YIELD && seamBias >= 0 && seamable(t ?? Tile.LOOSE_ROCK)) {
+      tiles.set(...pos, seam);
+      resource.set(...pos, r - SEAM_YIELD);
     } else {
-      resource.set(x, y, r + 1);
+      resource.set(...pos, r);
     }
+    remaining--;
   }
 }
 
 export function sprinkleCrystals(
   args: Parameters<Architect<any>["placeCrystals"]>[0],
-  opts?: {
-    count?: number;
-    getRandomTile?: () => Point;
-    seamBias?: number;
-  },
+  opts?: SprinkleOpts,
 ) {
   const rng = args.cavern.dice.placeCrystals(args.plan.id);
   return sprinkle(
@@ -78,11 +102,7 @@ export function sprinkleCrystals(
 
 export function sprinkleOre(
   args: Parameters<Architect<any>["placeOre"]>[0],
-  opts?: {
-    count?: number;
-    getRandomTile?: () => Point;
-    seamBias?: number;
-  },
+  opts?: SprinkleOpts,
 ) {
   const rng = args.cavern.dice.placeOre(args.plan.id);
   return sprinkle(
@@ -145,8 +165,8 @@ export function bidsForOrdinaryWalls(
   positions: readonly Point[],
   tiles: Grid<Tile>,
 ) {
-  return positions.filter(([x, y]) => {
-    const t = tiles.get(x, y);
+  return positions.filter((pos) => {
+    const t = tiles.get(...pos);
     return (
       t &&
       (t.hardness === Hardness.DIRT ||
