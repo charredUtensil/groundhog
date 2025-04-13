@@ -1,7 +1,7 @@
 import { CavernContext } from "../common";
 import { Architect, BaseMetadata } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
-import { monsterForBiome } from "../models/creature";
+import { ICE_MONSTER, monsterForBiome } from "../models/creature";
 import { position } from "../models/position";
 import { Hardness, Tile } from "../models/tiles";
 import { PartiallyEstablishedPlan } from "../transformers/01_planning/03_anchor";
@@ -45,7 +45,6 @@ const g = mkVars(`gPandora`, [
 
 const sVars = (plan: Plan<any>) => mkVars(`p${plan.id}Pa`, [
   "approachingHoard",
-  "checkCrystals",
   "doCollapse",
   "lyDidCollapse",
   "lyWillCollapse",
@@ -103,13 +102,29 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     return {};
   },
   placeCrystals(args) {
+    const rng = args.cavern.dice.placeCrystals(args.plan.id);
+
     const extent = args.plan.innerPearl.length - INSET;
     const points = args.plan.innerPearl.flatMap((ly, i) => i < extent ? ly : []).filter((pos) => {
       const t = args.tiles.get(...pos);
       return t && t.hardness < Hardness.HARD;
     });
-    const rng = args.cavern.dice.placeCrystals(args.plan.id);
+    const wallTiles = points.reduce((r, pos) => args.cavern.tiles.get(...pos)?.isWall ? r + 1 : r, 0);
+    const seamCrystals = Math.round(Math.min((wallTiles * 0.31) * 4, args.plan.crystals / 2));
+    const floorCrystals = Math.round(Math.min((points.length - wallTiles) * 2.15, (args.plan.crystals - seamCrystals) / 2));
+
     sprinkleCrystals(args, {
+      count: seamCrystals,
+      getRandomTile: () => rng.betaChoice(points, { a: 4, b: 0.8 }),
+      seamBias: 1,
+    });
+    sprinkleCrystals(args, {
+      count: floorCrystals,
+      getRandomTile: () => rng.uniformChoice(points.filter(pos => !args.cavern.tiles.get(...pos)?.isWall)),
+      seamBias: -1,
+    });
+    sprinkleCrystals(args, {
+      count: args.plan.crystals - seamCrystals - floorCrystals,
       getRandomTile: () => rng.betaChoice(points, { a: 0.8, b: 1.5 }),
       seamBias: -1,
     });
@@ -153,17 +168,22 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     // When a crystal seam is drilled, spawn more monsters.
     sb.declareInt(g.didSpawnSeam, 0);
     cavern.tiles.forEach((t, ...pos) => {
-      if (t.id === Tile.CRYSTAL_SEAM.id) {
-        const tp = transformPoint(cavern, pos);
-        sb.if(
-          `drill:${tp}`,
-          `wait:random(1)(4);`,
-          cavern.context.globalHostilesCap > 0 &&
-            `((${gCreatures.active}>=${cavern.context.globalHostilesCap}))return;`,
-          `emerge:${tp},A,${monsterId},5;`,
-          `${g.didSpawnSeam}+=1;`,
-        );
+      if (t.id !== Tile.CRYSTAL_SEAM.id) {
+        return;
       }
+      if (cavern.pearlInnerDex.get(...pos)?.[cavern.anchor]) {
+        // Ignore the seams in the hoard.
+        return;
+      }
+      const tp = transformPoint(cavern, pos);
+      sb.if(
+        `drill:${tp}`,
+        `wait:random(1)(4);`,
+        cavern.context.globalHostilesCap > 0 &&
+          `((${gCreatures.active}>=${cavern.context.globalHostilesCap}))return;`,
+        `emerge:${tp},A,${monsterId},5;`,
+        `${g.didSpawnSeam}+=1;`,
+      );
     });
     sb.if(
       `${g.didSpawnSeam}>=1`,
@@ -267,13 +287,10 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       20,
       layers.reduce((r, {floorCrystals}) => r + floorCrystals, 0)
     );
-    sb.onInit(`${v.checkCrystals};`);
-    sb.event(
-      v.checkCrystals,
-      `((Crystal_C<${crystalMin}))${v.maybeCollapse};`,
-      `wait:10;`,
-      `${v.checkCrystals};`,
-    );
+    sb.when(
+      `${ICE_MONSTER.id}.new`,
+      `${v.maybeCollapse};`,
+    )
     let outerLayer = -1;
     layers.some(({walls, wallCrystals}, i) => {
       if (wallCrystals > 0 && walls.length > 0) {
@@ -297,6 +314,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     }) || (() => {throw new Error("Failed to reach outer layer.");})();
     sb.event(
       v.maybeCollapse,
+      `((Crystal_C>${crystalMin}))return;`,
       `((${v.lyWillCollapse}>=${v.lyDidCollapse}))[${v.lyWillCollapse}-=1][return];`,
       ...layers.map((_, i) => i < outerLayer ? `((${v.lyWillCollapse}==${i}))${v.doCollapse}${i};` satisfies EventChainLine : null)
     );
