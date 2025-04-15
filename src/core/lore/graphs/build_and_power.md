@@ -6,7 +6,7 @@ P0["[start]"]
 P0 --> P1
 P1["&bull; We're getting those readings already!<br/>&bull; The first scans are coming in now."]
 P1 --> P2
-P2["&bull; Just  to go!<br/>&bull; Now just build  more.<br/>&bull;  more like that and we're good to go!"]
+P2["&bull; Just two to go!<br/>&bull; Now just build two more.<br/>&bull; two more like that and we're good to go!"]
 P2 --> P3
 P2 --> P5
 P3["[hasMonsters]"]
@@ -53,7 +53,7 @@ P0["[start]"]
 P0 --> P1
 P1["&bull; It's cleaning up the air already.<br/>&bull; The air feels cleaner already."]
 P1 --> P2
-P2["&bull; Just  to go!<br/>&bull; Now just build  more.<br/>&bull;  more like that and we're good to go!"]
+P2["&bull; Just two to go!<br/>&bull; Now just build two more.<br/>&bull; two more like that and we're good to go!"]
 P2 --> P3
 P2 --> P5
 P3["[hasMonsters]"]

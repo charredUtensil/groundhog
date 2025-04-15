@@ -13,7 +13,12 @@ import { placeSleepingMonsters } from "./utils/creatures";
 import { intersectsOnly, isDeadEnd } from "./utils/intersects";
 import { sprinkleCrystals } from "./utils/resources";
 import { mkRough, Rough } from "./utils/rough";
-import { chainFragment, EventChainLine, mkVars, transformPoint } from "./utils/script";
+import {
+  chainFragment,
+  EventChainLine,
+  mkVars,
+  transformPoint,
+} from "./utils/script";
 import { LoreDie } from "../common/prng";
 import {
   DID_SPAWN_HOARD,
@@ -43,14 +48,15 @@ const g = mkVars(`gPandora`, [
   "willSpawnRogue",
 ]);
 
-const sVars = (plan: Plan<any>) => mkVars(`p${plan.id}Pa`, [
-  "approachingHoard",
-  "doCollapse",
-  "lyDidCollapse",
-  "lyWillCollapse",
-  "maybeCollapse",
-  "spawnHoard",
-]);
+const sVars = (plan: Plan<any>) =>
+  mkVars(`p${plan.id}Pa`, [
+    "approachingHoard",
+    "doCollapse",
+    "lyDidCollapse",
+    "lyWillCollapse",
+    "maybeCollapse",
+    "spawnHoard",
+  ]);
 
 const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
@@ -105,13 +111,25 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
 
     const extent = args.plan.innerPearl.length - INSET;
-    const points = args.plan.innerPearl.flatMap((ly, i) => i < extent ? ly : []).filter((pos) => {
-      const t = args.tiles.get(...pos);
-      return t && t.hardness < Hardness.HARD;
-    });
-    const wallTiles = points.reduce((r, pos) => args.cavern.tiles.get(...pos)?.isWall ? r + 1 : r, 0);
-    const seamCrystals = Math.round(Math.min((wallTiles * 0.31) * 4, args.plan.crystals / 2));
-    const floorCrystals = Math.round(Math.min((points.length - wallTiles) * 2.15, (args.plan.crystals - seamCrystals) / 2));
+    const points = args.plan.innerPearl
+      .flatMap((ly, i) => (i < extent ? ly : []))
+      .filter((pos) => {
+        const t = args.tiles.get(...pos);
+        return t && t.hardness < Hardness.HARD;
+      });
+    const wallTiles = points.reduce(
+      (r, pos) => (args.cavern.tiles.get(...pos)?.isWall ? r + 1 : r),
+      0,
+    );
+    const seamCrystals = Math.round(
+      Math.min(wallTiles * 0.31 * 4, args.plan.crystals / 2),
+    );
+    const floorCrystals = Math.round(
+      Math.min(
+        (points.length - wallTiles) * 2.15,
+        (args.plan.crystals - seamCrystals) / 2,
+      ),
+    );
 
     sprinkleCrystals(args, {
       count: seamCrystals,
@@ -120,7 +138,10 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
     });
     sprinkleCrystals(args, {
       count: floorCrystals,
-      getRandomTile: () => rng.uniformChoice(points.filter(pos => !args.cavern.tiles.get(...pos)?.isWall)),
+      getRandomTile: () =>
+        rng.uniformChoice(
+          points.filter((pos) => !args.cavern.tiles.get(...pos)?.isWall),
+        ),
       seamBias: -1,
     });
     sprinkleCrystals(args, {
@@ -265,13 +286,13 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       const walls: Point[] = [];
       const floors: Point[] = [];
       if (i < plan.innerPearl.length - INSET) {
-        ly.forEach(pos => {
+        ly.forEach((pos) => {
           if (cavern.tiles.get(...pos)?.isWall) {
             walls.push(pos);
-            wallCrystals += cavern.crystals.get(...pos) ?? 0
+            wallCrystals += cavern.crystals.get(...pos) ?? 0;
           } else {
             floors.push(pos);
-            floorCrystals += cavern.crystals.get(...pos) ?? 0
+            floorCrystals += cavern.crystals.get(...pos) ?? 0;
           }
         });
       }
@@ -285,24 +306,23 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
 
     const crystalMin = Math.min(
       20,
-      layers.reduce((r, {floorCrystals}) => r + floorCrystals, 0)
+      layers.reduce((r, { floorCrystals }) => r + floorCrystals, 0),
     );
-    sb.when(
-      `${ICE_MONSTER.id}.new`,
-      `${v.maybeCollapse};`,
-    )
+    sb.when(`${ICE_MONSTER.id}.new`, `${v.maybeCollapse};`);
     let outerLayer = -1;
-    layers.some(({walls, wallCrystals}, i) => {
+    layers.some(({ walls, wallCrystals }, i) => {
       if (wallCrystals > 0 && walls.length > 0) {
         sb.event(
           `${v.doCollapse}${i}`,
-          'wait:2;',
-          'shake:2;',
-          ...walls.flatMap((pos, j) => chainFragment(
-            `drill:${transformPoint(cavern, pos)};`,
-            (j % 5) === 4 && i < walls.length - 1 && 'wait:0.4;',
-          )),
-          'wait:1;',
+          "wait:2;",
+          "shake:2;",
+          ...walls.flatMap((pos, j) =>
+            chainFragment(
+              `drill:${transformPoint(cavern, pos)};`,
+              j % 5 === 4 && i < walls.length - 1 && "wait:0.4;",
+            ),
+          ),
+          "wait:1;",
           `${v.lyDidCollapse}=${i};`,
         );
         return false;
@@ -311,12 +331,19 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       sb.declareInt(v.lyWillCollapse, i);
       sb.declareInt(v.lyDidCollapse, i);
       return true;
-    }) || (() => {throw new Error("Failed to reach outer layer.");})();
+    }) ||
+      (() => {
+        throw new Error("Failed to reach outer layer.");
+      })();
     sb.event(
       v.maybeCollapse,
       `((Crystal_C>${crystalMin}))return;`,
       `((${v.lyWillCollapse}>=${v.lyDidCollapse}))[${v.lyWillCollapse}-=1][return];`,
-      ...layers.map((_, i) => i < outerLayer ? `((${v.lyWillCollapse}==${i}))${v.doCollapse}${i};` satisfies EventChainLine : null)
+      ...layers.map((_, i) =>
+        i < outerLayer
+          ? (`((${v.lyWillCollapse}==${i}))${v.doCollapse}${i};` satisfies EventChainLine)
+          : null,
+      ),
     );
   },
   monsterSpawnScript: (args) =>

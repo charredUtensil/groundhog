@@ -251,7 +251,7 @@ P2 --> P5
 P2 --> P6
 P3["[foundMinersTogether]"]
 P3 --> P4
-P4["&bull; Look at that!  of the lost Rock Raiders are here, safely together.<br/>&bull; That's  Rock Raiders found!<br/>&bull; You found  of them here!"]
+P4["&bull; Look at that! three of the lost Rock Raiders are here, safely together.<br/>&bull; That's three Rock Raiders found!<br/>&bull; You found three of them here!"]
 P4 --> P5
 P4 --> P6
 P5["&bull; Keep going!<br/>&bull; Keep searching, Cadet."]

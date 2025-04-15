@@ -78,7 +78,7 @@ P23["You'll do better next time."]
 P23 --> P25
 P24["You must succeed, Cadet!"]
 P24 --> P25
-P25["\\n\nMission Failed!"]
+P25["\\n\\nMission Failed!"]
 P25 --> P26
 P26["[end]"]
 ```
@@ -323,7 +323,7 @@ P66 --> P67
 P67 --> P69
 P68["."]
 P68 --> P69
-P69["\\n\n"]
+P69["\\n\\n"]
 P69 --> P70
 P69 --> P72
 P70["[commend]"]

@@ -153,7 +153,9 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
   script({ cavern, plan, sb }) {
     const v = mkVars(`p${plan.id}MbFm`, ["msgNotBlocking"]);
     const rng = cavern.dice.script(plan.id);
-    sb.onInit(...BANLIST.map((t) => `disable:${t.id};` satisfies EventChainLine));
+    sb.onInit(
+      ...BANLIST.map((t) => `disable:${t.id};` satisfies EventChainLine),
+    );
     if (cavern.objectives.variables.length > 0) {
       sb.declareString(v.msgNotBlocking, {
         rng,

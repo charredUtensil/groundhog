@@ -24,15 +24,15 @@ type SprinkleOpts = {
    * Seams will only be placed if:
    * - The tile chosen is an ordinary wall (D/LR/HR/SR).
    * - This would not cause more than `count` of the resource to exist.
-   * 
+   *
    * Ordinary walls are upgraded to seams if they contain 4 or more of the
    * relevant resource, regardless of seam bias. Setting this value to -1
    * disables this behavior.
-   * 
+   *
    * Defaults to the relevant value from `Context`.
    */
   seamBias?: number;
-}
+};
 
 function seamable(tile: Tile) {
   switch (tile) {
@@ -57,7 +57,7 @@ function sprinkle(
   count: number,
 ) {
   const SEAM_YIELD = 4;
-  for (let remaining = count; remaining > 0;) {
+  for (let remaining = count; remaining > 0; ) {
     const pos = getRandomTile();
     const t = tiles.get(...pos);
     if (

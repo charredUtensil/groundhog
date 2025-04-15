@@ -23,8 +23,8 @@ const vehicle: Vehicle = {
   upgrades: [],
 };
 
-type F = CollapseUnion<Parameters<(typeof ALL_GRAPHS)[number]['generate']>[2]>;
-type FN = {[K in keyof F]-?: NonNullable<F[K]>};
+type F = CollapseUnion<Parameters<(typeof ALL_GRAPHS)[number]["generate"]>[2]>;
+type FN = { [K in keyof F]-?: NonNullable<F[K]> };
 
 export const MOCK_FORMAT = {
   buildAndPowerGcCount: 3,
