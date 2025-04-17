@@ -2,6 +2,11 @@ import { MutableGrid, Grid } from "../../common/grid";
 import { PlannedCavern } from "../../models/cavern";
 
 export type FoundationPlasticCavern = PlannedCavern & {
+  /**
+   * For each Point in the map, caches what layer of what Plans are present at
+   * that Point. If layer 2 of the Plan with id=17 is present at the point
+   * [34, 11], pearlInnerDex.get(34, 11)[17] will be 2.
+   */
   readonly pearlInnerDex: Grid<readonly number[]>;
   readonly pearlOuterDex: Grid<readonly number[]>;
 };

@@ -1,30 +1,50 @@
 import { FOUND_HQ } from "../../lore/graphs/events";
 import { LoreDie } from "../../common/prng";
-import { Architect } from "../../models/architect";
+import { Architect, BaseMetadata } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
 import { gObjectives } from "../utils/objectives";
 import { DzPriority, mkVars, transformPoint } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
+import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
 
 const MAX_HOPS = 3;
 
 export const gLostHq = mkVars("gLostHq", ["foundHq"]);
 
+/** Returns true if there is a "lost" HQ in this map. */
+export function isHqLost(cavern: DiscoveredCavern) {
+  return cavern.buildings.some(b => {
+    const pos = b.foundation[0];
+    if (cavern.discoveryZones.get(...pos)?.openOnSpawn) {
+      return false;
+    }
+    return cavern.pearlInnerDex.get(...pos)?.some((_, id) => cavern.plans[id].metadata?.tag === 'hq');
+  })
+}
+
 const LOST_BASE: Pick<
   Architect<HqMetadata>,
   "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
 > = {
-  objectives: () => ({
-    variables: [
-      {
-        condition: `${gLostHq.foundHq}>0`,
-        description: "Find the lost Rock Raider HQ",
-      },
-    ],
-    sufficient: false,
-  }),
+  objectives: ({cavern}) => {
+    if (!isHqLost(cavern)) {
+      return undefined;
+    }
+    return ({
+      variables: [
+        {
+          condition: `${gLostHq.foundHq}>0`,
+          description: "Find the lost Rock Raider HQ",
+        },
+      ],
+      sufficient: false,
+    });
+  },
   claimEventOnDiscover({ cavern, plan }) {
+    if (!isHqLost(cavern)) {
+      return [];
+    }
     const pos = getDiscoveryPoint(cavern, plan);
     if (!pos) {
       throw new Error("Cave has Find HQ objective but no undiscovered point.");
@@ -33,6 +53,9 @@ const LOST_BASE: Pick<
   },
   scriptGlobals: ({ sb }) => sb.declareInt(gLostHq.foundHq, 0),
   script({ cavern, plan, sb }) {
+    if (!isHqLost(cavern)) {
+      return;
+    }
     const discoPoint = getDiscoveryPoint(cavern, plan)!;
     const shouldPanMessage =
       cavern.ownsScriptOnDiscover[
