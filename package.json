@@ -12,6 +12,7 @@
     "react-dom": "^18.2.0",
     "sass": "^1.71.1",
     "typescript": "^5.4.2",
+    "use-react-workers": "^1.1.0",
     "word-wrap": "^1.2.5"
   },
   "scripts": {

@@ -1,10 +1,10 @@
 export type TfResult<T, Current extends T> = {
-  result: Current;
-  next: (() => TfResult<T, any>) | null;
-  completedSteps: number;
-  totalSteps: number;
-  lastStepName: string;
-  nextStepName: string;
+  readonly next: boolean;
+  readonly result: Current;
+  readonly completedSteps: number;
+  readonly totalSteps: number;
+  readonly lastStepName: string;
+  readonly nextStepName: string;
 };
 
 export type AnyTfResultOf<BT extends TfBuilder<any, any, any>> =
@@ -21,13 +21,10 @@ class TfBuilder<T, In extends T, Out extends T> {
     result: Current,
     i: number,
   ): TfResult<T, Current> {
-    const next =
-      i < this.steps.length
-        ? () => this.mkResult(this.steps[i].fn(result), i + 1)
-        : null;
+    const next = i < this.steps.length;
     return {
-      result,
       next,
+      result,
       completedSteps: i,
       totalSteps: this.steps.length,
       lastStepName: i > 0 ? this.steps[i - 1].name : "init",
@@ -37,8 +34,11 @@ class TfBuilder<T, In extends T, Out extends T> {
   start(result: In): TfResult<T, In> {
     return this.mkResult(result, 0);
   }
-  first(result: In): TfResult<T, T> {
-    return this.start(result).next!();
+  next(input: TfResult<T, any>) {
+    if (input.completedSteps < this.steps.length) {
+      return this.mkResult(this.steps[input.completedSteps].fn(input.result), input.completedSteps + 1);
+    }
+    throw new Error("Completed");
   }
   chain<ThatT, ThatOut extends ThatT>(
     that: TfBuilder<ThatT | Out, Out, ThatOut>,

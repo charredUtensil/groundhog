@@ -15,6 +15,7 @@ import { filterTruthy } from "../core/common/utils";
 import { PartialCavernContext } from "../core/common/context";
 import { TfResult } from "../core/common/transform";
 import ProgressBar from "./components/progress_bar";
+import { useWorkerFunc } from "use-react-workers";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -74,15 +75,17 @@ function App() {
 
   const biome = state.result.context?.biome;
 
-  const step = useCallback(() => {
+  const [stepWorker] = useWorkerFunc((st: State) => st.next ? CAVERN_TF.next(st) : Promise.reject());
+
+  const step = useCallback(async () => {
     try {
-      setState(state.next!());
+      setState(await stepWorker(state));
     } catch (e: unknown) {
       console.error(e);
       const error = e instanceof Error ? e : new Error("unknown error");
-      setState({ ...state, next: null, error });
+      setState({ ...state, next: false, error });
     }
-  }, [state]);
+  }, [stepWorker]);
 
   const reset = () => {
     setAutoGenerate(false);
