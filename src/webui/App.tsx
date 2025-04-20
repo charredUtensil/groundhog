@@ -75,7 +75,14 @@ function App() {
 
   const biome = state.result.context?.biome;
 
-  const [stepWorker] = useWorkerFunc((st: State) => st.next ? CAVERN_TF.next(st) : Promise.reject());
+  const [stepWorker] = useWorkerFunc(async (st: State) => {
+    if(st.next) {
+      const { CAVERN_TF } = await import("../core/transformers");
+      return CAVERN_TF.next(st)
+    } else {
+      return Promise.reject();
+    }
+  });
 
   const step = useCallback(async () => {
     try {
