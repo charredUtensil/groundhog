@@ -308,7 +308,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       20,
       layers.reduce((r, { floorCrystals }) => r + floorCrystals, 0),
     );
-    sb.when(`${ICE_MONSTER.id}.new`, `${v.maybeCollapse};`);
+    sb.when(`${monsterForBiome(cavern.context.biome).id}.new`, `${v.maybeCollapse};`);
     let outerLayer = -1;
     layers.some(({ walls, wallCrystals }, i) => {
       if (wallCrystals > 0 && walls.length > 0) {
