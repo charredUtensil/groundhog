@@ -1,7 +1,7 @@
 import { CavernContext } from "../common";
 import { Architect, BaseMetadata } from "../models/architect";
 import { TOOL_STORE } from "../models/building";
-import { ICE_MONSTER, monsterForBiome } from "../models/creature";
+import { monsterForBiome } from "../models/creature";
 import { position } from "../models/position";
 import { Hardness, Tile } from "../models/tiles";
 import { PartiallyEstablishedPlan } from "../transformers/01_planning/03_anchor";
@@ -308,7 +308,10 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       20,
       layers.reduce((r, { floorCrystals }) => r + floorCrystals, 0),
     );
-    sb.when(`${ICE_MONSTER.id}.new`, `${v.maybeCollapse};`);
+    sb.when(
+      `${monsterForBiome(cavern.context.biome).id}.new`,
+      `${v.maybeCollapse};`,
+    );
     let outerLayer = -1;
     layers.some(({ walls, wallCrystals }, i) => {
       if (wallCrystals > 0 && walls.length > 0) {

@@ -94,6 +94,8 @@ const DUMMY_CAVERN = {
   script: "[SCRIPT]",
 };
 
+const COMMENTS_RE = /^comments\{\n[\s\S]*?\n\}/m;
+
 function ds(args: Partial<Cavern>) {
   return serialize(
     strataflux(
@@ -104,7 +106,7 @@ function ds(args: Partial<Cavern>) {
         } as any) as any,
       ) as any,
     ) as any,
-  ).serialized.replace(/groundHog v\S+/, "groundHog [VERSION]");
+  ).serialized.replace(COMMENTS_RE, "comments{\n  [REDACTED]\n}");
 }
 
 goldenTest("mvp.dat", () => {
