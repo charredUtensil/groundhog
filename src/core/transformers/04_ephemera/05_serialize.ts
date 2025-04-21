@@ -29,7 +29,11 @@ function comments(cavern: ProgrammedCavern) {
     initialContext: cavern.initialContext,
   };
   // Base64 encoded because Manic Miners is bad at parsing curly braces.
-  const provenance = wrap(`Provenance: ${btoa(JSON.stringify(data))}`, {width: 116, indent: '', cut: true});
+  const provenance = wrap(`Provenance: ${btoa(JSON.stringify(data))}`, {
+    width: 116,
+    indent: "",
+    cut: true,
+  });
   return `Made with groundHog v${groundhogVersion}
 https://github.com/charredUtensil/groundhog
 
@@ -107,11 +111,11 @@ function performErrorChecking(serialized: string) {
     });
 
     /*
-    * Manic Miners' parser doesn't handle curly braces correctly under specific
-    * cases I haven't been able to identify. The error that appears is:
-    * 
-    * (LoadDataField): Case doesn't exist!
-    */
+     * Manic Miners' parser doesn't handle curly braces correctly under specific
+     * cases I haven't been able to identify. The error that appears is:
+     *
+     * (LoadDataField): Case doesn't exist!
+     */
     if (line.includes("{") && !/^\w+\{$/.test(line)) {
       throw new SerializeError(`Unexpected '{' on line ${i}:\n${line}`);
     }
