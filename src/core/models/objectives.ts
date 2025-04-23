@@ -2,6 +2,7 @@ export type Objectives = {
   readonly crystals: number;
   readonly ore: number;
   readonly studs: number;
+  readonly tags: {readonly [K in string]?: true};
   readonly variables: readonly {
     readonly condition: string;
     readonly description: string;

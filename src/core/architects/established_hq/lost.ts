@@ -28,21 +28,31 @@ const LOST_BASE: Pick<
   "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
 > = {
   objectives: ({cavern}) => {
-    if (!isHqLost(cavern)) {
-      return undefined;
+    if (isHqLost(cavern)) {
+      return ({
+        sufficient: false,
+        tag: "findHq",
+        variables: [
+          {
+            condition: `${gLostHq.foundHq}>0`,
+            description: "Find the lost Rock Raider HQ",
+          },
+        ],
+      });
     }
     return ({
+      sufficient: false,
+      tag: "reachHq",
       variables: [
         {
           condition: `${gLostHq.foundHq}>0`,
-          description: "Find the lost Rock Raider HQ",
+          description: "Reach the abandoned Rock Raider HQ",
         },
       ],
-      sufficient: false,
     });
   },
   claimEventOnDiscover({ cavern, plan }) {
-    if (!isHqLost(cavern)) {
+    if (!cavern.objectives.tags.findHq) {
       return [];
     }
     const pos = getDiscoveryPoint(cavern, plan);
@@ -53,34 +63,41 @@ const LOST_BASE: Pick<
   },
   scriptGlobals: ({ sb }) => sb.declareInt(gLostHq.foundHq, 0),
   script({ cavern, plan, sb }) {
-    if (!isHqLost(cavern)) {
-      return;
-    }
-    const discoPoint = getDiscoveryPoint(cavern, plan)!;
-    const shouldPanMessage =
-      cavern.ownsScriptOnDiscover[
-        cavern.discoveryZones.get(...discoPoint)!.id
-      ] === plan.id;
-
-    const camPoint = plan.path.baseplates.reduce((r, p) => {
-      return r.pearlRadius > p.pearlRadius ? r : p;
-    }).center;
-
-    const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
-
-    if (shouldPanMessage) {
-      sb.declareString(v.messageDiscover, {
-        die: LoreDie.foundHq,
-        pg: FOUND_HQ,
-      });
-      sb.if(
-        `change:${transformPoint(cavern, discoPoint)}`,
-        shouldPanMessage && `msg:${v.messageDiscover};`,
-        shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
-        `${gObjectives.met}+=1;`,
-        `wait:1;`,
-        `${gLostHq.foundHq}=1;`,
-      );
+    if (cavern.objectives.tags.findHq) {
+      const discoPoint = getDiscoveryPoint(cavern, plan)!;
+      const shouldPanMessage =
+        cavern.ownsScriptOnDiscover[
+          cavern.discoveryZones.get(...discoPoint)!.id
+        ] === plan.id;
+  
+      const camPoint = plan.path.baseplates.reduce((r, p) => {
+        return r.pearlRadius > p.pearlRadius ? r : p;
+      }).center;
+  
+      const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
+  
+      if (shouldPanMessage) {
+        sb.declareString(v.messageDiscover, {
+          die: LoreDie.foundHq,
+          pg: FOUND_HQ,
+        });
+        sb.if(
+          `change:${transformPoint(cavern, discoPoint)}`,
+          shouldPanMessage && `msg:${v.messageDiscover};`,
+          shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
+          `${gObjectives.met}+=1;`,
+          `wait:1;`,
+          `${gLostHq.foundHq}=1;`,
+        );
+      }
+    } else if (cavern.objectives.tags.reachHq) {
+      plan.outerPearl[0].forEach(pos => {
+        if (cavern.tiles.get(...pos)) {
+          return sb.when(
+            `enter:${transformPoint(cavern, pos)}`
+          );
+        }
+      })
     }
   },
 };

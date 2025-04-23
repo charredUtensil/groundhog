@@ -19,16 +19,18 @@ export default function adjure(cavern: AeratedCavern): AdjuredCavern {
     .map((fn) => fn({ cavern }))
     .reduce(
       (r: Objectives & { sufficient: boolean }, obj) => ({
-        crystals: Math.max(r.crystals ?? 0, obj?.crystals ?? 0),
-        ore: Math.max(r.ore ?? 0, obj?.ore ?? 0),
-        studs: Math.max(r.studs ?? 0, obj?.studs ?? 0),
+        crystals: Math.max(r.crystals, obj?.crystals ?? 0),
+        ore: Math.max(r.ore, obj?.ore ?? 0),
+        studs: Math.max(r.studs, obj?.studs ?? 0),
+        tags: {...r.tags, ...obj?.tags},
         variables: [...r.variables, ...(obj?.variables ?? [])],
-        sufficient: !!(r.sufficient || obj?.sufficient),
+        sufficient: r.sufficient || !!obj?.sufficient,
       }),
       {
         crystals: 0,
         ore: 0,
         studs: 0,
+        tags: {},
         variables: [],
         sufficient: false,
       },

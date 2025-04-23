@@ -85,6 +85,19 @@ const ORDERS = phraseGraph<State, Format>(
                     "get it back in working order",
                   ),
               ),
+            state("reachHq")
+              .then(skip, state("spawnHasErosion"))
+              .then("reach the Rock Raider HQ")
+              .then(
+                skip,
+                state("hqIsRuin")
+                  .then(joiner)
+                  .then(
+                    "salvage what's left",
+                    "repair it",
+                    "get it back in working order",
+                  ),
+              ),
           )
           .then(
             skip,

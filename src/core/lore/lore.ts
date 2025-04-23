@@ -1,4 +1,5 @@
 import { HqMetadata } from "../architects/established_hq/base";
+import { isHqLost } from "../architects/established_hq/lost";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
 import { LoreDie } from "../common/prng";
@@ -41,6 +42,7 @@ export type State = {
   readonly lostMinersTogether: boolean;
   readonly nomadsMany: boolean;
   readonly nomadsOne: boolean;
+  readonly reachHq: boolean;
   readonly resourceObjective: boolean;
   readonly rockBiome: boolean;
   readonly spawnHasErosion: boolean;
@@ -134,7 +136,8 @@ export class Lore {
     const anchorIsHq = Object.is(anchor, hq);
     const spawnIsHq = Object.is(spawn, hq);
     const hqIsFixedComplete = hq?.metadata.special === "fixedComplete";
-    const findHq = !!hq && !spawnIsHq;
+    const findHq = !!(hq && cavern.objectives.tags.findHq);
+    const reachHq = !!(hq && cavern.objectives.tags.reachHq);
     const hqIsRuin = !!hq?.metadata.ruin;
 
     const buildAndPowerGcCount = cavern.plans.reduce(
@@ -203,6 +206,7 @@ export class Lore {
       lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
       nomadsMany: nomads > 1,
       nomadsOne: nomads === 1,
+      reachHq,
       resourceObjective,
       rockBiome: cavern.context.biome === "rock",
       spawnHasErosion: spawn.hasErosion,

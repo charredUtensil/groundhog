@@ -81,7 +81,7 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
               "nomadsMany",
             ),
           )
-            .then(skip, st("findHq").then(skip, st("hqIsRuin")))
+            .then(skip, st("findHq", "reachHq").then(skip, st("hqIsRuin")))
             .then(buildPowerGcAndOrLostMinersAndOrResourceObjective),
         );
     },
