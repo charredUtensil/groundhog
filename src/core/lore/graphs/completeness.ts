@@ -61,7 +61,7 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
         .then(
           pg(
             st("spawnIsHq").then(st("hqIsFixedComplete")),
-            st("anchorIsMobFarm", "anchorIsPandora"),
+            st("anchorIsMobFarm"),
           ).then(lostMinersAndOrResourceObjective),
           st("spawnIsHq")
             .then(st("anchorIsGasLeak"))
@@ -72,6 +72,9 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
           pg(st("spawnIsHq").then(skip, st("hqIsRuin"))).then(
             buildPowerGcAndOrLostMinersAndOrResourceObjective,
           ),
+          pg(st("anchorIsPandora"))
+            .then(skip, st("findHq").then(skip, st("hqIsRuin")))
+            .then(lostMinersAndOrResourceObjective),
           pg(
             skip,
             st(

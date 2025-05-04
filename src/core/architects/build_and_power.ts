@@ -266,8 +266,8 @@ export const BUILD_AND_POWER = [
         plan.path.baseplates.length === 1 &&
         // Incompatible with fchq or mob farm
         !(amd?.tag === "hq" && amd.special === "fixedComplete") &&
-        !(amd?.tag === "mobFarm") &&
-        !(amd?.tag === "pandora") &&
+        amd?.tag !== "mobFarm" &&
+        amd?.tag !== "pandora" &&
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&
