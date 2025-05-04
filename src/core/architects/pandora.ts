@@ -64,21 +64,21 @@ function openingPanTo(cavern: StrataformedCavern | PreprogrammedCavern): Point {
   const ts = cavern.buildings.find(
     (b) =>
       b.template === TOOL_STORE &&
-      cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))
-        ?.openOnSpawn,
+      cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))?.openOnSpawn,
   );
   if (ts) {
     return [ts.x, ts.y];
   }
-  const m = 'miners' in cavern && cavern.miners.find(
-    (m) => {
-      return cavern.discoveryZones.get(Math.floor(m.x), Math.floor(m.y))?.openOnSpawn;
-    }
-  );
+  const m =
+    "miners" in cavern &&
+    cavern.miners.find((m) => {
+      return cavern.discoveryZones.get(Math.floor(m.x), Math.floor(m.y))
+        ?.openOnSpawn;
+    });
   if (m) {
     return [m.x, m.y];
   }
-  const s = cavern.plans.find(p => p.hops.length === 0);
+  const s = cavern.plans.find((p) => p.hops.length === 0);
   if (s) {
     return s.path.baseplates[0].center;
   }
@@ -147,7 +147,11 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       });
     const wallPoints: Point[] = [];
     const floorPoints: Point[] = [];
-    points.forEach(pos => (args.cavern.tiles.get(...pos)?.isWall ? wallPoints : floorPoints).push(pos));
+    points.forEach((pos) =>
+      (args.cavern.tiles.get(...pos)?.isWall ? wallPoints : floorPoints).push(
+        pos,
+      ),
+    );
 
     // Explicitly put some crystals in seams, biased toward the outside.
     const seamCrystals = Math.round(
