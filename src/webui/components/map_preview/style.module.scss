@@ -260,6 +260,15 @@
         }
       }
 
+      .resources {
+        .ore .ring {
+          fill: var(--pvw-tile46);
+        }
+        .crystals .ring {
+          fill: var(--pvw-tile42);
+        }
+      }
+
       .height {
         shape-rendering: crispEdges;
       }
