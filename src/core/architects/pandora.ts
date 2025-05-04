@@ -29,6 +29,8 @@ import {
 import { getAnchor } from "../models/cavern";
 import { Plan } from "../models/plan";
 import { Point } from "../common/geometry";
+import { StrataformedCavern } from "../transformers/03_plastic/03_strataform";
+import { PreprogrammedCavern } from "../transformers/04_ephemera/03_preprogram";
 
 const METADATA = {
   tag: "pandora",
@@ -57,6 +59,31 @@ const sVars = (plan: Plan<any>) =>
     "maybeCollapse",
     "spawnHoard",
   ]);
+
+function openingPanTo(cavern: StrataformedCavern | PreprogrammedCavern): Point {
+  const ts = cavern.buildings.find(
+    (b) =>
+      b.template === TOOL_STORE &&
+      cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))?.openOnSpawn,
+  );
+  if (ts) {
+    return [ts.x, ts.y];
+  }
+  const m =
+    "miners" in cavern &&
+    cavern.miners.find((m) => {
+      return cavern.discoveryZones.get(Math.floor(m.x), Math.floor(m.y))
+        ?.openOnSpawn;
+    });
+  if (m) {
+    return [m.x, m.y];
+  }
+  const s = cavern.plans.find((p) => p.hops.length === 0);
+  if (s) {
+    return s.path.baseplates[0].center;
+  }
+  throw new Error("Failed to find anything to pan to. Is there even a spawn?");
+}
 
 const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
@@ -110,6 +137,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   placeCrystals(args) {
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
 
+    // Find all points to place crystals
     const extent = args.plan.innerPearl.length - INSET;
     const points = args.plan.innerPearl
       .flatMap((ly, i) => (i < extent ? ly : []))
@@ -117,36 +145,42 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
         const t = args.tiles.get(...pos);
         return t && t.hardness < Hardness.HARD;
       });
-    const wallTiles = points.reduce(
-      (r, pos) => (args.cavern.tiles.get(...pos)?.isWall ? r + 1 : r),
-      0,
-    );
-    const seamCrystals = Math.round(
-      Math.min(wallTiles * 0.31 * 4, args.plan.crystals / 2),
-    );
-    const floorCrystals = Math.round(
-      Math.min(
-        (points.length - wallTiles) * 2.15,
-        (args.plan.crystals - seamCrystals) / 2,
+    const wallPoints: Point[] = [];
+    const floorPoints: Point[] = [];
+    points.forEach((pos) =>
+      (args.cavern.tiles.get(...pos)?.isWall ? wallPoints : floorPoints).push(
+        pos,
       ),
     );
 
+    // Explicitly put some crystals in seams, biased toward the outside.
+    const seamCrystals = Math.round(
+      Math.min(wallPoints.length * 0.15 * 4, args.plan.crystals / 2),
+    );
     sprinkleCrystals(args, {
       count: seamCrystals,
-      getRandomTile: () => rng.betaChoice(points, { a: 4, b: 0.8 }),
+      getRandomTile: () => rng.betaChoice(wallPoints, { a: 4, b: 0.8 }),
       seamBias: 1,
     });
+
+    // Explicitly put some crystals on the floor.
+    const floorCrystals = Math.round(
+      Math.min(
+        floorPoints.length * 1.3,
+        (args.plan.crystals - seamCrystals) / 2,
+      ),
+    );
     sprinkleCrystals(args, {
       count: floorCrystals,
-      getRandomTile: () =>
-        rng.uniformChoice(
-          points.filter((pos) => !args.cavern.tiles.get(...pos)?.isWall),
-        ),
-      seamBias: -1,
+      getRandomTile: () => rng.uniformChoice(floorPoints),
     });
+
+    // Place remaining crystals in walls biased toward the core. Do not upgrade
+    // these to seams or the entire chunk will be seams (from which monsters
+    // cannot emerge).
     sprinkleCrystals(args, {
       count: args.plan.crystals - seamCrystals - floorCrystals,
-      getRandomTile: () => rng.betaChoice(points, { a: 0.8, b: 1.5 }),
+      getRandomTile: () => rng.betaChoice(wallPoints, { a: 0.8, b: 1.5 }),
       seamBias: -1,
     });
   },
@@ -155,17 +189,12 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   placeLandslides: () => {},
   placeEntities({ cavern, plan }) {
     const [cx, cy] = plan.innerPearl[0][0];
-    const ts = cavern.buildings.find(
-      (b) =>
-        b.template === TOOL_STORE &&
-        cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))
-          ?.openOnSpawn,
-    )!;
+    const aimedAt = openingPanTo(cavern);
     return {
       cameraPosition: position({
         x: cx,
         y: cy,
-        aimedAt: [ts.x, ts.y],
+        aimedAt,
         pitch: Math.PI / 3,
       }),
     };
@@ -176,13 +205,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
   }),
   scriptGlobals({ cavern, sb }) {
     // On start: Pan from hoard to Tool Store.
-    const ts = cavern.buildings.find(
-      (b) =>
-        b.template === TOOL_STORE &&
-        cavern.discoveryZones.get(Math.floor(b.x), Math.floor(b.y))
-          ?.openOnSpawn,
-    )!;
-    sb.if(`time:5`, `pan:${transformPoint(cavern, [ts.x, ts.y])};`);
+    sb.if(`time:5`, `pan:${transformPoint(cavern, openingPanTo(cavern))};`);
 
     const monsterId = monsterForBiome(cavern.context.biome).id;
 

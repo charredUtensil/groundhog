@@ -7,7 +7,7 @@ P0 --> P1
 P0 --> P2
 P1["&bull; Oh dear.<br/>&bull; Uh-oh!<br/>&bull; Oh no!<br/>&bull; Be careful."]
 P1 --> P2
-P2["&bull; We've upset the hoard.<br/>&bull; The monsters have started a feast. "]
+P2["&bull; We've upset the horde.<br/>&bull; The monsters have started a feast. "]
 P2 --> P3
 P3["[end]"]
 ```

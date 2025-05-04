@@ -35,7 +35,7 @@ export const DID_SPAWN_HOARD = phraseGraph<State, Format>(
   ({ pg, state, start, end, cut, skip }) => {
     start
       .then(...PREFIX, skip)
-      .then("We've upset the hoard.", "The monsters have started a feast. ")
+      .then("We've upset the horde.", "The monsters have started a feast. ")
       .then(end);
   },
 );

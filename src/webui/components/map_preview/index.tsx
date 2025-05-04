@@ -19,6 +19,7 @@ import Stats from "./stats";
 import PlansPreview from "./plan";
 import ScriptPreview, { ScriptOverlay } from "./script_preview";
 import ObjectivesPreview from "./objectives";
+import ResourcePreview from "./resource";
 
 export type MapOverlay =
   | "about"
@@ -156,6 +157,7 @@ export default function CavernPreview({
           xmlns="http://www.w3.org/2000/svg"
         >
           {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
+          {mapOverlay === "overview" && <ResourcePreview {...cavern} />}
           {mapOverlay === "height" && cavern.height && (
             <HeightPreview height={cavern.height} />
           )}
