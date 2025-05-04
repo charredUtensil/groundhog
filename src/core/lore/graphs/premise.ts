@@ -355,6 +355,16 @@ unnecessary risk.`,
           state("lostMinersTogether", "lostMinersApart").then("\n\nThe team"),
         ).then("hasn't reported back yet, so we're sending you to find them."),
       )
+      .then(
+        skip,
+        state("findHq").then(
+          "There should be a base nearby for you to use.",
+          state("hqIsRuin").then(
+            "There should be a base nearby, but I can't be sure what " +
+            "condition you'll find it in."
+          )
+        )
+      )
       .then(skip, state("treasureCaveOne"), state("treasureCaveMany"))
       .then(skip, state("spawnHasErosion"))
       .then(skip, state("hasGiantCave"))
