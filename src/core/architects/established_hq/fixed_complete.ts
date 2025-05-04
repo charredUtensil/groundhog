@@ -1,6 +1,6 @@
 import { inferContextDefaults } from "../../common";
 import { FAILURE_BASE_DESTROYED } from "../../lore/graphs/events";
-import { LoreDie } from "../../lore/lore";
+import { LoreDie } from "../../common/prng";
 import { Architect } from "../../models/architect";
 import {
   TOOL_STORE,

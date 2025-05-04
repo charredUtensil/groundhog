@@ -81,7 +81,7 @@ export class PseudorandomStream {
   }
 }
 
-/**
+/*
  * DO NOT RE-ORDER THIS ENUM!
  * ALWAYS APPEND NEW ENTRIES TO THE END!
  *
@@ -106,7 +106,7 @@ enum Die {
   placeErosion,
   placeEntities,
   lore,
-  _,
+  mod,
   script,
   monsterSpawnScript,
   brace,
@@ -114,6 +114,25 @@ enum Die {
   placeSlugHoles,
   slugSpawnScript,
 }
+
+export enum LoreDie {
+  premise = 0,
+  orders,
+  success,
+  failure,
+  foundHoard,
+  foundHq,
+  foundAllLostMiners,
+  nomadsSettled,
+  foundSlugNest,
+  name,
+  failureBaseDestroyed,
+  buildAndPower,
+  seismicForeshadow,
+  pandora,
+}
+
+const SEALED = Symbol("sealed");
 
 /**
  * A box of pseudo-random streams. Streams are separated into "kinds" - each one
@@ -126,7 +145,7 @@ export class DiceBox {
   seed: number;
   private boxes: readonly {
     seed: Seed;
-    rngs: Array<PseudorandomStream | undefined>;
+    rngs: Array<PseudorandomStream | typeof SEALED>;
   }[];
 
   constructor(seed: Seed) {
@@ -147,16 +166,26 @@ export class DiceBox {
   private prng(die: Die, offset: number): PseudorandomStream {
     const box = this.boxes[die];
     let r = box.rngs[offset];
-    if (!r) {
-      const seed = (box.seed + offset * 1999 + MAX_PLUS_ONE) % MAX_PLUS_ONE;
-      r = new PseudorandomStream(seed);
-      box.rngs[offset] = r;
+    if (r) {
+      if (Object.is(r, SEALED)) {
+        throw new Error(`prng at [${die},${offset}] was sealed`);
+      }
+      return r as PseudorandomStream;
     }
+    const seed = (box.seed + offset * 1999 + MAX_PLUS_ONE) % MAX_PLUS_ONE;
+    r = new PseudorandomStream(seed);
+    box.rngs[offset] = r;
     return r;
   }
 
   init(id: number) {
     return this.prng(Die.init, id);
+  }
+
+  seal() {
+    this.boxes.forEach((box) =>
+      box.rngs.forEach((_, i) => (box.rngs[i] = SEALED)),
+    );
   }
 
   get partition() {
@@ -176,6 +205,7 @@ export class DiceBox {
   }
 
   pickArchitect = (id: number) => this.prng(Die.pickArchitect, id);
+  mod = (id: number) => this.prng(Die.mod, id);
   prime = (id: number) => this.prng(Die.prime, id);
   pearl = (id: number) => this.prng(Die.pearl, id);
   rough = (id: number) => this.prng(Die.rough, id);
@@ -194,7 +224,7 @@ export class DiceBox {
   placeErosion = (id: number) => this.prng(Die.placeErosion, id);
   placeEntities = (id: number) => this.prng(Die.placeEntities, id);
 
-  lore = (id: number) => this.prng(Die.lore, id);
+  lore = (id: LoreDie) => this.prng(Die.lore, id);
 
   get height() {
     return this.prng(Die.height, 0);

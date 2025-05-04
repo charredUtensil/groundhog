@@ -35,14 +35,14 @@ const ORDERS = phraseGraph<State, Format>(
             "defend the Rock Radier HQ",
             "build up your defenses",
             "arm your Rock Raiders",
-          ),
-        state("hasSlugs").then(
-          "defend the Rock Radier HQ",
-          "arm your Rock Raiders",
-        ),
+          )
+          .then(joiner),
+        state("hasSlugs")
+          .then("defend the Rock Radier HQ", "arm your Rock Raiders")
+          .then(joiner),
         pg(
           skip,
-          state("spawnIsNomadOne", "spawnIsNomadsTogether"),
+          state("nomadsOne", "nomadsMany"),
           state("spawnIsHq")
             .then(state("hqIsRuin", "spawnHasErosion"))
             .then("move to a safer cavern", "find a more suitable location")

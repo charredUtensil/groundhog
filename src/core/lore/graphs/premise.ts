@@ -16,6 +16,7 @@ const PREMISE = phraseGraph<State, Format>(
       )
       .then(end);
 
+    // Greetings OK for most lore.
     const greeting = start
       .then(
         pg(
@@ -49,13 +50,13 @@ const PREMISE = phraseGraph<State, Format>(
             "unchecked, this whole area could be consumed by molten rock!",
         ).then(end),
       ),
-      state("spawnIsBlackout").then(
+      state("anchorIsBlackout").then(
         "the unusual magnetic properties of the rock here might interfere " +
           "with our equipment",
         "there are unusual magnetic readings in this cavern and we're " +
           "concerned about the effects that might have on our equipment",
       ),
-      state("spawnIsOreWaste").then(
+      state("anchorIsOreWaste").then(
         "the rock in this cavern has very little ore",
       ),
       pg(
@@ -69,7 +70,7 @@ const PREMISE = phraseGraph<State, Format>(
         ({ format: { enemies } }) =>
           `we have reason to believe there are dozens of ${enemies} just out of sight`,
       ),
-      state("spawnIsGasLeak")
+      state("anchorIsGasLeak")
         .then(
           "the atmosphere in this cavern contains a toxic gas that might " +
             "explode when exposed to plasma",
@@ -97,7 +98,7 @@ const PREMISE = phraseGraph<State, Format>(
       .then(state("findHq"))
       .then(skip, state("spawnHasErosion"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-      .then(skip, state("spawnIsNomadOne", "spawnIsNomadsTogether"))
+      .then(skip, state("nomadsOne", "nomadsMany"))
       .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
       .then(
         "A forward team has established Rock Raider HQ in the viscinity, but " +
@@ -157,7 +158,7 @@ cavern instead.`,
               "have been unreliable at this depth and we'd like to " +
                 "understand the area better",
             ),
-            state("spawnIsBlackout").then(
+            state("anchorIsBlackout").then(
               "There seems to be some geomagnetic anomaly in this area and " +
                 "researching it could prove vital to our mining operations",
             ),
@@ -188,7 +189,7 @@ cavern instead.`,
           ),
           "another cavern where we can continue our mining operations",
         ),
-        state("spawnIsBlackout")
+        state("anchorIsBlackout")
           .then(
             "We found a cavern with unusual geomagnetic properties. We believe " +
               "it will have plenty of Energy Crystals",
@@ -240,11 +241,11 @@ cavern instead.`,
             end,
           ),
         pg(
-          state("spawnIsNomadOne").then(
+          state("nomadsOne").then(
             ". Your mission is to find a suitable location for our Rock Raider " +
               "HQ.",
           ),
-          state("spawnIsNomadsTogether").then(
+          state("nomadsMany").then(
             ". We haven't yet chosen where to establish our base, so I'm " +
               "leaving that decision to you.",
             ", and I've picked this team to decide where to build our HQ.",
@@ -268,8 +269,10 @@ unnecessary risk.`,
           .then(end),
       );
 
+    // Mob farm: Need to let monsters eat crystals, then shoot them manually
+    // once they return to the mainland.
     greeting
-      .then(state("spawnIsMobFarm"))
+      .then(state("anchorIsMobFarm"))
       .then(
         "We discovered this incredible cave with the abundance of Energy " +
           "Crystals you now see before you.",
@@ -320,6 +323,44 @@ unnecessary risk.`,
       )
       .then(end);
 
+    greeting
+      .then(state("anchorIsPandora"))
+      .then(
+        "We've located an unusual cavern with a massive cache of Energy " +
+          "Crystals. Of course, it couldn't be that easy - the cavern has more " +
+          "monsters than we've ever seen before!",
+        ({ format: { monsters } }) =>
+          "The bounty before your eyes is one of the largest loose crystal " +
+          "deposits I've ever seen, and it is, unfortunately, guarded by an " +
+          `army of ${monsters}.`,
+      )
+      .then(
+        "Our scouts report they seem a bit shy and probably won't bother us " +
+          "unless we disturb the Energy Crystals here.",
+        ({ format: { monsters } }) =>
+          `Early scouting of this area suggests the ${monsters} are fairly ` +
+          "docile and won't attack as long as we aren't disturbing their food " +
+          "source.",
+      )
+      .then(
+        skip,
+        state("hasSlugs").then(
+          "The Slimy Slugs here might be a problem, though.",
+        ),
+      )
+      .then(
+        skip,
+        pg(
+          state("lostMinersOne").then("\n\nOne of the scouts"),
+          state("lostMinersTogether", "lostMinersApart").then("\n\nThe team"),
+        ).then("hasn't reported back yet, so we're sending you to find them."),
+      )
+      .then(skip, state("treasureCaveOne"), state("treasureCaveMany"))
+      .then(skip, state("spawnHasErosion"))
+      .then(skip, state("hasGiantCave"))
+      .then(skip, state("hasMonsters"))
+      .then(end);
+
     const negativeGreeting = pg(
       greeting,
       start
@@ -356,18 +397,18 @@ unnecessary risk.`,
       .then(state("hasSlugs"), skip)
       .then(
         skip,
-        state("spawnIsGasLeak").then(
+        state("anchorIsGasLeak").then(
           "Our geologists have warned me that the air in this cavern " +
             "contains a gas that reacts explosively with plasma, so we can't" +
             "rely on Electric Fences.",
         ),
-        state("spawnIsOreWaste")
+        state("anchorIsOreWaste")
           .then(
             "This cavern has very little ore, so build only what you really need",
           )
           .then(
             "!",
-            state("spawnIsGasLeak").then(
+            state("anchorIsGasLeak").then(
               " - and no Electric Fences either. The atmosphere here would " +
                 "likely react with plasma... explosively.",
             ),
@@ -375,7 +416,7 @@ unnecessary risk.`,
       )
       .then(
         skip,
-        state("spawnIsBlackout")
+        state("anchorIsBlackout")
           .then(
             "\n\nOne more thing to look out for: We're picking up some unusal " +
               "magnetic disturbances",
@@ -407,13 +448,13 @@ unnecessary risk.`,
         ),
       )
       .then(
-        state("spawnIsNomadOne").then(
+        state("nomadsOne").then(
           "a teleporter malfunction sent this Rock Raider to an uncharted cavern.",
           "the teleporter on the L.M.S. Explorer has been acting up again and " +
             "one of our Rock Raiders is trapped in an uncharted cavern.",
           "one of our Rock Raiders was accidentally sent to the wrong cavern!",
         ),
-        state("spawnIsNomadsTogether").then(
+        state("nomadsMany").then(
           "a teleporter malfunction sent a group of our Rock Raiders to an " +
             "uncharted cavern.",
           "the teleporter on the L.M.S. Explorer has been acting up again and " +
@@ -442,7 +483,7 @@ the teleporters have failed again and ${spellNumber(lostMinerCaves)} groups \
 of Rock Raiders are lost somewhere in this cavern.`,
           ),
         ).then(skip, findThem.then(cut)),
-        state("spawnIsNomadOne", "spawnIsNomadsTogether")
+        state("nomadsOne", "nomadsMany")
           .then(state("lostMinersOne", "lostMinersTogether", "lostMinersApart"))
           .then(
             "a teleporter malfunction left our Rock Raiders scattered throughout " +
@@ -500,7 +541,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
                 "our Rock Raiders are trapped throughout the cavern.",
               ),
             ).then(skip, findThem.then(cut)),
-            state("spawnIsNomadOne", "spawnIsNomadsTogether")
+            state("nomadsOne", "nomadsMany")
               .then(
                 state("lostMinersOne", "lostMinersTogether", "lostMinersApart"),
               )
@@ -521,13 +562,13 @@ of Rock Raiders are lost somewhere in this cavern.`,
               ", but this is as close as we can get for now.",
               ", but without the homing beacon we don't want to risk " +
                 "teleporting anyone directly inside.",
-              state("spawnIsNomadOne").then(
+              state("nomadsOne").then(
                 ", but we can't get you any closer than this.",
                 ", but we cannot risk teleporting you in any closer than this.",
                 ", and we want you to return to the base and salvage what's " +
                   "left of it.",
               ),
-              state("spawnIsNomadsTogether").then(
+              state("nomadsMany").then(
                 ", and you'll be leading the salvage team.",
                 ", and this is the team that will restore our operations.",
               ),
@@ -543,6 +584,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
     // A joke from early in development of Hognose, here as an easter egg.
     start
       .then(state("hasGiantCave"))
+      .then(skip, state("floodedWithWater", "floodedWithLava"))
       .then(
         "We've got news for you, Rock Raider! Our geological scanners have " +
           'discovered a nearby cave approximately the size of "yes".',
@@ -550,12 +592,26 @@ of Rock Raiders are lost somewhere in this cavern.`,
       .then(skip, state("hasMonsters"))
       .then(skip, state("hasSlugs"))
       .then(skip, state("spawnHasErosion"))
+      .then(skip, state("spawnIsHq", "findHq"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
-      .then(
-        skip,
-        state("spawnIsNomadOne", "spawnIsNomadsTogether", "spawnIsBlackout"),
-      )
+      .then(skip, state("nomadsOne", "nomadsMany", "anchorIsBlackout"))
       .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))
+      .then(end);
+
+    // I had to.
+    start
+      .then(state("floodedWithWater"))
+      .then(state("lostMinersOne"))
+      .then(state("spawnIsHq"))
+      .then(
+        "A man has fallen into the river under Planet U!\n\n" +
+          "Build the Docks! Build the Rapid Rider and off to the rescue. " +
+          "Follow the shoreline! Find the missing Rock Raider!",
+      )
+      .then(skip, state("hasMonsters"))
+      .then(skip, state("hasSlugs"))
+      .then(skip, state("spawnHasErosion"))
+      .then(skip, state("treasureCaveOne", "treasureCaveMany"))
       .then(end);
   },
 );

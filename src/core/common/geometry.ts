@@ -29,6 +29,9 @@ export const NEIGHBORS8 = [
   NORTH_WEST,
 ] as const satisfies Cardinal8[];
 
+/**
+ * Returns true if the two points given share a side.
+ */
 export function isAdjacent4(a: Point, b: Point) {
   return (
     (a[0] === b[0] && Math.abs(a[1] - b[1]) <= 1) ||
@@ -36,14 +39,23 @@ export function isAdjacent4(a: Point, b: Point) {
   );
 }
 
+/**
+ * Returns true if the two points given share a side or corner.
+ */
 export function isAdjacent8(a: Point, b: Point) {
   return Math.abs(a[0] - b[0]) <= 1 && Math.abs(a[1] - b[1]) <= 1;
 }
 
+/**
+ * Converts a point to an {x, y} object as used with Position.
+ */
 export function asXY([x, y]: Point) {
   return { x, y };
 }
 
+/**
+ * Given a point and a set of points, returns the closest point in the set.
+ */
 export function closestTo(
   [x, y]: Point,
   points: readonly Point[],
@@ -63,10 +75,12 @@ export function closestTo(
   return [rx, ry];
 }
 
+/** Adds two points together. */
 export function offsetBy([x, y]: Point, [ox, oy]: Point): Point {
   return [x + ox, y + oy];
 }
 
+/** Plots a contiguous line between the two given points. */
 export function* plotLine(a: Point, b: Point): IterableIterator<Point> {
   let x = Math.floor(a[0]);
   let y = Math.floor(a[1]);

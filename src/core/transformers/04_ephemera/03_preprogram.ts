@@ -1,3 +1,4 @@
+import { getAnchor } from "../../models/cavern";
 import { EnscribedCavern } from "./02_enscribe";
 
 export type PreprogrammedCavern = EnscribedCavern & {
@@ -26,7 +27,7 @@ export default function preprogram(
   const ownsScriptOnDiscover: number[] = [];
   claims.forEach(({ planId }, dzId) => (ownsScriptOnDiscover[dzId] = planId));
 
-  const anchor = cavern.plans[cavern.anchor];
+  const anchor = getAnchor(cavern);
   const anchorHoldCreatures = !!anchor.architect.holdCreatures?.({
     cavern,
     plan: anchor,

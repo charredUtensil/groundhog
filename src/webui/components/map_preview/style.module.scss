@@ -39,6 +39,9 @@
   // Paths
   --pvw-pathspan: yellow;
   --pvw-pathaux: #24b136;
+  // Plans
+  --pvw-planisanchor: cyan;
+  --pvw-planhasscript: magenta;
   // Entites
   --pvw-entfriend: yellow;
   --pvw-entenemy: red;
@@ -160,9 +163,17 @@
       .plan {
         --color-bg: #444444;
         --color-fg: white;
-        &.caveKind .bg {
-          stroke-width: 2px;
-          fill: none;
+        &.caveKind {
+          .bg {
+            stroke-width: 2px;
+            fill: none;
+          }
+          &.hasScript {
+            --color-fg: var(--pvw-planhasscript);
+          }
+          &.isAnchor {
+            --color-fg: var(--pvw-planisanchor);
+          }
         }
         &.hallKind {
           .bg {
@@ -246,6 +257,15 @@
         shape-rendering: crispEdges;
         .tile {
           transition: fill 500ms ease-out;
+        }
+      }
+
+      .resources {
+        .ore .ring {
+          fill: var(--pvw-tile46);
+        }
+        .crystals .ring {
+          fill: var(--pvw-tile42);
         }
       }
 

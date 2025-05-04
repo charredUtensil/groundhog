@@ -3,6 +3,7 @@ import { Point } from "../../common/geometry";
 import { CollapseUnion } from "../../common/utils";
 import { Architect } from "../../models/architect";
 import { SUPPORT_STATION } from "../../models/building";
+import { getAnchor } from "../../models/cavern";
 import {
   CreatureTemplate,
   ICE_MONSTER,
@@ -26,27 +27,79 @@ type CreatureSpawnerArgs = {
   readonly creature: CreatureTemplate;
   readonly rng: PseudorandomStream;
 
-  readonly meanWaveSize?: number;
-  readonly spawnRate?: number;
+  /** The number of creatures to spawn at a time. */
   readonly waveSize?: number;
+  /**
+   * If supplied, the _average_ number of creatures to spawn at a time.
+   * Will vary up or down slightly based on RNG.
+   */
+  readonly meanWaveSize?: number;
+  /**
+   * The number of creatures to spawn per minute, assuming constant retriggers.
+   */
+  readonly spawnRate?: number;
 
+  /**
+   * How does this spawner become re-armed after firing?
+   * - `none`: It doesn't.
+   * - `automatic`: After monsters spawn and a "cooldown" timer has completed.
+   * - `hoard`: Same as automatic, but only if monsters have reached the center
+   *   of the plan.
+   */
   readonly reArmMode: ReArmMode;
 
+  /**
+   * If supplied, the X,Y,and Radius of the `emerge:` events that will actually
+   * spawn the creatures.
+   */
   readonly emerges?: readonly Emerge[];
-} & (
-  | {
-      readonly reArmMode: "none";
-      readonly spawnEvent: string;
-    }
-  | {
-      readonly armEvent?: string;
-      readonly initialCooldown?: { min: number; max: number };
-      readonly needCrystals?: { base: number; increment?: number };
-      readonly needStableAir?: boolean;
-      readonly tripOnArmed?: "first" | "always";
-      readonly tripPoints?: readonly Point[];
-    }
-);
+
+  /**
+   * The name of the event used to arm the spawner, to be called from an
+   * external script. If omitted, a name will be generated.
+   */
+  readonly armEvent?: string;
+  /**
+   * The name of the event used to trip the spawner, to be called from an
+   * external script. If omitted, a name will be generated.
+   */
+  readonly tripEvent?: string;
+
+  /**
+   * The min/max time, in seconds, to wait between when this spawner is
+   * initially enabled (usually on discover or at level start) and when the
+   * spawner is armed for the first time.
+   */
+  readonly initialCooldown?: { min: number; max: number };
+  /**
+   * If included, this spawner will not activate if the player has less than
+   * `base` crystals. If an `increment` is included, every time a spawn occurs,
+   * the crystal requirement increases to `current crystals + increment`.
+   */
+  readonly needCrystals?: { base: number; increment?: number };
+  /**
+   * If included, this spawner will not activate if the player's air supply is
+   * decreasing. That is - this is an air level and the player has more miners
+   * than their current powered support stations can support.
+   */
+  readonly needStableAir?: boolean;
+  /**
+   * When the spawner is armed, trip automatically.
+   */
+  readonly tripOnArmed?: "first" | "always";
+  /**
+   * The points that will trip the spawner. Defaults to the plan's first outer
+   * pearl layer.
+   */
+  readonly tripPoints?: readonly Point[];
+  /**
+   * By default, monster spawners will be skipped if `wantNormalMonsterSpawns`
+   * returns false, and slug spawners will be skipped if `context.hasSlugs` is
+   * false.
+   * Setting `force` to true removes this restriction.
+   */
+  readonly force?: boolean;
+};
 
 export type ReArmMode = "none" | "automatic" | "hoard";
 
@@ -63,10 +116,34 @@ type Emerge = {
 };
 
 export const gCreatures = mkVars("gCrSp", [
+  /**
+   * A mutex that prevents two different monster spawners from triggering too
+   * quickly in succession. Absent if there is no `globalHostilesCooldown` set
+   * in `Context`.
+   */
   "globalCooldown",
+  /**
+   * Tracks how many miners are currently supported by Support Stations. Absent
+   * if this is not an air level.
+   */
   "airMiners",
+  /**
+   * Used to allow the anchor to prevent monster spawns. It is not set by the
+   * creature spawners, but by the anchor itself.
+   */
   "anchorHold",
+  /**
+   * Counts the number of creatures that are currently alive and awake. Manic
+   * Miners has a macro `hostiles` that approximates this, but includes
+   * creatures that are sleeping and thus aren't actually a threat. Creature
+   * spawners may refuse to fire if there are too many active threats. Absent
+   * if there is no `globalHostilesCap` set in `Context`.
+   */
   "active",
+  /**
+   * Used to store the initial monsters that are asleep in order to facilitate
+   * the `active` computation above.
+   */
   "mob",
 ]);
 
@@ -143,31 +220,41 @@ export function creatureSpawnGlobals({
   }
 }
 
+export function wantNormalMonsterSpawns(cavern: PreprogrammedCavern) {
+  return (
+    cavern.context.hasMonsters && getAnchor(cavern).metadata?.tag !== "pandora"
+  );
+}
+
 type ScriptArgs = Parameters<NonNullable<Architect<any>["script"]>>[0];
 
 export function monsterSpawnScript(
   args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
-  creatureSpawnScript(args, {
-    creature: monsterForBiome(args.cavern.context.biome),
-    reArmMode: "automatic",
-    rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
-    ...opts,
-  });
+  if (opts?.force || wantNormalMonsterSpawns(args.cavern)) {
+    creatureSpawnScript(args, {
+      creature: monsterForBiome(args.cavern.context.biome),
+      reArmMode: "automatic",
+      rng: args.cavern.dice.monsterSpawnScript(args.plan.id),
+      ...opts,
+    });
+  }
 }
 
 export function slugSpawnScript(
   args: ScriptArgs,
   opts?: Partial<CreatureSpawnerArgs>,
 ) {
-  creatureSpawnScript(args, {
-    creature: SLIMY_SLUG,
-    needCrystals: { base: 1 },
-    reArmMode: "automatic",
-    rng: args.cavern.dice.slugSpawnScript(args.plan.id),
-    ...opts,
-  });
+  if (opts?.force || args.cavern.context.hasSlugs) {
+    creatureSpawnScript(args, {
+      creature: SLIMY_SLUG,
+      needCrystals: { base: 1 },
+      reArmMode: "automatic",
+      rng: args.cavern.dice.slugSpawnScript(args.plan.id),
+      ...opts,
+    });
+  }
 }
 
 function creatureSpawnScript(
@@ -204,65 +291,53 @@ function creatureSpawnScript(
     waveSize,
   );
 
-  if (!opts.spawnEvent) {
-    // Arm
-    sb.declareInt(v.arm, ArmState.DISARMED);
-    const body: EventChainLine[] = [
-      opts.initialCooldown &&
-        `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
-      `${v.arm}=${ArmState.ARMED};`,
-      opts.tripOnArmed && `${v.doTrip};`,
-    ];
-    if (opts.armEvent) {
-      sb.event(opts.armEvent, ...body);
+  sb.declareInt(v.arm, ArmState.DISARMED);
+
+  // Arm
+  const body: EventChainLine[] = [
+    opts.initialCooldown &&
+      `wait:random(${opts.initialCooldown.min.toFixed(2)})(${opts.initialCooldown.max.toFixed(2)});`,
+    `${v.arm}=${ArmState.ARMED};`,
+    opts.tripOnArmed && `${v.doTrip};`,
+  ];
+  if (opts.armEvent) {
+    sb.event(opts.armEvent, ...body);
+  } else {
+    const dp = getDiscoveryPoint(cavern, plan);
+    if (dp) {
+      sb.if(`change:${transformPoint(cavern, dp)}`, ...body);
     } else {
-      const dp = getDiscoveryPoint(cavern, plan);
-      if (dp) {
-        sb.if(`change:${transformPoint(cavern, dp)}`, ...body);
-      } else {
-        sb.onInit(...body);
-      }
+      sb.onInit(...body);
     }
-
-    // Trip
-    (opts.tripPoints ?? getTriggerPoints(cavern, plan)).forEach((point) =>
-      sb.when(`enter:${transformPoint(cavern, point)}`, `${v.doTrip};`),
-    );
-    if (opts.needCrystals?.increment) {
-      sb.declareInt(v.needCrystals, opts.needCrystals.base);
-    }
-    sb.event(
-      v.doTrip,
-      cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
-      cavern.context.globalHostilesCap > 0 &&
-        `((${gCreatures.active}>${cavern.context.globalHostilesCap - waveSize}))return;`,
-      cavern.oxygen &&
-        opts.needStableAir &&
-        `((${gCreatures.airMiners}<miners))return;`,
-      opts.needCrystals &&
-        `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
-      cavern.context.globalHostilesCooldown > 0 &&
-        `((${gCreatures.globalCooldown}>0))return;`,
-      `((${v.arm}==${ArmState.ARMED}))${v.arm}=${ArmState.FIRE};`,
-    );
-    sb.when(`${v.arm}==${ArmState.FIRE}`, `${v.doSpawn};`);
   }
 
-  // Hoard mode must be "manually" re-armed by a monster visiting the hoard
-  // within cooldown.
-  if (opts.reArmMode === "hoard") {
-    sb.declareInt(v.hoardTrip, 0);
-    plan.innerPearl[0].forEach((point) =>
-      sb.when(
-        `enter:${transformPoint(cavern, point)},${opts.creature.id}`,
-        `${v.hoardTrip}=1;`,
-      ),
-    );
+  // Trip
+  const tripEvent = opts.tripEvent ?? v.doTrip;
+  (opts.tripPoints ?? getTriggerPoints(cavern, plan)).forEach((point) =>
+    sb.when(`enter:${transformPoint(cavern, point)}`, `${tripEvent};`),
+  );
+  if (opts.needCrystals?.increment) {
+    sb.declareInt(v.needCrystals, opts.needCrystals.base);
   }
+  sb.event(
+    tripEvent,
+    cavern.anchorHoldCreatures && `((${gCreatures.anchorHold}>0))return;`,
+    cavern.context.globalHostilesCap > 0 &&
+      `((${gCreatures.active}>${cavern.context.globalHostilesCap - waveSize}))return;`,
+    cavern.oxygen &&
+      opts.needStableAir &&
+      `((${gCreatures.airMiners}<miners))return;`,
+    opts.needCrystals &&
+      `((crystals<${opts.needCrystals.increment ? v.needCrystals : opts.needCrystals.base}))return;`,
+    cavern.context.globalHostilesCooldown > 0 &&
+      `((${gCreatures.globalCooldown}>0))return;`,
+    `((${v.arm}==${ArmState.ARMED}))${v.arm}=${ArmState.FIRE};`,
+  );
 
   // Spawn
+  sb.when(`${v.arm}==${ArmState.FIRE}`, `${v.doSpawn};`);
   sb.event(
-    opts.spawnEvent ?? v.doSpawn,
+    v.doSpawn,
     cavern.context.globalHostilesCap > 0 &&
       `${gCreatures.active}+=${waveSize};`,
     cavern.context.globalHostilesCooldown > 0 &&
@@ -280,6 +355,17 @@ function creatureSpawnScript(
 
   // Cooldown and reset
   if (opts.reArmMode !== "none") {
+    // Hoard mode must be "manually" re-armed by a monster visiting the hoard
+    // within cooldown.
+    if (opts.reArmMode === "hoard") {
+      sb.declareInt(v.hoardTrip, 0);
+      plan.innerPearl[0].forEach((point) =>
+        sb.when(
+          `enter:${transformPoint(cavern, point)},${opts.creature.id}`,
+          `${v.hoardTrip}=1;`,
+        ),
+      );
+    }
     const spawnRate = opts.spawnRate ?? plan.monsterSpawnRate;
     const meanCooldown = (60 * waveSize) / spawnRate;
 
@@ -293,7 +379,7 @@ function creatureSpawnScript(
       opts.reArmMode === "hoard" && `${v.hoardTrip}=0;`,
       `wait:random(${cooldown.min.toFixed(2)})(${cooldown.max.toFixed(2)});`,
       opts.reArmMode === "hoard" && `((${v.hoardTrip}==0))return;`,
-      `${v.arm}=1;`,
+      `${v.arm}=${ArmState.ARMED};`,
       opts.tripOnArmed === "always" && `${v.doTrip};`,
     );
   }

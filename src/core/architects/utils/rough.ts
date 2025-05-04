@@ -3,7 +3,7 @@ import { Architect } from "../../models/architect";
 import { RoughTile, Tile } from "../../models/tiles";
 import { Layer, expand, fixLayers } from "./oyster";
 
-function rr({
+export function roughReplace({
   floor,
   dirt,
   looseRock,
@@ -45,8 +45,8 @@ function rr({
   return (has: Tile) => r[has.id] ?? null;
 }
 
-function roughNotFloodedTo(to: RoughTile) {
-  return rr({
+function notFloodedTo(to: RoughTile) {
+  return roughReplace({
     floor: to,
     dirt: to,
     looseRock: to,
@@ -77,32 +77,45 @@ const _Rough = {
   ALWAYS_WATER: () => Tile.WATER,
   ALWAYS_LAVA: () => Tile.LAVA,
   // AT_MOST_*: Replaces only if the existing tile is harder rock
-  AT_MOST_DIRT: rr({
+  AT_MOST_DIRT: roughReplace({
     looseRock: Tile.DIRT,
     hardRock: Tile.DIRT,
     solidRock: Tile.DIRT,
   }),
-  AT_MOST_LOOSE_ROCK: rr({
+  AT_MOST_LOOSE_ROCK: roughReplace({
     hardRock: Tile.LOOSE_ROCK,
     solidRock: Tile.LOOSE_ROCK,
   }),
-  AT_MOST_HARD_ROCK: rr({ solidRock: Tile.HARD_ROCK }),
+  AT_MOST_HARD_ROCK: roughReplace({ solidRock: Tile.HARD_ROCK }),
+  // AT_LEAST_*: Replaces only if the existing tile is softer rock
+  AT_LEAST_DIRT: roughReplace({
+    floor: Tile.DIRT,
+  }),
+  AT_LEAST_LOOSE_ROCK: roughReplace({
+    floor: Tile.LOOSE_ROCK,
+    dirt: Tile.LOOSE_ROCK,
+  }),
+  AT_LEAST_HARD_ROCK: roughReplace({
+    floor: Tile.HARD_ROCK,
+    dirt: Tile.HARD_ROCK,
+    looseRock: Tile.HARD_ROCK,
+  }),
   // No prefix: Replaces any non-flooded tile with the given tile
-  FLOOR: roughNotFloodedTo(Tile.FLOOR),
-  DIRT: roughNotFloodedTo(Tile.DIRT),
-  LOOSE_ROCK: roughNotFloodedTo(Tile.LOOSE_ROCK),
-  HARD_ROCK: roughNotFloodedTo(Tile.HARD_ROCK),
-  SOLID_ROCK: roughNotFloodedTo(Tile.SOLID_ROCK),
-  WATER: roughNotFloodedTo(Tile.WATER),
-  LAVA: roughNotFloodedTo(Tile.LAVA),
+  FLOOR: notFloodedTo(Tile.FLOOR),
+  DIRT: notFloodedTo(Tile.DIRT),
+  LOOSE_ROCK: notFloodedTo(Tile.LOOSE_ROCK),
+  HARD_ROCK: notFloodedTo(Tile.HARD_ROCK),
+  SOLID_ROCK: notFloodedTo(Tile.SOLID_ROCK),
+  WATER: notFloodedTo(Tile.WATER),
+  LAVA: notFloodedTo(Tile.LAVA),
   // Replaces floor -> dirt / loose rock <- hard rock, solid rock
-  DIRT_OR_LOOSE_ROCK: rr({
+  DIRT_OR_LOOSE_ROCK: roughReplace({
     floor: Tile.DIRT,
     hardRock: Tile.LOOSE_ROCK,
     solidRock: Tile.LOOSE_ROCK,
   }),
   // Replaces floor, dirt -> loose rock / hard rock <- solid rock
-  LOOSE_OR_HARD_ROCK: rr({
+  LOOSE_OR_HARD_ROCK: roughReplace({
     floor: Tile.LOOSE_ROCK,
     dirt: Tile.LOOSE_ROCK,
     solidRock: Tile.HARD_ROCK,
@@ -111,31 +124,17 @@ const _Rough = {
   // This can be used by caves to create a path to an island.
   // Avoid using these if the cave intersects halls with fluid as the results
   // will look extremely strange.
-  BRIDGE_ON_WATER: rr({
+  BRIDGE_ON_WATER: roughReplace({
     dirt: Tile.FLOOR,
     looseRock: Tile.FLOOR,
     hardRock: Tile.FLOOR,
     solidRock: Tile.WATER,
   }),
-  BRIDGE_ON_LAVA: rr({
+  BRIDGE_ON_LAVA: roughReplace({
     dirt: Tile.FLOOR,
     looseRock: Tile.FLOOR,
     hardRock: Tile.FLOOR,
     solidRock: Tile.LAVA,
-  }),
-  // Solid becomes dirt, other rock becomes floor.
-  INVERT_TO_DIRT: rr({
-    dirt: Tile.FLOOR,
-    looseRock: Tile.FLOOR,
-    hardRock: Tile.FLOOR,
-    solidRock: Tile.DIRT,
-  }),
-  // Solid becomes loose rock, other rock becomes floor.
-  INVERT_TO_LOOSE_ROCK: rr({
-    dirt: Tile.FLOOR,
-    looseRock: Tile.FLOOR,
-    hardRock: Tile.FLOOR,
-    solidRock: Tile.LOOSE_ROCK,
   }),
 };
 

@@ -95,8 +95,14 @@ export class PgNode<StateT extends BaseState, FormatT> {
       const p = [pgBuilder.phrase(text)];
       return new PgNode(pgBuilder, p, p, false);
     }
-    const heads = nodes.flatMap((n) => n.heads).sort((a, b) => a.id - b.id);
-    const tails = nodes.flatMap((n) => n.tails).sort((a, b) => a.id - b.id);
+    const heads = nodes.reduce(
+      (r: Phrase<StateT, FormatT>[], n) => merge(r, n.heads),
+      [],
+    );
+    const tails = nodes.reduce(
+      (r: Phrase<StateT, FormatT>[], n) => merge(r, n.tails),
+      [],
+    );
     const skip = nodes.some((n) => n.skip);
     if (text.length > 0) {
       const phrase = pgBuilder.phrase(text);
@@ -244,6 +250,8 @@ function joinTexts<FormatT>(
   return r.join("");
 }
 
+export class NoContinuationError extends Error {}
+
 export class PhraseGraph<StateT extends BaseState, FormatT> {
   readonly name: string;
   private readonly start: Phrase<StateT, FormatT>;
@@ -293,13 +301,7 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
         (a) => reachedState in a.reachableStates,
       );
       if (continuations.length === 0) {
-        console.log(
-          "%o: No continutation has %s at phrase %o",
-          this,
-          reachedState,
-          phrase,
-        );
-        throw new Error(
+        throw new NoContinuationError(
           `${this.name}: No continuation has ${reachedState} at phrase ${phrase.id}`,
         );
       }

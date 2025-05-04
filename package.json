@@ -1,21 +1,18 @@
 {
   "name": "groundhog",
-  "version": "0.10.11",
+  "version": "0.10.12",
   "homepage": "https://charredutensil.github.io/groundhog",
   "private": true,
   "dependencies": {
     "@stdlib/random-base-beta": "^0.2.1",
     "@stdlib/random-base-mt19937": "^0.2.1",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "delaunator": "^5.0.1",
     "gh-pages": "^6.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
     "sass": "^1.71.1",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "word-wrap": "^1.2.5"
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
@@ -28,6 +25,7 @@
     "gen": "tsx bin/groundhog-gen",
     "architect-stats": "tsx bin/architect-stats",
     "lore-dump": "tsx bin/lore-dump",
+    "mermaidify": "tsx bin/mermaidify",
     "update-goldens": "UPDATE_GOLDENS=1 react-scripts test --all --watchAll=false"
   },
   "eslintConfig": {
@@ -49,9 +47,13 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "@types/delaunator": "^5.0.2",
     "dotenv": "^16.4.5",
     "prettier": "^3.3.3",
+    "react-scripts": "^5.0.1",
     "tsx": "^4.19.1"
   }
 }

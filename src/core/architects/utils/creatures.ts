@@ -1,6 +1,7 @@
 import { Biome, PseudorandomStream } from "../../common";
 import { Point } from "../../common/geometry";
 import { Architect } from "../../models/architect";
+import { getAnchor } from "../../models/cavern";
 import { Creature, monsterForBiome } from "../../models/creature";
 import { Tile } from "../../models/tiles";
 import { circumferencePositions, innerPositions } from "./placement";
@@ -19,30 +20,40 @@ const PLACEMENT_FN = {
 } as const;
 
 export function placeSleepingMonsters(
-  args: Parameters<Architect<any>["placeEntities"]>[0],
-  rng: PseudorandomStream,
-  count: number,
-  placement: "outer" | "inner" = "outer",
+  {
+    cavern,
+    plan,
+    creatureFactory,
+  }: Parameters<Architect<any>["placeEntities"]>[0],
+  opts: {
+    rng: PseudorandomStream;
+    count: number;
+    placement?: "outer" | "inner";
+    from?: number;
+    to?: number;
+    force?: boolean;
+  },
 ): Creature[] {
-  if (!args.cavern.context.hasMonsters) {
-    return [];
+  if (
+    opts.force ||
+    (cavern.context.hasMonsters &&
+      getAnchor(cavern).metadata?.tag !== "pandora")
+  ) {
+    const template = monsterForBiome(cavern.context.biome);
+    const filterFn = TILE_CAN_HAVE_MONSTER[cavern.context.biome];
+    return PLACEMENT_FN[opts.placement ?? "outer"](cavern, plan, {
+      ...opts,
+      filterFn,
+    }).map((pos) =>
+      creatureFactory.create({
+        ...pos,
+        planId: plan.id,
+        template,
+        sleep: true,
+      }),
+    );
   }
-  const template = monsterForBiome(args.cavern.context.biome);
-  const filterFn = TILE_CAN_HAVE_MONSTER[args.cavern.context.biome];
-  return PLACEMENT_FN[placement](
-    args.cavern,
-    args.plan,
-    count,
-    rng,
-    filterFn,
-  ).map((pos) =>
-    args.creatureFactory.create({
-      ...pos,
-      planId: args.plan.id,
-      template,
-      sleep: true,
-    }),
-  );
+  return [];
 }
 
 export function sprinkleSlugHoles(

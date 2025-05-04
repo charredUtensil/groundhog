@@ -70,7 +70,7 @@ export const SUCCESS = phraseGraph<
       .then(skip, commend, hasMonsters)
       .then(
         skip,
-        state("hasMonsters", "spawnHasErosion", "spawnIsGasLeak").then(
+        state("hasMonsters", "spawnHasErosion", "anchorIsGasLeak").then(
           despiteTheOdds,
         ),
       );

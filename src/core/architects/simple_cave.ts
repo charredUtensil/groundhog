@@ -1,8 +1,9 @@
 import { Architect } from "../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "./default";
-import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
+import { mkRough, Rough, roughReplace, weightedSprinkle } from "./utils/rough";
 import { intersectsOnly } from "./utils/intersects";
 import { monsterSpawnScript } from "./utils/creature_spawners";
+import { Tile } from "../models/tiles";
 
 const BASE: PartialArchitect<undefined> = {
   ...DefaultCaveArchitect,
@@ -72,8 +73,24 @@ const SIMPLE_CAVE = [
     ...BASE,
     ...mkRough(
       { of: Rough.FLOOR, width: 0, grow: 0.5 },
-      { of: Rough.INVERT_TO_LOOSE_ROCK, grow: 0.5 },
-      { of: Rough.INVERT_TO_DIRT, grow: 1 },
+      {
+        of: roughReplace({
+          dirt: Tile.FLOOR,
+          looseRock: Tile.FLOOR,
+          hardRock: Tile.FLOOR,
+          solidRock: Tile.LOOSE_ROCK,
+        }),
+        grow: 0.5,
+      },
+      {
+        of: roughReplace({
+          dirt: Tile.FLOOR,
+          looseRock: Tile.FLOOR,
+          hardRock: Tile.FLOOR,
+          solidRock: Tile.DIRT,
+        }),
+        grow: 1,
+      },
       { of: Rough.AT_MOST_LOOSE_ROCK },
       { of: Rough.AT_MOST_HARD_ROCK },
       { of: Rough.VOID, width: 0, grow: 0.5 },

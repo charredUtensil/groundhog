@@ -12,7 +12,7 @@ import { mkRough, Rough, weightedSprinkle } from "./utils/rough";
 import { getTotalCrystals, sprinkleCrystals } from "./utils/resources";
 import { getDiscoveryPoint } from "./utils/discovery";
 import { DzPriority, mkVars, transformPoint } from "./utils/script";
-import { LoreDie } from "../lore/lore";
+import { LoreDie } from "../common/prng";
 import { FOUND_SLUG_NEST } from "../lore/graphs/events";
 
 const getSlugHoles = (
@@ -74,7 +74,7 @@ const SLUG_NEST: PartialArchitect<typeof SLUG_NEST_METADATA> = {
     sb.if(
       `change:${transformPoint(cavern, discoPoint)}`,
       `msg:${v.messageDiscover};`,
-      `pan:${transformPoint(cavern, discoPoint)};`,
+      `pan:${transformPoint(cavern, plan.innerPearl[0][0])};`,
     );
   },
 };

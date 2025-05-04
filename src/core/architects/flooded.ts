@@ -12,10 +12,10 @@ const BASE: PartialArchitect<undefined> = {
   placeSlugHoles() {},
   monsterSpawnScript(args) {
     if (args.cavern.context.biome === "ice" && args.plan.fluid === Tile.LAVA) {
-      return undefined;
+      return;
     }
     if (args.cavern.context.biome === "lava" && args.plan.fluid !== Tile.LAVA) {
-      return undefined;
+      return;
     }
     return monsterSpawnScript(args);
   },
@@ -59,7 +59,7 @@ const FLOODED = [
     placeEntities(args) {
       const rng = args.cavern.dice.placeEntities(args.plan.id);
       const count = Math.ceil(args.plan.monsterWaveSize * 1.2);
-      return { creatures: placeSleepingMonsters(args, rng, count) };
+      return { creatures: placeSleepingMonsters(args, { rng, count }) };
     },
   },
   {

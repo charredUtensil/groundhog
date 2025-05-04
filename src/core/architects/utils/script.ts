@@ -2,7 +2,8 @@ import { Point } from "../../common/geometry";
 import { PseudorandomStream } from "../../common/prng";
 import { Falsy } from "../../common/utils";
 import { PhraseGraph } from "../../lore/utils/builder";
-import { Format, LoreDie, State } from "../../lore/lore";
+import { Format, State } from "../../lore/lore";
+import { LoreDie } from "../../common/prng";
 import { Creature } from "../../models/creature";
 import { FencedCavern } from "../../transformers/03_plastic/00_fence";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
@@ -11,6 +12,11 @@ type VarType<T extends string> = {
   [p in T]: string;
 };
 
+/**
+ * Creates an object that contains strings with the given prefix. For example,
+ * `mkVars('foo', ['bar', 'baz'])` returns `{bar: 'foo_bar', baz: 'foo_baz'}`.
+ * This helps with type-checking.
+ */
 export function mkVars<T extends string>(
   prefix: string,
   keys: readonly T[],
@@ -20,6 +26,11 @@ export function mkVars<T extends string>(
   return r as VarType<T>;
 }
 
+/**
+ * Given a point in GroundHog's coordinate system, translate it to a point that
+ * can be used in MMScript. This means adding the fence as an offset and
+ * presenting a string in [Y,X] format.
+ */
 export function transformPoint(
   cavern: FencedCavern,
   [x, y]: Point,
@@ -90,6 +101,10 @@ export type ScriptBuilder = {
    * int.
    */
   declareInt(name: string, value: number): string;
+  /**
+   * Declares a float variable. Returns the variable name.
+   */
+  declareFloat(name: string, value: number): string;
   /**
    * Declares a string variable. Takes ether a string value or parameters to
    * determine the string from lore. Returns the variable name.
@@ -244,6 +259,11 @@ export function mkScriptBuilder(
 
     declareInt(name, value) {
       declarations.push(`int ${name}=${value.toFixed()}`);
+      return name;
+    },
+
+    declareFloat(name, value) {
+      declarations.push(`float ${name}=${value}`);
       return name;
     },
 

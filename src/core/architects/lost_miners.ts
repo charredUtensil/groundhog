@@ -26,7 +26,7 @@ import { mkRough, Rough } from "./utils/rough";
 import { pickPoint } from "./utils/placement";
 import { check, DzPriority, mkVars, transformPoint } from "./utils/script";
 import { EnscribedCavern } from "../transformers/04_ephemera/02_enscribe";
-import { LoreDie } from "../lore/lore";
+import { LoreDie } from "../common/prng";
 import {
   FOUND_ALL_LOST_MINERS,
   FOUND_LM_BREADCRUMB,

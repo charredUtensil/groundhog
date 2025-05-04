@@ -3,7 +3,7 @@ import encourageDisable from "./utils";
 import { Curve } from "../../common";
 import { CollapseUnion } from "../../common/utils";
 import { Architect, BaseMetadata } from "../../models/architect";
-import { AnchoredCavern, OrderedPlan } from "./03_anchor";
+import { AnchoredCavern, PartiallyEstablishedPlan } from "./03_anchor";
 import { ModdedCavern } from "./04_mod";
 import { WithPlanType } from "./utils";
 
@@ -25,6 +25,10 @@ export type EstablishedPlan<T extends BaseMetadata> = ArchitectedPlan<T> & {
   readonly ore: number;
 };
 
+export type OrderedPlan = Omit<PartiallyEstablishedPlan, "hops"> & {
+  hops: readonly number[];
+};
+
 export type OrderedOrEstablishedPlan = CollapseUnion<
   OrderedPlan | EstablishedPlan<AnyMetadata>
 >;
@@ -35,12 +39,14 @@ export type EstablishedCavern = WithPlanType<
 >;
 
 // Sort the plans in a breadth-first search order and log the hops they take.
-function orderPlans(cavern: ModdedCavern): OrderedPlan[] {
-  const queue = cavern.plans.filter((plan) => "hops" in plan) as OrderedPlan[];
+export function orderPlans(
+  plans: readonly PartiallyEstablishedPlan[],
+): OrderedPlan[] {
+  const queue = plans.filter((plan) => "hops" in plan) as OrderedPlan[];
   const isQueued: true[] = [];
   queue.forEach((plan) => (isQueued[plan.id] = true));
 
-  for (let i = 0; i < cavern.plans.length; i++) {
+  for (let i = 0; i < plans.length; i++) {
     const plan = queue[i];
     if (!plan) {
       throw new Error("Failed to order all plans. (Is the graph disjoint?)");
@@ -48,13 +54,11 @@ function orderPlans(cavern: ModdedCavern): OrderedPlan[] {
 
     const neighbors = plan.intersects
       .map((b, id) => (b ? id : -1))
-      .filter(
-        (id) => id >= 0 && !isQueued[id] && cavern.plans[id].kind !== plan.kind,
-      );
+      .filter((id) => id >= 0 && !isQueued[id] && plans[id].kind !== plan.kind);
     neighbors.forEach((id) => (isQueued[id] = true));
     queue.push(
       ...neighbors.map((id) => ({
-        ...cavern.plans[id],
+        ...plans[id],
         hops: [...plan.hops, plan.id],
       })),
     );
@@ -70,7 +74,7 @@ function curved(curve: Curve, props: CurveProps): number {
 
 export default function establish(cavern: AnchoredCavern): EstablishedCavern {
   const architects = encourageDisable(ARCHITECTS, cavern);
-  const inOrder = orderPlans(cavern);
+  const inOrder = orderPlans(cavern.plans);
   const plans: OrderedOrEstablishedPlan[] = [];
   inOrder.forEach((plan) => (plans[plan.id] = plan));
 

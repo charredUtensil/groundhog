@@ -1,9 +1,12 @@
 import { Architect } from "../../models/architect";
 import { DefaultCaveArchitect, PartialArchitect } from "../default";
 import { mkRough, Rough, weightedSprinkle } from "../utils/rough";
-import { mkVars, transformPoint } from "../utils/script";
+import { EventChainLine, mkVars, transformPoint } from "../utils/script";
 import { Plan } from "../../models/plan";
-import { monsterSpawnScript } from "../utils/creature_spawners";
+import {
+  monsterSpawnScript,
+  wantNormalMonsterSpawns,
+} from "../utils/creature_spawners";
 import { Tile } from "../../models/tiles";
 import { plotLine, Point } from "../../common/geometry";
 import { PreprogrammedCavern } from "../../transformers/04_ephemera/03_preprogram";
@@ -86,17 +89,16 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `shake:4;`,
       ...eps.map(
         (pos) =>
-          `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies `${string};`,
+          `place:${transformPoint(cavern, pos)},${Tile.LAVA.id};` satisfies EventChainLine,
       ),
-      cavern.context.hasMonsters && `${v.doSpawn};`,
+      wantNormalMonsterSpawns(cavern) && `${v.doSpawn};`,
     );
   },
-  monsterSpawnScript: (args) => {
-    return monsterSpawnScript(args, {
+  monsterSpawnScript: (args) =>
+    monsterSpawnScript(args, {
       armEvent: sVars(args.plan).doSpawn,
       tripOnArmed: "first",
-    });
-  },
+    }),
 };
 
 const ERUPTION = [

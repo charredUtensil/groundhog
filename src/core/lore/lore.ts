@@ -1,8 +1,10 @@
 import { HqMetadata } from "../architects/established_hq/base";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
+import { LoreDie } from "../common/prng";
 import { filterTruthy } from "../common/utils";
 import { GEOLOGICAL_CENTER, SUPPORT_STATION } from "../models/building";
+import { getAnchor } from "../models/cavern";
 import { Objectives } from "../models/objectives";
 import { Plan } from "../models/plan";
 import { FluidType, Tile } from "../models/tiles";
@@ -14,36 +16,37 @@ import PREMISE from "./graphs/premise";
 import { spellNumber } from "./utils/numbers";
 
 export type State = {
-  readonly floodedWithWater: boolean;
+  readonly anchorIsBlackout: boolean;
+  readonly anchorIsGasLeak: boolean;
+  readonly anchorIsMobFarm: boolean;
+  readonly anchorIsOreWaste: boolean;
+  readonly anchorIsPandora: boolean;
+  readonly buildAndPowerGcMultiple: boolean;
+  readonly buildAndPowerGcOne: boolean;
+  readonly buildAndPowerSsMultiple: boolean;
+  readonly buildAndPowerSsOne: boolean;
+  readonly findHq: boolean;
   readonly floodedWithLava: boolean;
-  readonly lostMinersOne: boolean;
-  readonly lostMinersTogether: boolean;
-  readonly lostMinersApart: boolean;
-  readonly resourceObjective: boolean;
+  readonly floodedWithWater: boolean;
+  readonly hasAirLimit: boolean;
+  readonly hasGiantCave: boolean;
   readonly hasMonsters: boolean;
   readonly hasSlugs: boolean;
-  readonly spawnHasErosion: boolean;
-  readonly spawnIsHq: boolean;
   readonly hqIsFixedComplete: boolean;
-  readonly spawnIsNomadOne: boolean;
-  readonly spawnIsNomadsTogether: boolean;
-  readonly findHq: boolean;
   readonly hqIsRuin: boolean;
-  readonly treasureCaveOne: boolean;
-  readonly treasureCaveMany: boolean;
-  readonly rockBiome: boolean;
   readonly iceBiome: boolean;
   readonly lavaBiome: boolean;
-  readonly hasGiantCave: boolean;
-  readonly buildAndPowerGcOne: boolean;
-  readonly buildAndPowerGcMultiple: boolean;
-  readonly buildAndPowerSsOne: boolean;
-  readonly buildAndPowerSsMultiple: boolean;
-  readonly hasAirLimit: boolean;
-  readonly spawnIsMobFarm: boolean;
-  readonly spawnIsBlackout: boolean;
-  readonly spawnIsGasLeak: boolean;
-  readonly spawnIsOreWaste: boolean;
+  readonly lostMinersApart: boolean;
+  readonly lostMinersOne: boolean;
+  readonly lostMinersTogether: boolean;
+  readonly nomadsMany: boolean;
+  readonly nomadsOne: boolean;
+  readonly resourceObjective: boolean;
+  readonly rockBiome: boolean;
+  readonly spawnHasErosion: boolean;
+  readonly spawnIsHq: boolean;
+  readonly treasureCaveMany: boolean;
+  readonly treasureCaveOne: boolean;
 };
 
 export type FoundLostMinersState = State & {
@@ -57,25 +60,10 @@ export type Format = {
   readonly enemies: string;
   readonly lostMiners: number;
   readonly lostMinerCaves: number;
+  readonly monsters: string;
   readonly resourceGoal: string;
   readonly resourceGoalNamesOnly: string;
 };
-
-export enum LoreDie {
-  premise = 0,
-  orders,
-  success,
-  failure,
-  foundHoard,
-  foundHq,
-  foundAllLostMiners,
-  nomadsSettled,
-  foundSlugNest,
-  name,
-  failureBaseDestroyed,
-  buildAndPower,
-  seismicForeshadow,
-}
 
 function floodedWith(cavern: AdjuredCavern): FluidType {
   let lava = 0;
@@ -131,7 +119,8 @@ export class Lore {
 
     const { lostMiners, lostMinerCaves } = countLostMiners(cavern);
 
-    const anchor = cavern.plans[cavern.anchor];
+    const anchor = getAnchor(cavern);
+    const spawn = cavern.plans.find((p) => !p.hops.length)!;
 
     const resourceObjective =
       cavern.objectives.crystals +
@@ -139,10 +128,11 @@ export class Lore {
         cavern.objectives.studs >
       0;
 
-    const hq = cavern.plans.find(
-      (p) => p.metadata?.tag === "hq",
-    ) as Plan<HqMetadata>;
-    const spawnIsHq = anchor === hq;
+    const hq = cavern.plans.find((p) => p.metadata?.tag === "hq") as
+      | Plan<HqMetadata>
+      | undefined;
+    const anchorIsHq = Object.is(anchor, hq);
+    const spawnIsHq = Object.is(spawn, hq);
     const hqIsFixedComplete = hq?.metadata.special === "fixedComplete";
     const findHq = !!hq && !spawnIsHq;
     const hqIsRuin = !!hq?.metadata.ruin;
@@ -164,10 +154,13 @@ export class Lore {
       0,
     );
 
-    const nomads =
-      anchor.metadata?.tag === "nomads"
-        ? (anchor.metadata.minersCount as number)
-        : 0;
+    const nomads = cavern.plans.reduce(
+      (r, p) =>
+        spawn.metadata?.tag === "nomads"
+          ? r + (spawn.metadata.minersCount as number)
+          : r,
+      0,
+    );
 
     const treasures = cavern.plans.reduce(
       (r, plan) => (plan.metadata?.tag === "treasure" ? r + 1 : r),
@@ -182,55 +175,59 @@ export class Lore {
         plan.pearlRadius * 4 > cavern.context.targetSize,
     );
 
+    const hasMonsters = cavern.context.hasMonsters;
+
     this.state = {
-      floodedWithWater: fluidType === Tile.WATER,
-      floodedWithLava: fluidType === Tile.LAVA,
-      lostMinersOne: lostMiners === 1,
-      lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
-      lostMinersApart: lostMinerCaves > 1,
-      resourceObjective,
-      hasMonsters: cavern.context.hasMonsters,
-      hasSlugs: cavern.context.hasSlugs,
-      spawnHasErosion: anchor.hasErosion,
-      spawnIsHq,
+      anchorIsBlackout: anchor.metadata?.tag === "blackout",
+      anchorIsGasLeak: anchorIsHq && hq!.metadata.special === "gasLeak",
+      anchorIsMobFarm: anchor.metadata?.tag === "mobFarm",
+      anchorIsOreWaste: anchor.metadata?.tag === "oreWaste",
+      anchorIsPandora: anchor.metadata?.tag === "pandora",
+      buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
+      buildAndPowerGcOne: buildAndPowerGcCount === 1,
+      buildAndPowerSsMultiple: buildAndPowerSsCount > 1,
+      buildAndPowerSsOne: buildAndPowerSsCount === 1,
       findHq,
+      floodedWithLava: fluidType === Tile.LAVA,
+      floodedWithWater: fluidType === Tile.WATER,
+      hasAirLimit: !!cavern.oxygen,
+      hasGiantCave,
+      hasMonsters,
+      hasSlugs: cavern.context.hasSlugs,
       hqIsFixedComplete,
       hqIsRuin,
-      spawnIsNomadOne: nomads === 1,
-      spawnIsNomadsTogether: nomads > 1,
-      treasureCaveOne: treasures === 1,
-      treasureCaveMany: treasures > 1,
-      rockBiome: cavern.context.biome === "rock",
       iceBiome: cavern.context.biome === "ice",
       lavaBiome: cavern.context.biome === "lava",
-      hasGiantCave,
-      buildAndPowerGcOne: buildAndPowerGcCount === 1,
-      buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
-      buildAndPowerSsOne: buildAndPowerSsCount === 1,
-      buildAndPowerSsMultiple: buildAndPowerSsCount > 1,
-      hasAirLimit: !!cavern.oxygen,
-      spawnIsMobFarm: anchor.metadata?.tag === "mobFarm",
-      spawnIsBlackout: anchor.metadata?.tag === "blackout",
-      spawnIsGasLeak: spawnIsHq && hq.metadata.special === "gasLeak",
-      spawnIsOreWaste: anchor.metadata?.tag === "oreWaste",
+      lostMinersApart: lostMinerCaves > 1,
+      lostMinersOne: lostMiners === 1,
+      lostMinersTogether: lostMiners > 1 && lostMinerCaves === 1,
+      nomadsMany: nomads > 1,
+      nomadsOne: nomads === 1,
+      resourceObjective,
+      rockBiome: cavern.context.biome === "rock",
+      spawnHasErosion: spawn.hasErosion,
+      spawnIsHq,
+      treasureCaveMany: treasures > 1,
+      treasureCaveOne: treasures === 1,
     };
 
+    const monsters = {
+      rock: "Rock Monsters",
+      ice: "Ice Monsters",
+      lava: "Lava Monsters",
+    }[cavern.context.biome];
     const enemies = filterTruthy([
-      cavern.context.hasMonsters &&
-        {
-          rock: "Rock Monsters",
-          ice: "Ice Monsters",
-          lava: "Lava Monsters",
-        }[cavern.context.biome],
+      hasMonsters && monsters,
       cavern.context.hasSlugs && "Slimy Slugs",
     ]).join(" and ");
 
     this.format = {
-      enemies,
-      lostMiners,
-      lostMinerCaves,
       buildAndPowerGcCount,
       buildAndPowerSsCount,
+      enemies,
+      lostMinerCaves,
+      lostMiners,
+      monsters,
       ...spellResourceGoal(cavern.objectives),
     };
   }
