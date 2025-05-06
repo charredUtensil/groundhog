@@ -7,6 +7,10 @@ import { AnchoredCavern, PartiallyEstablishedPlan } from "./03_anchor";
 import { ModdedCavern } from "./04_mod";
 import { WithPlanType } from "./utils";
 
+export type OrderedPlan = Omit<PartiallyEstablishedPlan, "hops"> & {
+  hops: readonly number[];
+};
+
 export type ArchitectedPlan<T extends BaseMetadata> = OrderedPlan & {
   /** The architect to use to build out the plan. */
   readonly architect: Architect<T>;
@@ -23,10 +27,6 @@ export type EstablishedPlan<T extends BaseMetadata> = ArchitectedPlan<T> & {
   readonly crystals: number;
   /** How many ore the Plan will add. */
   readonly ore: number;
-};
-
-export type OrderedPlan = Omit<PartiallyEstablishedPlan, "hops"> & {
-  hops: readonly number[];
 };
 
 export type OrderedOrEstablishedPlan = CollapseUnion<

@@ -10,7 +10,7 @@ import { CollapseUnion, filterTruthy } from "../src/core/common/utils";
 import { MAX_PLUS_ONE } from "../src/core/common/prng";
 import { ARCHITECTS } from "../src/core/architects";
 import { Architect } from "../src/core/models/architect";
-import { getFlags } from "../src/core/common/flags";
+import { getFlags } from "../src/cli/flags";
 
 type Concordance = { [K: string]: number };
 

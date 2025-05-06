@@ -24,6 +24,7 @@
     "eject": "react-scripts eject",
     "gen": "tsx bin/groundhog-gen",
     "architect-stats": "tsx bin/architect-stats",
+    "find-failures": "REACT_APP_VERSION=test tsx bin/find-failures",
     "lore-dump": "tsx bin/lore-dump",
     "mermaidify": "tsx bin/mermaidify",
     "update-goldens": "UPDATE_GOLDENS=1 react-scripts test --all --watchAll=false"

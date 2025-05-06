@@ -85,16 +85,30 @@ const LOST_BASE: Pick<
           `change:${transformPoint(cavern, discoPoint)}`,
           shouldPanMessage && `msg:${v.messageDiscover};`,
           shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
-          `${gObjectives.met}+=1;`,
           `wait:1;`,
+          `${gObjectives.met}+=1;`,
           `${gLostHq.foundHq}=1;`,
         );
       }
     } else if (cavern.objectives.tags.reachHq) {
+      const v = mkVars(`p${plan.id}LoHq`, ["messageReach", "reached"]);
+      sb.declareString(v.messageReach, {
+        die: LoreDie.foundHq,
+        pg: FOUND_HQ,
+      });
+      sb.declareInt(v.reached, 0);
+      sb.if(
+        `${v.reached}>=1`,
+        `wait:1;`,
+        `msg:${v.messageReach};`,
+        `${gObjectives.met}+=1;`,
+        `${gLostHq.foundHq}=1;`,
+      );
       plan.outerPearl[0].forEach(pos => {
         if (cavern.tiles.get(...pos)) {
-          return sb.when(
-            `enter:${transformPoint(cavern, pos)}`
+          sb.when(
+            `enter:${transformPoint(cavern, pos)}`,
+            `${v.reached}=1;`
           );
         }
       })

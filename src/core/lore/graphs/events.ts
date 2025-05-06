@@ -50,6 +50,7 @@ export const FOUND_HQ = phraseGraph<State, Format>(
     const neutral_greeting = start.then(
       "You found the Rock Raider HQ.",
       "There it is!",
+      state("reachHq"),
     );
 
     const tail = pg(skip, state("resourceObjective")).then(end);

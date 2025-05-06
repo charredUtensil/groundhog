@@ -88,7 +88,7 @@ const SECRET_TUNNEL = [
       !plan.fluid &&
       plan.path.kind === "auxiliary" &&
       plan.path.exclusiveSnakeDistance > 1 &&
-      !plan.intersects.some((_, i) => plans[i].metadata?.tag === "seismic") &&
+      !plan.intersects.some((_, i) => ["seismic", "pandora"].includes(plans[i].metadata?.tag ?? "")) &&
       cavern.context.planWhimsy * 0.75,
   },
 ] as const satisfies readonly Architect<typeof METADATA>[];

@@ -259,12 +259,13 @@ export const BUILD_AND_POWER = [
     ),
     caveBid: ({ cavern, plans, plan, hops }) => {
       const amd = plans[cavern.anchor].metadata;
+      console.log('plans: %o plan: %o amd: %o', plans.reduce((r, p) => p.architect ? r + 1 : r, 0), plan.id, amd);
       return (
         !plan.fluid &&
         plan.pearlRadius > 2 &&
         plan.pearlRadius < 10 &&
         plan.path.baseplates.length === 1 &&
-        // Incompatible with fchq or mob farm
+        // Incompatible with fchq, mob farm, and pandora
         !(amd?.tag === "hq" && amd.special === "fixedComplete") &&
         amd?.tag !== "mobFarm" &&
         amd?.tag !== "pandora" &&

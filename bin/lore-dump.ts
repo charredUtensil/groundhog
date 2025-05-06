@@ -2,7 +2,7 @@
 import "dotenv/config";
 import { PseudorandomStream } from "../src/core/common/prng";
 import ALL_GRAPHS from "../src/core/lore/graphs";
-import { getFlags } from "../src/core/common/flags";
+import { getFlags } from "../src/cli/flags";
 import { MOCK_FORMAT } from "../src/core/lore/mock";
 import wrap from "word-wrap";
 import { NoContinuationError } from "../src/core/lore/utils/builder";

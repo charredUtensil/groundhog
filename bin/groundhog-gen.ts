@@ -2,7 +2,7 @@
 import { inferContextDefaults } from "../src/core/common";
 import { CAVERN_TF } from "../src/core/transformers";
 import { SerializedCavern } from "../src/core/transformers/04_ephemera/05_serialize";
-import { getFlags } from "../src/core/common/flags";
+import { getFlags } from "../src/cli/flags";
 
 function main({seed}: {seed:number}) {
   if (!seed) {
