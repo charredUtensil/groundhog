@@ -44,7 +44,8 @@ async function main({seed, count, graph, positionals}: {seed: number, count: num
 
 const args = getFlags({
   args: process.argv.slice(2),
-  usage: "USAGE: yarn lore-dump [FLAGS] [STATES]\nPrints a dump of lore strings.",
+  usage: `USAGE: yarn lore-dump [FLAGS] [STATES]
+Prints a dump of lore strings.`,
   allowPositionals: true,
   options: {
     seed: {

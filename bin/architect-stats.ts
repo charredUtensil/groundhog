@@ -180,7 +180,8 @@ function main({ firstSeed, totalCount }: { firstSeed: number, totalCount: number
 
 const args = getFlags({
   args: process.argv.slice(2),
-  usage: "USAGE: yarn architect-stats [FLAGS]\nBuilds many maps up to the Establish step and logs stats on architects used.",
+  usage: `USAGE: yarn architect-stats [FLAGS]
+Builds many maps up to the Establish step and logs stats on architects used.`,
   options: {
     firstSeed: {
       type: 'string',

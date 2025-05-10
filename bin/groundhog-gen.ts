@@ -21,7 +21,8 @@ function main({seed}: {seed:number}) {
 
 const args = getFlags({
   args: process.argv.slice(2),
-  usage: "USAGE: yarn groundhog-gen [FLAGS]\nBuilds a cavern and prints to stdout.",
+  usage: `USAGE: yarn groundhog-gen [FLAGS]
+Builds a cavern and prints to stdout.`,
   options: {
     seed: {
       type: 'string',

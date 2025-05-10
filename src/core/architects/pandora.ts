@@ -111,12 +111,11 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       (r, bid) => (bid.bid > 0 ? Math.max(bid.dist, r) : r),
       0,
     );
-    debugger;
     const spawn = cavern.dice
       .mod(0)
       .weightedChoice(bids.filter(({ dist }) => dist === maxDist));
     plans[spawn.id] = spawn;
-    const anchor = { ...getAnchor(cavern) } as PartiallyEstablishedPlan;
+    const anchor = { ...getAnchor(cavern), metadata: METADATA } as PartiallyEstablishedPlan;
     delete anchor.hops;
     plans[anchor.id] = anchor;
     return { ...cavern, context, plans };
