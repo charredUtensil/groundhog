@@ -61,75 +61,73 @@ function fgColor(a: Architect<any>) {
 
 type Stats = {
   [K: string]: {
-    counts: number[],
-    lastSeen: number,
-    lastNotSeen: number,
-  }
+    counts: number[];
+    lastSeen: number;
+    lastNotSeen: number;
+  };
 };
 type Row = {
-  name: string,
-  color: string,
-  saturation: string[],
-  seed: string,
-}
+  name: string;
+  color: string;
+  saturation: string[];
+  seed: string;
+};
 
 function draw(stats: Stats, count: number, totalCount: number) {
   const width = 28;
   const saturationColumnCount = 4;
   const header1: Row = {
-    color: '',
-    name: 'architect'.padEnd(width),
+    color: "",
+    name: "architect".padEnd(width),
     saturation: new Array(saturationColumnCount)
       .fill(0)
       .map((_, i) => ` >=${i + 1}`),
-    seed: 'rmk  seed'
-  }
+    seed: "rmk  seed",
+  };
   const header2: Row = {
-    color: '',
-    name: ''.padEnd(width, '-'),
-    saturation: new Array(saturationColumnCount)
-      .fill(0)
-      .map(() => '----'),
-    seed: '---------',
-  }
+    color: "",
+    name: "".padEnd(width, "-"),
+    saturation: new Array(saturationColumnCount).fill(0).map(() => "----"),
+    seed: "---------",
+  };
   const rows: Row[] = ARCHITECTS.map((architect, i) => {
     const a = stats[architect.name];
     const rowColor = `\x1b[38;5;${fgColor(architect)};48;5;${i % 2 === 0 ? 232 : 234}m`;
     const name = architect.name.padEnd(width, ".").substring(0, width);
-    const saturation = new Array(saturationColumnCount).fill(0)
+    const saturation = new Array(saturationColumnCount)
+      .fill(0)
       .map((_, i) => (a.counts ?? [])[i] ?? 0)
       .map((c) => {
         if (c <= 0) {
-          return '    ';
+          return "    ";
         }
-        const ratio = c / count
+        const ratio = c / count;
         const color = `\x1b[38;5;${Math.round(15 * ratio + 240)}m`;
         const s = (ratio * 100).toFixed(1);
         const z = s.length > 3 ? s.substring(0, s.length - 2) : s;
         return `${color}${z.padStart(3)}%`;
       });
     const seed = (() => {
-      const ratio = ((a.counts[0] ?? 0) / count);
-      const [p, ls, color] = ratio < 0.5 ? ['+', 'lastSeen', '17'] as const : ['-', 'lastNotSeen', '52'] as const;
+      const ratio = (a.counts[0] ?? 0) / count;
+      const [p, ls, color] =
+        ratio < 0.5
+          ? (["+", "lastSeen", "17"] as const)
+          : (["-", "lastNotSeen", "52"] as const);
       const v = a[ls];
       if (v < 0) {
-        return '         ';
+        return "         ";
       }
-      return `\x1b[38;5;${color}m${p}${v.toString(16).toUpperCase().padStart(8, '0')}`;
+      return `\x1b[38;5;${color}m${p}${v.toString(16).toUpperCase().padStart(8, "0")}`;
     })();
-    return {color: rowColor, name, saturation, seed};
+    return { color: rowColor, name, saturation, seed };
   });
 
   function drawRow(row: Row | undefined) {
     if (!row) {
-      return '';
+      return "";
     }
-    const r = filterTruthy([
-      row.name,
-      ...row.saturation,
-      row.seed,
-    ]);
-    return `${row.color}${r.join(' ')}\x1b[m`;
+    const r = filterTruthy([row.name, ...row.saturation, row.seed]);
+    return `${row.color}${r.join(" ")}\x1b[m`;
   }
 
   const result = [
@@ -141,14 +139,18 @@ function draw(stats: Stats, count: number, totalCount: number) {
     result.push(`${drawRow(rows[i])} | ${drawRow(rows[i + mid])}`);
   }
   result.push(`\nMaps tested: ${count}/${totalCount}`);
-  console.log(
-    `\x1bc${result.join('\n')}`,
-  );
+  console.log(`\x1bc${result.join("\n")}`);
 }
 
-function main({ firstSeed, totalCount }: { firstSeed: number, totalCount: number}) {
+function main({
+  firstSeed,
+  totalCount,
+}: {
+  firstSeed: number;
+  totalCount: number;
+}) {
   const stats: Stats = {};
-  ARCHITECTS.forEach(architect => {
+  ARCHITECTS.forEach((architect) => {
     stats[architect.name] = {
       counts: [],
       lastSeen: -1,
@@ -159,7 +161,7 @@ function main({ firstSeed, totalCount }: { firstSeed: number, totalCount: number
   for (let i = 0; i < totalCount; i++) {
     const seed = (firstSeed + i) % MAX_PLUS_ONE;
     const concordanceInSeed = gen(seed);
-    ARCHITECTS.forEach(architect => {
+    ARCHITECTS.forEach((architect) => {
       const a = stats[architect.name];
       const timesArchitectInSeed = concordanceInSeed[architect.name] ?? 0;
       for (let j = 0; j < timesArchitectInSeed; j++) {
@@ -184,18 +186,18 @@ const args = getFlags({
 Builds many maps up to the Establish step and logs stats on architects used.`,
   options: {
     firstSeed: {
-      type: 'string',
-      short: 's',
-      default: 'EFE63E54',
-      help: 'The first seed to check.',
-      parse: it => parseInt(it, 16),
+      type: "string",
+      short: "s",
+      default: "EFE63E54",
+      help: "The first seed to check.",
+      parse: (it) => parseInt(it, 16),
     },
     totalCount: {
-      type: 'string',
-      short: 'c',
-      default: '10000',
-      help: 'The number of seeds to check.',
-      parse: it => parseInt(it, 10),
+      type: "string",
+      short: "c",
+      default: "10000",
+      help: "The number of seeds to check.",
+      parse: (it) => parseInt(it, 10),
     },
   },
 });

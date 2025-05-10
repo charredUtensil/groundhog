@@ -8,8 +8,8 @@ import * as seismic from "../src/core/lore/graphs/seismic";
 import { PhraseGraph } from "../src/core/lore/utils/builder";
 import { mermaidify } from "../src/core/lore/utils/mermaid";
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
 const MODULES = [
   build_and_power,
@@ -35,24 +35,28 @@ function modulesMatch(m1: any, m2: any): boolean {
 }
 
 function main() {
-  MODULES.forEach(module => {
-    const contents = Object.values(module).map((pg) => {
-      if (!(pg instanceof PhraseGraph)) {
-        return '';
-      }
-      return `## ${pg.name}\n\n${mermaidify(pg)}\n`;
-    }).filter(content => content).join('\n');
+  MODULES.forEach((module) => {
+    const contents = Object.values(module)
+      .map((pg) => {
+        if (!(pg instanceof PhraseGraph)) {
+          return "";
+        }
+        return `## ${pg.name}\n\n${mermaidify(pg)}\n`;
+      })
+      .filter((content) => content)
+      .join("\n");
 
     if (contents) {
-      const modulePath = Object.keys(require.cache).find(key => modulesMatch(require.cache[key]?.exports, module))!;
+      const modulePath = Object.keys(require.cache).find((key) =>
+        modulesMatch(require.cache[key]?.exports, module),
+      )!;
       const directory = path.dirname(modulePath);
-      const fileName = path.basename(modulePath, '.ts') + '.md';
+      const fileName = path.basename(modulePath, ".ts") + ".md";
       const filePath = path.join(directory, fileName);
-      console.log('write to %o', filePath);
+      console.log("write to %o", filePath);
       fs.writeFileSync(filePath, contents);
     }
-
   });
 }
 
-main()
+main();

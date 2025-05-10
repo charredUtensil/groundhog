@@ -1,6 +1,6 @@
 import { FOUND_HQ } from "../../lore/graphs/events";
 import { LoreDie } from "../../common/prng";
-import { Architect, BaseMetadata } from "../../models/architect";
+import { Architect } from "../../models/architect";
 import { getDiscoveryPoint } from "../utils/discovery";
 import { placeLandslides } from "../utils/hazards";
 import { gObjectives } from "../utils/objectives";
@@ -14,22 +14,24 @@ export const gLostHq = mkVars("gLostHq", ["foundHq"]);
 
 /** Returns true if there is a "lost" HQ in this map. */
 export function isHqLost(cavern: DiscoveredCavern) {
-  return cavern.buildings.some(b => {
+  return cavern.buildings.some((b) => {
     const pos = b.foundation[0];
     if (cavern.discoveryZones.get(...pos)?.openOnSpawn) {
       return false;
     }
-    return cavern.pearlInnerDex.get(...pos)?.some((_, id) => cavern.plans[id].metadata?.tag === 'hq');
-  })
+    return cavern.pearlInnerDex
+      .get(...pos)
+      ?.some((_, id) => cavern.plans[id].metadata?.tag === "hq");
+  });
 }
 
 const LOST_BASE: Pick<
   Architect<HqMetadata>,
   "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
 > = {
-  objectives: ({cavern}) => {
+  objectives: ({ cavern }) => {
     if (isHqLost(cavern)) {
-      return ({
+      return {
         sufficient: false,
         tag: "findHq",
         variables: [
@@ -38,9 +40,9 @@ const LOST_BASE: Pick<
             description: "Find the lost Rock Raider HQ",
           },
         ],
-      });
+      };
     }
-    return ({
+    return {
       sufficient: false,
       tag: "reachHq",
       variables: [
@@ -49,7 +51,7 @@ const LOST_BASE: Pick<
           description: "Reach the abandoned Rock Raider HQ",
         },
       ],
-    });
+    };
   },
   claimEventOnDiscover({ cavern, plan }) {
     if (!cavern.objectives.tags.findHq) {
@@ -69,13 +71,13 @@ const LOST_BASE: Pick<
         cavern.ownsScriptOnDiscover[
           cavern.discoveryZones.get(...discoPoint)!.id
         ] === plan.id;
-  
+
       const camPoint = plan.path.baseplates.reduce((r, p) => {
         return r.pearlRadius > p.pearlRadius ? r : p;
       }).center;
-  
+
       const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
-  
+
       if (shouldPanMessage) {
         sb.declareString(v.messageDiscover, {
           die: LoreDie.foundHq,
@@ -104,14 +106,11 @@ const LOST_BASE: Pick<
         `${gObjectives.met}+=1;`,
         `${gLostHq.foundHq}=1;`,
       );
-      plan.outerPearl[0].forEach(pos => {
+      plan.outerPearl[0].forEach((pos) => {
         if (cavern.tiles.get(...pos)) {
-          sb.when(
-            `enter:${transformPoint(cavern, pos)}`,
-            `${v.reached}=1;`
-          );
+          sb.when(`enter:${transformPoint(cavern, pos)}`, `${v.reached}=1;`);
         }
-      })
+      });
     }
   },
 };

@@ -23,14 +23,14 @@ export default function adjure(cavern: AeratedCavern): AdjuredCavern {
         if (obj?.tag) {
           tags[obj.tag] = true;
         }
-        return ({
+        return {
           crystals: Math.max(r.crystals, obj?.crystals ?? 0),
           ore: Math.max(r.ore, obj?.ore ?? 0),
           studs: Math.max(r.studs, obj?.studs ?? 0),
           tags,
           variables: [...r.variables, ...(obj?.variables ?? [])],
           sufficient: r.sufficient || !!obj?.sufficient,
-        });
+        };
       },
       {
         crystals: 0,

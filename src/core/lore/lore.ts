@@ -1,5 +1,4 @@
 import { HqMetadata } from "../architects/established_hq/base";
-import { isHqLost } from "../architects/established_hq/lost";
 import { countLostMiners } from "../architects/lost_miners";
 import { DiceBox } from "../common";
 import { LoreDie } from "../common/prng";

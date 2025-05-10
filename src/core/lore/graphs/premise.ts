@@ -364,9 +364,9 @@ unnecessary risk.`,
           "There should be a base nearby for you to use.",
           state("hqIsRuin").then(
             "There should be a base nearby, but I can't be sure what " +
-            "condition you'll find it in."
-          )
-        )
+              "condition you'll find it in.",
+          ),
+        ),
       )
       .then(skip, state("treasureCaveOne"), state("treasureCaveMany"))
       .then(skip, state("spawnHasErosion"))

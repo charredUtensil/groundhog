@@ -4,7 +4,7 @@ import { CAVERN_TF } from "../src/core/transformers";
 import { SerializedCavern } from "../src/core/transformers/04_ephemera/05_serialize";
 import { getFlags } from "../src/cli/flags";
 
-function main({seed}: {seed:number}) {
+function main({ seed }: { seed: number }) {
   if (!seed) {
     throw new Error("Usage:\n  SEED=... yarn gen");
   }
@@ -25,11 +25,11 @@ const args = getFlags({
 Builds a cavern and prints to stdout.`,
   options: {
     seed: {
-      type: 'string',
-      short: 's',
-      default: 'EFE63E54',
-      help: 'The seed to build.',
-      parse: it => parseInt(it, 16),
+      type: "string",
+      short: "s",
+      default: "EFE63E54",
+      help: "The seed to build.",
+      parse: (it) => parseInt(it, 16),
     },
   },
 });
