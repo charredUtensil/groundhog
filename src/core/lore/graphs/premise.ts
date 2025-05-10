@@ -367,6 +367,14 @@ unnecessary risk.`,
               "condition you'll find it in.",
           ),
         ),
+        state("reachHq").then(
+          "The Rock Raider HQ is ready for you nearby.",
+          state("hqIsRuin").then(
+            ({ format: { monsters } }) =>
+              "The Rock Raider HQ is nearby, but it looks like those " +
+              `${monsters} got to it first!`,
+          ),
+        ),
       )
       .then(skip, state("treasureCaveOne"), state("treasureCaveMany"))
       .then(skip, state("spawnHasErosion"))

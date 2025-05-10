@@ -97,7 +97,14 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
   ).filter((s) => !(s in actualReachable));
   // Actual can sometimes contain states that are impossible, so it's ok if
   // there are reachable states in actual not in expected.
-  expect(missing).toEqual([]);
+  if (missing.length > 0) {
+    const counts = missing.map((it) => it.match(/,/g)?.length ?? 0);
+    const minCount = Math.min(...counts);
+    const callouts = missing.filter((it, i) => counts[i] === minCount);
+    throw new Error(
+      `Missing states:\n- ${callouts.join("\n- ")}\n- (and ${missing.length - callouts.length} more)`,
+    );
+  }
 }
 
 export default function testCompleteness(module: any) {
