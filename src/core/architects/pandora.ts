@@ -111,12 +111,14 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       (r, bid) => (bid.bid > 0 ? Math.max(bid.dist, r) : r),
       0,
     );
-    debugger;
     const spawn = cavern.dice
       .mod(0)
       .weightedChoice(bids.filter(({ dist }) => dist === maxDist));
     plans[spawn.id] = spawn;
-    const anchor = { ...getAnchor(cavern) } as PartiallyEstablishedPlan;
+    const anchor = {
+      ...getAnchor(cavern),
+      metadata: METADATA,
+    } as PartiallyEstablishedPlan;
     delete anchor.hops;
     plans[anchor.id] = anchor;
     return { ...cavern, context, plans };
@@ -419,9 +421,15 @@ const miniHoardBase = (pocketLayer: number): PartialArchitect<undefined> => ({
   },
   placeCrystals(args) {
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
-    const tiles = args.plan.innerPearl[pocketLayer].filter(
+    const ts = args.plan.innerPearl[pocketLayer].filter(
       (pos) => args.tiles.get(...pos)?.isWall,
     );
+    const tiles =
+      ts.length > 0
+        ? ts
+        : args.plan.innerPearl.flatMap((ly) =>
+            ly.filter((pos) => args.tiles.get(...pos)?.isWall),
+          );
     sprinkleCrystals(args, {
       getRandomTile: () => rng.uniformChoice(tiles),
       seamBias: 1,

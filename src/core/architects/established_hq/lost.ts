@@ -6,25 +6,57 @@ import { placeLandslides } from "../utils/hazards";
 import { gObjectives } from "../utils/objectives";
 import { DzPriority, mkVars, transformPoint } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings, getPrime } from "./base";
+import { DiscoveredCavern } from "../../transformers/03_plastic/01_discover";
 
 const MAX_HOPS = 3;
 
 export const gLostHq = mkVars("gLostHq", ["foundHq"]);
 
+/** Returns true if there is a "lost" HQ in this map. */
+export function isHqLost(cavern: DiscoveredCavern) {
+  return cavern.buildings.some((b) => {
+    const pos = b.foundation[0];
+    if (cavern.discoveryZones.get(...pos)?.openOnSpawn) {
+      return false;
+    }
+    return cavern.pearlInnerDex
+      .get(...pos)
+      ?.some((_, id) => cavern.plans[id].metadata?.tag === "hq");
+  });
+}
+
 const LOST_BASE: Pick<
   Architect<HqMetadata>,
   "objectives" | "claimEventOnDiscover" | "scriptGlobals" | "script"
 > = {
-  objectives: () => ({
-    variables: [
-      {
-        condition: `${gLostHq.foundHq}>0`,
-        description: "Find the lost Rock Raider HQ",
-      },
-    ],
-    sufficient: false,
-  }),
+  objectives: ({ cavern }) => {
+    if (isHqLost(cavern)) {
+      return {
+        sufficient: false,
+        tag: "findHq",
+        variables: [
+          {
+            condition: `${gLostHq.foundHq}>0`,
+            description: "Find the lost Rock Raider HQ",
+          },
+        ],
+      };
+    }
+    return {
+      sufficient: false,
+      tag: "reachHq",
+      variables: [
+        {
+          condition: `${gLostHq.foundHq}>0`,
+          description: "Reach the abandoned Rock Raider HQ",
+        },
+      ],
+    };
+  },
   claimEventOnDiscover({ cavern, plan }) {
+    if (!cavern.objectives.tags.findHq) {
+      return [];
+    }
     const pos = getDiscoveryPoint(cavern, plan);
     if (!pos) {
       throw new Error("Cave has Find HQ objective but no undiscovered point.");
@@ -33,31 +65,52 @@ const LOST_BASE: Pick<
   },
   scriptGlobals: ({ sb }) => sb.declareInt(gLostHq.foundHq, 0),
   script({ cavern, plan, sb }) {
-    const discoPoint = getDiscoveryPoint(cavern, plan)!;
-    const shouldPanMessage =
-      cavern.ownsScriptOnDiscover[
-        cavern.discoveryZones.get(...discoPoint)!.id
-      ] === plan.id;
+    if (cavern.objectives.tags.findHq) {
+      const discoPoint = getDiscoveryPoint(cavern, plan)!;
+      const shouldPanMessage =
+        cavern.ownsScriptOnDiscover[
+          cavern.discoveryZones.get(...discoPoint)!.id
+        ] === plan.id;
 
-    const camPoint = plan.path.baseplates.reduce((r, p) => {
-      return r.pearlRadius > p.pearlRadius ? r : p;
-    }).center;
+      const camPoint = plan.path.baseplates.reduce((r, p) => {
+        return r.pearlRadius > p.pearlRadius ? r : p;
+      }).center;
 
-    const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
+      const v = mkVars(`p${plan.id}LoHq`, ["messageDiscover"]);
 
-    if (shouldPanMessage) {
-      sb.declareString(v.messageDiscover, {
+      if (shouldPanMessage) {
+        sb.declareString(v.messageDiscover, {
+          die: LoreDie.foundHq,
+          pg: FOUND_HQ,
+        });
+        sb.if(
+          `change:${transformPoint(cavern, discoPoint)}`,
+          shouldPanMessage && `msg:${v.messageDiscover};`,
+          shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
+          `wait:1;`,
+          `${gObjectives.met}+=1;`,
+          `${gLostHq.foundHq}=1;`,
+        );
+      }
+    } else if (cavern.objectives.tags.reachHq) {
+      const v = mkVars(`p${plan.id}LoHq`, ["messageReach", "reached"]);
+      sb.declareString(v.messageReach, {
         die: LoreDie.foundHq,
         pg: FOUND_HQ,
       });
+      sb.declareInt(v.reached, 0);
       sb.if(
-        `change:${transformPoint(cavern, discoPoint)}`,
-        shouldPanMessage && `msg:${v.messageDiscover};`,
-        shouldPanMessage && `pan:${transformPoint(cavern, camPoint)};`,
-        `${gObjectives.met}+=1;`,
+        `${v.reached}>=1`,
         `wait:1;`,
+        `msg:${v.messageReach};`,
+        `${gObjectives.met}+=1;`,
         `${gLostHq.foundHq}=1;`,
       );
+      plan.outerPearl[0].forEach((pos) => {
+        if (cavern.tiles.get(...pos)) {
+          sb.when(`enter:${transformPoint(cavern, pos)}`, `${v.reached}=1;`);
+        }
+      });
     }
   },
 };

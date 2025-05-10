@@ -216,7 +216,7 @@ export function getPlaceRechargeSeams(
       for (let i = 0; i < c; i++) {
         const bids = bidsForOuterPearl(args).filter(({ bid }) => bid >= 1);
         if (bids.length === 0) {
-          console.log("FAILED to place recharge seam in plan: %o", args.plan);
+          console.log("Failed to place recharge seam in plan %d", args.plan.id);
         } else {
           const [x, y] = rng.weightedChoice(bids);
           args.tiles.set(x, y, Tile.RECHARGE_SEAM);

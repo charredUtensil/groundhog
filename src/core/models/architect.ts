@@ -165,7 +165,7 @@ export type BaseArchitect<T extends BaseMetadata> = {
    */
   objectives?(args: {
     cavern: DiscoveredCavern;
-  }): (Partial<Objectives> & { sufficient: boolean }) | undefined;
+  }): (Partial<Objectives> & { sufficient: boolean; tag?: string }) | undefined;
 
   readonly maxSlope: number | undefined;
 

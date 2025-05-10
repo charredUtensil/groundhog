@@ -4,7 +4,7 @@ echo "Presubmit: Running mermaidify...";
 yarn mermaidify || exit 1;
 
 echo "Presubmit: Running Prettier...";
-yarn prettier --write src || exit 1;
+yarn prettier --write bin src || exit 1;
 
 echo "Presubmit: Running ESLint...";
 yarn eslint --fix src --max-warnings=0 || exit 1;

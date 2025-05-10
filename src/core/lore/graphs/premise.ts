@@ -224,7 +224,10 @@ cavern instead.`,
             )
             .then(alsoAdditionalHardship),
         ),
-        state("spawnIsHq")
+        pg(
+          state("spawnIsHq"),
+          state("reachHq").then(skip, state("nomadsOne", "nomadsMany")),
+        )
           .then(
             ", and we have established our Rock Raider HQ.",
             ", and our HQ is ready to go!",
@@ -355,6 +358,24 @@ unnecessary risk.`,
           state("lostMinersTogether", "lostMinersApart").then("\n\nThe team"),
         ).then("hasn't reported back yet, so we're sending you to find them."),
       )
+      .then(
+        skip,
+        state("findHq").then(
+          "There should be a base nearby for you to use.",
+          state("hqIsRuin").then(
+            "There should be a base nearby, but I can't be sure what " +
+              "condition you'll find it in.",
+          ),
+        ),
+        state("reachHq").then(
+          "The Rock Raider HQ is ready for you nearby.",
+          state("hqIsRuin").then(
+            ({ format: { monsters } }) =>
+              "The Rock Raider HQ is nearby, but it looks like those " +
+              `${monsters} got to it first!`,
+          ),
+        ),
+      )
       .then(skip, state("treasureCaveOne"), state("treasureCaveMany"))
       .then(skip, state("spawnHasErosion"))
       .then(skip, state("hasGiantCave"))
@@ -441,7 +462,7 @@ unnecessary risk.`,
       .then(state("treasureCaveOne", "treasureCaveMany"), skip)
       .then(
         skip,
-        state("spawnIsHq", "findHq").then(
+        state("spawnIsHq", "findHq", "reachHq").then(
           "We established our Rock Raider HQ, but",
           "We constructed our base and were ready to begin mining. " +
             "Unfortunately,",
@@ -526,7 +547,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
       )
       .then(
         pg(", and")
-          .then(skip, state("spawnIsHq", "findHq"))
+          .then(skip, state("spawnIsHq", "findHq", "reachHq"))
           .then(
             pg(
               state("lostMinersOne").then(
@@ -558,7 +579,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
           ". Everyone evacuated safely",
         )
           .then(
-            state("findHq").then(
+            state("findHq", "reachHq").then(
               ", but this is as close as we can get for now.",
               ", but without the homing beacon we don't want to risk " +
                 "teleporting anyone directly inside.",
@@ -573,7 +594,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
                 ", and this is the team that will restore our operations.",
               ),
             ),
-            state("spawnIsHq").then(
+            state("spawnIsHq", "reachHq").then(
               ", but this is all that's left.",
               "and now we need to pick up the pieces and try again.",
             ),
@@ -592,7 +613,7 @@ of Rock Raiders are lost somewhere in this cavern.`,
       .then(skip, state("hasMonsters"))
       .then(skip, state("hasSlugs"))
       .then(skip, state("spawnHasErosion"))
-      .then(skip, state("spawnIsHq", "findHq"))
+      .then(skip, state("spawnIsHq", "findHq", "reachHq"))
       .then(skip, state("treasureCaveOne", "treasureCaveMany"))
       .then(skip, state("nomadsOne", "nomadsMany", "anchorIsBlackout"))
       .then(skip, state("buildAndPowerGcOne", "buildAndPowerGcMultiple"))

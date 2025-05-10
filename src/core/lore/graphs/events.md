@@ -132,96 +132,100 @@ flowchart TD;
 P0["[start]"]
 P0 --> P1
 P0 --> P2
+P0 --> P3
 P1["&bull; Our Rock Raider HQ is safe and sound!<br/>&bull; Way to go, Cadet!"]
-P1 --> P3
-P2["&bull; You found the Rock Raider HQ.<br/>&bull; There it is!"]
-P2 --> P3
+P1 --> P4
+P2["[reachHq]"]
 P2 --> P4
-P3["&bull; Now, <br/>&bull; Now you should be able to"]
-P3 --> P11
-P3 --> P13
-P3 --> P15
-P3 --> P17
-P3 --> P20
-P3 --> P23
-P3 --> P24
-P3 --> P27
-P4["[hasMonsters]"]
-P4 --> P5
-P5["&bull; Shore up the base defenses<br/>&bull; Now, get some Electric Fences up"]
+P2 --> P5
+P3["&bull; You found the Rock Raider HQ.<br/>&bull; There it is!"]
+P3 --> P4
+P3 --> P5
+P4["&bull; Now, <br/>&bull; Now you should be able to"]
+P4 --> P12
+P4 --> P14
+P4 --> P16
+P4 --> P18
+P4 --> P21
+P4 --> P24
+P4 --> P25
+P4 --> P28
+P5["[hasMonsters]"]
 P5 --> P6
-P5 --> P10
-P6["&bull; before the monsters find it too!<br/>&bull; and keep it safe from those {enemies}!<br/>&bull; and hope those monsters don't cause any more damage!"]
+P6["&bull; Shore up the base defenses<br/>&bull; Now, get some Electric Fences up"]
 P6 --> P7
-P6 --> P8
-P6 --> P9
-P6 --> P26
-P6 --> P29
-P7["[lostMinersOne]"]
-P7 --> P26
-P7 --> P29
-P8["[lostMinersTogether]"]
-P8 --> P26
-P8 --> P29
-P9["[lostMinersApart]"]
-P9 --> P26
-P9 --> P29
-P10["&bull; . We need this base secure if we're going to<br/>&bull; . Once the base is safe,"]
-P10 --> P11
-P10 --> P13
-P10 --> P15
-P10 --> P17
-P10 --> P20
-P10 --> P23
-P10 --> P24
+P6 --> P11
+P7["&bull; before the monsters find it too!<br/>&bull; and keep it safe from those {enemies}!<br/>&bull; and hope those monsters don't cause any more damage!"]
+P7 --> P8
+P7 --> P9
+P7 --> P10
+P7 --> P27
+P7 --> P30
+P8["[lostMinersOne]"]
+P8 --> P27
+P8 --> P30
+P9["[lostMinersTogether]"]
+P9 --> P27
+P9 --> P30
+P10["[lostMinersApart]"]
 P10 --> P27
-P11["[buildAndPowerGcOne]"]
+P10 --> P30
+P11["&bull; . We need this base secure if we're going to<br/>&bull; . Once the base is safe,"]
 P11 --> P12
-P12["build that Geological Center"]
-P12 --> P19
-P12 --> P22
-P13["[buildAndPowerGcMultiple]"]
-P13 --> P14
-P14["build the Geological Centers"]
-P14 --> P19
-P14 --> P22
-P15["[buildAndPowerSsOne]"]
-P15 --> P16
-P16["build that Support Station"]
-P16 --> P19
-P16 --> P22
-P17["[buildAndPowerSsMultiple]"]
-P17 --> P18
-P18["build the Support Station"]
+P11 --> P14
+P11 --> P16
+P11 --> P18
+P11 --> P21
+P11 --> P24
+P11 --> P25
+P11 --> P28
+P12["[buildAndPowerGcOne]"]
+P12 --> P13
+P13["build that Geological Center"]
+P13 --> P20
+P13 --> P23
+P14["[buildAndPowerGcMultiple]"]
+P14 --> P15
+P15["build the Geological Centers"]
+P15 --> P20
+P15 --> P23
+P16["[buildAndPowerSsOne]"]
+P16 --> P17
+P17["build that Support Station"]
+P17 --> P20
+P17 --> P23
+P18["[buildAndPowerSsMultiple]"]
 P18 --> P19
-P18 --> P22
-P19["and"]
+P19["build the Support Station"]
 P19 --> P20
 P19 --> P23
-P19 --> P24
-P19 --> P27
-P20["[lostMinersOne]"]
+P20["and"]
 P20 --> P21
-P21["find the lost Rock Raider!"]
-P21 --> P26
-P21 --> P29
-P22["!"]
-P22 --> P26
-P22 --> P29
-P23["[lostMinersTogether]"]
-P23 --> P25
-P24["[lostMinersApart]"]
-P24 --> P25
-P25["find those lost Rock Raiders!"]
+P20 --> P24
+P20 --> P25
+P20 --> P28
+P21["[lostMinersOne]"]
+P21 --> P22
+P22["find the lost Rock Raider!"]
+P22 --> P27
+P22 --> P30
+P23["!"]
+P23 --> P27
+P23 --> P30
+P24["[lostMinersTogether]"]
+P24 --> P26
+P25["[lostMinersApart]"]
 P25 --> P26
-P25 --> P29
-P26["[resourceObjective]"]
-P26 --> P29
+P26["find those lost Rock Raiders!"]
+P26 --> P27
+P26 --> P30
 P27["[resourceObjective]"]
-P27 --> P28
-P28["&bull; collect {resource goal}.<br/>&bull; get those {resource goal names}."]
+P27 --> P30
+P28["[resourceObjective]"]
 P28 --> P29
-P29["[end]"]
+P29["&bull; collect {resource goal}.<br/>&bull; get those {resource goal names}."]
+P29 --> P30
+P30["[end]"]
 ```
 
 ## Found Vehicle left by Lost Miners
