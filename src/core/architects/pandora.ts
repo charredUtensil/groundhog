@@ -421,9 +421,15 @@ const miniHoardBase = (pocketLayer: number): PartialArchitect<undefined> => ({
   },
   placeCrystals(args) {
     const rng = args.cavern.dice.placeCrystals(args.plan.id);
-    const tiles = args.plan.innerPearl[pocketLayer].filter(
+    const ts = args.plan.innerPearl[pocketLayer].filter(
       (pos) => args.tiles.get(...pos)?.isWall,
     );
+    const tiles =
+      ts.length > 0
+        ? ts
+        : args.plan.innerPearl.flatMap((ly) =>
+            ly.filter((pos) => args.tiles.get(...pos)?.isWall),
+          );
     sprinkleCrystals(args, {
       getRandomTile: () => rng.uniformChoice(tiles),
       seamBias: 1,

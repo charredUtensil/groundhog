@@ -47,17 +47,28 @@ export class PseudorandomStream {
   }
 
   uniformChoice<T>(choices: readonly T[]): T {
-    return choices[this.uniformInt({ max: choices.length })];
+    const max = choices.length;
+    if (max === 0) {
+      throw new Error("No choices given.");
+    }
+    return choices[this.uniformInt({ max })];
   }
 
   betaChoice<T>(choices: readonly T[], { a, b }: { a: number; b: number }): T {
-    return choices[this.betaInt({ a: a, b: b, max: choices.length })];
+    const max = choices.length;
+    if (max === 0) {
+      throw new Error("No choices given.");
+    }
+    return choices[this.betaInt({ a, b, max })];
   }
 
   weightedChoice<T>(bids: readonly { bid: number; item: T }[]): T {
     const b = bids.filter((bid) => bid.bid > 0);
-    const totalWeight = b.reduce((acc, bid) => acc + bid.bid, 0);
-    let randomValue = this.uniform({ max: totalWeight });
+    const max = b.reduce((acc, bid) => acc + bid.bid, 0);
+    if (max === 0) {
+      throw new Error("No positive bids given.");
+    }
+    let randomValue = this.uniform({ max });
 
     for (const { bid, item } of b) {
       randomValue -= bid;
