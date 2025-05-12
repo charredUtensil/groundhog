@@ -1,14 +1,13 @@
-import { Cardinal4, NSEW } from "../../common/geometry";
+import { NSEW } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { Architect } from "../../models/architect";
-import { Building, DOCKS } from "../../models/building";
+import { Building, BuildingExtraArgs, DOCKS } from "../../models/building";
 import { Tile } from "../../models/tiles";
 
-export type MakeBuildingFn = (a: {
-  x: number;
-  y: number;
-  facing: Cardinal4;
-}) => Building;
+export type MakeBuildingInfo = {
+  bt: Building["template"],
+  args?: BuildingExtraArgs,
+};
 
 /**
  * Returns an array of Building objects positioned within the given Plan
@@ -34,7 +33,7 @@ export function getBuildings(
   }: {
     from?: number;
     to?: number;
-    queue: MakeBuildingFn[];
+    queue: MakeBuildingInfo[];
   },
   { cavern, plan, tiles }: Parameters<Architect<any>["placeBuildings"]>[0],
 ) {
@@ -49,7 +48,7 @@ export function getBuildings(
     for (const [x, y] of rng.shuffle(plan.innerPearl[ly].slice())) {
       // For each building that can be built
       point: for (let i = 0; i < queue.length; i++) {
-        const fn = queue[i];
+        const { bt, args } = queue[i];
         // For each possible orientation
         for (const facing of NSEW) {
           const [ox, oy] = facing;
@@ -58,7 +57,7 @@ export function getBuildings(
             continue;
           }
           // Make the building
-          const b = fn({ x, y, facing });
+          const b = bt.atTile({ x, y, facing, ...args });
           // Continue if the foundation overlaps any used or non floor tile
           if (
             b.foundation.some(

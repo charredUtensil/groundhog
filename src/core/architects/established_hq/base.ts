@@ -15,7 +15,7 @@ import {
 } from "../../models/building";
 import { position } from "../../models/position";
 import { Tile } from "../../models/tiles";
-import { MakeBuildingFn, getBuildings } from "../utils/buildings";
+import { MakeBuildingInfo, getBuildings } from "../utils/buildings";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "../utils/resources";
 import { PseudorandomStream } from "../../common";
 import { PartialArchitect, DefaultCaveArchitect } from "../default";
@@ -80,13 +80,11 @@ export function getPlaceBuildings({
   discovered = false,
   from = 2,
   templates,
-  omit,
 }: {
   crashOnFail?: boolean;
   discovered?: boolean;
   from?: number;
   templates?: (rng: PseudorandomStream) => readonly Building["template"][];
-  omit?: (bt: Building["template"], i: number) => boolean;
 }): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
     const asRuin = args.plan.metadata.ruin;
@@ -94,14 +92,14 @@ export function getPlaceBuildings({
 
     // Determine the order templates will be applied.
     const rng = args.cavern.dice.placeBuildings(args.plan.id);
-    const tq = templates
+    const potentialTemplates = templates
       ? templates(rng)
       : getDefaultTemplates(rng, asSpawn, asRuin);
 
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
-    const bq: MakeBuildingFn[] = [];
-    tq.some((bt, i) => {
+    const buildingsQueue: MakeBuildingInfo[] = [];
+    potentialTemplates.some((bt, i) => {
       const include = (() => {
         if (bt === TOOL_STORE) {
           return true;
@@ -118,48 +116,57 @@ export function getPlaceBuildings({
           return false;
         }
         if (
-          omit ? omit(bt, i) : !templates && asRuin && i === T0_BUILDINGS.length
+          !templates && asRuin && i === T0_BUILDINGS.length
         ) {
           return false;
         }
         return true;
       })();
       if (include) {
-        bq.push((pos) => bt.atTile(pos));
+        buildingsQueue.push({bt});
         crystalBudget -= bt.crystals;
         if (crystalBudget <= 0) {
           return true;
         }
       } else if (asRuin) {
-        bq.push((pos) => ({ ...bt.atTile(pos), placeRubbleInstead: true }));
+        buildingsQueue.push({bt, args: {placeRubbleInstead: true}});
       }
       return false;
     });
 
-    // Fit the buildings.
-    const buildings = getBuildings({ from, queue: bq }, args);
-    if (crashOnFail && bq.length) {
-      console.error("Failed to place buildings: %o", bq);
-      throw new Error(`Failed to place ${buildings.length} buildings`);
-    }
+    // Fit the buildings and place their foundations.
+    // Place all Docks first, as it's easy to accidentally use up all valid
+    // spaces for that.
+    const buildings = [
+      buildingsQueue.filter(({bt}) => bt === DOCKS),
+      buildingsQueue.filter(({bt}) => bt !== DOCKS),
+    ].flatMap(queue => {
+      const r = getBuildings({ from, queue }, args);
+      if (crashOnFail && queue.length) {
+        console.error("Failed to place buildings: %o", queue);
+        throw new Error(
+          `Failed to place buildings: ${queue.map(b => b.bt.name).join(", ")}`
+        );
+      }
+      r.forEach(
+        b => b.foundation.forEach(
+          (pos) => args.tiles.set(
+            ...pos, b.placeRubbleInstead ? Tile.RUBBLE_1 : Tile.FOUNDATION
+          )
+        )
+      )
+      return r;
+    });
 
+    // Level up all buildings that are a dependency of another building.
     const dependencies = new Set(
       buildings.flatMap((b) => b.template.dependencies),
     );
-
-    // Place the buildings.
     for (let i = 0; i < buildings.length; i++) {
-      const building = buildings[i];
-      let fTile: Tile;
-      if ("placeRubbleInstead" in building) {
-        fTile = Tile.RUBBLE_1;
-      } else {
-        fTile = Tile.FOUNDATION;
-        if (dependencies.has(building.template)) {
-          buildings[i] = { ...building, level: 2 };
-        }
+      const b = buildings[i];
+      if (dependencies.has(b.template)) {
+        buildings[i] = { ...b, level: 2 };
       }
-      building.foundation.forEach(([x, y]) => args.tiles.set(x, y, fTile));
     }
 
     // Place power path trails between the buildings.
@@ -242,7 +249,7 @@ export function getPlaceBuildings({
     }
 
     return {
-      buildings: buildings.filter((b) => !("placeRubbleInstead" in b)),
+      buildings: buildings.filter((b) => !b.placeRubbleInstead),
       cameraPosition,
     };
   };
