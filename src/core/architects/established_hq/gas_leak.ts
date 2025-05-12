@@ -16,12 +16,12 @@ import { mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 const T0_BUILDINGS = [
-  TOOL_STORE,
-  TELEPORT_PAD,
-  POWER_STATION,
-  SUPPORT_STATION,
+  { bt: TOOL_STORE, required: false },
+  { bt: TELEPORT_PAD, required: false },
+  { bt: POWER_STATION, required: false },
+  { bt: SUPPORT_STATION, required: false },
 ] as const;
-const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
+const T0_CRYSTALS = T0_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
 const STARTING_BONUS_CRYSTALS = 2;
 const GLOBAL_HOSTILES_CAP = 4;
 const MONSTERS_UNTIL_RESPITE = 10;
@@ -55,7 +55,6 @@ const GAS_LEAK_BASE: Pick<
   crystalsFromMetadata: (metadata) =>
     STARTING_BONUS_CRYSTALS + metadata.crystalsInBuildings,
   placeBuildings: getPlaceBuildings({
-    crashOnFail: true,
     discovered: true,
     from: 2,
     templates: () => T0_BUILDINGS,

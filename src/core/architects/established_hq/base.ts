@@ -51,24 +51,44 @@ export function getPrime(
   };
 }
 
-const T0_BUILDINGS = [TOOL_STORE] as const;
-const T1_BUILDINGS = [TELEPORT_PAD, POWER_STATION, SUPPORT_STATION] as const;
-const T2_BUILDINGS = [UPGRADE_STATION, GEOLOGICAL_CENTER, DOCKS] as const;
+const T0_BUILDINGS = [
+  { bt: TOOL_STORE },
+] as const;
+const T1_BUILDINGS = [
+  { bt: TELEPORT_PAD },
+  { bt: POWER_STATION },
+  { bt: SUPPORT_STATION },
+] as const;
+const T2_BUILDINGS = [
+  { bt: UPGRADE_STATION },
+  { bt: GEOLOGICAL_CENTER },
+  { bt: DOCKS },
+] as const;
 const T3_BUILDINGS = [
-  CANTEEN,
-  MINING_LASER,
-  MINING_LASER,
-  MINING_LASER,
+  { bt: CANTEEN },
+  { bt: MINING_LASER },
+  { bt: MINING_LASER },
+  { bt: MINING_LASER },
 ] as const;
 
 function getDefaultTemplates(
   rng: PseudorandomStream,
   asSpawn: boolean,
   asRuin: boolean,
-) {
+): MakeBuildingInfo[] {
+  function t1() {
+    if (asSpawn && !asRuin) {
+      return T1_BUILDINGS;
+    }
+    const r: MakeBuildingInfo[] = rng.shuffle(T1_BUILDINGS);
+    if (asRuin) {
+      r[0] = {...r[0], args: {...r[0].args, placeRubbleInstead: true}};
+    }
+    return r;
+  }
   return [
     ...T0_BUILDINGS,
-    ...(asSpawn && !asRuin ? T1_BUILDINGS : rng.shuffle(T1_BUILDINGS)),
+    ...t1(),
     ...rng.shuffle(T2_BUILDINGS),
     ...rng.shuffle(T3_BUILDINGS),
   ];
@@ -76,7 +96,6 @@ function getDefaultTemplates(
 
 // Here be spaghetti
 export function getPlaceBuildings({
-  crashOnFail = false,
   discovered = false,
   from = 2,
   templates,
@@ -84,7 +103,7 @@ export function getPlaceBuildings({
   crashOnFail?: boolean;
   discovered?: boolean;
   from?: number;
-  templates?: (rng: PseudorandomStream) => readonly Building["template"][];
+  templates?: (rng: PseudorandomStream) => readonly MakeBuildingInfo[];
 }): Architect<HqMetadata>["placeBuildings"] {
   return (args) => {
     const asRuin = args.plan.metadata.ruin;
@@ -99,37 +118,32 @@ export function getPlaceBuildings({
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
     const buildingsQueue: MakeBuildingInfo[] = [];
-    potentialTemplates.some((bt, i) => {
+    potentialTemplates.some((it) => {
+      if (it.bt.crystals > 0 && crystalBudget <= 0) {
+        return true;
+      }
       const include = (() => {
-        if (bt === TOOL_STORE) {
+        if (it.bt === TOOL_STORE) {
           return true;
         }
-        if (crystalBudget < bt.crystals) {
+        if (crystalBudget < it.bt.crystals) {
           return false;
         }
         if (
-          bt === DOCKS &&
+          it.bt === DOCKS &&
           !args.plan.intersects.some(
             (_, i) => args.cavern.plans[i].fluid === Tile.WATER,
           )
         ) {
           return false;
         }
-        if (
-          !templates && asRuin && i === T0_BUILDINGS.length
-        ) {
-          return false;
-        }
         return true;
       })();
       if (include) {
-        buildingsQueue.push({bt});
-        crystalBudget -= bt.crystals;
-        if (crystalBudget <= 0) {
-          return true;
-        }
+        buildingsQueue.push(it);
+        crystalBudget -= it.bt.crystals;
       } else if (asRuin) {
-        buildingsQueue.push({bt, args: {placeRubbleInstead: true}});
+        buildingsQueue.push({...it, args: {...it.args, placeRubbleInstead: true}});
       }
       return false;
     });
@@ -142,12 +156,6 @@ export function getPlaceBuildings({
       buildingsQueue.filter(({bt}) => bt !== DOCKS),
     ].flatMap(queue => {
       const r = getBuildings({ from, queue }, args);
-      if (crashOnFail && queue.length) {
-        console.error("Failed to place buildings: %o", queue);
-        throw new Error(
-          `Failed to place buildings: ${queue.map(b => b.bt.name).join(", ")}`
-        );
-      }
       r.forEach(
         b => b.foundation.forEach(
           (pos) => args.tiles.set(

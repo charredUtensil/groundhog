@@ -5,8 +5,9 @@ import { Building, BuildingExtraArgs, DOCKS } from "../../models/building";
 import { Tile } from "../../models/tiles";
 
 export type MakeBuildingInfo = {
-  bt: Building["template"],
-  args?: BuildingExtraArgs,
+  readonly bt: Building["template"],
+  readonly args?: BuildingExtraArgs,
+  readonly required?: boolean,
 };
 
 /**
@@ -38,12 +39,12 @@ export function getBuildings(
   { cavern, plan, tiles }: Parameters<Architect<any>["placeBuildings"]>[0],
 ) {
   const placed = new MutableGrid<true>();
-  const porches = new MutableGrid<number>();
   const rng = cavern.dice.placeBuildings(plan.id);
   const result: Building[] = [];
   // For each layer of the pearl
   done: for (let ly = from ?? 1; ly < (to ?? plan.innerPearl.length); ly++) {
-    plan.innerPearl[ly - 1].forEach(([x, y]) => porches.set(x, y, ly));
+    const porch = new MutableGrid<true>();
+    plan.innerPearl[ly - 1].forEach(([x, y]) => porch.set(x, y, true));
     // For each point in the layer
     for (const [x, y] of rng.shuffle(plan.innerPearl[ly].slice())) {
       // For each building that can be built
@@ -53,7 +54,7 @@ export function getBuildings(
         for (const facing of NSEW) {
           const [ox, oy] = facing;
           // Continue if this is an unacceptable porch location
-          if (porches.get(x + ox, y + oy) !== ly) {
+          if (!porch.get(x + ox, y + oy)) {
             continue;
           }
           // Make the building
@@ -85,5 +86,11 @@ export function getBuildings(
       }
     }
   }
+  queue.forEach(it => {
+    if (it.required) {
+      console.log('Failed to place required building: %o', it);
+      throw new Error(`Failed to place ${it.bt.name}, which is required.`);
+    }
+  })
   return result;
 }
