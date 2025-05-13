@@ -38,7 +38,7 @@ export default function PearlPreview({
           fill="none"
         >
           <title>
-            Plan {plan.id}, Layer {i}
+            Plan {plan.id}, {pearl === 'outerPearl' ? 'Outer ' : ''}Layer {i}
           </title>
         </path>
       ))}

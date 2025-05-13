@@ -149,22 +149,14 @@ export function getPlaceBuildings({
     });
 
     // Fit the buildings and place their foundations.
-    // Place all Docks first, as it's easy to accidentally use up all valid
-    // spaces for that.
-    const buildings = [
-      buildingsQueue.filter(({bt}) => bt === DOCKS),
-      buildingsQueue.filter(({bt}) => bt !== DOCKS),
-    ].flatMap(queue => {
-      const r = getBuildings({ from, queue }, args);
-      r.forEach(
-        b => b.foundation.forEach(
-          (pos) => args.tiles.set(
-            ...pos, b.placeRubbleInstead ? Tile.RUBBLE_1 : Tile.FOUNDATION
-          )
+    const buildings = getBuildings({ from, queue: buildingsQueue }, args);
+    buildings.forEach(
+      b => b.foundation.forEach(
+        (pos) => args.tiles.set(
+          ...pos, b.placeRubbleInstead ? Tile.RUBBLE_1 : Tile.FOUNDATION
         )
       )
-      return r;
-    });
+    );
 
     // Level up all buildings that are a dependency of another building.
     const dependencies = new Set(
@@ -232,7 +224,9 @@ export function getPlaceBuildings({
 
     // Place open cave flag if this is discovered.
     if (discovered) {
-      args.openCaveFlags.set(...buildings[0].foundation[0], true);
+      args.openCaveFlags.set(
+        ...buildings.find(b => !b.placeRubbleInstead)!.foundation[0], true
+      );
     }
 
     // Set initial camera if this is spawn.

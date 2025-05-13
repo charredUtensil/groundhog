@@ -16,10 +16,10 @@ import { mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 const T0_BUILDINGS = [
-  { bt: TOOL_STORE, required: false },
+  { bt: TOOL_STORE, required: true },
+  { bt: POWER_STATION, required: true },
+  { bt: SUPPORT_STATION, required: true },
   { bt: TELEPORT_PAD, required: false },
-  { bt: POWER_STATION, required: false },
-  { bt: SUPPORT_STATION, required: false },
 ] as const;
 const T0_CRYSTALS = T0_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
 const STARTING_BONUS_CRYSTALS = 2;
