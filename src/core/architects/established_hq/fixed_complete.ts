@@ -18,19 +18,19 @@ import { EventChainLine, mkVars } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
 const T0_BUILDINGS = [
-  TOOL_STORE,
-  TELEPORT_PAD,
-  POWER_STATION,
-  SUPPORT_STATION,
-  DOCKS,
-  TOOL_STORE,
-  SUPER_TELEPORT,
-  UPGRADE_STATION,
-  GEOLOGICAL_CENTER,
-  SUPPORT_STATION,
+  { bt: TOOL_STORE, required: true },
+  { bt: TELEPORT_PAD, required: true },
+  { bt: POWER_STATION, required: true },
+  { bt: SUPPORT_STATION, required: true },
+  { bt: DOCKS },
+  { bt: TOOL_STORE, required: true },
+  { bt: SUPER_TELEPORT, required: true },
+  { bt: UPGRADE_STATION, required: true },
+  { bt: GEOLOGICAL_CENTER, required: true },
+  { bt: SUPPORT_STATION, required: true },
 ] as const;
 
-const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
+const T0_CRYSTALS = T0_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
 
 const gFCHQ = mkVars("gFCHq", ["msgLose", "wasBaseDestroyed"]);
 
@@ -52,7 +52,6 @@ export const FC_BASE: Pick<
     tag: "hq",
   }),
   placeBuildings: getPlaceBuildings({
-    crashOnFail: true,
     discovered: true,
     templates: () => T0_BUILDINGS,
   }),

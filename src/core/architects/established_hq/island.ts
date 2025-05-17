@@ -18,18 +18,22 @@ import { Rough, mkRough } from "../utils/rough";
 import { transformPoint } from "../utils/script";
 import { BASE, HqMetadata, getPlaceBuildings } from "./base";
 
-const T0_BUILDINGS = [TOOL_STORE, DOCKS, POWER_STATION] as const;
-
-const T0_CRYSTALS = T0_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
-
-const T1_BUILDINGS = [
-  MINING_LASER,
-  MINING_LASER,
-  SUPPORT_STATION,
-  GEOLOGICAL_CENTER,
+const T0_BUILDINGS = [
+  { bt: TOOL_STORE, required: true },
+  { bt: DOCKS, required: true },
+  { bt: POWER_STATION, required: true },
 ] as const;
 
-const T1_CRYSTALS = T1_BUILDINGS.reduce((r, bt) => r + bt.crystals, 0);
+const T0_CRYSTALS = T0_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
+
+const T1_BUILDINGS = [
+  { bt: MINING_LASER },
+  { bt: MINING_LASER },
+  { bt: SUPPORT_STATION },
+  { bt: GEOLOGICAL_CENTER },
+] as const;
+
+const T1_CRYSTALS = T1_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
 
 function findWaterTile(plan: Plan<any>, tiles: Grid<Tile>): Point {
   for (let ly = 0; ly < plan.innerPearl.length; ly++) {
