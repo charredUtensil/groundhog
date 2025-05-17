@@ -1,4 +1,4 @@
-import { NSEW } from "../../common/geometry";
+import { Cardinal4, NSEW, Point } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { Architect } from "../../models/architect";
 import { Building, BuildingExtraArgs, CANTEEN, DOCKS, ORE_REFINERY, POWER_STATION, SUPER_TELEPORT } from "../../models/building";
@@ -58,57 +58,72 @@ export function getBuildings(
   const rng = cavern.dice.placeBuildings(plan.id);
   const result: Building[] = [];
 
+  const points: {
+    x: number,
+    y: number,
+    facing: Cardinal4,
+  }[] = [];
+  for (let ly = from ?? 1; ly < (to ?? plan.innerPearl.length); ly++) {
+    for (const [x, y] of rng.shuffle(plan.innerPearl[ly])) {
+      for (const facing of NSEW) {
+        const [ox, oy] = facing;
+        if (cavern.pearlInnerDex.get(x + ox, y + oy)?.[plan.id] === ly - 1) {
+          points.push({x, y, facing});
+        }
+      }
+    }
+  }
+
   const queues: MakeBuildingInfo[][] = [[],[],[],[]];
   queue.forEach(it => {
     queues[buildingPriority(it)].push(it);
-  })
+  });
+
+  const taken = (pos: Point) =>
+    placed.get(...pos) || tiles.get(...pos) !== Tile.FLOOR;
 
   // For each building priority class
   for (const q of queues) {
-    if (q.length === 0) {
-      continue;
-    }
-    // For each layer of the pearl
-    done: for (let ly = from ?? 1; ly < (to ?? plan.innerPearl.length); ly++) {
-      // For each point in the layer
-      for (const [x, y] of rng.shuffle(plan.innerPearl[ly].slice())) {
-        // For each building that can be built
-        point: for (let i = 0; i < q.length; i++) {
-          const { bt, args } = q[i];
-          // For each possible orientation
-          for (const facing of NSEW) {
-            const [ox, oy] = facing;
-            // Continue if this is a docks not on water
-            if (
-              bt === DOCKS &&
-              tiles.get(x - ox, y - oy) !== Tile.WATER
-            ) {
-              continue;
-            }
-            // Continue if this is an unacceptable porch location
-            if (cavern.pearlInnerDex.get(x + ox, y + oy)?.[plan.id] !== ly - 1) {
-              continue;
-            }
-            // Make the building
-            const b = bt.atTile({ x, y, facing, ...args });
-            // Continue if the foundation overlaps any used or non floor tile
-            if (
-              b.foundation.some(
-                ([x, y]) => placed.get(x, y) || tiles.get(x, y) !== Tile.FLOOR,
-              )
-            ) {
-              continue;
-            }
-            // Keep this building
-            result.push(b);
-            b.foundation.forEach(([x, y]) => placed.set(x, y, true));
-            q.splice(i, 1);
-            if (q.length === 0) {
-              break done;
-            }
-            break point;
-          }
+
+    // For each potential placement point
+    for (const {x, y, facing} of points) {
+      if (q.length === 0) {
+        break;
+      }
+
+      if (taken([x, y])) {
+        continue;
+      }
+
+      const [ox, oy] = facing;
+
+      // For each building that can be built
+      for (let i = 0; i < q.length; i++) {
+        const { bt, args } = q[i];
+
+        // Continue if this is a docks not on water
+        if (
+          bt === DOCKS &&
+          tiles.get(x - ox, y - oy) !== Tile.WATER
+        ) {
+          continue;
         }
+
+        // Make the building
+        const b = bt.atTile({ x, y, facing, ...args });
+
+        // Continue if the foundation overlaps any used or non floor tile
+        if (
+          b.foundation.some(taken)
+        ) {
+          continue;
+        }
+
+        // Keep this building
+        result.push(b);
+        b.foundation.forEach(([x, y]) => placed.set(x, y, true));
+        q.splice(i, 1);
+        break;
       }
     }
     q.forEach(it => {

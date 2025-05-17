@@ -118,9 +118,14 @@ export function getPlaceBuildings({
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
     const buildingsQueue: MakeBuildingInfo[] = [];
-    potentialTemplates.some((it) => {
+    debugger;
+    for (const it of potentialTemplates) {
+      if (it.args?.placeRubbleInstead) {
+        buildingsQueue.push(it);
+        continue;
+      }
       if (it.bt.crystals > 0 && crystalBudget <= 0) {
-        return true;
+        break;
       }
       const include = (() => {
         if (it.bt === TOOL_STORE) {
@@ -145,8 +150,7 @@ export function getPlaceBuildings({
       } else if (asRuin) {
         buildingsQueue.push({...it, args: {...it.args, placeRubbleInstead: true}});
       }
-      return false;
-    });
+    };
 
     // Fit the buildings and place their foundations.
     const buildings = getBuildings({ from, queue: buildingsQueue }, args);
