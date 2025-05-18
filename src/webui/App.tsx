@@ -16,27 +16,7 @@ import { PartialCavernContext } from "../core/common/context";
 import { TfResult } from "../core/common/transform";
 import ProgressBar from "./components/progress_bar";
 import GenerateControls from "./components/gen_controls";
-
-const MAP_OVERLAY_BUTTONS: readonly {
-  of: MapOverlay;
-  label: String;
-  enabled: (cavern: Cavern | undefined) => boolean;
-}[] = [
-  { of: "overview", label: "Overview", enabled: (c) => true },
-  { of: "tiles", label: "Tiles", enabled: (c) => !!c?.tiles },
-  { of: "crystals", label: "Crystals", enabled: (c) => !!c?.crystals },
-  { of: "ore", label: "Ore", enabled: (c) => !!c?.ore },
-  { of: "entities", label: "Entities", enabled: (c) => !!c?.buildings },
-  { of: "discovery", label: "Discovery", enabled: (c) => !!c?.discoveryZones },
-  { of: "erosion", label: "Erosion", enabled: (c) => !!c?.erosion },
-  { of: "height", label: "Height", enabled: (c) => !!c?.height },
-  { of: "landslides", label: "Landslides", enabled: (c) => !!c?.landslides },
-  { of: "oxygen", label: "Oxygen", enabled: (c) => c?.oxygen !== undefined },
-  { of: "objectives", label: "Objectives", enabled: (c) => !!c?.objectives },
-  { of: "lore", label: "Lore", enabled: (c) => !!c?.lore },
-  { of: "script", label: "Script", enabled: (c) => !!c?.script },
-  { of: "about", label: "About", enabled: (c) => true },
-];
+import VizOptsPanel from "./components/viz_opts";
 
 function getStateForInitialContext(initialContext: PartialCavernContext) {
   return CAVERN_TF.start({ initialContext });
@@ -142,36 +122,14 @@ function App() {
         <ProgressBar autoGenerate={autoGenerate} {...state} />
         <GenerateControls cavern={state.result} {...{autoGenerate, setAutoGenerate, step, reset}} />
       </div>
-      <div className={styles.vizOptsPanel}>
-        <h1>Show</h1>
-        <button
-          className={showOutlines ? styles.active : styles.inactive}
-          onClick={() => setShowOutlines((v) => !v)}
-        >
-          Outlines
-        </button>
-        <button
-          className={showPearls ? styles.active : styles.inactive}
-          onClick={() => setShowPearls((v) => !v)}
-        >
-          Pearls
-        </button>
-        {MAP_OVERLAY_BUTTONS.map(({ of, label, enabled }) => (
-          <button
-            key={of}
-            className={
-              mapOverlay === of
-                ? styles.active
-                : enabled(state.result)
-                  ? styles.inactive
-                  : styles.disabled
-            }
-            onClick={() => setMapOverlay((v) => (v === of ? "overview" : of))}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <VizOptsPanel cavern={state.result} {...{
+        mapOverlay,
+        setMapOverlay,
+        showOutlines,
+        setShowOutlines,
+        showPearls,
+        setShowPearls,
+      }} />
     </div>
   );
 }

@@ -17,13 +17,16 @@
     <div id="root">
       <div style="position: fixed;top: 0;left: 0;bottom: 0;right: 0;background: #121212;display: flex;flex-direction: column;justify-content: space-around;">
         <div style="text-align: center;font-family: monospace;color: white;">
-          Loading GroundHog
+          <span id="loadmsg" style="display:none;">Loading groundHog</span>
           <noscript>
             You need to enable JavaScript to run this app.
           </noscript>
         </div>
       </div>
     </div>
+    <script>
+      document.getElementById("loadmsg").style = "";
+    </script>
     <script type="module" src="./src/index.tsx"></script>
   </body>
 </html>
