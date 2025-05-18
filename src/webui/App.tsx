@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   CavernContextInput,
@@ -15,6 +15,7 @@ import { filterTruthy } from "../core/common/utils";
 import { PartialCavernContext } from "../core/common/context";
 import { TfResult } from "../core/common/transform";
 import ProgressBar from "./components/progress_bar";
+import GenerateControls from "./components/gen_controls";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
@@ -36,10 +37,6 @@ const MAP_OVERLAY_BUTTONS: readonly {
   { of: "script", label: "Script", enabled: (c) => !!c?.script },
   { of: "about", label: "About", enabled: (c) => true },
 ];
-
-function getDownloadLink(serializedData: string) {
-  return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
-}
 
 function getStateForInitialContext(initialContext: PartialCavernContext) {
   return CAVERN_TF.start({ initialContext });
@@ -74,26 +71,32 @@ function App() {
 
   const biome = state.result.context?.biome;
 
-  const step = useCallback(() => {
-    try {
-      setState(state.next!());
-    } catch (e: unknown) {
-      console.error(e);
-      const error = e instanceof Error ? e : new Error("unknown error");
-      setState({ ...state, next: null, error });
+  const step = useMemo(() => {
+    const next = state.next;
+    if (!next) {
+      return null;
     }
-  }, [state]);
+    return () => {
+      try {
+        setState(next());
+      } catch (e: unknown) {
+        console.error(e);
+        const error = e instanceof Error ? e : new Error("unknown error");
+        setState(was => ({ ...was, next: null, error }));
+      }
+    }
+  }, [state.next]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setAutoGenerate(false);
     setState((was) => getStateForInitialContext(was.result.initialContext));
-  };
+  }, []);
 
   useEffect(() => {
-    if (state.next && autoGenerate) {
+    if (step && autoGenerate) {
       step();
     }
-  }, [autoGenerate, state, step]);
+  }, [autoGenerate, step]);
 
   useEffect(() => {
     (window as any).cavern = state.result;
@@ -137,31 +140,7 @@ function App() {
           />
         )}
         <ProgressBar autoGenerate={autoGenerate} {...state} />
-        <div className={styles.controls}>
-          {state.next ? (
-            <>
-              {!autoGenerate && <button onClick={step}>step</button>}
-              <button onClick={() => setAutoGenerate((v) => !v)}>
-                {autoGenerate ? "pause" : "play_arrow"}
-              </button>
-            </>
-          ) : (
-            <button onClick={reset}>restart_alt</button>
-          )}
-          {state.result.serialized ? (
-            <a
-              className={styles.button}
-              href={getDownloadLink(state.result.serialized)}
-              download={`${state.result.fileName ?? state.result.levelName ?? "groundhog"}.dat`}
-            >
-              download
-            </a>
-          ) : (
-            <div className={`${styles.button} ${styles.disabled}`}>
-              download
-            </div>
-          )}
-        </div>
+        <GenerateControls cavern={state.result} {...{autoGenerate, setAutoGenerate, step, reset}} />
       </div>
       <div className={styles.vizOptsPanel}>
         <h1>Show</h1>

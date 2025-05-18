@@ -7,6 +7,24 @@
   }
 }
 
+@property --palette-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #121212;
+}
+
+@property --palette-settings-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #333333;
+}
+
+@property --palette-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: white;
+}
+
 .App {
   --font-body: "Outfit";
   --font-cyber: "Russo One";
@@ -17,7 +35,10 @@
   --palette-lines: #999999;
   --palette-disabled: #999999;
   --palette-settings-bg: #333333;
-  --palette-accent: #c96f12;
+
+  &.rockBiome {
+    --palette-accent: #c96f12;
+  }
 
   &.iceBiome {
     --palette-bg: #060716;
@@ -40,6 +61,11 @@
   color: var(--palette-fg);
   background: var(--palette-bg);
   font-family: var(--font-body);
+
+  transition:
+    --palette-bg 200ms linear,
+    --palette-settings-bg 200ms linear,
+    --palette-accent 200ms linear;
 
   .settingsPanel {
     width: 240px;
@@ -140,39 +166,6 @@
       left: 16px;
       font-size: 16px;
       font-variant-numeric: tabular-nums;
-    }
-
-    .controls {
-      display: flex;
-      gap: 8px;
-      margin: 16px;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-
-      button,
-      .button {
-        display: block;
-        height: 48px;
-        width: 48px;
-        font-size: 36px;
-        line-height: 46px;
-        box-sizing: border-box;
-        border: 1px solid var(--palette-lines);
-        padding: 0;
-        margin: 0;
-
-        color: var(--palette-fg);
-        background: var(--palette-bg);
-        font-family: "Material Symbols Outlined";
-        text-align: center;
-        text-decoration: none;
-
-        &.disabled {
-          border-style: dashed;
-          color: var(--palette-lines);
-        }
-      }
     }
   }
 
