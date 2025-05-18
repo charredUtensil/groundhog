@@ -7,11 +7,8 @@
     "@stdlib/random-base-beta": "^0.2.1",
     "@stdlib/random-base-mt19937": "^0.2.1",
     "delaunator": "^5.0.1",
-    "gh-pages": "^6.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sass": "^1.71.1",
-    "typescript": "^5.4.2",
     "word-wrap": "^1.2.5"
   },
   "scripts": {
@@ -55,6 +52,9 @@
     "prettier": "^3.3.3",
     "tsx": "^4.19.1",
     "vite": "^5.1.4",
+    "gh-pages": "^6.1.1",
+    "sass": "^1.71.1",
+    "typescript": "^5.4.2",
     "@vitejs/plugin-react": "^4.2.1"
   }
 }
