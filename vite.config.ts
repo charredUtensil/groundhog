@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
     },
     define: {
-      'import.meta.env.VITE_APP_VERSION': JSON.stringify(version),
+      'import.meta.env.VITE_APP_VERSION': JSON.stringify(mode === 'development' ? `${version}-dev` : version),
       'import.meta.env.VITE_APP_NAME': JSON.stringify(name),
     },
   };
