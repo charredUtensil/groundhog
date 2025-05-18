@@ -23,7 +23,7 @@ function indent(it: string, prefix: string) {
 }
 
 function comments(cavern: ProgrammedCavern) {
-  const groundhogVersion = process.env.REACT_APP_VERSION;
+  const groundhogVersion = import.meta.env.VITE_APP_VERSION;
   const data = {
     groundhogVersion,
     initialContext: cavern.initialContext,

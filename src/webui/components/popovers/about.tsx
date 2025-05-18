@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 const About = () => (
   <div className={styles.popoverWrapper}>
     <div className={styles.about}>
-      <h2>groundHog v{process.env.REACT_APP_VERSION}</h2>
+      <h2>groundHog v{import.meta.env.VITE_APP_VERSION}</h2>
       <p>By Christopher Dollard (aka charredUtensil)</p>
       <p>
         See{" "}

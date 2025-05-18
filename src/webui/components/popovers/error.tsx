@@ -21,7 +21,7 @@ export default function ErrorPreview({
   }
   const debugInfo = [
     `error: ${error.message}`,
-    `groundHog version: ${process.env.REACT_APP_VERSION}`,
+    `groundHog version: ${import.meta.env.VITE_APP_VERSION}`,
     `initial context: ${JSON.stringify(initialContext)}`,
     `context: ${JSON.stringify(context)}`,
     `stack: ${error.stack}`,
@@ -40,7 +40,7 @@ export default function ErrorPreview({
           .
         </p>
         <ul>
-          <li>groundHog version: {process.env.REACT_APP_VERSION}</li>
+          <li>groundHog version: {import.meta.env.VITE_APP_VERSION}</li>
           <li>
             seed: {context?.seed.toString(16).padStart(8, "0").toUpperCase()}
           </li>

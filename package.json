@@ -15,16 +15,15 @@
     "word-wrap": "^1.2.5"
   },
   "scripts": {
-    "start": "BROWSER=none react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "predeploy": "react-scripts build",
-    "deploy": "gh-pages -d build",
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "predeploy": "tsc && vite build",
+    "deploy": "gh-pages -d dist",
     "presubmit": "bin/presubmit.sh",
-    "eject": "react-scripts eject",
     "gen": "tsx bin/groundhog-gen",
     "architect-stats": "tsx bin/architect-stats",
-    "find-failures": "REACT_APP_VERSION=test tsx bin/find-failures",
+    "find-failures": "VITE_APP_VERSION=test tsx bin/find-failures",
     "lore-dump": "tsx bin/lore-dump",
     "mermaidify": "tsx bin/mermaidify",
     "update-goldens": "UPDATE_GOLDENS=1 react-scripts test --all --watchAll=false"
@@ -54,7 +53,8 @@
     "@types/delaunator": "^5.0.2",
     "dotenv": "^16.4.5",
     "prettier": "^3.3.3",
-    "react-scripts": "^5.0.1",
-    "tsx": "^4.19.1"
+    "tsx": "^4.19.1",
+    "vite": "^5.1.4",
+    "@vitejs/plugin-react": "^4.2.1"
   }
 }
