@@ -1,10 +1,12 @@
-import phraseGraph, { PhraseGraph } from "../utils/builder";
+import phraseGraph, { _forTests, PhraseGraph } from "../utils/builder";
 import { FoundLostMinersState, State } from "../lore";
 import ALL_GRAPHS from ".";
 
+const { maskToStates } = _forTests;
+
 type CombinedState = State & FoundLostMinersState & { readonly commend: true };
 
-function expectCompletion(actual: PhraseGraph<any, any>) {
+export function expectCompletion(actual: PhraseGraph<any, any>) {
   const keep: { [key: string]: true } = { start: true, end: true };
   actual.states.forEach((s) => (keep[s] = true));
   const expected = phraseGraph<CombinedState, any>(
@@ -89,20 +91,23 @@ function expectCompletion(actual: PhraseGraph<any, any>) {
         );
     },
   );
+  // Expect states to match and be in the same order, which is necessary for
+  // the bitmasking.
   expect(actual.states).toEqual(expected.states);
 
   const actualReachable = actual.phrases[0].reachableStates;
-  const missing: string[] = Object.keys(
-    expected.phrases[0].reachableStates,
-  ).filter((s) => !(s in actualReachable));
+  const missing: bigint[] = [];
   // Actual can sometimes contain states that are impossible, so it's ok if
   // there are reachable states in actual not in expected.
+  expected.phrases[0].reachableStates.forEach((s) => {
+    if (!actualReachable.has(s)) {
+      missing.push(s);
+    }
+  });
   if (missing.length > 0) {
-    const counts = missing.map((it) => it.match(/,/g)?.length ?? 0);
-    const minCount = Math.min(...counts);
-    const callouts = missing.filter((it, i) => counts[i] === minCount);
+    const min = missing.reduce((n, r) => n < r ? n : r, missing[0]);
     throw new Error(
-      `Missing states:\n- ${callouts.join("\n- ")}\n- (and ${missing.length - callouts.length} more)`,
+      `Missing ${missing.length} states, including "${maskToStates(min, expected.states)}"`,
     );
   }
 }

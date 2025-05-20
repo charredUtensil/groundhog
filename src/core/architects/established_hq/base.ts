@@ -118,7 +118,6 @@ export function getPlaceBuildings({
     // Choose which buildings will be created based on total crystal budget.
     let crystalBudget = args.plan.metadata.crystalsInBuildings;
     const buildingsQueue: MakeBuildingInfo[] = [];
-    debugger;
     for (const it of potentialTemplates) {
       if (it.args?.placeRubbleInstead) {
         buildingsQueue.push(it);

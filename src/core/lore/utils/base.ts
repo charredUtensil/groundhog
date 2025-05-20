@@ -14,7 +14,7 @@ export type Phrase<StateT extends BaseState, FormatT> = {
   readonly after: Phrase<StateT, FormatT>[];
   readonly before: Phrase<StateT, FormatT>[];
   readonly requires: (string & keyof StateT) | "start" | "end" | null;
-  readonly reachableStates: { [key: string]: boolean };
+  readonly reachableStates: Set<bigint>;
 };
 
 export type PgNodeArgs<StateT extends BaseState, FormatT> = (
