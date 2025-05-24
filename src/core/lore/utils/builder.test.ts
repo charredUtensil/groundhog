@@ -1,5 +1,6 @@
-import { _forTests } from "./builder";
+import phraseGraph, { _forTests, PhraseGraph } from "./builder";
 import { Phrase } from "./base";
+import { PseudorandomStream } from "../../common/prng";
 
 const { merge, stateToMask, maskToStates } = _forTests;
 
@@ -99,3 +100,47 @@ describe("maskToStates", () => {
     expect(maskToStates(0b10110n, states)).toBe("end x z");
   });
 });
+
+describe('integrated', () => {
+  let g: PhraseGraph<{a: boolean, b: boolean, c: boolean}, {}>;
+  let rng: PseudorandomStream;
+  beforeEach(() => {
+    g = phraseGraph(
+      "Integrated",
+      ({ pg, state, start, end, cut, skip }) => {
+        start
+          .then("START")
+          .then(state("a").then("A"), skip)
+          .then(state("b").then("B"), skip)
+          .then(state("c").then("C1"), skip)
+          .then(state("c").then("C2"), skip)
+          .then(state("c").then("C3"), skip)
+          .then(state("c").then("C4"), skip)
+          .then(state("c").then("C5"), skip)
+          .then(state("c").then("C6"), skip)
+          .then(state("c").then("C7"), skip)
+          .then(state("c").then("C8"), skip)
+          .then(state("c").then("C9"), skip)
+          .then("END")
+          .then(end);
+      }
+    );
+    rng = new PseudorandomStream(0x86472025);
+  });
+
+  it('includes no states', () => {
+    expect(g.generate(rng, {a: false, b: false, c: false}, {})).toBe("START END");
+  });
+
+  it('includes one state', () => {
+    expect(g.generate(rng, {a: true, b: false, c: false}, {})).toBe("START A END");
+  });
+
+  it('includes two states', () => {
+    expect(g.generate(rng, {a: true, b: true, c: false}, {})).toBe("START A B END");
+  });
+
+  it('includes a state exactly once', () => {
+    expect(g.generate(rng, {a: false, b: false, c: true}, {})).toMatch(/^START C\d END$/);
+  });
+})
