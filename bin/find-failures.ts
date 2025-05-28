@@ -1,20 +1,12 @@
 #!/usr/bin/env node
 
-import { inferContextDefaults } from "../src/core/common";
-import { CAVERN_TF } from "../src/core/transformers";
+import { Worker } from 'node:worker_threads';
+import { cpus } from 'node:os';
 import { MAX_PLUS_ONE } from "../src/core/common/prng";
 import { getFlags } from "../src/cli/flags";
 import { exit } from "node:process";
-
-function gen(seed: number) {
-  let state = CAVERN_TF.first({
-    initialContext: inferContextDefaults({ seed }),
-  });
-
-  while (state.next) {
-    state = state.next();
-  }
-}
+import type { GenCompleteInputMessage, GenCompleteOutputMessage } from "../src/workers/gen-complete.types";
+import { Mutable } from '../src/core/common/utils';
 
 function main({
   firstSeed,
@@ -25,6 +17,14 @@ function main({
   totalCount: number;
   maxFailures: number;
 }) {
+  const numCores = cpus().length;
+  const numWorkers = Math.max(1, numCores - 1);
+  
+  let assigned = 0;
+  let completed = 0;
+  
+  const failures: { seed: number; error: any }[] = [];
+  
   const startedAt = Date.now();
   function estimateTimeRemaining(completed: number) {
     if (completed < 10) {
@@ -41,46 +41,103 @@ function main({
     return `${seconds.toFixed()}s`;
   }
 
-  const failures: { seed: number; error: any }[] = [];
-
-  function failinfo(maxFailures: number, onSuccess: string) {
+  function failinfo(fc: number, onSuccess: string) {
     if (failures.length == 0) {
       return onSuccess;
     }
     const rows = ["\x1b[38;5;1mFailures:"];
-    for (let j = 0; j < maxFailures && j < failures.length; j++) {
+    for (let j = 0; j < fc && j < failures.length; j++) {
       rows.push(
         `  ${failures[j].seed.toString(16)}: ${failures[j].error.message}`,
       );
     }
-    if (failures.length > maxFailures) {
-      rows.push(`  (and ${failures.length - maxFailures} more)`);
+    if (failures.length > fc) {
+      rows.push(`  (and ${failures.length - fc} more)`);
     }
     return `${rows.join("\n")}\x1b[m`;
   }
 
-  for (let index = 0; index < totalCount; index++) {
-    const seed = (firstSeed + index) % MAX_PLUS_ONE;
-    const remaining = estimateTimeRemaining(index);
-    console.log(`\x1bcFinished ${index + 1} of ${totalCount}${remaining ? `, ${remaining} remaining` : ""}
+  function updateProgress() {
+    const remaining = estimateTimeRemaining(completed);
+    console.log(`\x1bcFinished ${completed} of ${totalCount}${remaining ? `, ${remaining} remaining` : ""}
 ${failinfo(5, "\x1b[38;5;3mAll passing so far.\x1b[m")}
-Building ${seed.toString(16)}...`);
+Processing...`);
+  }
 
-    try {
-      gen(seed);
-    } catch (error: any) {
-      failures.push({ seed, error });
-      if (maxFailures > 0 && failures.length >= maxFailures) {
-        console.log(`\x1bcFinished ${index + 1} seeds ${firstSeed.toString(16)}..${(firstSeed + index).toString(16)}
-${failinfo(Infinity, "n/a")}
-Found ${maxFailures} failures. Exiting.`);
-        exit(1);
-      }
+  function finish() {
+    console.log(`\x1bcFinished ${totalCount} seeds ${firstSeed.toString(16)}..${(firstSeed + totalCount - 1).toString(16)}
+${failinfo(Infinity, "\x1b[38;5;2mAll caverns generated successfully.\x1b[m")}`);
+    exit(failures.length ? 1 : 0);
+  }
+
+  const workers: Worker[] = [];
+  const chunkSize = Math.ceil(totalCount / numWorkers / 10);
+
+  function assignWorkOrDie(w: Worker) {
+    const requests: Mutable<GenCompleteInputMessage['requests']> = [];
+    for (let i = 0; i < chunkSize && assigned < totalCount; i++) {
+      requests.push({initialContext: {seed: (firstSeed + assigned) % MAX_PLUS_ONE}});
+      assigned++;
+    }
+    if (requests.length > 0) {
+      w.postMessage({ requests });
+    } else {
+      w.terminate();
     }
   }
-  console.log(`\x1bcFinished ${totalCount} seeds ${firstSeed.toString(16)}..${(firstSeed + totalCount - 1).toString(16)}
-${failinfo(Infinity, "\x1b[38;5;2mAll caverns generated successfully.\x1b[m")}`);
-  exit(failures.length ? 1 : 0);
+
+  const spawnWorker = () => {
+    const worker = new Worker('../src/workers/gen-complete.ts');
+
+    worker.on('message', (message: GenCompleteOutputMessage) => {
+      completed += message.results.length;
+      message.results.forEach(({initialContext, error}) => {
+        if (error) {
+          failures.push({seed: initialContext.seed, error});
+        }
+      });
+      if (maxFailures > 0 && failures.length >= maxFailures) {
+        console.log(`\x1bcFinished ${completed} seeds ${firstSeed.toString(16)}..${(firstSeed + assigned).toString(16)}
+${failinfo(Infinity, "n/a")}
+Found ${maxFailures} failures. Exiting.`);
+        workers.forEach(w => w.terminate());
+        exit(1);
+      }
+      updateProgress();
+      assignWorkOrDie(worker);
+    });
+
+    worker.on('error', (err) => {
+      console.error(`Worker error: ${err.message}`);
+      workers.forEach(w => w.terminate());
+      exit(1);
+    });
+
+    worker.on('exit', (code) => {
+      if (code !== 0) {
+        console.error(`Worker exited with code ${code}`);
+      }
+      const index = workers.indexOf(worker);
+      if (index > -1) {
+        workers.splice(index, 1);
+      }
+      // &? should be or? error condition??
+      if (workers.length === 0 && assigned >= totalCount) {
+        finish();
+      }
+    });
+
+    workers.push(worker);
+  };
+
+  // Initial work distribution
+  for (let i = 0; i < numWorkers; i++) {
+    spawnWorker();
+  }
+
+  if (totalCount === 0) {
+    finish();
+  }
 }
 
 const args = getFlags({
