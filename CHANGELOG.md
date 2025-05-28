@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.14
+## 0.10.14 - The Performance Update
 
 - Bugs Fixed
   - Fix #78, which is actually two issues
@@ -11,10 +11,16 @@
 - Gameplay Changes
   - This will rearrange virtually all "hq" caves, but should not affect what buildings they contain
 - Refactors, Tooling, Testing
+  - Migrate from `react-scripts` to `vite`
+    - This should end all the annoying security warnings from dependabot even though they don't actually matter.
+    - `yarn start` -> `yarn dev`, now starts on 5173
+    - `yarn build && yarn preview` starts prod-like server on port 4173
+  - Index lore states with Set<bigint> instead of an object of string keys
+    - In testing, this reduces lore computation from 10s (!) to 2s on app start and marginally speeds up lore `generate()`
   - Improved error messages
   - Codify `placeRubbleInstead` better
   - Architects now have more control over building placement
-    - Crash-on-fail is now presented as individual buildings being "required"
+    - Crash-on-fail is now presented as individual buildings being "required", so HQs can be OK with a missing Upgrade Station but crash if missing a Tool Store
 
 ## 0.10.13
 
