@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./styles.module.scss";
 import { CavernContext } from "../../../core/common";
 import { PartialCavernContext } from "../../../core/common/context";
+import GROUNDHOG_VERSION from "../../../core/common/version";
 
 const GITHUB_ISSUE = "https://github.com/charredUtensil/groundhog/issues/new";
 
@@ -21,7 +22,7 @@ export default function ErrorPreview({
   }
   const debugInfo = [
     `error: ${error.message}`,
-    `groundHog version: ${import.meta.env.VITE_APP_VERSION}`,
+    `groundHog version: ${GROUNDHOG_VERSION}}`,
     `initial context: ${JSON.stringify(initialContext)}`,
     `context: ${JSON.stringify(context)}`,
     `stack: ${error.stack}`,
@@ -40,7 +41,7 @@ export default function ErrorPreview({
           .
         </p>
         <ul>
-          <li>groundHog version: {import.meta.env.VITE_APP_VERSION}</li>
+          <li>groundHog version: {GROUNDHOG_VERSION}</li>
           <li>
             seed: {context?.seed.toString(16).padStart(8, "0").toUpperCase()}
           </li>

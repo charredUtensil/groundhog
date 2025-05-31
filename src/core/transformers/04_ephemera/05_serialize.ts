@@ -10,6 +10,7 @@ import { serializePosition } from "../../models/position";
 import { Tile } from "../../models/tiles";
 import { serializeVehicle } from "../../models/vehicle";
 import { ProgrammedCavern } from "./04_program";
+import GROUNDHOG_VERSION from "../../common/version";
 
 export type SerializedCavern = ProgrammedCavern & {
   serialized: string;
@@ -23,7 +24,7 @@ function indent(it: string, prefix: string) {
 }
 
 function comments(cavern: ProgrammedCavern) {
-  const groundhogVersion = import.meta.env.VITE_APP_VERSION;
+  const groundhogVersion = GROUNDHOG_VERSION;
   const data = {
     groundhogVersion,
     initialContext: cavern.initialContext,

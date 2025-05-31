@@ -1,10 +1,11 @@
 import React from "react";
 import styles from "./styles.module.scss";
+import GROUNDHOG_VERSION from "../../../core/common/version";
 
 const About = () => (
   <div className={styles.popoverWrapper}>
     <div className={styles.about}>
-      <h2>groundHog v{import.meta.env.VITE_APP_VERSION}</h2>
+      <h2>groundHog v{GROUNDHOG_VERSION}</h2>
       <p>By Christopher Dollard (aka charredUtensil)</p>
       <p>
         See{" "}
