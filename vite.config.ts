@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { version } from './package.json';
 
 export default defineConfig(({ mode }) => {
+  const isDev = mode === 'development'
   return {
     plugins: [react()],
     base: '/groundhog/',
@@ -11,7 +12,8 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
     },
     define: {
-      'import.meta.env.VITE_APP_VERSION': JSON.stringify(mode === 'development' ? `${version}-dev` : version),
+      'import.meta.env.VITE_ENVIRONMENT': JSON.stringify(isDev ? 'dev' : 'prod'),
+      'import.meta.env.VITE_APP_VERSION': JSON.stringify(isDev ? `${version}-dev` : version),
     },
   };
 });

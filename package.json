@@ -14,7 +14,8 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "tsc && vite build",
+    "build": "tsx bin/precompute && tsc && vite build",
+    "build:precompute": "tsx bin/precompute",
     "preview": "vite preview",
     "predeploy": "tsc && vite build",
     "deploy": "gh-pages -d dist",

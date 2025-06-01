@@ -11,6 +11,7 @@
 # production
 /build
 /dist
+/src/core/lore/graphs/precomputed.ts
 
 # misc
 .DS_Store

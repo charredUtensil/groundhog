@@ -1,5 +1,6 @@
 import { Mutable, PseudorandomStream } from "../../common";
 import { BaseState, Phrase, PgNodeArgs, PgArgs, TextFn } from "./base";
+import { COMPUTED_REACHABLE_STATES } from "../graphs/precomputed";
 
 class PgBuilder<StateT extends BaseState, FormatT> {
   readonly phrases: Phrase<StateT, FormatT>[] = [];
@@ -232,12 +233,17 @@ function getReachableStates<StateT extends BaseState, FormatT>(
 }
 
 function traverse<StateT extends BaseState, FormatT>(
+  name: string,
   phrases: readonly Phrase<StateT, FormatT>[],
   states: readonly (string & keyof StateT)[],
 ) {
+  const crs = COMPUTED_REACHABLE_STATES[name];
+  if (crs.length !== phrases.length) {
+    throw new Error('Precomputed phrases do not match');
+  }
   for (let i = phrases.length - 1; i >= 0; i--) {
     const phrase = phrases[i] as Mutable<Phrase<StateT, FormatT>>;
-    phrase.reachableStates = getReachableStates(phrase, states);
+    phrase.reachableStates = crs?.[i] ?? getReachableStates(phrase, states);
   }
 }
 
@@ -372,7 +378,7 @@ export default function phraseGraph<StateT extends BaseState, FormatT>(
 
   const phrases = sort(pgBuilder.phrases);
   const states = Array.from(pgBuilder.states.values()).sort();
-  traverse(phrases, states);
+  traverse(name, phrases, states);
   const newStart = phrases.find((phrase) => phrase.requires === "start")!;
 
   return new PhraseGraph(name, newStart, phrases, states);
