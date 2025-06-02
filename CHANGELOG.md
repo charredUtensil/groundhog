@@ -17,6 +17,7 @@
     - `yarn build && yarn preview` starts prod-like server on port 4173
   - Index lore states with Set<bigint> instead of an object of string keys
     - In testing, this reduces lore computation from 10s (!) to 2s on app start and marginally speeds up lore `generate()`
+    - Also move this work from instantiation to the first `generate()` call, which makes the app appear to load faster even if the time to first generation is longer.
   - Improved error messages
   - Codify `placeRubbleInstead` better
   - Architects now have more control over building placement

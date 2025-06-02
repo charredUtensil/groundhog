@@ -295,6 +295,7 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
   private readonly start: Phrase<StateT, FormatT>;
   readonly phrases: readonly Phrase<StateT, FormatT>[];
   readonly states: readonly (string & keyof StateT)[];
+  private didTraverse = false;
 
   constructor(
     name: string,
@@ -313,6 +314,10 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
     requireState: StateT,
     format: FormatT,
   ): string {
+    if (!this.didTraverse) {
+      traverse(this.phrases, this.states);
+      this.didTraverse = true;
+    }
     let stateRemaining: bigint = 3n;
     for (const s of this.states) {
       if (requireState[s]) {
@@ -372,7 +377,6 @@ export default function phraseGraph<StateT extends BaseState, FormatT>(
 
   const phrases = sort(pgBuilder.phrases);
   const states = Array.from(pgBuilder.states.values()).sort();
-  traverse(phrases, states);
   const newStart = phrases.find((phrase) => phrase.requires === "start")!;
 
   return new PhraseGraph(name, newStart, phrases, states);
