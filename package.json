@@ -45,6 +45,9 @@
     ]
   },
   "devDependencies": {
+    "@eslint/css": "^0.8.1",
+    "@eslint/js": "^9.28.0",
+    "@eslint/markdown": "^6.4.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -52,11 +55,14 @@
     "@vitejs/plugin-react": "^4.2.1",
     "dotenv": "^16.4.5",
     "eslint": "^9.28.0",
+    "eslint-plugin-react": "^7.37.5",
     "gh-pages": "^6.1.1",
+    "globals": "^16.2.0",
     "prettier": "^3.3.3",
     "sass": "^1.71.1",
     "tsx": "^4.19.1",
     "typescript": "^5.4.2",
+    "typescript-eslint": "^8.33.1",
     "vite": "^5.1.4",
     "vitest": "^3.1.3"
   }
