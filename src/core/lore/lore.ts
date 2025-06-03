@@ -159,7 +159,7 @@ export class Lore {
     const nomads = cavern.plans.reduce(
       (r, p) =>
         spawn.metadata?.tag === "nomads"
-          ? r + (spawn.metadata.minersCount as number)
+          ? r + (spawn.metadata.minersCount)
           : r,
       0,
     );

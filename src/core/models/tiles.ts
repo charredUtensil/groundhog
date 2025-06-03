@@ -52,7 +52,7 @@ const TILES = {
 } as const satisfies { [K in any]: BaseTile };
 
 export const Tile = TILES;
-export type Tile = (typeof TILES)[keyof typeof TILES]; // eslint-disable-line @typescript-eslint/no-redeclare
+export type Tile = (typeof TILES)[keyof typeof TILES];  
 
 export type RoughTile =
   | typeof TILES.FLOOR

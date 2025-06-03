@@ -26,12 +26,6 @@
     "mermaidify": "tsx bin/mermaidify",
     "update-goldens": "UPDATE_GOLDENS=1 vitest --no-watch"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -52,6 +46,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/delaunator": "^5.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
     "@vitejs/plugin-react": "^4.2.1",
     "dotenv": "^16.4.5",
     "eslint": "^9.28.0",

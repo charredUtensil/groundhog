@@ -6,7 +6,7 @@ import { MapOverlay } from "../map_preview";
 
 const MAP_OVERLAY_BUTTONS: readonly {
   of: MapOverlay;
-  label: String;
+  label: string;
   enabled: (cavern: Cavern | undefined) => boolean;
 }[] = [
   { of: "overview", label: "Overview", enabled: (c) => true },

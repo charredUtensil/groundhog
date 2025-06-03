@@ -40,7 +40,7 @@ function merge<StateT extends BaseState, FormatT>(
 ): Phrase<StateT, FormatT>[] {
   let i = 0;
   let j = 0;
-  let r = [];
+  const r = [];
   while (true) {
     if (i >= a.length) {
       if (j >= b.length) {
