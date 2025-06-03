@@ -252,9 +252,9 @@ export function serializeBuilding(
   tileOffset: Point,
   heightMap: Grid<number>,
 ) {
-  if (building.placeRubbleInstead) { 
+  if (building.placeRubbleInstead) {
     throw new Error(
-      "Building was marked \"placeRubbleInstead\" but made it into the level anyway."
+      'Building was marked "placeRubbleInstead" but made it into the level anyway.',
     );
   }
   return [

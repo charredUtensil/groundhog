@@ -1,12 +1,12 @@
 import React from "react";
 import { Cavern } from "../../../core/models/cavern";
-import styles from './styles.module.scss';
+import styles from "./styles.module.scss";
 
 function getDownloadLink(serializedData: string) {
   return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
 }
 
-function DownloadButton({cavern}: {cavern: Cavern}) {
+function DownloadButton({ cavern }: { cavern: Cavern }) {
   if (cavern.serialized) {
     return (
       <a
@@ -47,10 +47,7 @@ export default function GenerateControls({
       {(() => {
         if (!step) {
           return (
-            <button
-              onClick={reset}
-              title="Regenerate Cavern"
-            >
+            <button onClick={reset} title="Regenerate Cavern">
               restart_alt
             </button>
           );
@@ -61,28 +58,25 @@ export default function GenerateControls({
               onClick={() => setAutoGenerate(false)}
               title="Pause generation"
             >
-                pause
+              pause
             </button>
           );
         }
         return (
           <>
-            <button
-              onClick={step}
-              title="Generate one step"
-            >
+            <button onClick={step} title="Generate one step">
               step
             </button>
             <button
               onClick={() => setAutoGenerate(true)}
               title="Resume generation"
             >
-                play_arrow
+              play_arrow
             </button>
           </>
         );
       })()}
       <DownloadButton cavern={cavern} />
     </div>
-  )
+  );
 }

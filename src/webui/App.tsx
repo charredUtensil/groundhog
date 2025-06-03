@@ -62,9 +62,9 @@ function App() {
       } catch (e: unknown) {
         console.error(e);
         const error = e instanceof Error ? e : new Error("unknown error");
-        setState(was => ({ ...was, next: null, error }));
+        setState((was) => ({ ...was, next: null, error }));
       }
-    }
+    };
   }, [state.next]);
 
   const reset = useCallback(() => {
@@ -120,16 +120,22 @@ function App() {
           />
         )}
         <ProgressBar autoGenerate={autoGenerate} {...state} />
-        <GenerateControls cavern={state.result} {...{autoGenerate, setAutoGenerate, step, reset}} />
+        <GenerateControls
+          cavern={state.result}
+          {...{ autoGenerate, setAutoGenerate, step, reset }}
+        />
       </div>
-      <VizOptsPanel cavern={state.result} {...{
-        mapOverlay,
-        setMapOverlay,
-        showOutlines,
-        setShowOutlines,
-        showPearls,
-        setShowPearls,
-      }} />
+      <VizOptsPanel
+        cavern={state.result}
+        {...{
+          mapOverlay,
+          setMapOverlay,
+          showOutlines,
+          setShowOutlines,
+          showPearls,
+          setShowPearls,
+        }}
+      />
     </div>
   );
 }

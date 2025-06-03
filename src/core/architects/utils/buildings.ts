@@ -1,13 +1,21 @@
 import { Cardinal4, NSEW, Point } from "../../common/geometry";
 import { MutableGrid } from "../../common/grid";
 import { Architect } from "../../models/architect";
-import { Building, BuildingExtraArgs, CANTEEN, DOCKS, ORE_REFINERY, POWER_STATION, SUPER_TELEPORT } from "../../models/building";
+import {
+  Building,
+  BuildingExtraArgs,
+  CANTEEN,
+  DOCKS,
+  ORE_REFINERY,
+  POWER_STATION,
+  SUPER_TELEPORT,
+} from "../../models/building";
 import { Tile } from "../../models/tiles";
 
 export type MakeBuildingInfo = {
-  readonly bt: Building["template"],
-  readonly args?: BuildingExtraArgs,
-  readonly required?: boolean,
+  readonly bt: Building["template"];
+  readonly args?: BuildingExtraArgs;
+  readonly required?: boolean;
 };
 
 function buildingPriority(it: MakeBuildingInfo) {
@@ -53,29 +61,28 @@ export function getBuildings(
   },
   { cavern, plan, tiles }: Parameters<Architect<any>["placeBuildings"]>[0],
 ) {
-
   const placed = new MutableGrid<true>();
   const rng = cavern.dice.placeBuildings(plan.id);
   const result: Building[] = [];
 
   const points: {
-    x: number,
-    y: number,
-    facing: Cardinal4,
+    x: number;
+    y: number;
+    facing: Cardinal4;
   }[] = [];
   for (let ly = from ?? 1; ly < (to ?? plan.innerPearl.length); ly++) {
     for (const [x, y] of rng.shuffle(plan.innerPearl[ly])) {
       for (const facing of NSEW) {
         const [ox, oy] = facing;
         if (cavern.pearlInnerDex.get(x + ox, y + oy)?.[plan.id] === ly - 1) {
-          points.push({x, y, facing});
+          points.push({ x, y, facing });
         }
       }
     }
   }
 
-  const queues: MakeBuildingInfo[][] = [[],[],[],[]];
-  queue.forEach(it => {
+  const queues: MakeBuildingInfo[][] = [[], [], [], []];
+  queue.forEach((it) => {
     queues[buildingPriority(it)].push(it);
   });
 
@@ -84,9 +91,8 @@ export function getBuildings(
 
   // For each building priority class
   for (const q of queues) {
-
     // For each potential placement point
-    for (const {x, y, facing} of points) {
+    for (const { x, y, facing } of points) {
       if (q.length === 0) {
         break;
       }
@@ -102,10 +108,7 @@ export function getBuildings(
         const { bt, args } = q[i];
 
         // Continue if this is a docks not on water
-        if (
-          bt === DOCKS &&
-          tiles.get(x - ox, y - oy) !== Tile.WATER
-        ) {
+        if (bt === DOCKS && tiles.get(x - ox, y - oy) !== Tile.WATER) {
           continue;
         }
 
@@ -113,9 +116,7 @@ export function getBuildings(
         const b = bt.atTile({ x, y, facing, ...args });
 
         // Continue if the foundation overlaps any used or non floor tile
-        if (
-          b.foundation.some(taken)
-        ) {
+        if (b.foundation.some(taken)) {
           continue;
         }
 
@@ -126,12 +127,12 @@ export function getBuildings(
         break;
       }
     }
-    q.forEach(it => {
+    q.forEach((it) => {
       if (it.required) {
-        console.log('Failed to place required building: %o', it);
+        console.log("Failed to place required building: %o", it);
         throw new Error(`Failed to place ${it.bt.name}, which is required.`);
       } else {
-        console.log('Failed to place optional building: %o', it);
+        console.log("Failed to place optional building: %o", it);
       }
     });
   }

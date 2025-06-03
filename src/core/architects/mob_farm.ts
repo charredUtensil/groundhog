@@ -70,7 +70,7 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
     const [toolStore] = getBuildings(
       {
         from: 4,
-        queue: [{bt: TOOL_STORE, required: true}],
+        queue: [{ bt: TOOL_STORE, required: true }],
       },
       args,
     );

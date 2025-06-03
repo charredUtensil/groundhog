@@ -1,5 +1,5 @@
 import React from "react";
-import styles from './style.module.scss';
+import styles from "./style.module.scss";
 import { state } from "@stdlib/random-base-beta";
 import { Cavern } from "../../../core/models/cavern";
 import { MapOverlay } from "../map_preview";

@@ -105,7 +105,7 @@ export function expectCompletion(actual: PhraseGraph<any, any>) {
     }
   });
   if (missing.length > 0) {
-    const min = missing.reduce((n, r) => n < r ? n : r, missing[0]);
+    const min = missing.reduce((n, r) => (n < r ? n : r), missing[0]);
     throw new Error(
       `Missing ${missing.length} states, including "${maskToStates(min, expected.states)}"`,
     );

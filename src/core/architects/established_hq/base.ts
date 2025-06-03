@@ -51,9 +51,7 @@ export function getPrime(
   };
 }
 
-const T0_BUILDINGS = [
-  { bt: TOOL_STORE },
-] as const;
+const T0_BUILDINGS = [{ bt: TOOL_STORE }] as const;
 const T1_BUILDINGS = [
   { bt: TELEPORT_PAD },
   { bt: POWER_STATION },
@@ -82,7 +80,7 @@ function getDefaultTemplates(
     }
     const r: MakeBuildingInfo[] = rng.shuffle(T1_BUILDINGS);
     if (asRuin) {
-      r[0] = {...r[0], args: {...r[0].args, placeRubbleInstead: true}};
+      r[0] = { ...r[0], args: { ...r[0].args, placeRubbleInstead: true } };
     }
     return r;
   }
@@ -147,18 +145,22 @@ export function getPlaceBuildings({
         buildingsQueue.push(it);
         crystalBudget -= it.bt.crystals;
       } else if (asRuin) {
-        buildingsQueue.push({...it, args: {...it.args, placeRubbleInstead: true}});
+        buildingsQueue.push({
+          ...it,
+          args: { ...it.args, placeRubbleInstead: true },
+        });
       }
-    };
+    }
 
     // Fit the buildings and place their foundations.
     const buildings = getBuildings({ from, queue: buildingsQueue }, args);
-    buildings.forEach(
-      b => b.foundation.forEach(
-        (pos) => args.tiles.set(
-          ...pos, b.placeRubbleInstead ? Tile.RUBBLE_1 : Tile.FOUNDATION
-        )
-      )
+    buildings.forEach((b) =>
+      b.foundation.forEach((pos) =>
+        args.tiles.set(
+          ...pos,
+          b.placeRubbleInstead ? Tile.RUBBLE_1 : Tile.FOUNDATION,
+        ),
+      ),
     );
 
     // Level up all buildings that are a dependency of another building.
@@ -228,7 +230,8 @@ export function getPlaceBuildings({
     // Place open cave flag if this is discovered.
     if (discovered) {
       args.openCaveFlags.set(
-        ...buildings.find(b => !b.placeRubbleInstead)!.foundation[0], true
+        ...buildings.find((b) => !b.placeRubbleInstead)!.foundation[0],
+        true,
       );
     }
 

@@ -24,7 +24,7 @@ const T0_BUILDINGS = [
   { bt: POWER_STATION, required: true },
 ] as const;
 
-const T0_CRYSTALS = T0_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
+const T0_CRYSTALS = T0_BUILDINGS.reduce((r, { bt }) => r + bt.crystals, 0);
 
 const T1_BUILDINGS = [
   { bt: MINING_LASER },
@@ -33,7 +33,7 @@ const T1_BUILDINGS = [
   { bt: GEOLOGICAL_CENTER },
 ] as const;
 
-const T1_CRYSTALS = T1_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
+const T1_CRYSTALS = T1_BUILDINGS.reduce((r, { bt }) => r + bt.crystals, 0);
 
 function findWaterTile(plan: Plan<any>, tiles: Grid<Tile>): Point {
   for (let ly = 0; ly < plan.innerPearl.length; ly++) {

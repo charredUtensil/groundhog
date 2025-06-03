@@ -15,7 +15,7 @@ class PgBuilder<StateT extends BaseState, FormatT> {
       requires: requires ?? null,
       after: [],
       before: [],
-      reachableStates: new Set<bigint>,
+      reachableStates: new Set<bigint>(),
       lane: -1,
     };
     this.phrases.push(phrase);
@@ -59,8 +59,8 @@ function merge<StateT extends BaseState, FormatT>(
 }
 
 function stateToMask<StateT extends BaseState>(
-  state: ("start" | "end" | string & keyof StateT),
-  allStates: readonly (string & keyof StateT)[]
+  state: "start" | "end" | (string & keyof StateT),
+  allStates: readonly (string & keyof StateT)[],
 ) {
   if (state === "start") {
     return 1n;
@@ -73,7 +73,7 @@ function stateToMask<StateT extends BaseState>(
 
 function maskToStates<StateT extends BaseState>(
   mask: bigint,
-  allStates: readonly (string & keyof StateT)[]
+  allStates: readonly (string & keyof StateT)[],
 ) {
   let n = mask;
   const r = [];
@@ -83,9 +83,8 @@ function maskToStates<StateT extends BaseState>(
     }
     n >>= 1n;
   }
-  return r.join(" ")
+  return r.join(" ");
 }
-
 
 export class PgNode<StateT extends BaseState, FormatT> {
   private readonly v: PgBuilder<StateT, FormatT>;
@@ -199,7 +198,7 @@ function getReachableStates<StateT extends BaseState, FormatT>(
   phrase: Phrase<StateT, FormatT>,
   allStates: readonly (string & keyof StateT)[],
 ) {
-  const reachableAfter = new Set<bigint>;
+  const reachableAfter = new Set<bigint>();
 
   for (const after of phrase.after) {
     for (const ars of after.reachableStates) {
@@ -208,7 +207,8 @@ function getReachableStates<StateT extends BaseState, FormatT>(
   }
 
   const requiresMask = phrase.requires
-    ? stateToMask(phrase.requires, allStates) : 0n;
+    ? stateToMask(phrase.requires, allStates)
+    : 0n;
 
   if (reachableAfter.size === 0) {
     const r = new Set<bigint>();
@@ -222,7 +222,7 @@ function getReachableStates<StateT extends BaseState, FormatT>(
     return reachableAfter;
   }
 
-  const result = new Set<bigint>;
+  const result = new Set<bigint>();
   for (const ra of reachableAfter) {
     if ((ra & requiresMask) === 0n) {
       result.add(ra | requiresMask);
@@ -332,8 +332,8 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
       } else if (phrase.requires) {
         stateRemaining ^= stateToMask(phrase.requires, this.states);
       }
-      const continuations = phrase.after.filter(
-        (a) => a.reachableStates.has(stateRemaining),
+      const continuations = phrase.after.filter((a) =>
+        a.reachableStates.has(stateRemaining),
       );
       if (continuations.length === 0) {
         throw new NoContinuationError(

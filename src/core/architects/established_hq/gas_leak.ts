@@ -21,7 +21,7 @@ const T0_BUILDINGS = [
   { bt: SUPPORT_STATION, required: true },
   { bt: TELEPORT_PAD, required: false },
 ] as const;
-const T0_CRYSTALS = T0_BUILDINGS.reduce((r, {bt}) => r + bt.crystals, 0);
+const T0_CRYSTALS = T0_BUILDINGS.reduce((r, { bt }) => r + bt.crystals, 0);
 const STARTING_BONUS_CRYSTALS = 2;
 const GLOBAL_HOSTILES_CAP = 4;
 const MONSTERS_UNTIL_RESPITE = 10;

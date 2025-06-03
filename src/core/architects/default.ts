@@ -73,11 +73,13 @@ export const DefaultSpawnArchitect: PartialArchitect<any> = {
   placeBuildings: (args) => {
     const [toolStore] = getBuildings(
       {
-        queue: [{
-          bt: TOOL_STORE,
-          args: { teleportAtStart: true },
-          required: true,
-        }],
+        queue: [
+          {
+            bt: TOOL_STORE,
+            args: { teleportAtStart: true },
+            required: true,
+          },
+        ],
       },
       args,
     );
