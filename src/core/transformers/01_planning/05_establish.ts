@@ -82,9 +82,9 @@ export default function establish(cavern: AnchoredCavern): EstablishedCavern {
   const maxIndex = inOrder.length - 1;
   const maxHops = inOrder[inOrder.length - 1].hops.length;
 
-  function doArchitect(plan: OrderedPlan, index: number): ArchitectedPlan<any> {
+  function doArchitect<T extends AnyMetadata>(plan: OrderedPlan, index: number): ArchitectedPlan<T> {
     const props = { hops: plan.hops.length / maxHops, order: index / maxIndex };
-    const architect =
+    const architect = (
       plan.architect ||
       cavern.dice.pickArchitect(plan.id).weightedChoice(
         architects.map((architect) => {
@@ -97,7 +97,8 @@ export default function establish(cavern: AnchoredCavern): EstablishedCavern {
               0,
           };
         }),
-      );
+      )
+    ) as Architect<T>;
     const metadata = architect.prime({ cavern, plan });
     const crystalRichness = curved(
       plan.kind === "cave"

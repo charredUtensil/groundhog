@@ -38,16 +38,18 @@ export function transformPoint(
   return `${y - cavern.top},${x - cavern.left}`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type ScriptLine = string | Falsy;
 export type EventChainLine = `${string};` | Falsy;
 
-export function chainFragment(...rest: EventChainLine[]): `${string};` | "" {
-  return rest.filter((s) => s).join("\n") as any;
+export function chainFragment(...rest: EventChainLine[]) {
+  return rest.filter((s) => s).join("\n") as `${string};` | "";
 }
 
 export function check(
   condition: string,
   ifTrue: string,
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   ifFalse?: string | Falsy,
 ): EventChainLine {
   if (ifFalse) {
@@ -71,7 +73,7 @@ type DieOrRng =
   | {
       rng: PseudorandomStream;
     };
-type StateFormatArgs<ST, FT> =
+type StateFormatArgs<ST extends object, FT extends object> =
   | {
       pg: PhraseGraph<State, Format>;
     }
@@ -88,7 +90,7 @@ type StateFormatArgs<ST, FT> =
       state: ST;
       format: FT;
     };
-type FromLoreArgs<ST, FT> = DieOrRng & StateFormatArgs<ST, FT>;
+type FromLoreArgs<ST extends object, FT extends object> = DieOrRng & StateFormatArgs<ST, FT>;
 
 export type ScriptBuilder = {
   /**
@@ -109,7 +111,7 @@ export type ScriptBuilder = {
    * Declares a string variable. Takes ether a string value or parameters to
    * determine the string from lore. Returns the variable name.
    */
-  declareString<ST = {}, FT = {}>(
+  declareString<ST extends object = object, FT extends object = object>(
     name: string,
     value: string | FromLoreArgs<ST, FT>,
   ): string;
@@ -267,7 +269,7 @@ export function mkScriptBuilder(
       return name;
     },
 
-    declareString<ST = {}, FT = {}>(
+    declareString<ST extends object = object, FT extends object = object>(
       name: string,
       value: string | FromLoreArgs<ST, FT>,
     ) {

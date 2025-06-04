@@ -13,7 +13,7 @@ type KeysMatching<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
-export const Choice = <K extends keyof CavernContext>({
+export const Choice = <K extends KeysMatching<CavernContext, string | boolean>>({
   of,
   choices,
   update,

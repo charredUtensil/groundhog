@@ -18,7 +18,7 @@ export default function preprogram(
         if (
           dz &&
           !dz.openOnSpawn &&
-          priority < (claims[dz.id]?.priority ?? Infinity)
+          priority as number < (claims[dz.id]?.priority ?? Infinity)
         ) {
           claims[dz.id] = { priority, planId: plan.id };
         }

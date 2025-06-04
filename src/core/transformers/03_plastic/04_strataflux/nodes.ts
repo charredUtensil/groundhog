@@ -72,6 +72,7 @@ function getNodesForBowls(cavern: StrataformedCavern, bowls: Grid<number>) {
     (_, x, y) => ({ x, y, node: null }),
   );
   while (queue.length > 0) {
+    // eslint-disable-next-line prefer-const
     let { x, y, node } = queue.shift()!;
     if (!result.get(x, y)) {
       if (!node) {

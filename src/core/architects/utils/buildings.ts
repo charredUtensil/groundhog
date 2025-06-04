@@ -129,10 +129,10 @@ export function getBuildings(
     }
     q.forEach((it) => {
       if (it.required) {
-        console.log("Failed to place required building: %o", it);
+        console.error("Failed to place required building: %o", it);
         throw new Error(`Failed to place ${it.bt.name}, which is required.`);
       } else {
-        console.log("Failed to place optional building: %o", it);
+        console.warn("Failed to place optional building: %o", it);
       }
     });
   }

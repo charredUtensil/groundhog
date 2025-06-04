@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "./style.module.scss";
-import { state } from "@stdlib/random-base-beta";
 import { Cavern } from "../../../core/models/cavern";
 import { MapOverlay } from "../map_preview";
 
@@ -9,7 +8,7 @@ const MAP_OVERLAY_BUTTONS: readonly {
   label: string;
   enabled: (cavern: Cavern | undefined) => boolean;
 }[] = [
-  { of: "overview", label: "Overview", enabled: (c) => true },
+  { of: "overview", label: "Overview", enabled: () => true },
   { of: "tiles", label: "Tiles", enabled: (c) => !!c?.tiles },
   { of: "crystals", label: "Crystals", enabled: (c) => !!c?.crystals },
   { of: "ore", label: "Ore", enabled: (c) => !!c?.ore },
@@ -22,7 +21,7 @@ const MAP_OVERLAY_BUTTONS: readonly {
   { of: "objectives", label: "Objectives", enabled: (c) => !!c?.objectives },
   { of: "lore", label: "Lore", enabled: (c) => !!c?.lore },
   { of: "script", label: "Script", enabled: (c) => !!c?.script },
-  { of: "about", label: "About", enabled: (c) => true },
+  { of: "about", label: "About", enabled: () => true },
 ];
 
 export default function VizOptsPanel({

@@ -79,7 +79,7 @@ function App() {
   }, [autoGenerate, step]);
 
   useEffect(() => {
-    (window as any).cavern = state.result;
+    window.cavern = state.result;
   }, [state]);
 
   const isLoading =

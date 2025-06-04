@@ -16,6 +16,7 @@ function main({ seed }: { seed: number }) {
     state = state.next();
   }
 
+  // eslint-disable-next-line no-console
   console.log((state.result as SerializedCavern).serialized);
 }
 

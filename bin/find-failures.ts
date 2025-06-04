@@ -6,6 +6,7 @@ import { MAX_PLUS_ONE } from "../src/core/common/prng";
 import { getFlags } from "../src/cli/flags";
 import { exit } from "node:process";
 
+/* eslint-disable no-console */
 function gen(seed: number) {
   let state = CAVERN_TF.first({
     initialContext: inferContextDefaults({ seed }),
@@ -41,7 +42,7 @@ function main({
     return `${seconds.toFixed()}s`;
   }
 
-  const failures: { seed: number; error: any }[] = [];
+  const failures: { seed: number; error: unknown }[] = [];
 
   function failinfo(maxFailures: number, onSuccess: string) {
     if (failures.length == 0) {
@@ -49,8 +50,10 @@ function main({
     }
     const rows = ["\x1b[38;5;1mFailures:"];
     for (let j = 0; j < maxFailures && j < failures.length; j++) {
+      const error = failures[j].error;
+      const message = error instanceof Error ? error.message : String(error);
       rows.push(
-        `  ${failures[j].seed.toString(16)}: ${failures[j].error.message}`,
+        `  ${failures[j].seed.toString(16)}: ${message}`,
       );
     }
     if (failures.length > maxFailures) {

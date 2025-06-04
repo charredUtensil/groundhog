@@ -7,8 +7,12 @@ import { MOCK_FORMAT } from "../src/core/lore/mock";
 import wrap from "word-wrap";
 import { NoContinuationError } from "../src/core/lore/utils/builder";
 import { exit } from "node:process";
+import { FoundLostMinersState, State } from "../src/core/lore/lore";
 
-async function main({
+type CombinedState = State & FoundLostMinersState & { readonly commend: true };
+
+/* eslint-disable no-console */
+function main({
   seed,
   count,
   graph,
@@ -27,7 +31,7 @@ async function main({
   }
 
   const pg = ALL_GRAPHS[graph];
-  const state: any = {};
+  const state: Partial<State> = {};
   let hasAny = false;
   pg.states.forEach((st) => {
     const has = positionals.includes(st);
@@ -37,13 +41,13 @@ async function main({
   console.log(pg.name);
   console.log(
     `states: \n  ${pg.states
-      .map((st) => (state[st] ? `+ \x1b[48;5;19m${st}\x1b[m` : `- ${st}`))
+      .map((st: string) => (state[st] ? `+ \x1b[48;5;19m${st}\x1b[m` : `- ${st}`))
       .join("\n  ")}`,
   );
   const rng = new PseudorandomStream(seed);
   try {
     for (let i = 0; i < count; i++) {
-      const text = pg.generate(rng, state, MOCK_FORMAT);
+      const text = pg.generate(rng, state as CombinedState, MOCK_FORMAT);
       const wrapped = wrap(text, { indent: "", width: 96 })
         .split("\n")
         .join("\n    ");

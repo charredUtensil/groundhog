@@ -18,9 +18,10 @@ export default function ResourcePreview({
     if (!discoveryZones?.get(x, y)?.openOnSpawn) {
       return null;
     }
-    return new Array(n).fill(0).map((_, i) => {
+    return Array.from({length: n}, (_, i) => {
       return (
         <circle
+          key={i}
           className={styles.ring}
           cx={(x + ((offset + 0.2 + (y + i * i) * 0.53) % 1)) * SCALE}
           cy={(y + ((offset + 0.7 + (x + i * i) * 0.35) % 1)) * SCALE}

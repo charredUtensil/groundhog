@@ -112,7 +112,7 @@ export function expectCompletion(actual: PhraseGraph<any, any>) {
   }
 }
 
-export default function testCompleteness(module: any) {
+export default function testCompleteness(module: Record<string, unknown>) {
   Object.values(module).forEach((pg) => {
     if (!(pg instanceof PhraseGraph)) {
       return;

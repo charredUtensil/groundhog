@@ -140,27 +140,25 @@ export class Lore {
     const hqIsRuin = !!hq?.metadata.ruin;
 
     const buildAndPowerGcCount = cavern.plans.reduce(
-      (r, p) =>
-        p.metadata?.tag === "buildAndPower" &&
-        p.metadata.template === GEOLOGICAL_CENTER
+      (r, plan) =>
+        plan.metadata?.tag === "buildAndPower" &&
+        plan.metadata.template === GEOLOGICAL_CENTER
           ? r + 1
           : r,
       0,
     );
     const buildAndPowerSsCount = cavern.plans.reduce(
-      (r, p) =>
-        p.metadata?.tag === "buildAndPower" &&
-        p.metadata.template === SUPPORT_STATION
+      (r, plan) =>
+        plan.metadata?.tag === "buildAndPower" &&
+        plan.metadata.template === SUPPORT_STATION
           ? r + 1
           : r,
       0,
     );
 
     const nomads = cavern.plans.reduce(
-      (r, p) =>
-        spawn.metadata?.tag === "nomads"
-          ? r + (spawn.metadata.minersCount)
-          : r,
+      (r, plan) =>
+        plan.metadata?.tag === "nomads" ? r + plan.metadata.minersCount : r,
       0,
     );
 

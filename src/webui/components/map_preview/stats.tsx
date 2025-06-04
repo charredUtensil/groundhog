@@ -179,7 +179,7 @@ export default function Stats({
         return (
           <ul>
             {cavern.objectives.variables.map(({ description }) => (
-              <li>{description}</li>
+              <li key={description}>{description}</li>
             ))}
             {resourceGoal && <li>Collect {resourceGoal}.</li>}
           </ul>

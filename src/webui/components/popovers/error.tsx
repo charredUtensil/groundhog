@@ -16,10 +16,11 @@ export default function ErrorPreview({
   context: CavernContext | undefined;
 }) {
   const [show, setShow] = useState(true);
-  const [wasCopied, setWasCopied] = useState(false);
+  const [copiedState, setCopiedState] = useState<'no' | 'copied' | 'fail'>('no');
   if (!show) {
     return null;
   }
+
   const debugInfo = [
     `error: ${error.message}`,
     `groundHog version: ${GROUNDHOG_VERSION}}`,
@@ -27,6 +28,13 @@ export default function ErrorPreview({
     `context: ${JSON.stringify(context)}`,
     `stack: ${error.stack}`,
   ].join("\n");
+  function copyToClipboard() {
+    navigator.clipboard
+      .writeText(debugInfo)
+      .then(() => setCopiedState('copied'))
+      .catch(() => setCopiedState('fail'));
+  }
+  
   const bugLink = `${GITHUB_ISSUE}?body=${encodeURIComponent(`Add any relevant info here:\n\n\n${debugInfo}`)}`;
   return (
     <div className={styles.popoverWrapper}>
@@ -34,7 +42,7 @@ export default function ErrorPreview({
         <h2>Cavern generation failed</h2>
         <p className={styles.message}>{error.message}</p>
         <p>
-          This isn't supposed to happen. Please consider{" "}
+          This isn&apos;t supposed to happen. Please consider{" "}
           <a href={bugLink} target="_blank" rel="noreferrer">
             filing a bug
           </a>
@@ -51,15 +59,10 @@ export default function ErrorPreview({
             </a>
           </li>
           <li>
-            <button
-              onClick={() =>
-                navigator.clipboard
-                  .writeText(debugInfo)
-                  .then(() => setWasCopied(true))
-              }
-            >
+            <button onClick={copyToClipboard}>
               Copy Bug Report
-              {wasCopied && " [ Copied! ]"}
+              {copiedState === 'copied' && " [ Copied! ]"}
+              {copiedState === 'fail' && " [ Failed :( ]"}
             </button>
           </li>
           <li>

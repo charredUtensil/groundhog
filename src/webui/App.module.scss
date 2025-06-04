@@ -123,7 +123,8 @@
 
         background: var(--palette-bg);
         mask-composite: subtract;
-        mask-image: linear-gradient(
+        mask-image:
+          linear-gradient(
             to right,
             white 16px,
             transparent 16px,

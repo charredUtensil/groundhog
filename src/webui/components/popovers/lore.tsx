@@ -3,11 +3,10 @@ import styles from "./styles.module.scss";
 import { Cavern } from "../../../core/models/cavern";
 
 export default function LorePreview({
-  fileName,
   levelName,
   briefing,
   script,
-}: Pick<Cavern, "fileName" | "levelName" | "briefing" | "script">) {
+}: Pick<Cavern, "levelName" | "briefing" | "script">) {
   const scriptStrings = script
     ?.split("\n")
     .map((s) =>
