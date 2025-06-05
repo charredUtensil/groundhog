@@ -338,7 +338,7 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       `${v.maybeCollapse};`,
     );
     let outerLayer = -1;
-    layers.some(({ walls, wallCrystals }, i) => {
+    const foundCollapsibleLayer = layers.some(({ walls, wallCrystals }, i) => {
       if (wallCrystals > 0 && walls.length > 0) {
         sb.event(
           `${v.doCollapse}${i}`,
@@ -359,10 +359,10 @@ const HOARD_BASE: PartialArchitect<typeof METADATA> = {
       sb.declareInt(v.lyWillCollapse, i);
       sb.declareInt(v.lyDidCollapse, i);
       return true;
-    }) ||
-      (() => {
-        throw new Error("Failed to reach outer layer.");
-      })();
+    });
+    if (!foundCollapsibleLayer) {
+      throw new Error("Failed to reach outer layer.");
+    }
     sb.event(
       v.maybeCollapse,
       `((Crystal_C>${crystalMin}))return;`,

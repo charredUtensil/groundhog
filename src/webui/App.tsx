@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   CavernContextInput,
@@ -15,31 +15,8 @@ import { filterTruthy } from "../core/common/utils";
 import { PartialCavernContext } from "../core/common/context";
 import { TfResult } from "../core/common/transform";
 import ProgressBar from "./components/progress_bar";
-
-const MAP_OVERLAY_BUTTONS: readonly {
-  of: MapOverlay;
-  label: String;
-  enabled: (cavern: Cavern | undefined) => boolean;
-}[] = [
-  { of: "overview", label: "Overview", enabled: (c) => true },
-  { of: "tiles", label: "Tiles", enabled: (c) => !!c?.tiles },
-  { of: "crystals", label: "Crystals", enabled: (c) => !!c?.crystals },
-  { of: "ore", label: "Ore", enabled: (c) => !!c?.ore },
-  { of: "entities", label: "Entities", enabled: (c) => !!c?.buildings },
-  { of: "discovery", label: "Discovery", enabled: (c) => !!c?.discoveryZones },
-  { of: "erosion", label: "Erosion", enabled: (c) => !!c?.erosion },
-  { of: "height", label: "Height", enabled: (c) => !!c?.height },
-  { of: "landslides", label: "Landslides", enabled: (c) => !!c?.landslides },
-  { of: "oxygen", label: "Oxygen", enabled: (c) => c?.oxygen !== undefined },
-  { of: "objectives", label: "Objectives", enabled: (c) => !!c?.objectives },
-  { of: "lore", label: "Lore", enabled: (c) => !!c?.lore },
-  { of: "script", label: "Script", enabled: (c) => !!c?.script },
-  { of: "about", label: "About", enabled: (c) => true },
-];
-
-function getDownloadLink(serializedData: string) {
-  return `data:text/plain;charset=utf-8,${encodeURIComponent(serializedData)}`;
-}
+import GenerateControls from "./components/gen_controls";
+import VizOptsPanel from "./components/viz_opts";
 
 function getStateForInitialContext(initialContext: PartialCavernContext) {
   return CAVERN_TF.start({ initialContext });
@@ -74,29 +51,35 @@ function App() {
 
   const biome = state.result.context?.biome;
 
-  const step = useCallback(() => {
-    try {
-      setState(state.next!());
-    } catch (e: unknown) {
-      console.error(e);
-      const error = e instanceof Error ? e : new Error("unknown error");
-      setState({ ...state, next: null, error });
+  const step = useMemo(() => {
+    const next = state.next;
+    if (!next) {
+      return null;
     }
-  }, [state]);
+    return () => {
+      try {
+        setState(next());
+      } catch (e: unknown) {
+        console.error(e);
+        const error = e instanceof Error ? e : new Error("unknown error");
+        setState((was) => ({ ...was, next: null, error }));
+      }
+    };
+  }, [state.next]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setAutoGenerate(false);
     setState((was) => getStateForInitialContext(was.result.initialContext));
-  };
+  }, []);
 
   useEffect(() => {
-    if (state.next && autoGenerate) {
+    if (step && autoGenerate) {
       step();
     }
-  }, [autoGenerate, state, step]);
+  }, [autoGenerate, step]);
 
   useEffect(() => {
-    (window as any).cavern = state.result;
+    window.cavern = state.result;
   }, [state]);
 
   const isLoading =
@@ -137,62 +120,22 @@ function App() {
           />
         )}
         <ProgressBar autoGenerate={autoGenerate} {...state} />
-        <div className={styles.controls}>
-          {state.next ? (
-            <>
-              {!autoGenerate && <button onClick={step}>step</button>}
-              <button onClick={() => setAutoGenerate((v) => !v)}>
-                {autoGenerate ? "pause" : "play_arrow"}
-              </button>
-            </>
-          ) : (
-            <button onClick={reset}>restart_alt</button>
-          )}
-          {state.result.serialized ? (
-            <a
-              className={styles.button}
-              href={getDownloadLink(state.result.serialized)}
-              download={`${state.result.fileName ?? state.result.levelName ?? "groundhog"}.dat`}
-            >
-              download
-            </a>
-          ) : (
-            <div className={`${styles.button} ${styles.disabled}`}>
-              download
-            </div>
-          )}
-        </div>
+        <GenerateControls
+          cavern={state.result}
+          {...{ autoGenerate, setAutoGenerate, step, reset }}
+        />
       </div>
-      <div className={styles.vizOptsPanel}>
-        <h1>Show</h1>
-        <button
-          className={showOutlines ? styles.active : styles.inactive}
-          onClick={() => setShowOutlines((v) => !v)}
-        >
-          Outlines
-        </button>
-        <button
-          className={showPearls ? styles.active : styles.inactive}
-          onClick={() => setShowPearls((v) => !v)}
-        >
-          Pearls
-        </button>
-        {MAP_OVERLAY_BUTTONS.map(({ of, label, enabled }) => (
-          <button
-            key={of}
-            className={
-              mapOverlay === of
-                ? styles.active
-                : enabled(state.result)
-                  ? styles.inactive
-                  : styles.disabled
-            }
-            onClick={() => setMapOverlay((v) => (v === of ? "overview" : of))}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <VizOptsPanel
+        cavern={state.result}
+        {...{
+          mapOverlay,
+          setMapOverlay,
+          showOutlines,
+          setShowOutlines,
+          showPearls,
+          setShowPearls,
+        }}
+      />
     </div>
   );
 }

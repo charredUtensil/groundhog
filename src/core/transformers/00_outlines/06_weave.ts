@@ -106,6 +106,8 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
             minAngle(path, graph[path.destination.id]),
           ) < cavern.context.auxiliaryPathMinAngle
         ) {
+          // Yes, we do want to create a gap here.
+          // eslint-disable-next-line @typescript-eslint/no-array-delete
           delete paths[path.id];
         } else {
           ok = true;
@@ -147,10 +149,14 @@ export default function weave(cavern: TriangulatedCavern): TriangulatedCavern {
   }
 
   for (let i = 0; i < cavern.context.optimalAuxiliaryPathCount; i++) {
-    pruneByAngle() && addBestShortcut();
+    if (pruneByAngle()) {
+      addBestShortcut();
+    }
   }
   for (let i = 0; i < cavern.context.randomAuxiliaryPathCount; i++) {
-    pruneByAngle() && addRandomShortcut();
+    if (pruneByAngle()) {
+      addRandomShortcut();
+    }
   }
 
   return { ...cavern, paths: paths.filter((path) => path) };

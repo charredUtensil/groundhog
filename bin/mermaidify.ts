@@ -20,7 +20,7 @@ const MODULES = [
   seismic,
 ] as const;
 
-function modulesMatch(m1: any, m2: any): boolean {
+function modulesMatch(m1: object, m2: object): boolean {
   const keys1 = Object.keys(m1).sort();
   const keys2 = Object.keys(m2).sort();
   if (keys1.length !== keys2.length) {
@@ -48,11 +48,12 @@ function main() {
 
     if (contents) {
       const modulePath = Object.keys(require.cache).find((key) =>
-        modulesMatch(require.cache[key]?.exports, module),
+        modulesMatch(require.cache[key]?.exports as object, module),
       )!;
       const directory = path.dirname(modulePath);
       const fileName = path.basename(modulePath, ".ts") + ".md";
       const filePath = path.join(directory, fileName);
+      // eslint-disable-next-line no-console
       console.log("write to %o", filePath);
       fs.writeFileSync(filePath, contents);
     }

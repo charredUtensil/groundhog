@@ -168,11 +168,12 @@ function getTitle(
       }
       return er && `${er.cooldown}s cooldown + ${er.initialDelay}s delay`;
     }
-    case "discovery":
+    case "discovery": {
       const dz = cavern.discoveryZones?.get(x, y);
       return (
         dz && `${dz.openOnSpawn ? "Cavern" : "Undiscovered cavern"} ${dz.id}`
       );
+    }
     case "overview":
     case "tiles":
       return t.name;

@@ -15,6 +15,7 @@ export function getDiscoveryZones(tiles: Grid<Tile>) {
     tiles.map((_, x, y) => ({ x, y, zone: null }));
   let nextZone = 0;
   while (queue.length > 0) {
+    // eslint-disable-next-line prefer-const
     let { x, y, zone } = queue.shift()!;
     if (result.get(x, y) === undefined && tiles.get(x, y)?.isWall === false) {
       if (!zone) {

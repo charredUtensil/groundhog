@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import styles from "./style.module.scss";
+import { filterTruthy } from "../../../core/common/utils";
 
 export default function ProgressBar({
   autoGenerate,
@@ -25,9 +26,14 @@ export default function ProgressBar({
     }
     return `Finished ${lastStepName} \u2022 Next: ${nextStepName}`;
   })();
+  const className = filterTruthy([
+    styles.progressBar,
+    completedSteps == 0 && styles.initial,
+    completed && styles.completed,
+  ]).join(" ");
   return (
     <div
-      className={`${styles.progressBar} ${completed ? styles.completed : ""}`}
+      className={className}
       style={
         {
           "--progress": progress,

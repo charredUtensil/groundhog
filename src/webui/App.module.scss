@@ -7,6 +7,24 @@
   }
 }
 
+@property --palette-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #121212;
+}
+
+@property --palette-settings-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #333333;
+}
+
+@property --palette-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: white;
+}
+
 .App {
   --font-body: "Outfit";
   --font-cyber: "Russo One";
@@ -17,7 +35,10 @@
   --palette-lines: #999999;
   --palette-disabled: #999999;
   --palette-settings-bg: #333333;
-  --palette-accent: #c96f12;
+
+  &.rockBiome {
+    --palette-accent: #c96f12;
+  }
 
   &.iceBiome {
     --palette-bg: #060716;
@@ -40,6 +61,11 @@
   color: var(--palette-fg);
   background: var(--palette-bg);
   font-family: var(--font-body);
+
+  transition:
+    --palette-bg 200ms linear,
+    --palette-settings-bg 200ms linear,
+    --palette-accent 200ms linear;
 
   .settingsPanel {
     width: 240px;
@@ -97,7 +123,8 @@
 
         background: var(--palette-bg);
         mask-composite: subtract;
-        mask-image: linear-gradient(
+        mask-image:
+          linear-gradient(
             to right,
             white 16px,
             transparent 16px,
@@ -114,7 +141,7 @@
       }
 
       &.hasError {
-        background: #bebe13;
+        background: #4d4d07;
         mask-image: linear-gradient(
           120deg,
           white 25%,
@@ -140,89 +167,6 @@
       left: 16px;
       font-size: 16px;
       font-variant-numeric: tabular-nums;
-    }
-
-    .controls {
-      display: flex;
-      gap: 8px;
-      margin: 16px;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-
-      button,
-      .button {
-        display: block;
-        height: 48px;
-        width: 48px;
-        font-size: 36px;
-        line-height: 46px;
-        box-sizing: border-box;
-        border: 1px solid var(--palette-lines);
-        padding: 0;
-        margin: 0;
-
-        color: var(--palette-fg);
-        background: var(--palette-bg);
-        font-family: "Material Symbols Outlined";
-        text-align: center;
-        text-decoration: none;
-
-        &.disabled {
-          border-style: dashed;
-          color: var(--palette-lines);
-        }
-      }
-    }
-  }
-
-  .vizOptsPanel {
-    position: relative;
-    width: 128px;
-    flex-shrink: 0;
-    flex-grow: 0;
-
-    background-image: linear-gradient(var(--palette-lines) 1px, transparent 1px),
-      linear-gradient(to right, var(--palette-lines) 1px, transparent 1px);
-    background-size: 16px 16px;
-    font-family: var(--font-cyber);
-
-    h1 {
-      font-weight: normal;
-      margin: 4px 0;
-      text-align: center;
-    }
-
-    button {
-      position: relative;
-      left: -8px;
-      width: 152px;
-      height: 24px;
-      box-sizing: border-box;
-      border: 1px solid var(--palette-lines);
-      margin-bottom: 8px;
-      padding: 0 16px 0 8px;
-
-      background: var(--palette-bg);
-      border-top-left-radius: 8px;
-      border-bottom-left-radius: 8px;
-      color: var(--palette-fg);
-      font-family: var(--font-cyber);
-      transition: left 200ms ease-out;
-
-      &:hover {
-        left: -14px;
-      }
-
-      &.active {
-        left: -16px;
-        color: var(--palette-bg);
-        background: var(--palette-fg);
-      }
-
-      &.disabled {
-        color: var(--palette-disabled);
-      }
     }
   }
 }

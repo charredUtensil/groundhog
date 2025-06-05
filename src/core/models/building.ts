@@ -48,6 +48,7 @@ export type BuildingExtraArgs = {
   level?: Level;
   isEssential?: boolean;
   teleportAtStart?: boolean;
+  placeRubbleInstead?: boolean;
 };
 
 class BuildingTemplate {
@@ -94,6 +95,7 @@ class BuildingTemplate {
     level: args.level ?? 1,
     isEssential: args.isEssential ?? false,
     teleportAtStart: args.teleportAtStart ?? false,
+    placeRubbleInstead: args.placeRubbleInstead ?? false,
   });
 }
 
@@ -238,6 +240,7 @@ export type Building = EntityPosition & {
   readonly level: Level;
   readonly isEssential: boolean;
   readonly teleportAtStart: boolean;
+  readonly placeRubbleInstead: boolean;
 };
 
 const BUILDING_ENTITY_OFFSET = {
@@ -249,6 +252,11 @@ export function serializeBuilding(
   tileOffset: Point,
   heightMap: Grid<number>,
 ) {
+  if (building.placeRubbleInstead) {
+    throw new Error(
+      'Building was marked "placeRubbleInstead" but made it into the level anyway.',
+    );
+  }
   return [
     building.template.id,
     serializePosition({

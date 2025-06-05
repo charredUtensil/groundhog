@@ -69,12 +69,12 @@ export function sprinkleSlugHoles(
     (rng.chance(args.cavern.context[`${args.plan.kind}HasSlugHoleChance`])
       ? 1
       : 0);
-  var placements =
+  let placements =
     opts?.placements ??
     args.plan.innerPearl.flatMap((layer) =>
       layer.filter((pos) => args.tiles.get(...pos) === Tile.FLOOR),
     );
-  for (var i = 1; i <= c && !!placements.length; i++) {
+  for (let i = 1; i <= c && !!placements.length; i++) {
     const [x, y] = rng.uniformChoice(placements);
     args.tiles.set(x, y, Tile.SLUG_HOLE);
     if (i === c) {

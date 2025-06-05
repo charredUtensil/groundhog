@@ -50,8 +50,12 @@ export function getFlags<T>(
           .join("\n");
       })
       .join("\n");
+    // eslint-disable-next-line no-console
     console.log(`${opts.usage}\n\nFlags:\n${flagsHelp}\n`);
   }
+  /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+  /* eslint-disable @typescript-eslint/no-unsafe-argument */
+  /* eslint-disable @typescript-eslint/no-unsafe-assignment */
   try {
     const { values, positionals } = parseArgs({
       ...opts,

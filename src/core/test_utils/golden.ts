@@ -7,10 +7,10 @@ const GOLDEN_DIR = "goldens";
 const updateGoldenFile = async (filePath: string, actual: string) => {
   // Write the actual output to the file path
   await fs.writeFile(filePath, actual);
-  console.log(`Updated golden file: ${filePath}`);
+  console.warn(`Updated golden file: ${filePath}`);
 };
 
-const goldenTest = async (name: string, fn: () => string) => {
+export default function goldenTest(name: string, fn: () => string) {
   const filePath = path.resolve(__dirname, GOLDEN_DIR, name);
   test(name, async () => {
     const actual = fn();
@@ -21,5 +21,4 @@ const goldenTest = async (name: string, fn: () => string) => {
     const expected = await fs.readFile(filePath, "utf-8");
     expect(actual).toEqual(expected);
   });
-};
-export default goldenTest;
+}

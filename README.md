@@ -12,15 +12,21 @@ For most people, just use the web application
 If you have a clever idea for getting the files from the Downloads folder
 to the Manic Miners level folder, please let me know.
 
-To run locally, run `yarn install` and `yarn start`, which will launch the
-React application at `localhost:3000`. I use Linux for my dev machine and have
+To run locally, run `yarn install` and `yarn dev`, which will launch the
+React application at `localhost:5173`. I use Linux for my dev machine and have
 no desire to test this setup on Windows, so your results may vary.
 
 ## Testing
 
-Run Jest tests with `yarn test`. Some of the tests are "goldens" that
-test what a cavern serializes to. These can be automatically updated by
-running `UPDATE_GOLDENS=1 yarn test`.
+Run Jest tests with `yarn test`.
+
+Some of the tests are "goldens" that test what a cavern serializes to. These
+can be automatically updated by running `yarn update-goldens`. If a golden
+is updated beyond the trivial, it may be a good idea to test them in game.
+
+`yarn find-failures` is a utility that will build many caverns sequentially
+to find any that fail. It's not particularly useful for regression testing
+since it takes a _very long time_.
 
 ## Deploying
 

@@ -43,7 +43,7 @@ function getLakes(
       return [];
     }
     const stops = rng
-      .shuffle(new Array(planCount - 1).fill(0).map((_, i) => i + 1))
+      .shuffle(Array.from({ length: planCount - 1 }, (_, i) => i + 1))
       .filter((_, i) => i < lakeCount - 1)
       .sort();
     return pairMap([0, ...stops, planCount], (a, b) => ({
