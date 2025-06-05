@@ -22,6 +22,9 @@
   - Codify `placeRubbleInstead` better
   - Architects now have more control over building placement
     - Crash-on-fail is now presented as individual buildings being "required", so HQs can be OK with a missing Upgrade Station but crash if missing a Tool Store
+  - Update to ESLint 9
+    - Clean up some discovered errors
+    - Switch from `new Array()` to `Array.from()` throughout.
 
 ## 0.10.13
 

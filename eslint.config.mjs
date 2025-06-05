@@ -1,4 +1,3 @@
-// eslint.config.mjs
 import globals from "globals";
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
@@ -54,10 +53,10 @@ export default defineConfig([
       },
     },
   },
+
   {
-    files: ["src/core/lore/graphs/**/*.{ts,tsx,js,jsx}"], // Target only files in this directory
+    files: ["src/core/lore/graphs/**/*.{ts,tsx,js,jsx}"],
     rules: {
-      // Override the TypeScript ESLint no-unused-vars rule for this directory
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
@@ -68,7 +67,6 @@ export default defineConfig([
     },
   },
 
-  // --- Markdown Configuration ---
   {
     files: ["*.md", "src/**/*.md"],
     plugins: {
