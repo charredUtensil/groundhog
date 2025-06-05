@@ -18,7 +18,7 @@ export default function ResourcePreview({
     if (!discoveryZones?.get(x, y)?.openOnSpawn) {
       return null;
     }
-    return Array.from({length: n}, (_, i) => {
+    return Array.from({ length: n }, (_, i) => {
       return (
         <circle
           key={i}

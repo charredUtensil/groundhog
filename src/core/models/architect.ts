@@ -163,9 +163,11 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * If no plans return a sufficient objective, a "collect N crystals"
    * objective will be added.
    */
-  objectives?(args: {
+  objectives?: (args: {
     cavern: DiscoveredCavern;
-  }): (Partial<Objectives> & { sufficient: boolean; tag?: string }) | undefined;
+  }) =>
+    | (Partial<Objectives> & { sufficient: boolean; tag?: string })
+    | undefined;
 
   readonly maxSlope: number | undefined;
 
@@ -191,10 +193,10 @@ export type BaseArchitect<T extends BaseMetadata> = {
    * set the value of that variable to 0 to release the hold.
    */
   holdCreatures?(args: { cavern: EnscribedCavern; plan: Plan<T> }): boolean;
-  scriptGlobals?(args: {
+  scriptGlobals?: (args: {
     cavern: PreprogrammedCavern;
     sb: ScriptBuilder;
-  }): void;
+  }) => void;
   script?(args: {
     cavern: PreprogrammedCavern;
     plan: Plan<T>;

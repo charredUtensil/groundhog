@@ -13,6 +13,6 @@ echo "Presubmit: Building...";
 yarn build || exit 1;
 
 echo "Presubmit: Running all tests...";
-yarn test --all --watchAll=false --coverage || exit 1;
+yarn test --no-watch || exit 1;
 
 echo "Presubmit succeeded. Remember to commit any changes."

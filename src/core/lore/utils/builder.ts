@@ -231,16 +231,6 @@ function getReachableStates<StateT extends BaseState, FormatT>(
   return result;
 }
 
-function traverse<StateT extends BaseState, FormatT>(
-  phrases: readonly Phrase<StateT, FormatT>[],
-  states: readonly (string & keyof StateT)[],
-) {
-  for (let i = phrases.length - 1; i >= 0; i--) {
-    const phrase = phrases[i] as Mutable<Phrase<StateT, FormatT>>;
-    phrase.reachableStates = getReachableStates(phrase, states);
-  }
-}
-
 const CAPITALIZE_AFTER = {
   ".": true,
   "!": true,
@@ -309,15 +299,22 @@ export class PhraseGraph<StateT extends BaseState, FormatT> {
     this.states = states;
   }
 
+  cacheReachableStates() {
+    if (!this.didTraverse) {
+      for (let i = this.phrases.length - 1; i >= 0; i--) {
+        const phrase = this.phrases[i] as Mutable<Phrase<StateT, FormatT>>;
+        phrase.reachableStates = getReachableStates(phrase, this.states);
+      }
+      this.didTraverse = true;
+    }
+  }
+
   generate(
     rng: PseudorandomStream,
     requireState: StateT,
     format: FormatT,
   ): string {
-    if (!this.didTraverse) {
-      traverse(this.phrases, this.states);
-      this.didTraverse = true;
-    }
+    this.cacheReachableStates();
     let stateRemaining: bigint = 3n;
     for (const s of this.states) {
       if (requireState[s]) {

@@ -90,7 +90,8 @@ type StateFormatArgs<ST extends object, FT extends object> =
       state: ST;
       format: FT;
     };
-type FromLoreArgs<ST extends object, FT extends object> = DieOrRng & StateFormatArgs<ST, FT>;
+type FromLoreArgs<ST extends object, FT extends object> = DieOrRng &
+  StateFormatArgs<ST, FT>;
 
 export type ScriptBuilder = {
   /**

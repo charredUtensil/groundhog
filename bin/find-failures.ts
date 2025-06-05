@@ -52,9 +52,7 @@ function main({
     for (let j = 0; j < maxFailures && j < failures.length; j++) {
       const error = failures[j].error;
       const message = error instanceof Error ? error.message : String(error);
-      rows.push(
-        `  ${failures[j].seed.toString(16)}: ${message}`,
-      );
+      rows.push(`  ${failures[j].seed.toString(16)}: ${message}`);
     }
     if (failures.length > maxFailures) {
       rows.push(`  (and ${failures.length - maxFailures} more)`);

@@ -41,7 +41,9 @@ function main({
   console.log(pg.name);
   console.log(
     `states: \n  ${pg.states
-      .map((st: string) => (state[st] ? `+ \x1b[48;5;19m${st}\x1b[m` : `- ${st}`))
+      .map((st: string) =>
+        state[st] ? `+ \x1b[48;5;19m${st}\x1b[m` : `- ${st}`,
+      )
       .join("\n  ")}`,
   );
   const rng = new PseudorandomStream(seed);

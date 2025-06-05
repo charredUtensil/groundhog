@@ -18,5 +18,7 @@ export type Cavern = CollapseUnion<AnyTfResultOf<typeof CAVERN_TF>>;
 export function getAnchor<T>(
   cavern: Cavern & { readonly plans: readonly T[]; readonly anchor: number },
 ) {
-  return cavern.plans[cavern.anchor] as T & { readonly architect: Architect<any> };
+  return cavern.plans[cavern.anchor] as T & {
+    readonly architect: Architect<any>;
+  };
 }

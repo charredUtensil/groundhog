@@ -8,6 +8,7 @@ describe("expectCompletion", () => {
       "Empty",
       ({ pg, state, start, end, cut, skip }) => {},
     );
+    g.cacheReachableStates();
     expect(g.phrases[0].reachableStates).toEqual(new Set<bigint>([1n]));
     expect(() => {
       expectCompletion(g);
@@ -21,6 +22,7 @@ describe("expectCompletion", () => {
         start.then("simple").then(end);
       },
     );
+    g.cacheReachableStates();
     expect(g.phrases[0].reachableStates).toEqual(new Set<bigint>([0b11n]));
     expectCompletion(g);
   });
@@ -32,6 +34,7 @@ describe("expectCompletion", () => {
         start.then("one").then("two").then("three");
       },
     );
+    g.cacheReachableStates();
     expect(g.phrases[0].reachableStates).toEqual(new Set<bigint>([1n]));
     expect(() => {
       expectCompletion(g);
@@ -45,6 +48,7 @@ describe("expectCompletion", () => {
         start.then(state("hasMonsters")).then(end);
       },
     );
+    g.cacheReachableStates();
     expect(g.phrases[0].reachableStates).toEqual(new Set<bigint>([0b111n]));
     expect(() => {
       expectCompletion(g);
@@ -58,6 +62,7 @@ describe("expectCompletion", () => {
         start.then(state("hasMonsters"), skip).then(end);
       },
     );
+    g.cacheReachableStates();
     expect(g.phrases[0].reachableStates).toEqual(
       new Set<bigint>([0b011n, 0b111n]),
     );
@@ -79,6 +84,7 @@ describe("expectCompletion", () => {
           .then(end);
       },
     );
+    g.cacheReachableStates();
     expect(() => {
       expectCompletion(g);
     }).toThrow(/Missing \d+ states/);

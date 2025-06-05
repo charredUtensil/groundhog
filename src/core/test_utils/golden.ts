@@ -21,4 +21,4 @@ export default function goldenTest(name: string, fn: () => string) {
     const expected = await fs.readFile(filePath, "utf-8");
     expect(actual).toEqual(expected);
   });
-};
+}

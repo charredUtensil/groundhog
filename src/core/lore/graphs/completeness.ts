@@ -94,6 +94,8 @@ export function expectCompletion(actual: PhraseGraph<any, any>) {
   // Expect states to match and be in the same order, which is necessary for
   // the bitmasking.
   expect(actual.states).toEqual(expected.states);
+  actual.cacheReachableStates();
+  expected.cacheReachableStates();
 
   const actualReachable = actual.phrases[0].reachableStates;
   const missing: bigint[] = [];

@@ -79,33 +79,33 @@ function draw(stats: Stats, count: number, totalCount: number) {
   const header1: Row = {
     color: "",
     name: "architect".padEnd(width),
-    saturation: Array.from({length: saturationColumnCount}, (_, i) => ` >=${i + 1}`),
+    saturation: Array.from(
+      { length: saturationColumnCount },
+      (_, i) => ` >=${i + 1}`,
+    ),
     seed: "rmk  seed",
   };
   const header2: Row = {
     color: "",
     name: "".padEnd(width, "-"),
-    saturation: Array.from({length: saturationColumnCount}, () => "----"),
+    saturation: Array.from({ length: saturationColumnCount }, () => "----"),
     seed: "---------",
   };
   const rows: Row[] = ARCHITECTS.map((architect, i) => {
     const a = stats[architect.name];
     const rowColor = `\x1b[38;5;${fgColor(architect)};48;5;${i % 2 === 0 ? 232 : 234}m`;
     const name = architect.name.padEnd(width, ".").substring(0, width);
-    const saturation = Array.from(
-      {length: saturationColumnCount},
-      (_, i) => {
-        const c = (a.counts ?? [])[i] ?? 0;
-        if (c <= 0) {
-          return "    ";
-        }
-        const ratio = c / count;
-        const color = `\x1b[38;5;${Math.round(15 * ratio + 240)}m`;
-        const s = (ratio * 100).toFixed(1);
-        const z = s.length > 3 ? s.substring(0, s.length - 2) : s;
-        return `${color}${z.padStart(3)}%`;
+    const saturation = Array.from({ length: saturationColumnCount }, (_, i) => {
+      const c = (a.counts ?? [])[i] ?? 0;
+      if (c <= 0) {
+        return "    ";
       }
-    );
+      const ratio = c / count;
+      const color = `\x1b[38;5;${Math.round(15 * ratio + 240)}m`;
+      const s = (ratio * 100).toFixed(1);
+      const z = s.length > 3 ? s.substring(0, s.length - 2) : s;
+      return `${color}${z.padStart(3)}%`;
+    });
     const seed = (() => {
       const ratio = (a.counts[0] ?? 0) / count;
       const [p, ls, color] =

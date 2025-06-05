@@ -16,7 +16,9 @@ export default function ErrorPreview({
   context: CavernContext | undefined;
 }) {
   const [show, setShow] = useState(true);
-  const [copiedState, setCopiedState] = useState<'no' | 'copied' | 'fail'>('no');
+  const [copiedState, setCopiedState] = useState<"no" | "copied" | "fail">(
+    "no",
+  );
   if (!show) {
     return null;
   }
@@ -31,10 +33,10 @@ export default function ErrorPreview({
   function copyToClipboard() {
     navigator.clipboard
       .writeText(debugInfo)
-      .then(() => setCopiedState('copied'))
-      .catch(() => setCopiedState('fail'));
+      .then(() => setCopiedState("copied"))
+      .catch(() => setCopiedState("fail"));
   }
-  
+
   const bugLink = `${GITHUB_ISSUE}?body=${encodeURIComponent(`Add any relevant info here:\n\n\n${debugInfo}`)}`;
   return (
     <div className={styles.popoverWrapper}>
@@ -61,8 +63,8 @@ export default function ErrorPreview({
           <li>
             <button onClick={copyToClipboard}>
               Copy Bug Report
-              {copiedState === 'copied' && " [ Copied! ]"}
-              {copiedState === 'fail' && " [ Failed :( ]"}
+              {copiedState === "copied" && " [ Copied! ]"}
+              {copiedState === "fail" && " [ Failed :( ]"}
             </button>
           </li>
           <li>
