@@ -2,6 +2,7 @@ import { PseudorandomStream } from "../../../common";
 import { Grid, MutableGrid } from "../../../common/grid";
 import { StrataformedCavern } from "../03_strataform";
 import getNodes, { HeightNode } from "./nodes";
+import { Heap } from 'heap-js';
 
 // The "strataflux" algorithm is particularly complex mostly because it
 // involves many data structures and concepts that are not really used
@@ -71,27 +72,19 @@ export default function strataflux(
   const height = new MutableGrid<number>();
   const rng = cavern.dice.height;
 
-  // The collapse queue is a priority queue. The algorithm will always take the
-  // node with the smallest possible range of values.
-  const collapseQueue: HeightNode[] = nodes
-    .map((c) => c)
-    .filter((c) => c.collapseQueued);
+  // The algorithm will always take the node with the smallest possible range
+  // of values to collapse first.
+  const collapseHeap = new Heap<HeightNode>((a, b) => a.range - b.range);
+  nodes.forEach(c => {
+    if (c.collapseQueued) {
+      collapseHeap.push(c);
+    }
+  });
 
   const strataplanity = cavern.context.strataplanity;
 
-  const pop = () => {
-    let r = 0;
-    for (let i = 1; i < collapseQueue.length; i++) {
-      if (collapseQueue[i].range <= collapseQueue[r].range) {
-        r = i;
-      }
-    }
-    return collapseQueue.splice(r, 1)[0];
-  };
-
   // Collapsing a node means picking a specific height in range for that node.
-  const collapse = () => {
-    const node = pop();
+  function collapse(node: HeightNode){
     const h = getRandomHeight(node, rng, strataplanity);
     for (let i = 0; i < node.corners.length; i++) {
       height.set(...node.corners[i], h);
@@ -99,19 +92,24 @@ export default function strataflux(
     node.min = h;
     node.max = h;
     node.range = 0;
-    return node;
   };
 
-  // I think this algorithm is like O(n^4) where N is the size of the cavern,
-  // so try to save some performance where possible.
-
-  while (collapseQueue.length) {
-    // Take a node off the collapse queue and collapse it.
+  // As of the writing of this comment, this algorithm is the slowest part of
+  // cavern generation. Gemini thinks it's O(N^2 log N) where N is the size of
+  // one side of the cavern.
+  while (true) {
+    // Take a node off the collapse heap.
+    const initialNode = collapseHeap.pop();
+    if (!initialNode) {
+      break;
+    }
+    // Collapse it.
+    collapse(initialNode)
     // Then, put it on the spread queue.
-    const spreadQueue = [collapse()];
-    while (spreadQueue.length) {
+    const spreadQueue = [initialNode];
+    for (let i = 0; i < spreadQueue.length; i++) {
       // Take a node off the spread queue.
-      const node = spreadQueue.shift()!;
+      const node = spreadQueue[i];
       // Spread to each of this node's neighbors.
       for (let i = 0; i < node.neighbors.length; i++) {
         const neighbor = node.neighbors[i];
@@ -138,10 +136,13 @@ export default function strataflux(
           // and put it on the collapse queue if it wasn't already.
           if (!neighbor.node.collapseQueued) {
             neighbor.node.collapseQueued = true;
-            collapseQueue.push(neighbor.node);
+            collapseHeap.push(neighbor.node);
           }
         }
       }
+      // Yes, delete the entry and do not shift everything down.
+      // eslint-disable-next-line @typescript-eslint/no-array-delete
+      delete spreadQueue[i];
     }
   }
 

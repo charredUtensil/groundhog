@@ -7,6 +7,7 @@
     "@stdlib/random-base-beta": "^0.2.1",
     "@stdlib/random-base-mt19937": "^0.2.1",
     "delaunator": "^5.0.1",
+    "heap-js": "^2.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "word-wrap": "^1.2.5"

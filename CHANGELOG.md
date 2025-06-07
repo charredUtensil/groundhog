@@ -25,6 +25,9 @@
   - Update to ESLint 9
     - Clean up some discovered errors
     - Switch from `new Array()` to `Array.from()` throughout.
+  - Grid now uses integer keys, which saves some performance. Ditto EdgeMap (from `strataflux`)
+    - This means caverns cannot possibly be created with bounds beyond 16,383 in any direction. IMO this isn't a problem for many reasons.
+  - Algorithmic complexity improvements in `strataflux` I never bothered fixing after the prototype.
 
 ## 0.10.13
 

@@ -1,5 +1,6 @@
 import { Grid, MutableGrid } from "../../../common/grid";
 import { StrataformedCavern } from "../03_strataform";
+import { toKey as toGridKey } from "../../../common/grid";
 
 type Edge = {
   readonly to: readonly [number, number];
@@ -16,11 +17,11 @@ type EdgeData = {
   backward: number;
 };
 
+const toKey = (x1: number, y1: number, x2: number, y2: number) =>
+    BigInt(toGridKey(x2, y2)) << 32n | BigInt(toGridKey(x1, y1));
+
 class EdgeMap {
-  private readonly data = new Map<
-    `${number},${number},${number},${number}`,
-    EdgeData
-  >();
+  private readonly data = new Map<bigint, EdgeData>();
 
   get(
     x1: number,
@@ -29,10 +30,10 @@ class EdgeMap {
     y2: number,
   ): { ascent: number; descent: number } | undefined {
     if (x1 < x2 || (x1 === x2 && y1 <= y2)) {
-      const r = this.data.get(`${x1},${y1},${x2},${y2}`);
+      const r = this.data.get(toKey(x1,y1,x2,y2));
       return r && { ascent: r.forward, descent: r.backward };
     }
-    const r = this.data.get(`${x2},${y2},${x1},${y1}`);
+    const r = this.data.get(toKey(x2,y2,x1,y1));
     return r && { ascent: r.backward, descent: r.forward };
   }
   set(
@@ -47,12 +48,12 @@ class EdgeMap {
       return;
     }
     if (x1 < x2 || (x1 === x2 && y1 < y2)) {
-      const r = this.data.get(`${x1},${y1},${x2},${y2}`);
+      const r = this.data.get(toKey(x1,y1,x2,y2));
       if (r) {
         r.forward = Math.min(r.forward, ascent);
         r.backward = Math.min(r.backward, descent);
       } else {
-        this.data.set(`${x1},${y1},${x2},${y2}`, {
+        this.data.set(toKey(x1,y1,x2,y2), {
           x1,
           y1,
           x2,
@@ -62,12 +63,12 @@ class EdgeMap {
         });
       }
     } else {
-      const r = this.data.get(`${x2},${y2},${x1},${y1}`);
+      const r = this.data.get(toKey(x2,y2,x1,y1));
       if (r) {
         r.forward = Math.min(r.forward, descent);
         r.backward = Math.min(r.backward, ascent);
       } else {
-        this.data.set(`${x2},${y2},${x1},${y1}`, {
+        this.data.set(toKey(x2,y2,x1,y1), {
           x1: x2,
           y1: y2,
           x2: x1,
