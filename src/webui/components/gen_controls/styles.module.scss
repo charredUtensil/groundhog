@@ -1,0 +1,33 @@
+.controls {
+  display: flex;
+  gap: 8px;
+  margin: 16px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+
+  button,
+  .button {
+    display: block;
+    height: 48px;
+    width: 48px;
+    font-size: 36px;
+    line-height: 46px;
+    box-sizing: border-box;
+    border: 1px solid var(--palette-lines);
+    padding: 0;
+    margin: 0;
+
+    cursor: pointer;
+    color: var(--palette-fg);
+    background: var(--palette-bg);
+    font-family: "Material Symbols Outlined";
+    text-align: center;
+    text-decoration: none;
+
+    &.disabled {
+      border-style: dashed;
+      color: var(--palette-lines);
+    }
+  }
+}

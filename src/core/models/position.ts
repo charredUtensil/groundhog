@@ -6,7 +6,7 @@ type EntityPositionArgs = {
   x: number;
   y: number;
   scale?: number;
-} & ({ aimedAt: Point } | { facing: Cardinal8 } | { yaw: number } | {});
+} & ({ aimedAt: Point } | { facing: Cardinal8 } | { yaw: number } | object);
 
 function getYaw(args: EntityPositionArgs): number | undefined {
   if ("aimedAt" in args) {

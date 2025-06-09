@@ -12,6 +12,7 @@ export class PseudorandomStream {
 
   constructor(seed: Seed) {
     this.mt = mt19937.factory({ seed });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.bt = beta.factory({ state: this.mt.state, copy: false });
   }
 

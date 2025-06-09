@@ -36,7 +36,11 @@ export default function PearlPreview({
           className={`${styles.layer} ${styles[`layer${(i + io) % 4}`]}`}
           d={dPearl(layer)}
           fill="none"
-        />
+        >
+          <title>
+            Plan {plan.id}, {pearl === "outerPearl" ? "Outer " : ""}Layer {i}
+          </title>
+        </path>
       ))}
     </g>
   );

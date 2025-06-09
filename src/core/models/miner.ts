@@ -64,7 +64,10 @@ export function serializeMiner(
       heightMap,
       entityOffset: ENTITY_OFFSET,
     }),
-    [...miner.loadout, ...new Array(miner.level - 1).fill("Level")]
+    [
+      ...miner.loadout,
+      ...Array.from({ length: miner.level - 1 }, () => "Level"),
+    ]
       .map((l) => `${l}/`)
       .join(""),
     miner.essential && "Essential=true",

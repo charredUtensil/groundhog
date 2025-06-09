@@ -2,7 +2,7 @@ import { filterTruthy } from "../../common/utils";
 import { MOCK_FORMAT } from "../mock";
 import { PhraseGraph } from "./builder";
 
-export function mermaidify(pg: PhraseGraph<any, typeof MOCK_FORMAT>) {
+export function mermaidify(pg: PhraseGraph<any, any>) {
   const ph = pg.phrases.flatMap((phrase) => {
     const texts = [
       ...phrase.text.map((fn, i) =>

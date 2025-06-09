@@ -199,7 +199,7 @@ export default function aerate(cavern: PopulatedCavern): AeratedCavern {
       } else {
         // Failure mode: This simulation can't figure out how to build a
         // Support Station. Use an arbitrary high air quantity.
-        console.log("Unable to playtest this level for air consumption.");
+        console.warn("Unable to playtest this level for air consumption.");
         return { ...cavern, oxygen: [FALLBACK_AIR, FALLBACK_AIR], aerationLog };
       }
     }

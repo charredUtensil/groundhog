@@ -47,7 +47,7 @@ export function expand<T>(layers: readonly _Layer<T>[], radius: number): T[] {
     growFactor = (radius - totalWidth) / totalGrow;
   }
 
-  let result = [];
+  const result = [];
   let w = 0;
   for (const { of, width, shrink, grow } of layers) {
     w = w + width * Math.max(0, 1 - shrink * shrinkFactor) + grow * growFactor;

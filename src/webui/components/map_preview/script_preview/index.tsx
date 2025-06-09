@@ -110,7 +110,11 @@ export default function ScriptPreview({
     <div
       className={styles.script}
       ref={ref}
-      onScroll={() => setScriptLineOffsets(getLineOffsets(ref.current!))}
+      onScroll={() => {
+        if (ref.current) {
+          setScriptLineOffsets(getLineOffsets(ref.current));
+        }
+      }}
     >
       <h2>Script</h2>
       <p>{statements?.length ?? 0} lines</p>
@@ -123,6 +127,7 @@ export default function ScriptPreview({
           ]).join(" ");
           return (
             <div
+              key={i}
               className={className}
               onMouseOver={() => setScriptLineHovered(i)}
               onMouseLeave={() =>

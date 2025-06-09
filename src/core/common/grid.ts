@@ -5,13 +5,33 @@ type Bounds = {
   bottom: number;
 };
 
+const BIT_SHIFT = 16;
+const OFFSET = 0x4000;
+const MASK = 0x7fff;
+const MAX = 0x7fff;
+
+export function toKey(x: number, y: number): number {
+  const shx = x + OFFSET;
+  const shy = y + OFFSET;
+  if (shx < 0 || shx > MAX || shy < 0 || shy > MAX) {
+    throw new Error(`[${x}, ${y}] is out of range (${-OFFSET}..${OFFSET - 1})`);
+  }
+  return (shy << BIT_SHIFT) | shx;
+}
+
+function parseKey(key: number): [number, number] {
+  const shy = key >> BIT_SHIFT;
+  const shx = key & MASK;
+  return [shx - OFFSET, shy - OFFSET];
+}
+
 /**
  * A two dimensional sparse grid of data.
  */
 export class MutableGrid<T> {
-  private data: Map<`${number},${number}`, T>;
+  private data: Map<number, T>;
 
-  constructor(data?: Map<`${number},${number}`, T>) {
+  constructor(data?: Map<number, T>) {
     this.data = new Map(data);
   }
 
@@ -20,15 +40,15 @@ export class MutableGrid<T> {
   }
 
   get(x: number, y: number): T | undefined {
-    return this.data.get(`${x},${y}`);
+    return this.data.get(toKey(x, y));
   }
 
   set(x: number, y: number, value: T) {
-    this.data.set(`${x},${y}`, value);
+    this.data.set(toKey(x, y), value);
   }
 
   delete(x: number, y: number): boolean {
-    return this.data.delete(`${x},${y}`);
+    return this.data.delete(toKey(x, y));
   }
 
   get size(): number {
@@ -54,8 +74,7 @@ export class MutableGrid<T> {
 
   forEach(fn: (value: T, x: number, y: number) => void) {
     this.data.forEach((v, k) => {
-      const [x, y] = k.split(",");
-      fn(v, parseInt(x), parseInt(y));
+      fn(v, ...parseKey(k));
     });
   }
 
@@ -83,3 +102,5 @@ export class MutableGrid<T> {
 
 /** A read-only two dimensional sparse grid of data. */
 export type Grid<T> = Omit<MutableGrid<T>, "set" | "delete">;
+
+export const _forTests = { toKey, parseKey };
