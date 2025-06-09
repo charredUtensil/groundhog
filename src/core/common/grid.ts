@@ -7,19 +7,14 @@ type Bounds = {
 
 const BIT_SHIFT = 16;
 const OFFSET = 0x4000;
-const MASK = 0x7FFF;
-const MAX = 0x7FFF;
+const MASK = 0x7fff;
+const MAX = 0x7fff;
 
 export function toKey(x: number, y: number): number {
   const shx = x + OFFSET;
   const shy = y + OFFSET;
-  if (
-    shx < 0 || shx > MAX ||
-    shy < 0 || shy > MAX
-  ) {
-    throw new Error(
-      `[${x}, ${y}] is out of range (${-OFFSET}..${OFFSET - 1})`
-    );
+  if (shx < 0 || shx > MAX || shy < 0 || shy > MAX) {
+    throw new Error(`[${x}, ${y}] is out of range (${-OFFSET}..${OFFSET - 1})`);
   }
   return (shy << BIT_SHIFT) | shx;
 }
@@ -108,4 +103,4 @@ export class MutableGrid<T> {
 /** A read-only two dimensional sparse grid of data. */
 export type Grid<T> = Omit<MutableGrid<T>, "set" | "delete">;
 
-export const _forTests = {toKey, parseKey};
+export const _forTests = { toKey, parseKey };

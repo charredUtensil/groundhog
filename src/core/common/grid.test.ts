@@ -1,7 +1,6 @@
 import { MutableGrid, _forTests } from "./grid";
 
-const {toKey, parseKey} = _forTests;
-
+const { toKey, parseKey } = _forTests;
 
 describe("toKey", () => {
   it("maths correctly", () => {
@@ -12,30 +11,38 @@ describe("toKey", () => {
   });
   it("handles positive coordinates", () => {
     expect(toKey(7, 3)).toBe(0x40034007);
-  })
+  });
   it("handles negative coordinates", () => {
-    expect(toKey(-1, -4)).toBe(0x3FFC3FFF);
-  })
+    expect(toKey(-1, -4)).toBe(0x3ffc3fff);
+  });
   it("handles positive max", () => {
-    expect(toKey(0x3FFF, 0x3FFF)).toBe(0x7FFF7FFF);
-  })
+    expect(toKey(0x3fff, 0x3fff)).toBe(0x7fff7fff);
+  });
   it("handles negative max", () => {
     expect(toKey(-1 * 0x4000, -1 * 0x4000)).toBe(0);
-  })
+  });
   it("handles negative coordinates", () => {
-    expect(toKey(-1, -4)).toBe(0x3FFC3FFF);
-  })
+    expect(toKey(-1, -4)).toBe(0x3ffc3fff);
+  });
   it("rejects positive x out of bounds", () => {
-    expect(() => {toKey(0x4000, 0)}).toThrow();
+    expect(() => {
+      toKey(0x4000, 0);
+    }).toThrow();
   });
   it("rejects postitive y out of bounds", () => {
-    expect(() => {toKey(0, 0x4000)}).toThrow();
+    expect(() => {
+      toKey(0, 0x4000);
+    }).toThrow();
   });
   it("rejects negative x out of bounds", () => {
-    expect(() => {toKey(-1 * 0x4001, 0)}).toThrow();
+    expect(() => {
+      toKey(-1 * 0x4001, 0);
+    }).toThrow();
   });
   it("rejects negative y out of bounds", () => {
-    expect(() => {toKey(0, -1 * 0x4001)}).toThrow();
+    expect(() => {
+      toKey(0, -1 * 0x4001);
+    }).toThrow();
   });
 });
 
@@ -45,10 +52,10 @@ describe("parseKey", () => {
   });
   it("handles positive coordinates", () => {
     expect(parseKey(0x40034007)).toEqual([7, 3]);
-  })
+  });
   it("handles negative coordinates", () => {
-    expect(parseKey(0x3FFC3FFF)).toEqual([-1, -4]);
-  })
+    expect(parseKey(0x3ffc3fff)).toEqual([-1, -4]);
+  });
 });
 
 describe("grid", () => {
