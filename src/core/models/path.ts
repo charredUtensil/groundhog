@@ -1,3 +1,4 @@
+import { Point } from "../common/geometry";
 import { pairMap } from "../common/utils";
 import { Baseplate } from "./baseplate";
 
@@ -48,5 +49,16 @@ export class Path {
         this.destination.pearlRadius,
       0,
     );
+  }
+
+  public get center(): Point {
+    const i = Math.floor((this.baseplates.length - 1) / 2);
+    const j = Math.floor(this.baseplates.length / 2);
+    if (i === j) {
+      return this.baseplates[i].center;
+    }
+    const [ix, iy] = this.baseplates[i].center;
+    const [jx, jy] = this.baseplates[j].center;
+    return [(ix + jx) / 2, (iy + jy) / 2];
   }
 }

@@ -84,7 +84,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       `${v.tripCount}>=${trips}`,
       `wait:random(30)(150);`,
       `shake:2;`,
-      `pan:${transformPoint(cavern, eps[0])};`,
+      `pan:${transformPoint(cavern, eps[0] ?? plan.path.center)};`,
       `wait:1;`,
       `shake:4;`,
       ...eps.map(
