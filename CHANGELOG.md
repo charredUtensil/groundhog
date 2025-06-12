@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.15
+
+- Bugs Fixed
+  - #75
+  - #77
+    - If the queue is still populated after placing all buildings facing inward, try placing them facing any other direction.
+    - It's probably still possible to end up with placement failures
+  - #81
+- Editor Changes
+- Gameplay Changes
+- Refactors, Tooling, Testing
+
 ## 0.10.14 - The Performance Update
 
 - Bugs Fixed
