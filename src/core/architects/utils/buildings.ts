@@ -137,7 +137,7 @@ export function getBuildings(
       if (q.length === 0) {
         break;
       }
-      tryPlace(q, {...point});
+      tryPlace(q, point);
     }
   }
   for (const q of queues) {
