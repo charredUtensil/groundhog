@@ -3,6 +3,7 @@
 ## 0.10.15
 
 - Bugs Fixed
+  - #73
   - #75
   - #77
     - If the queue is still populated after placing all buildings facing inward, try placing them facing any other direction.
@@ -10,6 +11,7 @@
   - #81
 - Editor Changes
 - Gameplay Changes
+  - Some Nomad spawns that started with a Tunnel Scout will now have lava.
 - Refactors, Tooling, Testing
 
 ## 0.10.14 - The Performance Update
