@@ -10,8 +10,15 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: true,
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern',
+        },
+      },
+    },
     define: {
-      'import.meta.env.VITE_APP_VERSION': JSON.stringify(mode === 'development' ? `${version}-dev` : version),
+      'process.env.VITE_APP_VERSION': JSON.stringify(mode === 'development' ? `${version}-dev` : version),
     },
   };
 });

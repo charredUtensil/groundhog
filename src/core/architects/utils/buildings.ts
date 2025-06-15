@@ -36,6 +36,12 @@ function buildingPriority(it: MakeBuildingInfo) {
   }
 }
 
+type PointInfo = {
+  x: number;
+  y: number;
+  facing: Cardinal4;
+};
+
 /**
  * Returns an array of Building objects positioned within the given Plan
  * according to the given rules.
@@ -65,18 +71,15 @@ export function getBuildings(
   const rng = cavern.dice.placeBuildings(plan.id);
   const result: Building[] = [];
 
-  const points: {
-    x: number;
-    y: number;
-    facing: Cardinal4;
-  }[] = [];
+  const preferredPoints: PointInfo[] = [];
+  const fallbackPoints: PointInfo[] = [];
   for (let ly = from ?? 1; ly < (to ?? plan.innerPearl.length); ly++) {
     for (const [x, y] of rng.shuffle(plan.innerPearl[ly])) {
       for (const facing of NSEW) {
         const [ox, oy] = facing;
-        if (cavern.pearlInnerDex.get(x + ox, y + oy)?.[plan.id] === ly - 1) {
-          points.push({ x, y, facing });
-        }
+        (cavern.pearlInnerDex.get(x + ox, y + oy)?.[plan.id] === ly - 1
+          ? preferredPoints
+          : fallbackPoints).push({ x, y, facing });
       }
     }
   }
@@ -89,44 +92,55 @@ export function getBuildings(
   const taken = (pos: Point) =>
     placed.get(...pos) || tiles.get(...pos) !== Tile.FLOOR;
 
-  // For each building priority class
-  for (const q of queues) {
-    // For each potential placement point
-    for (const { x, y, facing } of points) {
-      if (q.length === 0) {
-        break;
-      }
+  function tryPlace(q: MakeBuildingInfo[], { x, y, facing }: PointInfo) {
+    if (taken([x,y])) {
+      return;
+    }
 
-      if (taken([x, y])) {
+    const [ox, oy] = facing;
+
+    // For each building that can be built
+    for (let i = 0; i < q.length; i++) {
+      const { bt, args } = q[i];
+
+      // Continue if this is a docks not on water
+      if (bt === DOCKS && tiles.get(x - ox, y - oy) !== Tile.WATER) {
         continue;
       }
 
-      const [ox, oy] = facing;
+      // Make the building
+      const b = bt.atTile({ x, y, facing, ...args });
 
-      // For each building that can be built
-      for (let i = 0; i < q.length; i++) {
-        const { bt, args } = q[i];
+      // Continue if the foundation overlaps any used or non floor tile
+      if (b.foundation.some(taken)) {
+        continue;
+      }
 
-        // Continue if this is a docks not on water
-        if (bt === DOCKS && tiles.get(x - ox, y - oy) !== Tile.WATER) {
-          continue;
-        }
+      // Keep this building
+      result.push(b);
+      b.foundation.forEach(([x, y]) => placed.set(x, y, true));
+      q.splice(i, 1);
+      break;
+    }
+  }
 
-        // Make the building
-        const b = bt.atTile({ x, y, facing, ...args });
-
-        // Continue if the foundation overlaps any used or non floor tile
-        if (b.foundation.some(taken)) {
-          continue;
-        }
-
-        // Keep this building
-        result.push(b);
-        b.foundation.forEach(([x, y]) => placed.set(x, y, true));
-        q.splice(i, 1);
+  for (const q of queues) {
+    for (const point of preferredPoints) {
+      if (q.length === 0) {
         break;
       }
+      tryPlace(q, point);
     }
+  }
+  for (const q of queues) {
+    for (const point of fallbackPoints) {
+      if (q.length === 0) {
+        break;
+      }
+      tryPlace(q, point);
+    }
+  }
+  for (const q of queues) {
     q.forEach((it) => {
       if (it.required) {
         console.error("Failed to place required building: %o", it);
