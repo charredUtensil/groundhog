@@ -77,6 +77,8 @@ export function expectCompletion(actual: PhraseGraph<any, any>) {
           pg(st("anchorIsPandora"))
             .then(skip, st("findHq", "reachHq").then(skip, st("hqIsRuin")))
             .then(lostMinersAndOrResourceObjective),
+          pg(st("anchorIsRtg"))
+            .then(lostMinersAndOrResourceObjective),
           pg(
             skip,
             st(

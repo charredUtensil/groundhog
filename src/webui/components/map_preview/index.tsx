@@ -156,7 +156,7 @@ export default function CavernPreview({
           viewBox={`${width / -2} ${height / -2} ${width} ${height}`}
           xmlns="http://www.w3.org/2000/svg"
         >
-          {<TilesPreview cavern={cavern} mapOverlay={mapOverlay} />}
+          <TilesPreview cavern={cavern} mapOverlay={mapOverlay} />
           {mapOverlay === "overview" && <ResourcePreview {...cavern} />}
           {mapOverlay === "height" && cavern.height && (
             <HeightPreview height={cavern.height} />

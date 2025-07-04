@@ -1,4 +1,4 @@
-import { inferContextDefaults } from "../common";
+import { CavernContext } from "../common";
 import { BLACKOUT_START, BLACKOUT_END } from "../lore/graphs/events";
 import { Architect, BaseMetadata } from "../models/architect";
 import { POWER_STATION } from "../models/building";
@@ -18,11 +18,12 @@ const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultSpawnArchitect,
   prime: () => METADATA,
   mod(cavern) {
-    const context = inferContextDefaults({
+    const context: CavernContext = {
+      ...cavern.context,
       caveHasRechargeSeamChance: 0.15,
       hallHasRechargeSeamChance: 0.15,
       ...cavern.initialContext,
-    });
+    };
     return { ...cavern, context };
   },
   script({ cavern, plan, sb }) {

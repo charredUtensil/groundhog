@@ -19,11 +19,11 @@ import {
   TUNNEL_TRANSPORT,
 } from "../models/vehicle";
 import { getPlaceRechargeSeams, sprinkleCrystals } from "./utils/resources";
-import { inferContextDefaults } from "../common";
 import { EventChainLine, mkVars } from "./utils/script";
 import { MOB_FARM_NO_LONGER_BLOCKING } from "../lore/graphs/events";
 import { gObjectives } from "./utils/objectives";
 import { hintSelectLaserGroup } from "./utils/hints";
+import { CavernContext } from "../common";
 
 const BANLIST = [
   DOCKS,
@@ -53,13 +53,14 @@ const BASE: PartialArchitect<MobFarmMetadata> = {
       .betaInt({ a: 4, b: 4, min: 170, max: 230 }),
   }),
   mod(cavern) {
-    const context = inferContextDefaults({
+    const context: CavernContext = {
+      ...cavern.context,
       caveCrystalRichness: { base: -0.16, hops: 0.32, order: 0.32 },
       hallCrystalRichness: { base: 0, hops: 0, order: 0 },
       caveCrystalSeamBias: 0.7,
       globalHostilesCap: 10,
       ...cavern.initialContext,
-    });
+    };
     return { ...cavern, context };
   },
   crystalsToPlace: ({ plan }) =>

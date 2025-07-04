@@ -1,4 +1,4 @@
-import { inferContextDefaults } from "../common";
+import { CavernContext } from "../common";
 import { Architect, BaseMetadata } from "../models/architect";
 import {
   ORE_REFINERY,
@@ -55,7 +55,8 @@ function wasted(t: Tile) {
 const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultSpawnArchitect,
   mod(cavern) {
-    const context = inferContextDefaults({
+    const context: CavernContext = {
+      ...cavern.context,
       caveOreRichness: {
         base: 0.4,
         hops: 0.2,
@@ -63,7 +64,7 @@ const BASE: PartialArchitect<typeof METADATA> = {
       },
       caveOreSeamBias: 0.6,
       ...cavern.initialContext,
-    });
+    };
     return { ...cavern, context };
   },
   prime: () => METADATA,

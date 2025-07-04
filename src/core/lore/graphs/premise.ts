@@ -601,6 +601,28 @@ of Rock Raiders are lost somewhere in this cavern.`,
           )
           .then(additionalHardship, end),
       );
+    
+    // RTG
+    pg(
+      greeting
+        .then("We've discovered a cave system that seems extremely promising, but also very unstable.")
+        .then(
+          "We will not be able to build anything more than the Tool Store.",
+        )
+        .then("However, we have assembled some heavy machinery to make light work of it all. Don't lose these, Cadet - we will not be able to send any more."),
+      negativeGreeting
+        .then(
+          state("lostMinersOne").then("One of our Rock Raiders went missing in an extremely unstable cavern."),
+          state("lostMinersTogether").then("A group of our Rock Raiders went missing in an extremely unstable cavern."),
+          state("lostMinersApart").then("Some geological activity has turned a very safe cavern into a very UNsafe one, and now our Rock Raiders are scattered through the cavern."),
+        )
+    )
+      .then(state("anchorIsRtg"))
+      .then(skip, state("hasMonsters"))
+      .then(skip, state("hasSlugs"))
+      .then(skip, state("spawnHasErosion"))
+      .then(skip, state("treasureCaveOne", "treasureCaveMany"))
+      .then(end);
 
     // A joke from early in development of Hognose, here as an easter egg.
     start

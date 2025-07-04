@@ -139,13 +139,17 @@ const LOST = [
     placeBuildings: getPlaceBuildings({ from: 3 }),
     placeLandslides: (args) => placeLandslides({ min: 15, max: 100 }, args),
     caveBid: ({ cavern, plan, hops, plans }) =>
-      !plan.fluid &&
-      plan.pearlRadius > 6 &&
-      hops.length <= MAX_HOPS &&
-      plans[cavern.anchor]?.metadata?.tag !== "mobFarm" &&
-      !plans.some((p) => p.metadata?.tag === "hq") &&
-      cavern.context.planWhimsy *
-        (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5),
+      {
+        const amd = plans[cavern.anchor].metadata;
+        return !plan.fluid &&
+          plan.pearlRadius > 6 &&
+          hops.length <= MAX_HOPS &&
+          amd?.tag !== "mobFarm" &&
+          amd?.tag !== "rtg" &&
+          !plans.some((p) => p.metadata?.tag === "hq") &&
+          cavern.context.planWhimsy *
+          (plans[hops[0]].metadata?.tag === "nomads" ? 5 : 0.5);
+      },
   },
 ] as const satisfies readonly Architect<HqMetadata>[];
 

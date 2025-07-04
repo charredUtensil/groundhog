@@ -87,13 +87,14 @@ export default function EntityPreview({ entity, cavern, mapOverlay }: Params) {
   } else if (mapOverlay !== "entities") {
     return null;
   }
+  const driver = cavern.miners?.[entity.driverId as unknown as number];
   return (
     <g
       className={`${styles.entity} ${"sleep" in entity ? styles.enemy : ""}`}
       transform={`translate(${entity.x * SCALE} ${entity.y * SCALE}) rotate(${radsToDegrees(entity.yaw)})`}
     >
       <path className={styles.marker} d={d}>
-        <title>{getTitle(entity)}</title>
+        <title>{getTitle(entity)} {driver && `+ ${getTitle(driver)}`}</title>
       </path>
       {entity.template?.inspectAbbrev && (
         <text className={styles.label} x={0} y={0.75}>

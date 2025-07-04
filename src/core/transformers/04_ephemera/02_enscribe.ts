@@ -30,7 +30,7 @@ function overrideSuffix(initialContext: PartialCavernContext) {
     v = (v << 5) - v + s.charCodeAt(i);
     v |= 0;
   }
-  const rng = new PseudorandomStream((v & 0x1ffffffff) >>> 1);
+  const rng = new PseudorandomStream((v & 0x1_ffff_ffff) >>> 1);
   return rng.uniformChoice(OVERRIDE_SUFFIXES);
 }
 
@@ -51,7 +51,6 @@ export default function enscribe(cavern: AdjuredCavern): EnscribedCavern {
       [
         seed.substring(6),
         { rock: "k", ice: "e", lava: "a" }[cavern.context.biome],
-        hasOverrides ? "x" : "",
       ].join(""),
       name.replace(/[^A-Z0-9]+/g, "").toLowerCase(),
       suffix?.replace(/[^A-Z0-9]+/g, "").toLowerCase(),

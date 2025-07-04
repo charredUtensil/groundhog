@@ -17,6 +17,7 @@ import BLACKOUT from "./blackout";
 import MOB_FARM, { MobFarmMetadata } from "./mob_farm";
 import ORE_WASTE from "./ore_waste";
 import PANDORA from "./pandora";
+import RTG from "./rtg";
 
 export type AnyMetadata =
   | undefined
@@ -30,6 +31,7 @@ export type AnyMetadata =
         | "blackout"
         | "oreWaste"
         | "pandora"
+        | "rtg"
         | "seismic"
         | "slugNest"
         | "treasure";
@@ -47,6 +49,7 @@ export const ARCHITECTS = [
   ...NOMAD_SPAWN,
   ...ORE_WASTE,
   ...PANDORA,
+  ...RTG,
   ...SIMPLE_CAVE,
   ...SIMPLE_HALL,
   ...SIMPLE_SPAWN,

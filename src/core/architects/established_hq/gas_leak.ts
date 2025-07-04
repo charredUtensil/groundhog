@@ -1,4 +1,4 @@
-import { inferContextDefaults } from "../../common";
+import { CavernContext } from "../../common";
 import { GAS_LEAK_INSUFF_AIR, GAS_LEAK_NO_AIR } from "../../lore/graphs/events";
 import { Architect } from "../../models/architect";
 import {
@@ -38,10 +38,11 @@ const GAS_LEAK_BASE: Pick<
   | "script"
 > = {
   mod(cavern) {
-    const context = inferContextDefaults({
+    const context: CavernContext = {
+      ...cavern.context,
       globalHostilesCap: GLOBAL_HOSTILES_CAP,
       ...cavern.initialContext,
-    });
+    };
     return { ...cavern, context, oxygen: [500, 500] };
   },
   prime: () => {

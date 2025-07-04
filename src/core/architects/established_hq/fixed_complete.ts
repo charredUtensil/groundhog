@@ -1,4 +1,4 @@
-import { inferContextDefaults } from "../../common";
+import { CavernContext } from "../../common";
 import { FAILURE_BASE_DESTROYED } from "../../lore/graphs/events";
 import { LoreDie } from "../../common/prng";
 import { Architect } from "../../models/architect";
@@ -39,10 +39,11 @@ export const FC_BASE: Pick<
   "mod" | "prime" | "placeBuildings" | "scriptGlobals"
 > = {
   mod: (cavern) => {
-    const context = inferContextDefaults({
+    const context: CavernContext = {
+      ...cavern.context,
       crystalGoalRatio: 0.3,
       ...cavern.initialContext,
-    });
+    };
     return { ...cavern, context };
   },
   prime: () => ({

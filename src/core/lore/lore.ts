@@ -21,6 +21,7 @@ export type State = {
   readonly anchorIsMobFarm: boolean;
   readonly anchorIsOreWaste: boolean;
   readonly anchorIsPandora: boolean;
+  readonly anchorIsRtg: boolean;
   readonly buildAndPowerGcMultiple: boolean;
   readonly buildAndPowerGcOne: boolean;
   readonly buildAndPowerSsMultiple: boolean;
@@ -183,6 +184,7 @@ export class Lore {
       anchorIsMobFarm: anchor.metadata?.tag === "mobFarm",
       anchorIsOreWaste: anchor.metadata?.tag === "oreWaste",
       anchorIsPandora: anchor.metadata?.tag === "pandora",
+      anchorIsRtg: anchor.metadata?.tag === "rtg",
       buildAndPowerGcMultiple: buildAndPowerGcCount > 1,
       buildAndPowerGcOne: buildAndPowerGcCount === 1,
       buildAndPowerSsMultiple: buildAndPowerSsCount > 1,

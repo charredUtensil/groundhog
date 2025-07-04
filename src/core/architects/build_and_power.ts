@@ -268,6 +268,7 @@ export const BUILD_AND_POWER = [
         !(amd?.tag === "hq" && amd.special === "fixedComplete") &&
         amd?.tag !== "mobFarm" &&
         amd?.tag !== "pandora" &&
+        amd?.tag !== "rtg" &&
         intersectsOnly(plans, plan, null) &&
         hops.length > 5 &&
         !hops.some((h) => plans[h].metadata?.tag === TAG) &&

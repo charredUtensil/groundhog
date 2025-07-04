@@ -9,21 +9,50 @@ import {
   TUNNEL_TRANSPORT,
   LMLC,
 } from "../models/vehicle";
+import { pickPoint } from "./utils/placement";
+import { CavernContext } from "../common";
+import { filterTruthy } from "../common/utils";
+import { Tile } from "../models/tiles";
 
-const VEHICLE_CRYSTALS = LMLC.crystals + TUNNEL_TRANSPORT.crystals;
+const METADATA = { tag: "rtg" } as const;
 
-const BASE: PartialArchitect<undefined> = {
+//n.b. Since vehicles are VIP, their crystals are effectively off-limits.
+
+const BASE: PartialArchitect<typeof METADATA> = {
   ...DefaultCaveArchitect,
-  crystalsFromMetadata: () => VEHICLE_CRYSTALS,
-  mod(cavern) {
-    return {...cavern, oxygen: [5000, 5000]};
+  prime: () => METADATA,
+  mod: (cavern) => {
+    const context: CavernContext = {
+      ...cavern.context,
+      caveCrystalSeamBias: 0.2,
+      hallHasRechargeSeamChance: 0.2,
+      caveHasLandslidesChance: 0.7,
+      hallHasLandslidesChance: 0.9,
+      caveLandslideCooldownRange: { min: 5, max: 60 },
+      hallLandslideCooldownRange: { min: 10, max: 90 },
+      globalHostilesCooldown: 120,
+      ...(cavern.context.hasMonsters ? {} : {crystalGoalRatio: 0.4}),
+      ...cavern.initialContext,
+    }
+    return ({ ...cavern, context, oxygen: [1000, 2000] });
   },
   placeRechargeSeam: getPlaceRechargeSeams(1),
+  placeBuildings: ({ plan, tiles, openCaveFlags }) => {
+    openCaveFlags.set(
+      ...pickPoint(plan, (x, y) => {
+        const t = tiles.get(x, y);
+        return !!t && !t.isWall;
+      })!,
+      true,
+    );
+    return {};
+  },
   placeEntities: ({ cavern, plan, minerFactory, vehicleFactory }) => {
     const rng = cavern.dice.placeEntities(plan.id);
-    const lt = rng.shuffle(plan.innerPearl.flatMap((ly, i) => i < 3 ? ly.filter(pos => cavern.tiles.get(...pos)?.isWall === false) : []));
-    const [x0, y0] = lt[0];
-    const [x1, y1] = lt[1];
+    const [[x0, y0], [x1, y1]] = rng.shuffle(
+      plan.innerPearl.flatMap((ly, i) => i < 3 ? ly.filter(
+      pos => cavern.discoveryZones.get(...pos)?.openOnSpawn
+    ) : []));
     const miners = [
       minerFactory.create({
         ...randomlyInTile({x: x0, y: y0, rng}),
@@ -50,7 +79,11 @@ const BASE: PartialArchitect<undefined> = {
         driverId: miners[0].id,
         planId: plan.id,
         template: LMLC,
-        upgrades: ["UpEngine", "UpLaser", "UpAddNav"],
+        upgrades: filterTruthy([
+          "UpEngine",
+          "UpLaser",
+          cavern.plans.some(p => p.fluid === Tile.LAVA) && "UpAddNav",
+        ]),
         essential: true,
       }),
       vehicleFactory.create({
@@ -104,5 +137,5 @@ const RTG = [
       plan.pearlRadius > 3 &&
       0.2,
   },
-] as const satisfies readonly Architect<undefined>[];
+] as const satisfies readonly Architect<typeof METADATA>[];
 export default RTG;
