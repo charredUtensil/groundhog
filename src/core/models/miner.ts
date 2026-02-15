@@ -13,6 +13,14 @@ export type Unique =
 
 export type Loadout =
   | "Drill"
+  | "Shovel"
+  | "Hammer"
+  | "Spanner"
+  | "Sandwich"
+  | "BeamLaser"
+  | "BeamFreezer"
+  | "BeamPusher"
+  | "SonicBlasterTool"
   | "JobExplosivesExpert"
   | "JobDriver"
   | "JobPilot"

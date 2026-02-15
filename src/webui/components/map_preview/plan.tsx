@@ -135,17 +135,7 @@ export default function PlansPreview({
   // First, determine the center coordinate for all plans.
   const planCoords: Point[] = [];
   cavern.plans.forEach((plan) => {
-    const bp = plan.path.baseplates;
-
-    const i = Math.floor((bp.length - 1) / 2);
-    const j = Math.floor(bp.length / 2);
-    if (i === j) {
-      planCoords[plan.id] = bp[i].center;
-    } else {
-      const [ix, iy] = bp[i].center;
-      const [jx, jy] = bp[j].center;
-      planCoords[plan.id] = [(ix + jx) / 2, (iy + jy) / 2];
-    }
+    planCoords[plan.id] = plan.path.center;
   });
 
   // Sort plans horizontally and split into two even columns.

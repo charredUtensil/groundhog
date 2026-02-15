@@ -3,6 +3,7 @@ import { Cavern } from "../../../../core/models/cavern";
 import styles from "./styles.module.scss";
 import { offsetBy, Point } from "../../../../core/common/geometry";
 import { filterTruthy } from "../../../../core/common/utils";
+import { ProgrammedCavern } from "../../../../core/transformers/04_ephemera/04_program";
 
 type Statement = {
   kind: "h3" | "h4" | "condition" | "event" | "misc";
@@ -14,12 +15,8 @@ const SCALE = 6;
 
 const H4_RE = /^# (P\d+|Globals):/;
 
-function parse(cavern: Cavern): Statement[] {
-  const script = cavern.script;
-  if (!script) {
-    return [];
-  }
-  return script.split("\n").map((code): Statement => {
+function parse(cavern: ProgrammedCavern): Statement[] {
+  return cavern.script.split("\n").map((code): Statement => {
     if (code.startsWith("#>")) {
       return { kind: "h3", code };
     }
@@ -43,14 +40,12 @@ function parse(cavern: Cavern): Statement[] {
     }
     m = code.match(/\bp(?<id>\d+)/);
     if (m) {
-      const bp = cavern.plans?.[parseInt(m.groups!.id, 10)].path.baseplates;
-      if (bp) {
+      const path = cavern.plans?.[parseInt(m.groups!.id, 10)].path;
+      if (path) {
         return {
           kind: "misc",
           code,
-          pos: offsetBy(bp[Math.floor(bp.length / 2)].center, [
-            -cavern.left!,
-            -cavern.top!,
+          pos: offsetBy(path.center, [-cavern.left, -cavern.top,
           ]),
         };
       }
@@ -103,7 +98,7 @@ export default function ScriptPreview({
     setScriptLineOffsets(getLineOffsets(container));
   }, [ref, setScriptLineOffsets]);
   const statements = useMemo(
-    () => (cavern?.script ? parse(cavern) : undefined),
+    () => (cavern?.script ? parse(cavern as ProgrammedCavern) : undefined),
     [cavern],
   );
   return (
@@ -155,7 +150,7 @@ export function ScriptOverlay({
   scale: number;
 }) {
   const statements = useMemo(
-    () => (cavern?.script ? parse(cavern) : undefined),
+    () => (cavern?.script ? parse(cavern as ProgrammedCavern) : undefined),
     [cavern],
   );
   if (!cavern?.script) {
@@ -185,7 +180,7 @@ export function ScriptOverlay({
           />
         );
       })}
-      {parse(cavern).map(({ kind, pos }, i) => {
+      {parse(cavern as ProgrammedCavern).map(({ kind, pos }, i) => {
         if (
           !pos ||
           scriptLineHovered !== i ||

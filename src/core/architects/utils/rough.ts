@@ -186,10 +186,10 @@ export function mkRough(
     const rng = cavern.dice.rough(plan.id);
     const replacements = expand(layers, plan.pearlRadius);
     plan.innerPearl.forEach((layer, i) => {
-      layer.forEach(([x, y]) => {
-        const r = replacements[i](tiles.get(x, y) ?? Tile.SOLID_ROCK, rng);
+      layer.forEach((pos) => {
+        const r = replacements[i](tiles.get(...pos) ?? Tile.SOLID_ROCK, rng);
         if (r) {
-          tiles.set(x, y, r);
+          tiles.set(...pos, r);
         }
       });
     });

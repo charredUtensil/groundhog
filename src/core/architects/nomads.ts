@@ -7,7 +7,7 @@ import { position, randomlyInTile } from "../models/position";
 import { pickPoint } from "./utils/placement";
 import { mkVars } from "./utils/script";
 import { SUPPORT_STATION, TOOL_STORE } from "../models/building";
-import { Hardness, Tile } from "../models/tiles";
+import { Hardness, RoughTile, Tile } from "../models/tiles";
 import {
   VehicleTemplate,
   HOVER_SCOUT,
@@ -177,6 +177,43 @@ const BASE: PartialArchitect<NomadsMetadata> = {
   },
 };
 
+function withEnsureFluid(fluid: RoughTile,
+  {
+  roughExtent,
+  rough,
+}: Pick<Architect<any>, "roughExtent" | "rough">): Pick<
+  Architect<any>,
+  "roughExtent" | "rough"
+> {
+  const roughWrapper: Architect<any>["rough"] = (args) => {
+    rough(args);
+    for (const ly of args.plan.innerPearl) {
+      for (const pos of ly) {
+        if (args.tiles.get(...pos) === fluid) {
+          return;
+        }
+      }
+    }
+    const landHall = args.plan.intersects
+      .map((_, i) => args.cavern.plans[i])
+      .reduce((r, p) => p.pearlRadius < r.pearlRadius ? p : r);
+    const landHallRadius = Math.min(landHall.pearlRadius, 3);
+    for (const ly of args.plan.innerPearl) {
+      for (const pos of ly) {
+        const was = args.tiles.get(...pos);
+        if (was !== Tile.FLOOR) {
+          continue;
+        }
+        if ((args.cavern.pearlInnerDex.get(...pos)?.[landHall.id] ?? Infinity) < landHallRadius) {
+          continue;
+        }
+        args.tiles.set(...pos, fluid);
+      }
+    }
+  };
+  return { roughExtent, rough: roughWrapper };
+}
+
 const NOMAD_SPAWN = [
   {
     name: "Nomads",
@@ -201,13 +238,13 @@ const NOMAD_SPAWN = [
   {
     name: "Nomads.WaterPeninsula",
     ...BASE,
-    ...mkRough(
+    ...withEnsureFluid(Tile.WATER, mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
       { of: Rough.BRIDGE_ON_WATER, width: 2, grow: 0.5 },
       { of: Rough.FLOOR },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.MIX_FRINGE },
-    ),
+    )),
     prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [RAPID_RIDER] }),
     anchorBid: ({ cavern, plan }) =>
       plan.fluid === Tile.WATER &&
@@ -218,13 +255,13 @@ const NOMAD_SPAWN = [
   {
     name: "Nomads.LavaPeninsula",
     ...BASE,
-    ...mkRough(
+    ...withEnsureFluid(Tile.LAVA, mkRough(
       { of: Rough.ALWAYS_FLOOR, grow: 2 },
       { of: Rough.BRIDGE_ON_LAVA, width: 2, grow: 0.5 },
       { of: Rough.FLOOR },
       { of: Rough.AT_MOST_LOOSE_ROCK, grow: 1 },
       { of: Rough.AT_MOST_HARD_ROCK },
-    ),
+    )),
     prime: () => ({ tag: "nomads", minersCount: 1, vehicles: [TUNNEL_SCOUT] }),
     anchorBid: ({ cavern, plan }) =>
       plan.fluid === Tile.LAVA &&
